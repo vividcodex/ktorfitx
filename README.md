@@ -62,11 +62,6 @@ tasks.withType<KotlinCompile<*>>().all {
 
 - `名称` baseUrl `类型` String `介绍` 接口前缀路径
 
-### `@KtorConfig` `接口` 标记在接口上
-
-- `名称` connectTimeout `类型` Long `默认值` 5000L `介绍` 连接超时时间，单位：毫秒
-- `名称` socketTimeout `类型` Long `默认值` Long.MAX_VALUE `介绍` Socket超时时间，单位：毫秒
-
 ### `@GET` `方法` GET请求
 
 - `名称` url `类型` String `介绍` 接口路径
