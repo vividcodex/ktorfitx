@@ -1,19 +1,19 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-	kotlin("jvm") version "1.9.23"
-	id("com.vanniktech.maven.publish") version "0.28.0"
+	alias(libs.plugins.org.jetbrains.kotlin.jvm)
+	alias(libs.plugins.maven.publish)
 }
 
 group = "cn.vividcode.multiplatform.ktor.client.ksp"
-version = "2.3.10-1.0.0-Beta2"
+version = "2.3.11-1.0.0"
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_17
 }
 
 kotlin {
-	jvmToolchain(21)
+	jvmToolchain(17)
 }
 
 sourceSets {
@@ -25,10 +25,10 @@ sourceSets {
 
 dependencies {
 	implementation(projects.ktorClientApi)
-	implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.23")
-	implementation("com.google.devtools.ksp:symbol-processing-api:1.9.23-1.0.20")
-	implementation("com.google.devtools.ksp:symbol-processing:1.9.23-1.0.20")
-	implementation("com.squareup:kotlinpoet:1.16.0")
+	implementation(libs.kotlin.reflect)
+	implementation(libs.symbol.processing.api)
+	implementation(libs.symbol.processing)
+	implementation(libs.kotlinpoet)
 }
 
 mavenPublishing {

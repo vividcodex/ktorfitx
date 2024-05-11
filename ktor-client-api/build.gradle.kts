@@ -1,27 +1,27 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-	kotlin("multiplatform") version "1.9.23"
-	kotlin("plugin.serialization") version "1.9.23"
-	id("com.android.library") version "8.2.2"
-	id("com.vanniktech.maven.publish") version "0.28.0"
+	alias(libs.plugins.kotlin.multiplatform)
+	alias(libs.plugins.serialization)
+	alias(libs.plugins.android.library)
+	alias(libs.plugins.maven.publish)
 }
 
 group = "cn.vividcode.multiplatform.ktor.client.api"
-version = "2.3.10-1.0.0-Beta2"
+version = "2.3.11-1.0.0"
 
 kotlin {
 	androidTarget {
 		compilations.all {
 			kotlinOptions {
-				jvmTarget = "21"
+				jvmTarget = "17"
 			}
 		}
 	}
 	jvm("desktop") {
 		compilations.all {
 			kotlinOptions {
-				jvmTarget = "21"
+				jvmTarget = "17"
 			}
 		}
 	}
@@ -37,13 +37,13 @@ kotlin {
 	}
 	sourceSets {
 		commonMain.dependencies {
-			api("io.ktor:ktor-client-core:2.3.10")
-			api("io.ktor:ktor-client-logging:2.3.10")
-			api("io.ktor:ktor-client-cio:2.3.10")
-			api("io.ktor:ktor-client-serialization:2.3.10")
-			api("io.ktor:ktor-client-content-negotiation:2.3.10")
-			api("io.ktor:ktor-serialization-kotlinx-json:2.3.10")
-			implementation("com.soywiz.korlibs.krypto:krypto:4.0.10")
+			api(libs.ktor.client.core)
+			api(libs.ktor.client.logging)
+			api(libs.ktor.client.cio)
+			api(libs.ktor.client.serialization)
+			api(libs.ktor.client.content.negotiation)
+			api(libs.ktor.serialization.kotlinx.json)
+			api(libs.krypto)
 		}
 	}
 }
@@ -72,8 +72,8 @@ android {
 		}
 	}
 	compileOptions {
-		sourceCompatibility = JavaVersion.VERSION_21
-		targetCompatibility = JavaVersion.VERSION_21
+		sourceCompatibility = JavaVersion.VERSION_17
+		targetCompatibility = JavaVersion.VERSION_17
 	}
 	composeOptions {
 		kotlinCompilerExtensionVersion = "1.5.13"
