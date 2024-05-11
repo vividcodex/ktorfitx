@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "cn.vividcode.multiplatform.ktor.client.ksp"
-version = "2.3.10-1.0.0-Beta1"
+version = "2.3.10-1.0.0-Beta2"
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_21
@@ -35,7 +35,7 @@ mavenPublishing {
 	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 	signAllPublications()
 	
-	coordinates("cn.vividcode.multiplatform", "ktor-client-ksp", "2.3.10-1.0.0-Beta1")
+	coordinates("cn.vividcode.multiplatform", "ktor-client-ksp", version.toString())
 	
 	pom {
 		name.set("ktor-client-ksp")

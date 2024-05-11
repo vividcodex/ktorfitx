@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "cn.vividcode.multiplatform.ktor.client.api"
-version = "2.3.10-1.0.0-Beta1"
+version = "2.3.10-1.0.0-Beta2"
 
 kotlin {
 	androidTarget {
@@ -84,7 +84,7 @@ mavenPublishing {
 	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 	signAllPublications()
 	
-	coordinates("cn.vividcode.multiplatform", "ktor-client-api", "2.3.10-1.0.0-Beta1")
+	coordinates("cn.vividcode.multiplatform", "ktor-client-api", version.toString())
 	
 	pom {
 		name.set("ktor-client-api")
