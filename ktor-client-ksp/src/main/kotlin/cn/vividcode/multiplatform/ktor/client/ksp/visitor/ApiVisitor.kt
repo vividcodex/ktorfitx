@@ -55,6 +55,8 @@ internal class ApiVisitor(
 	
 	private val bearerAuth get() = use("io.ktor.client.request", "bearerAuth")
 	
+	private val header get() = use("io.ktor.client.request", "header")
+	
 	private val MultiPartFormDataContent get() = use("io.ktor.client.request.forms", "MultiPartFormDataContent")
 	
 	private val formData get() = use("io.ktor.client.request.forms", "formData")
@@ -294,7 +296,7 @@ internal class ApiVisitor(
 			} else {
 				it.parameterName
 			}
-			codeBlock.addStatement("header(\"${it.name}\", $parameterName)")
+			codeBlock.addStatement("$header(\"${it.name}\", $parameterName)")
 		}
 		codeBlock.endControlFlow()
 		when (returnQualifiedName) {
