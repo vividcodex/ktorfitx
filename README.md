@@ -32,14 +32,14 @@ plugins {
 	id("com.google.devtools.ksp")
 }
 
-kotlin { 
-    sourceSets { 
-        commonMain.dependencies { 
-            implementation("cn.vividcode.multiplatform:ktor-client-api:1.0.0-Beta1") 
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.10-1.0.0-Beta1") 
         }
-        iosMain { 
+        iosMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
-        } 
+        }
     }
 }
 
@@ -48,7 +48,7 @@ ksp {
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:1.0.0-Beta1")
+    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.10-1.0.0-Beta1")
 }
 
 tasks.withType<KotlinCompile<*>>().all {
