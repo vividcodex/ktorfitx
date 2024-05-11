@@ -6,19 +6,19 @@ ktor版本-代码生成器版本：例如：`2.3.10`-`1.0.0-Beta1`
 
 ## 最新版本
 
-`2.3.10`-`1.0.0-Beta2`
+`2.3.11`-`1.0.0`
 
 ## 依赖说明
 
 模块中已经包含了以下依赖，不需要额外重新添加
 
 ``` kotlin
-io.ktor:ktor-client-core:2.3.10
-io.ktor:ktor-client-logging:2.3.10
-io.ktor:ktor-client-cio:2.3.10
-io.ktor:ktor-client-serialization:2.3.10
-io.ktor:ktor-client-content-negotiation:2.3.10
-io.ktor:ktor-serialization-kotlinx-json:2.3.10
+io.ktor:ktor-client-core:2.3.11
+io.ktor:ktor-client-logging:2.3.11
+io.ktor:ktor-client-cio:2.3.11
+io.ktor:ktor-client-serialization:2.3.11
+io.ktor:ktor-client-content-negotiation:2.3.11
+io.ktor:ktor-serialization-kotlinx-json:2.3.11
 ```
 
 ## 使用方法
@@ -33,7 +33,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.10-1.0.0-Beta1") 
+            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.0.0") 
         }
         iosMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -46,7 +46,7 @@ ksp {
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.10-1.0.0-Beta1")
+    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.0.0")
 }
 
 tasks.withType<KotlinCompile<*>>().all {
