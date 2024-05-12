@@ -5,8 +5,10 @@ plugins {
 	alias(libs.plugins.maven.publish)
 }
 
+val projectVersion: String by project
+
 group = "cn.vividcode.multiplatform.ktor.client.ksp"
-version = "2.3.11-1.0.0"
+version = projectVersion
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
