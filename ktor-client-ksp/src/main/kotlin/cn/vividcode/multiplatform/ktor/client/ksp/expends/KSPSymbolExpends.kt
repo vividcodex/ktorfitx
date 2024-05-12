@@ -18,22 +18,14 @@ fun KSAnnotated.getAnnotation(kClass: KClass<*>): KSAnnotation? = this.annotatio
  * 获取注解存在数量
  */
 fun KSAnnotated.getAnnotationSize(vararg kClasses: KClass<*>): Int {
-	var size = 0
-	kClasses.forEach {
-		val annotation = this.getAnnotation(it)
-		if (annotation != null) {
-			size++
-		}
-	}
-	return size
+	return kClasses.mapNotNull { this.getAnnotation(it) }.size
 }
 
 /**
  * 查找注解上的字段
  */
-@Suppress("UNCHECKED_CAST")
 fun <V> KSAnnotation.getArgumentValue(kProperty1: KProperty1<*, V>): V? {
-	return this.arguments.find { it.name?.asString() == kProperty1.name }?.value as? V
+	return this.getArgumentValue(kProperty1.name)
 }
 
 /**
@@ -41,7 +33,12 @@ fun <V> KSAnnotation.getArgumentValue(kProperty1: KProperty1<*, V>): V? {
  */
 @Suppress("UNCHECKED_CAST")
 fun <V> KSAnnotation.getArgumentValue(name: String): V? {
-	return this.arguments.find { it.name?.asString() == name }?.value as? V
+	val value = this.arguments.find { it.name?.asString() == name }?.value
+	return if (value is ArrayList<*>) {
+		value.map { it.toString() }.toTypedArray() as V
+	} else {
+		value as? V
+	}
 }
 
 /**

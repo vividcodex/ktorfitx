@@ -23,13 +23,12 @@ internal class KtorSymbolProcessor(codeGenerator: CodeGenerator) : SymbolProcess
 	private val apiVisitor by lazy { ApiVisitor(codeGenerator) }
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
-		val apiRets = resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)
+		return resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)
 			.partition { it is KSClassDeclaration && it.validate() }
 			.also {
 				it.first.forEach {
 					it.accept(apiVisitor, Unit)
 				}
 			}.second
-		return apiRets
 	}
 }

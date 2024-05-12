@@ -42,6 +42,7 @@ internal class KtorApiKotlinPoet {
 	 */
 	private fun getTypeSpec(classModel: ClassModel): TypeSpec {
 		val primaryConstructor = FunSpec.constructorBuilder()
+			.addModifiers(KModifier.PRIVATE)
 			.addParameter("ktorClient", ktorClientClassName)
 			.build()
 		val propertySpec = PropertySpec.builder("ktorClient", ktorClientClassName)
