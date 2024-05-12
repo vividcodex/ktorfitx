@@ -3,7 +3,6 @@ package cn.vividcode.multiplatform.ktor.client.ksp
 import cn.vividcode.multiplatform.ktor.client.api.annotation.Api
 import cn.vividcode.multiplatform.ktor.client.ksp.visitor.ApiVisitor
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -19,12 +18,9 @@ import com.google.devtools.ksp.validate
  *
  * 介绍：KtorSymbolProcessor
  */
-internal class KtorSymbolProcessor(
-	private val codeGenerator: CodeGenerator,
-	private val kspLogger: KSPLogger
-) : SymbolProcessor {
+internal class KtorSymbolProcessor(codeGenerator: CodeGenerator) : SymbolProcessor {
 	
-	private val apiVisitor by lazy { ApiVisitor(codeGenerator, kspLogger) }
+	private val apiVisitor by lazy { ApiVisitor(codeGenerator) }
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
 		val apiRets = resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)

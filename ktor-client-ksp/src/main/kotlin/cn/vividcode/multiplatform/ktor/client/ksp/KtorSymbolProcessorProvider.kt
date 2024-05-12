@@ -16,9 +16,6 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 internal class KtorSymbolProcessorProvider : SymbolProcessorProvider {
 	
 	override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-		return KtorSymbolProcessor(
-			environment.codeGenerator,
-			environment.logger
-		)
+		return KtorSymbolProcessor(environment.codeGenerator)
 	}
 }

@@ -5,7 +5,6 @@ import cn.vividcode.multiplatform.ktor.client.ksp.model.ClassModel
 import cn.vividcode.multiplatform.ktor.client.ksp.model.FunctionModel
 import cn.vividcode.multiplatform.ktor.client.ksp.model.ParameterModel
 import cn.vividcode.multiplatform.ktor.client.ksp.model.RequestType
-import com.google.devtools.ksp.processing.KSPLogger
 import com.squareup.kotlinpoet.*
 
 /**
@@ -17,9 +16,7 @@ import com.squareup.kotlinpoet.*
  *
  * 介绍：KtorApiKotlinPoet
  */
-internal class KtorApiKotlinPoet(
-	private val kspLogger: KSPLogger
-) {
+internal class KtorApiKotlinPoet {
 	
 	companion object {
 		private val ktorClientClassName = ClassName("cn.vividcode.multiplatform.ktor.client.api", "KtorClient")

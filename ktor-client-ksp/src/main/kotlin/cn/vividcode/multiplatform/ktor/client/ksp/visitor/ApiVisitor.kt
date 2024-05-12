@@ -6,7 +6,6 @@ import cn.vividcode.multiplatform.ktor.client.ksp.expends.*
 import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.KtorApiKotlinPoet
 import cn.vividcode.multiplatform.ktor.client.ksp.model.*
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
 import com.squareup.kotlinpoet.ClassName
@@ -23,11 +22,10 @@ import com.squareup.kotlinpoet.TypeName
  * 介绍：ApiVisitor2
  */
 internal class ApiVisitor(
-	private val codeGenerator: CodeGenerator,
-	private val kspLogger: KSPLogger
+	private val codeGenerator: CodeGenerator
 ) : KSEmptyVisitor<Unit, KSClassDeclaration?>() {
 	
-	private val ktorApiKotlinPoet by lazy { KtorApiKotlinPoet(kspLogger) }
+	private val ktorApiKotlinPoet by lazy { KtorApiKotlinPoet() }
 	
 	override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit): KSClassDeclaration {
 		val classModel = getClassModel(classDeclaration)
