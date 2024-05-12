@@ -2,11 +2,11 @@
 
 ## 版本说明
 
-ktor版本-代码生成器版本：例如：`2.3.10`-`1.0.0-Beta1`
+ktor版本-代码生成器版本：例如：`2.3.10`-`1.0.1`
 
 ## 最新版本
 
-`2.3.11`-`1.0.0`
+`2.3.11`-`1.0.1`
 
 ## 依赖说明
 
@@ -33,7 +33,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.0.0") 
+            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.0.1") 
         }
         iosMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -41,12 +41,8 @@ kotlin {
     }
 }
 
-ksp {
-    arg("namespace", "<包名>")
-}
-
 dependencies {
-    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.0.0")
+    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.0.1")
 }
 
 tasks.withType<KotlinCompile<*>>().all {
@@ -82,6 +78,10 @@ tasks.withType<KotlinCompile<*>>().all {
 - `名称` url `类型` String `介绍` 接口路径
 - `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
 
+### `@Headers` `方法` 请求头
+
+- `名称` values `类型` Array<String> `介绍` 请求头：名称:值
+
 ### `@Body` `参数` 请求体
 
 ### `@Form` `参数` 表单
@@ -100,53 +100,63 @@ tasks.withType<KotlinCompile<*>>().all {
 
 - `名称` layer `类型` Int `默认值` 1 `介绍` 加密层数
 
-## 注解使用实例
+## 定义接口文件
 
 - 只允许使用 suspend 方法
 - 支持的返回类型有 `Unit` `ResultBody<*>` `ByteArray`
 
 ``` kotlin
 @Api(baseUrl = "/auth")
-interface AuthApi {
+interface TestApi {
     
     /**
-     * 登录
+     * 测试 @Form 和 @Query
      */
-    @POST(url = "/login")
-    suspend fun login(
-        @Form("username") username: String, 
-        @Form("password") @SHA256(layer = 2) password: String
-    ): ResultBody<LoginMo>
+    @GET(url = "/formAndQuery")
+    suspend fun testFormAndQuery(
+        @Query("queryName") queryName: String,
+        @Form("formName") formName: String
+    ): ResultBody<*>
     
     /**
-     * 登出
+     * 测试 Unit 返回类型 注：Unit 可以不写
      */
-    @POST(url = "/logout", auth = true)
-    suspend fun logout()
+    @POST(url = "/testUnit")
+    suspend fun testUnit(): Unit
     
     /**
-     * 注册
+     * 测试 ByteArray 返回类型
      */
-    @POST(url = "/register")
-    suspend fun register(
-        @Form("username") username: String,
-        @Form("password") @SHA256(layer = 2) password: String,
-        @Form("captcha") captcha: String
-    ): ResultBody<Unit>
-    
-    /**
-     * 验证码
-     */
-    @GET(url = "/captcha")
-    suspend fun captcha(
-        @Query("count") count: Int
+    @GET(url = "/byteArray")
+    suspend fun testByteArray(
+        @Query("id") id: Int
     ): ByteArray
+    
+    /**
+     * 测试 @SHA256
+     */
+    @GET(url = "sha256")
+    suspend fun testSHA256(
+        @Query("password") @SHA256(layer = 2) password: String
+    ): ResultBody<*>
+    
+    /**
+     * 测试 @Header 和 @Headers
+     */
+    @PUT(url = "/headerAndHeaders")
+    @Headers("headersName: <headersValue>")
+    suspend fun testHeaderAndHeaders(
+        @Header("headerName") headerValue: String
+    ): ResultBody<*>
 }
 ```
 
-### 根据上述实例代码的使用教程
+### 接口调用方法
 
 ``` kotlin
+/**
+ * 配置 ktorClient，通过扩展属性获取实例
+ */
 val ktorClient = KtorClient.builder()
     .domain("http://localhost/api")     // 必须填写，所有请求的前缀
     .getToken { "<token>" }             // 必须填写，当注解的 auth = true 后会将token附带在请求头上
@@ -155,17 +165,22 @@ val ktorClient = KtorClient.builder()
     .socketTimeout(Long.MAX_VALUE)      // 默认值：Long.MAX_VALUE
     .build()
 
+/**
+ * 测试组件
+ */
 @Composable
-fun Login() {
+fun Test() {
     val coroutineScope = rememberCoroutineScope()
+    val password by remember { mutableStateOf("123456") }
     Button(
         onClick = {
             coroutineScope.launch {
-                ktorClient.authApi.logout()
+                val result = ktorClient.testApi.testSHA256(password)
+                println(result)
             }
         }
     ) {
-        Text("退出登录")
+        Text("按钮")
     }
 }
 ```
