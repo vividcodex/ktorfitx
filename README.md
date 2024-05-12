@@ -2,7 +2,11 @@
 
 ## 版本说明
 
-ktor版本-代码生成器版本：例如：`2.3.10`-`1.0.1`
+ktor版本-代码生成器版本：例如：`2.3.11`-`1.0.1`
+
+Kotlin：1.9.23
+
+Ktor：2.3.11
 
 ## 最新版本
 
@@ -164,6 +168,17 @@ val ktorClient = KtorClient.builder()
     .connectTimeout(5000L)              // 默认值：5000L
     .socketTimeout(Long.MAX_VALUE)      // 默认值：Long.MAX_VALUE
     .build()
+    
+/**
+ * 使用 DSL 语法
+ */
+val ktorClient2 = ktorClient {
+    domain("http://localhost/api")      // 必须填写，所有请求的前缀
+    getToken { "<token>" }              // 必须填写，当注解的 auth = true 后会将token附带在请求头上
+    handleLog { }                       // 默认值：{ }
+    connectTimeout(5000L)               // 默认值：5000L
+    socketTimeout(Long.MAX_VALUE)       // 默认值：Long.MAX_VALUE
+}
 
 /**
  * 测试组件

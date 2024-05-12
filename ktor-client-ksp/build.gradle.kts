@@ -5,10 +5,10 @@ plugins {
 	alias(libs.plugins.maven.publish)
 }
 
-val projectVersion: String by project
+val ktorClientKspVersion: String by project
 
 group = "cn.vividcode.multiplatform.ktor.client.ksp"
-version = projectVersion
+version = ktorClientKspVersion
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
@@ -37,7 +37,7 @@ mavenPublishing {
 	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 	signAllPublications()
 	
-	coordinates("cn.vividcode.multiplatform", "ktor-client-ksp", version.toString())
+	coordinates("cn.vividcode.multiplatform", "ktor-client-ksp", ktorClientKspVersion)
 	
 	pom {
 		name.set("ktor-client-ksp")

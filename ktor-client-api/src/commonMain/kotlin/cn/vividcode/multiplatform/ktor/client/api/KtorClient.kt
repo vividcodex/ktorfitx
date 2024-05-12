@@ -1,5 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.api
 
+import cn.vividcode.multiplatform.ktor.client.api.impl.KtorClientBuilderDSLImpl
+import cn.vividcode.multiplatform.ktor.client.api.impl.KtorClientBuilderImpl
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -16,7 +18,7 @@ import io.ktor.serialization.kotlinx.json.*
  *
  * 介绍：KtorClient
  */
-class KtorClient private constructor(
+class KtorClient internal constructor(
 	val domain: String,
 	private val connectTimeout: Long,
 	private val socketTimeout: Long,
@@ -26,9 +28,15 @@ class KtorClient private constructor(
 	
 	companion object {
 		
-		fun builder(): Builder = Builder()
+		/**
+		 * 构建
+		 */
+		fun builder(): KtorClientBuilder = KtorClientBuilderImpl()
 	}
 	
+	/**
+	 * HttpClient
+	 */
 	val httpClient: HttpClient by lazy {
 		HttpClient(CIO) {
 			install(Logging) {
@@ -51,39 +59,11 @@ class KtorClient private constructor(
 			}
 		}
 	}
-	
-	class Builder {
-		
-		private var domain: String = ""
-		private var connectTimeout: Long = 5000L
-		private var socketTimeout: Long = Long.MAX_VALUE
-		private var handleLog: (message: String) -> Unit = {}
-		private var getToken: (() -> String)? = null
-		
-		fun domain(domain: String): Builder = apply {
-			this.domain = domain
-		}
-		
-		fun connectTimeout(connectTimeout: Long): Builder = apply {
-			this.connectTimeout = connectTimeout
-		}
-		
-		fun socketTimeout(socketTimeout: Long): Builder = apply {
-			this.socketTimeout = socketTimeout
-		}
-		
-		fun handleLog(handleLog: (message: String) -> Unit): Builder = apply {
-			this.handleLog = handleLog
-		}
-		
-		fun getToken(getToken: () -> String): Builder = apply {
-			this.getToken = getToken
-		}
-		
-		fun build(): KtorClient {
-			check(this.domain.isNotEmpty()) { "ktorClient 的 domain 还没有配置" }
-			checkNotNull(this.getToken) { "ktorClient 的 getToken 还没有配置" }
-			return KtorClient(this.domain, this.connectTimeout, this.socketTimeout, this.handleLog, this.getToken!!)
-		}
-	}
+}
+
+/**
+ * KtorClient DSL
+ */
+fun ktorClient(builder: KtorClientBuilderDSL.() -> Unit): KtorClient {
+	return KtorClientBuilderDSLImpl().apply(builder).build()
 }
