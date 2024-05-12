@@ -5,8 +5,10 @@ import korlibs.crypto.SHA256
 /**
  * sha256
  */
-fun String.sha256(layer: Int): String {
-	if (layer <= 0) return this
+fun <T> T.sha256(layer: Int): String {
+	if (this !is String || layer <= 0) {
+		return this.toString()
+	}
 	var hash = SHA256.digest(this.encodeToByteArray())
 	for (i in 0 .. layer - 2) {
 		hash = SHA256.digest(hash.bytes)

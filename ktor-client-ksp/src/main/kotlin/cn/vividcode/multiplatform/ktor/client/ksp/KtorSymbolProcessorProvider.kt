@@ -15,16 +15,10 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
  */
 internal class KtorSymbolProcessorProvider : SymbolProcessorProvider {
 	
-	private companion object {
-		private const val ERROR_MESSAGE = "请在build.gradle.kts中配置 kotlin.arg(\"namespace\", \"<包名>\""
-	}
-	
 	override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-		val namespace = environment.options["namespace"] ?: error(ERROR_MESSAGE)
 		return KtorSymbolProcessor(
 			environment.codeGenerator,
-			environment.logger,
-			namespace
+			environment.logger
 		)
 	}
 }

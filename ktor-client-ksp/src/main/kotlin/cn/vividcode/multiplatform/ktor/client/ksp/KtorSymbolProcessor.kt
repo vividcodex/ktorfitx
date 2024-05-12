@@ -1,8 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp
 
 import cn.vividcode.multiplatform.ktor.client.api.annotation.Api
-import cn.vividcode.multiplatform.ktor.client.ksp.generator.KtorApiFunctionGenerator
-import cn.vividcode.multiplatform.ktor.client.ksp.model.KtorApiModel
 import cn.vividcode.multiplatform.ktor.client.ksp.visitor.ApiVisitor
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -23,22 +21,18 @@ import com.google.devtools.ksp.validate
  */
 internal class KtorSymbolProcessor(
 	private val codeGenerator: CodeGenerator,
-	private val kspLogger: KSPLogger,
-	private val namespace: String
+	private val kspLogger: KSPLogger
 ) : SymbolProcessor {
 	
-	private val ktorApiFunctionGenerator by lazy { KtorApiFunctionGenerator(codeGenerator) }
-	
-	private val apiVisitor by lazy { ApiVisitor(codeGenerator, kspLogger, namespace) }
+	private val apiVisitor by lazy { ApiVisitor(codeGenerator, kspLogger) }
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
 		val apiRets = resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)
 			.partition { it is KSClassDeclaration && it.validate() }
 			.also {
-				val apiClassDeclarations = it.first.mapNotNull {
+				it.first.forEach {
 					it.accept(apiVisitor, Unit)
 				}
-				ktorApiFunctionGenerator.process(KtorApiModel(namespace, apiClassDeclarations))
 			}.second
 		return apiRets
 	}

@@ -37,6 +37,14 @@ fun <V> KSAnnotation.getArgumentValue(kProperty1: KProperty1<*, V>): V? {
 }
 
 /**
+ * 查找注解上的字段
+ */
+@Suppress("UNCHECKED_CAST")
+fun <V> KSAnnotation.getArgumentValue(name: String): V? {
+	return this.arguments.find { it.name?.asString() == name }?.value as? V
+}
+
+/**
  * ClassName
  */
 val KSDeclaration.className: ClassName
