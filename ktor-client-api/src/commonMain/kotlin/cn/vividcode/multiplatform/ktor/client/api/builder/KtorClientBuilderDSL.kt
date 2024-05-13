@@ -1,4 +1,4 @@
-package cn.vividcode.multiplatform.ktor.client.api
+package cn.vividcode.multiplatform.ktor.client.api.builder
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -9,7 +9,7 @@ package cn.vividcode.multiplatform.ktor.client.api
  *
  * 介绍：KtorClientBuilderDSL
  */
-interface KtorClientBuilderDSL {
+sealed interface KtorClientBuilderDSL {
 	
 	/**
 	 * 域名

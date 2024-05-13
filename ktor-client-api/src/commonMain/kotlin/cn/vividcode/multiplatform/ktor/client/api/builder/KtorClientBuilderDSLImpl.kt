@@ -1,7 +1,6 @@
-package cn.vividcode.multiplatform.ktor.client.api.impl
+package cn.vividcode.multiplatform.ktor.client.api.builder
 
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
-import cn.vividcode.multiplatform.ktor.client.api.KtorClientBuilderDSL
 
 /**
  * 项目：vividcode-multiplatform-ktor-client

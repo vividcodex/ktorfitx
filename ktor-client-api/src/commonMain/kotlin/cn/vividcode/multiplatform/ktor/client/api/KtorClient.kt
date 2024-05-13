@@ -1,7 +1,9 @@
 package cn.vividcode.multiplatform.ktor.client.api
 
-import cn.vividcode.multiplatform.ktor.client.api.impl.KtorClientBuilderDSLImpl
-import cn.vividcode.multiplatform.ktor.client.api.impl.KtorClientBuilderImpl
+import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilder
+import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderDSL
+import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderDSLImpl
+import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderImpl
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*

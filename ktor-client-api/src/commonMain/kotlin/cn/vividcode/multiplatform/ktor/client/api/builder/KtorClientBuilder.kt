@@ -1,4 +1,6 @@
-package cn.vividcode.multiplatform.ktor.client.api
+package cn.vividcode.multiplatform.ktor.client.api.builder
+
+import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -9,7 +11,7 @@ package cn.vividcode.multiplatform.ktor.client.api
  *
  * 介绍：KtorClientBuilder
  */
-interface KtorClientBuilder {
+sealed interface KtorClientBuilder {
 	
 	/**
 	 * 域名
