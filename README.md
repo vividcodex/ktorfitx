@@ -39,7 +39,7 @@ kotlin {
         commonMain.dependencies {
             implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.0.1") 
         }
-        iosMain {
+        commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
         }
     }
