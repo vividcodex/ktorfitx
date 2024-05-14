@@ -44,3 +44,4 @@ bin/
 gradle.properties
 /file
 .idea
+/.run

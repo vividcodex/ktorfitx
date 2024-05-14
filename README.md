@@ -2,7 +2,7 @@
 
 ## 版本说明
 
-ktor版本-代码生成器版本：例如：`2.3.11`-`1.0.2`
+ktor版本-代码生成器版本：例如：`2.3.11`-`1.0.3`
 
 Kotlin：1.9.23
 
@@ -10,7 +10,7 @@ Ktor：2.3.11
 
 ## 最新版本
 
-`2.3.11`-`1.0.2`
+`2.3.11`-`1.0.3`
 
 ## 依赖说明
 
@@ -37,7 +37,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.0.2") 
+            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.0.3") 
         }
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -46,7 +46,7 @@ kotlin {
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.0.2")
+    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.0.3")
 }
 
 tasks.withType<KotlinCompile<*>>().all {
@@ -96,6 +96,10 @@ tasks.withType<KotlinCompile<*>>().all {
 
 - `名称` name `类型` String `介绍` 参数名称
 
+### `@Path` `参数` 参数
+
+- `名称` name `类型` String `介绍` 参数名称
+
 ### `@Header` `参数` 请求头
 
 - `名称` name `类型` String `介绍` 请求头参数名称
@@ -109,50 +113,84 @@ tasks.withType<KotlinCompile<*>>().all {
 - 只允许使用 suspend 方法
 - 支持的返回类型有 `Unit` `ResultBody<*>` `ByteArray`
 
+定义接口
+
 ``` kotlin
-@Api(baseUrl = "/auth")
+@Api(baseUrl = "/test")
 interface TestApi {
-    
+	
     /**
-     * 测试 @Form 和 @Query
+     * 通过 @Query 查询
      */
-    @GET(url = "/formAndQuery")
-    suspend fun testFormAndQuery(
-        @Query("queryName") queryName: String,
-        @Form("formName") formName: String
+    @GET(url = "/search")
+    suspend fun search(
+        @Query searchKey: String,
+        @Query pageSize: Int,
+        @Query pageNum: Int
     ): ResultBody<*>
-    
+	
     /**
-     * 测试 Unit 返回类型 注：Unit 可以不写
+     * 通过 @Path 查询
      */
-    @POST(url = "/testUnit")
-    suspend fun testUnit(): Unit
-    
-    /**
-     * 测试 ByteArray 返回类型
-     */
-    @GET(url = "/byteArray")
-    suspend fun testByteArray(
-        @Query("id") id: Int
-    ): ByteArray
-    
-    /**
-     * 测试 @SHA256
-     */
-    @GET(url = "sha256")
-    suspend fun testSHA256(
-        @Query("password") @SHA256(layer = 2) password: String
-    ): ResultBody<*>
-    
-    /**
-     * 测试 @Header 和 @Headers
-     */
-    @PUT(url = "/headerAndHeaders")
-    @Headers("headersName: <headersValue>")
-    suspend fun testHeaderAndHeaders(
-        @Header("headerName") headerValue: String
+    @GET(url = "/search/{id}")
+    suspend fun searchById(
+    	@Path id: Int
     ): ResultBody<*>
 }
+```
+
+构建后将会生成以下代码
+
+``` kotlin
+public class TestApiImpl private constructor(
+    private val ktorClient: KtorClient,
+) : TestApi {
+    override suspend fun search(
+    	searchKey: String,
+    	pageSize: Int,
+    	pageNum: Int,
+    ): ResultBody<Any> = try {
+    	val response = ktorClient.httpClient.get(urlString = "${ktorClient.domain}/test/search") {
+    	    parameter("searchKey", searchKey)
+    	    parameter("pageSize", pageSize)
+    	    parameter("pageNum", pageNum)
+    	}
+    	if (response.status.isSuccess()) {
+    	    response.body()
+    	} else {
+    	    ResultBody.failure(response.status.value, response.status.description)
+    	}
+    } catch (e: Exception) {
+    	ResultBody.exception(e)
+    }
+
+    override suspend fun searchById(
+    	id: Int,
+    ): ResultBody<Any> = try {
+    	val response = ktorClient.httpClient.get(urlString = "${ktorClient.domain}/test/search/${id}") {
+    	
+    	}
+    	if (response.status.isSuccess()) {
+    	    response.body()
+    	} else {
+    	    ResultBody.failure(response.status.value, response.status.description)
+    	}
+    } catch (e: Exception) {
+    	ResultBody.exception(e)
+    }
+    
+    public companion object {
+    	private var instance: TestApi? = null   
+    	
+        public fun getInstance(ktorClient: KtorClient): TestApi = instance ?:
+                TestApiImpl(ktorClient).also {
+            instance = it
+        }
+    }
+}
+
+public val KtorClient.testApi: TestApi
+    get() = TestApiImpl.getInstance(this)
 ```
 
 ### 接口调用方法
@@ -187,10 +225,15 @@ val ktorClient2 = ktorClient {
 fun Test() {
     val coroutineScope = rememberCoroutineScope()
     val password by remember { mutableStateOf("123456") }
+    var pageNum by remember { mutableIntStateOf(1) }
     Button(
         onClick = {
             coroutineScope.launch {
-                val result = ktorClient.testApi.testSHA256(password)
+                val result = ktorClient.testApi.search(
+                    searchKey = "<搜索内容>",
+                    pageSize = 20,
+                    pageNum = pageNum++
+                )
                 println(result)
             }
         }
