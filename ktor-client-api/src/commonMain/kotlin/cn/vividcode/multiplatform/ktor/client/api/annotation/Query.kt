@@ -11,4 +11,4 @@ package cn.vividcode.multiplatform.ktor.client.api.annotation
  */
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Query(val name: String)
+annotation class Query(val name: String = "")

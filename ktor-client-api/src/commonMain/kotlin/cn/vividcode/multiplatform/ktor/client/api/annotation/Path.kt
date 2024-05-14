@@ -5,10 +5,10 @@ package cn.vividcode.multiplatform.ktor.client.api.annotation
  *
  * 作者：li-jia-wei
  *
- * 创建：2024/3/23 21:21
+ * 创建：2024/5/14 15:24
  *
  * 介绍：Form
  */
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Form(val name: String = "")
+annotation class Path(val name: String = "")

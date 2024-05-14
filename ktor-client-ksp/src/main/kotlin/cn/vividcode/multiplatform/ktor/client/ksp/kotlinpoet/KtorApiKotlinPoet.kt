@@ -1,10 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet
 
 import cn.vividcode.multiplatform.ktor.client.api.model.ResultBody
-import cn.vividcode.multiplatform.ktor.client.ksp.model.ClassModel
-import cn.vividcode.multiplatform.ktor.client.ksp.model.FunctionModel
-import cn.vividcode.multiplatform.ktor.client.ksp.model.ParameterModel
-import cn.vividcode.multiplatform.ktor.client.ksp.model.RequestType
+import cn.vividcode.multiplatform.ktor.client.ksp.model.*
 import com.squareup.kotlinpoet.*
 
 /**
@@ -121,14 +118,16 @@ internal class KtorApiKotlinPoet {
 		val isReturn = functionModel.returnTypeName != Unit::class.asTypeName()
 		beginControlFlow("${if (isReturn) "return " else ""}try {")
 		val httpClient = (if (isReturn) "val response = " else "") + "ktorClient.httpClient"
-		val requestTypeName = when (functionModel.requestTypeModel.type) {
+		val requestTypeName = when (functionModel.requestType) {
 			RequestType.GET -> use("io.ktor.client.request", "get")
 			RequestType.POST -> use("io.ktor.client.request", "post")
 			RequestType.PUT -> use("io.ktor.client.request", "put")
 			RequestType.DELETE -> use("io.ktor.client.request", "delete")
 		}
-		beginControlFlow("$httpClient.${requestTypeName}(urlString = \"\${ktorClient.domain}${functionModel.requestTypeModel.url}\")")
-		if (functionModel.requestTypeModel.auth) {
+		
+		val url = parsePathToUrl(functionModel.url, functionModel.pathModels)
+		beginControlFlow("$httpClient.${requestTypeName}(urlString = \"\${ktorClient.domain}$url\")")
+		if (functionModel.auth) {
 			use("io.ktor.client.request", "bearerAuth")
 			addStatement("bearerAuth(ktorClient.getToken())")
 		}
@@ -222,6 +221,22 @@ internal class KtorApiKotlinPoet {
 			}
 		}
 		endControlFlow()
+	}
+	
+	/**
+	 * 解析 Path
+	 */
+	private fun parsePathToUrl(rawUrl: String, pathModels: List<PathModel>): String {
+		var url = rawUrl
+		pathModels.forEach {
+			val newValue = if (it.sha256Layer == 0) {
+				"\${${it.variableName}}"
+			} else {
+				"\${${it.variableName}.sha256(layer = ${it.sha256Layer})}"
+			}
+			url = url.replace("{${it.name}}", newValue)
+		}
+		return url
 	}
 	
 	/**

@@ -9,12 +9,6 @@ package cn.vividcode.multiplatform.ktor.client.ksp.model
  *
  * 介绍：RequestTypeModel
  */
-internal data class RequestTypeModel(
-	val type: RequestType,
-	val url: String,
-	val auth: Boolean
-)
-
 enum class RequestType {
 	GET,
 	POST,

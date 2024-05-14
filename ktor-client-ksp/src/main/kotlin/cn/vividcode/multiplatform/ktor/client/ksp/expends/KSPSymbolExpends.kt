@@ -10,21 +10,28 @@ import kotlin.reflect.KProperty1
 /**
  * 查找注解
  */
-fun KSAnnotated.getAnnotation(kClass: KClass<*>): KSAnnotation? = this.annotations.find {
+internal fun KSAnnotated.getAnnotation(kClass: KClass<out Annotation>): KSAnnotation? = this.annotations.find {
 	it.annotationType.resolve().declaration.qualifiedName?.asString() == kClass.qualifiedName
+}
+
+/**
+ * 是否包含注解
+ */
+internal fun KSAnnotated.hasAnnotation(kClass: KClass<out Annotation>): Boolean {
+	return getAnnotation(kClass) != null
 }
 
 /**
  * 获取注解存在数量
  */
-fun KSAnnotated.getAnnotationSize(vararg kClasses: KClass<*>): Int {
+internal fun KSAnnotated.getAnnotationSize(vararg kClasses: KClass<out Annotation>): Int {
 	return kClasses.mapNotNull { this.getAnnotation(it) }.size
 }
 
 /**
  * 查找注解上的字段
  */
-fun <V> KSAnnotation.getArgumentValue(kProperty1: KProperty1<*, V>): V? {
+internal fun <V> KSAnnotation.getArgumentValue(kProperty1: KProperty1<out Annotation, V>): V? {
 	return this.getArgumentValue(kProperty1.name)
 }
 
@@ -32,7 +39,7 @@ fun <V> KSAnnotation.getArgumentValue(kProperty1: KProperty1<*, V>): V? {
  * 查找注解上的字段
  */
 @Suppress("UNCHECKED_CAST")
-fun <V> KSAnnotation.getArgumentValue(name: String): V? {
+internal fun <V> KSAnnotation.getArgumentValue(name: String): V? {
 	val value = this.arguments.find { it.name?.asString() == name }?.value
 	return if (value is ArrayList<*>) {
 		value.map { it.toString() }.toTypedArray() as V
@@ -44,5 +51,5 @@ fun <V> KSAnnotation.getArgumentValue(name: String): V? {
 /**
  * ClassName
  */
-val KSDeclaration.className: ClassName
+internal val KSDeclaration.className: ClassName
 	get() = ClassName(this.packageName.asString(), this.simpleName.asString())

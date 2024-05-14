@@ -13,12 +13,15 @@ import com.squareup.kotlinpoet.TypeName
  */
 internal data class FunctionModel(
 	val functionName: String,
+	val requestType: RequestType,
+	val url: String,
+	val auth: Boolean,
 	val parameterModels: List<ParameterModel>,
 	val returnTypeName: TypeName,
-	val requestTypeModel: RequestTypeModel,
 	val queryModels: List<QueryModel>,
 	val headerModels: List<HeaderModel>,
 	val headersModels: List<HeadersModel>,
 	val formModels: List<FormModel>,
+	val pathModels: List<PathModel>,
 	val bodyModel: BodyModel?
 )

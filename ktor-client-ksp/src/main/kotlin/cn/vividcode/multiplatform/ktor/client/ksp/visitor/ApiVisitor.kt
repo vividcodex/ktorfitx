@@ -11,6 +11,7 @@ import com.google.devtools.ksp.visitor.KSEmptyVisitor
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
+import kotlin.reflect.KProperty1
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -54,31 +55,34 @@ internal class ApiVisitor(
 			baseUrl = "/$baseUrl"
 		}
 		return classDeclaration.getAllFunctions().toList().mapNotNull {
-			val requestTypeModel = getRequestTypeModel(it, baseUrl) ?: return@mapNotNull null
+			val (requestType, url, auth) = getRequestModel(it, baseUrl) ?: return@mapNotNull null
 			if (!it.modifiers.contains(Modifier.SUSPEND)) {
 				error("${it.qualifiedName!!.asString()} 方法缺少 suspend 关键字")
 			}
-			val parameter = it.parameters
-			val functionName = it.simpleName.asString()
-			FunctionModel(
-				functionName,
-				getParameterModels(parameter),
-				getReturnTypeName(it),
-				requestTypeModel,
-				getQueryModels(parameter),
-				getHeaderModels(parameter),
-				getHeadersModels(it),
-				getFormModels(parameter),
-				getBodyModel(parameter)
-			)
+			with(it.parameters) {
+				FunctionModel(
+					it.simpleName.asString(),
+					requestType,
+					url,
+					auth,
+					getParameterModels(),
+					getReturnTypeName(it),
+					getQueryModels(),
+					getHeaderModels(),
+					getHeadersModels(it),
+					getFormModels(),
+					getPathModels(),
+					getBodyModel()
+				)
+			}
 		}
 	}
 	
 	/**
 	 * 获取 ParameterModels
 	 */
-	private fun getParameterModels(valueParameters: List<KSValueParameter>): List<ParameterModel> {
-		return valueParameters.map {
+	private fun List<KSValueParameter>.getParameterModels(): List<ParameterModel> {
+		return this.map {
 			val name = it.name!!.asString()
 			val className = it.type.resolve().declaration.className
 			ParameterModel(name, className)
@@ -116,21 +120,21 @@ internal class ApiVisitor(
 	/**
 	 * 获取 FunctionParamModel
 	 */
-	private fun getRequestTypeModel(functionDeclaration: KSFunctionDeclaration, baseUrl: String): RequestTypeModel? {
+	private fun getRequestModel(functionDeclaration: KSFunctionDeclaration, baseUrl: String): Triple<RequestType, String, Boolean>? {
 		val requestTypes = functionDeclaration.getAnnotationSize(GET::class, POST::class, PUT::class, DELETE::class)
 		val functionName = functionDeclaration.qualifiedName!!.asString()
 		if (requestTypes > 1) error("$functionName 方法上只允许标记：@GET @POST @PUT @DELETE 中的一个")
 		functionDeclaration.getAnnotation(GET::class)?.let {
-			return parseRequestTypeModel(it, baseUrl, RequestType.GET)
+			return parseRequestModel(it, baseUrl, RequestType.GET)
 		}
 		functionDeclaration.getAnnotation(POST::class)?.let {
-			return parseRequestTypeModel(it, baseUrl, RequestType.POST)
+			return parseRequestModel(it, baseUrl, RequestType.POST)
 		}
 		functionDeclaration.getAnnotation(PUT::class)?.let {
-			return parseRequestTypeModel(it, baseUrl, RequestType.PUT)
+			return parseRequestModel(it, baseUrl, RequestType.PUT)
 		}
 		functionDeclaration.getAnnotation(DELETE::class)?.let {
-			return parseRequestTypeModel(it, baseUrl, RequestType.DELETE)
+			return parseRequestModel(it, baseUrl, RequestType.DELETE)
 		}
 		return null
 	}
@@ -138,45 +142,64 @@ internal class ApiVisitor(
 	/**
 	 * 获取 FunctionParamModel
 	 */
-	private fun parseRequestTypeModel(annotation: KSAnnotation, baseUrl: String, type: RequestType): RequestTypeModel {
+	private fun parseRequestModel(annotation: KSAnnotation, baseUrl: String, type: RequestType): Triple<RequestType, String, Boolean> {
 		var url = annotation.getArgumentValue<String>("url")?.trim() ?: ""
-		if (url.isEmpty()) error("url为空")
+		if (url.isEmpty()) error("url 为空")
+		if (url.all { it == '/' || it == ' ' }) error("url 格式错误")
 		if (!url.startsWith("/")) {
 			url = "/$url"
 		}
 		val auth = annotation.getArgumentValue<Boolean>("auth") ?: false
-		return RequestTypeModel(type, baseUrl + url, auth)
+		return Triple(type, baseUrl + url, auth)
 	}
 	
 	/**
 	 * 获取 QueryModel
 	 */
-	private fun getQueryModels(valueParameters: List<KSValueParameter>): List<QueryModel> {
-		return valueParameters.mapNotNull {
-			val queryAnnotation = it.getAnnotation(Query::class) ?: return@mapNotNull null
-			val name = queryAnnotation.getArgumentValue(Query::name)?.trim() ?: ""
-			if (name.isEmpty()) error("@Query 的 name 不允许为空")
-			var sha256Layer = 0
-			it.getAnnotation(SHA256::class)?.apply {
-				sha256Layer = this.getArgumentValue(SHA256::layer) ?: 1
-			}
-			QueryModel(name, it.name!!.asString(), sha256Layer)
-		}
+	private fun List<KSValueParameter>.getQueryModels(): List<QueryModel> {
+		return this.getModels(Query::name, ::QueryModel)
 	}
 	
 	/**
 	 * 获取 HeaderModels
 	 */
-	private fun getHeaderModels(valueParameters: List<KSValueParameter>): List<HeaderModel> {
-		return valueParameters.mapNotNull {
-			val annotation = it.getAnnotation(Header::class) ?: return@mapNotNull null
-			val name = annotation.getArgumentValue(Header::name)?.trim() ?: ""
-			if (name.isEmpty()) error("@Header 的 name 不允许为空")
+	private fun List<KSValueParameter>.getHeaderModels(): List<HeaderModel> {
+		return this.getModels(Header::name, ::HeaderModel)
+	}
+	
+	/**
+	 * 获取 FormModels
+	 */
+	private fun List<KSValueParameter>.getFormModels(): List<FormModel> {
+		return this.getModels(Form::name, ::FormModel)
+	}
+	
+	/**
+	 * 获取 PathModels
+	 */
+	private fun List<KSValueParameter>.getPathModels(): List<PathModel> {
+		return this.getModels(Path::name, ::PathModel)
+	}
+	
+	/**
+	 * 解析 Form Query Path Header
+	 */
+	private inline fun <reified A : Annotation, T> List<KSValueParameter>.getModels(
+		nameKProperty: KProperty1<A, String>,
+		newModel: (name: String, variableName: String, sha256Layer: Int) -> T
+	): List<T> {
+		return this.mapNotNull {
+			val annotation = it.getAnnotation(A::class) ?: return@mapNotNull null
+			val variableName = it.name!!.asString()
+			var name = annotation.getArgumentValue(nameKProperty)
+			if (name.isNullOrBlank()) {
+				name = variableName
+			}
 			var sha256Layer = 0
 			it.getAnnotation(SHA256::class)?.apply {
 				sha256Layer = this.getArgumentValue(SHA256::layer) ?: 1
 			}
-			HeaderModel(name, it.name!!.asString(), sha256Layer)
+			newModel(name, variableName, sha256Layer)
 		}
 	}
 	
@@ -194,36 +217,18 @@ internal class ApiVisitor(
 	}
 	
 	/**
-	 * 获取 FormModels
-	 */
-	private fun getFormModels(valueParameters: List<KSValueParameter>): List<FormModel> {
-		return valueParameters.mapNotNull {
-			val annotation = it.getAnnotation(Form::class) ?: return@mapNotNull null
-			val name = annotation.getArgumentValue(Form::name)?.trim() ?: ""
-			if (name.isEmpty()) error("@Form 的 name 不允许为 null")
-			var sha256Layer = 0
-			it.getAnnotation(SHA256::class)?.apply {
-				sha256Layer = this.getArgumentValue(SHA256::layer) ?: 1
-			}
-			FormModel(name, it.name!!.asString(), sha256Layer)
-		}
-	}
-	
-	/**
 	 * 获取 BodyModel
 	 */
-	private fun getBodyModel(valueParameters: List<KSValueParameter>): BodyModel? {
-		var bodyModel: BodyModel? = null
-		valueParameters.forEach {
-			if (bodyModel != null) {
-				error("@Body 只允许标记在一个参数上")
-			}
-			val annotation = it.getAnnotation(Body::class)
-			if (annotation != null) {
-				bodyModel = BodyModel(it.name!!.asString())
-			}
+	private fun List<KSValueParameter>.getBodyModel(): BodyModel? {
+		val bodyModels = this.mapNotNull {
+			if (it.hasAnnotation(Body::class)) {
+				BodyModel(it.name!!.asString())
+			} else null
 		}
-		return bodyModel
+		if (bodyModels.size > 1) {
+			error("@Body 只允许标记在一个参数上")
+		}
+		return bodyModels.firstOrNull()
 	}
 	
 	override fun defaultHandler(node: KSNode, data: Unit): KSClassDeclaration? {
