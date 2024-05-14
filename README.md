@@ -2,7 +2,7 @@
 
 ## 版本说明
 
-ktor版本-代码生成器版本：例如：`2.3.11`-`1.0.3`
+ktor版本-代码生成器版本：例如：`2.3.11`-`1.0.4`
 
 Kotlin：1.9.23
 
@@ -10,7 +10,7 @@ Ktor：2.3.11
 
 ## 最新版本
 
-`2.3.11`-`1.0.3`
+`2.3.11`-`1.0.4`
 
 ## 依赖说明
 
@@ -37,7 +37,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.0.3") 
+            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.0.4") 
         }
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -46,7 +46,7 @@ kotlin {
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.0.3")
+    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.0.4")
 }
 
 tasks.withType<KotlinCompile<*>>().all {
@@ -82,7 +82,22 @@ tasks.withType<KotlinCompile<*>>().all {
 - `名称` url `类型` String `介绍` 接口路径
 - `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
 
-### `@Headers` `方法` 请求头
+### `@OPTIONS` `方法` OPTIONS请求
+
+- `名称` url `类型` String `介绍` 接口路径
+- `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
+
+### `@PATCH` `方法` PATCH请求
+
+- `名称` url `类型` String `介绍` 接口路径
+- `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
+
+### `@HEAD` `方法` HEAD请求
+
+- `名称` url `类型` String `介绍` 接口路径
+- `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
+
+### `@Headers` `方法` 配置固定请求头
 
 - `名称` values `类型` Array<String> `介绍` 请求头：名称:值
 
