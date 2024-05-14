@@ -1,6 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.model
 
 import com.squareup.kotlinpoet.TypeName
+import kotlin.reflect.KClass
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -13,7 +14,7 @@ import com.squareup.kotlinpoet.TypeName
  */
 internal data class FunctionModel(
 	val functionName: String,
-	val requestType: RequestType,
+	val requestType: KClass<out Annotation>,
 	val url: String,
 	val auth: Boolean,
 	val parameterModels: List<ParameterModel>,

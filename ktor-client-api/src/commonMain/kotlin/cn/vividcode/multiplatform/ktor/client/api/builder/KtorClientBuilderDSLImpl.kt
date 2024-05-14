@@ -1,6 +1,9 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder
 
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
+import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
+import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
+import io.ktor.client.plugins.logging.*
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -13,35 +16,39 @@ import cn.vividcode.multiplatform.ktor.client.api.KtorClient
  */
 internal class KtorClientBuilderDSLImpl : KtorClientBuilderDSL {
 	
-	private var domain: String = ""
-	private var connectTimeout: Long = 5000L
-	private var socketTimeout: Long = Long.MAX_VALUE
-	private var handleLog: (message: String) -> Unit = {}
-	private var getToken: (() -> String)? = null
+	private val ktorConfig = KtorConfig()
+	private val httpConfig = HttpConfig()
 	
 	override fun domain(domain: String) {
-		this.domain = domain
-	}
-	
-	override fun connectTimeout(connectTimeout: Long) {
-		this.connectTimeout = connectTimeout
-	}
-	
-	override fun socketTimeout(socketTimeout: Long) {
-		this.socketTimeout = socketTimeout
-	}
-	
-	override fun handleLog(handleLog: (message: String) -> Unit) {
-		this.handleLog = handleLog
+		this.ktorConfig.domain = domain
 	}
 	
 	override fun getToken(getToken: () -> String) {
-		this.getToken = getToken
+		this.ktorConfig.getToken = getToken
+	}
+	
+	override fun connectTimeout(connectTimeout: Long) {
+		this.httpConfig.connectTimeout = connectTimeout
+	}
+	
+	override fun socketTimeout(socketTimeout: Long) {
+		this.httpConfig.socketTimeout = socketTimeout
+	}
+	
+	override fun keepAliveTime(keepAliveTime: Long) {
+		this.httpConfig.keepAliveTime = keepAliveTime
+	}
+	
+	override fun logLevel(logLevel: LogLevel) {
+		this.httpConfig.logLevel = logLevel
+	}
+	
+	override fun handleLog(handleLog: (message: String) -> Unit) {
+		this.httpConfig.handleLog = handleLog
 	}
 	
 	fun build(): KtorClient {
-		check(this.domain.isNotEmpty()) { "ktorClient 的 domain 还没有配置" }
-		checkNotNull(this.getToken) { "ktorClient 的 getToken 还没有配置" }
-		return KtorClient(this.domain, this.connectTimeout, this.socketTimeout, this.handleLog, this.getToken!!)
+		this.ktorConfig.check()
+		return KtorClient(this.ktorConfig, this.httpConfig)
 	}
 }

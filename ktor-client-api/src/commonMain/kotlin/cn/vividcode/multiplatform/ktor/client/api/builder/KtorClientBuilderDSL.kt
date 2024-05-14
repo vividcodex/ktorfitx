@@ -5,34 +5,8 @@ package cn.vividcode.multiplatform.ktor.client.api.builder
  *
  * 作者：li-jia-wei
  *
- * 创建：2024/5/13 上午2:19
+ * 创建：2024/5/14 下午9:25
  *
  * 介绍：KtorClientBuilderDSL
  */
-sealed interface KtorClientBuilderDSL {
-	
-	/**
-	 * 域名
-	 */
-	fun domain(domain: String)
-	
-	/**
-	 * 连接超时时长 (ms)
-	 */
-	fun connectTimeout(connectTimeout: Long)
-	
-	/**
-	 * Socket 超时时长 (ms)
-	 */
-	fun socketTimeout(socketTimeout: Long)
-	
-	/**
-	 * 日志处理
-	 */
-	fun handleLog(handleLog: (message: String) -> Unit)
-	
-	/**
-	 * 获取Token
-	 */
-	fun getToken(getToken: () -> String)
-}
+sealed interface KtorClientBuilderDSL : Builder<Unit>

@@ -11,6 +11,7 @@ import com.google.devtools.ksp.visitor.KSEmptyVisitor
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
 /**
@@ -120,21 +121,18 @@ internal class ApiVisitor(
 	/**
 	 * 获取 FunctionParamModel
 	 */
-	private fun getRequestModel(functionDeclaration: KSFunctionDeclaration, baseUrl: String): Triple<RequestType, String, Boolean>? {
-		val requestTypes = functionDeclaration.getAnnotationSize(GET::class, POST::class, PUT::class, DELETE::class)
+	private fun getRequestModel(functionDeclaration: KSFunctionDeclaration, baseUrl: String): Triple<KClass<out Annotation>, String, Boolean>? {
+		val requestTypeClasses = arrayOf(GET::class, POST::class, PUT::class, DELETE::class, OPTIONS::class, PATCH::class, HEAD::class)
+		val requestTypes = functionDeclaration.getAnnotationSize(*requestTypeClasses)
 		val functionName = functionDeclaration.qualifiedName!!.asString()
-		if (requestTypes > 1) error("$functionName 方法上只允许标记：@GET @POST @PUT @DELETE 中的一个")
-		functionDeclaration.getAnnotation(GET::class)?.let {
-			return parseRequestModel(it, baseUrl, RequestType.GET)
+		if (requestTypes > 1) {
+			error("$functionName 方法上只允许标记：@GET @POST @PUT @DELETE @OPTIONS @PATCH @HEAD 中的一个")
 		}
-		functionDeclaration.getAnnotation(POST::class)?.let {
-			return parseRequestModel(it, baseUrl, RequestType.POST)
-		}
-		functionDeclaration.getAnnotation(PUT::class)?.let {
-			return parseRequestModel(it, baseUrl, RequestType.PUT)
-		}
-		functionDeclaration.getAnnotation(DELETE::class)?.let {
-			return parseRequestModel(it, baseUrl, RequestType.DELETE)
+		requestTypeClasses.forEach {
+			functionDeclaration.getAnnotation(it)?.apply {
+				val (url, auth) = parseRequestModel(this, baseUrl)
+				return Triple(it, url, auth)
+			}
 		}
 		return null
 	}
@@ -142,7 +140,7 @@ internal class ApiVisitor(
 	/**
 	 * 获取 FunctionParamModel
 	 */
-	private fun parseRequestModel(annotation: KSAnnotation, baseUrl: String, type: RequestType): Triple<RequestType, String, Boolean> {
+	private fun parseRequestModel(annotation: KSAnnotation, baseUrl: String): Pair<String, Boolean> {
 		var url = annotation.getArgumentValue<String>("url")?.trim() ?: ""
 		if (url.isEmpty()) error("url 为空")
 		if (url.all { it == '/' || it == ' ' }) error("url 格式错误")
@@ -150,7 +148,7 @@ internal class ApiVisitor(
 			url = "/$url"
 		}
 		val auth = annotation.getArgumentValue<Boolean>("auth") ?: false
-		return Triple(type, baseUrl + url, auth)
+		return Pair(baseUrl + url, auth)
 	}
 	
 	/**

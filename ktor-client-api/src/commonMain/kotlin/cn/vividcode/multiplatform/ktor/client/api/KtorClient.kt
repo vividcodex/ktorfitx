@@ -4,6 +4,8 @@ import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilder
 import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderDSL
 import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderDSLImpl
 import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderImpl
+import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
+import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -21,17 +23,14 @@ import io.ktor.serialization.kotlinx.json.*
  * 介绍：KtorClient
  */
 class KtorClient internal constructor(
-	val domain: String,
-	private val connectTimeout: Long,
-	private val socketTimeout: Long,
-	private val handleLog: (message: String) -> Unit,
-	val getToken: () -> String
+	val ktorConfig: KtorConfig,
+	private val httpConfig: HttpConfig,
 ) {
 	
 	companion object {
 		
 		/**
-		 * 构建
+		 * KtorClientBuilder
 		 */
 		fun builder(): KtorClientBuilder = KtorClientBuilderImpl()
 	}
@@ -44,10 +43,10 @@ class KtorClient internal constructor(
 			install(Logging) {
 				this.logger = object : Logger {
 					override fun log(message: String) {
-						handleLog(message)
+						httpConfig.handleLog(message)
 					}
 				}
-				this.level = LogLevel.BODY
+				this.level = httpConfig.logLevel
 			}
 			install(ContentNegotiation) {
 				json()
@@ -55,8 +54,9 @@ class KtorClient internal constructor(
 			install(HttpCookies)
 			engine {
 				endpoint {
-					this.connectTimeout = this@KtorClient.connectTimeout
-					this.socketTimeout = this@KtorClient.socketTimeout
+					this.connectTimeout = httpConfig.connectTimeout
+					this.socketTimeout = httpConfig.socketTimeout
+					this.keepAliveTime = httpConfig.keepAliveTime
 				}
 			}
 		}

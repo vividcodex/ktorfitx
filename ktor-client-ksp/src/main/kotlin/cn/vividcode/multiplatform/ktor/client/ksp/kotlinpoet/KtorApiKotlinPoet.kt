@@ -1,7 +1,10 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet
 
 import cn.vividcode.multiplatform.ktor.client.api.model.ResultBody
-import cn.vividcode.multiplatform.ktor.client.ksp.model.*
+import cn.vividcode.multiplatform.ktor.client.ksp.model.ClassModel
+import cn.vividcode.multiplatform.ktor.client.ksp.model.FunctionModel
+import cn.vividcode.multiplatform.ktor.client.ksp.model.ParameterModel
+import cn.vividcode.multiplatform.ktor.client.ksp.model.PathModel
 import com.squareup.kotlinpoet.*
 
 /**
@@ -17,6 +20,8 @@ internal class KtorApiKotlinPoet {
 	
 	companion object {
 		private val ktorClientClassName = ClassName("cn.vividcode.multiplatform.ktor.client.api", "KtorClient")
+		private val ktorConfigClassName = ClassName("cn.vividcode.multiplatform.ktor.client.api.config", "KtorConfig")
+		private val httpClientClassName = ClassName("io.ktor.client", "HttpClient")
 		
 		private val importMap = mapOf(
 			"cn.vividcode.multiplatform.ktor.client.api.expends" to arrayOf("sha256"),
@@ -26,7 +31,7 @@ internal class KtorApiKotlinPoet {
 			"io.ktor.http" to arrayOf("contentType", "ContentType", "isSuccess"),
 			"io.ktor.http.content" to arrayOf("TextContent"),
 			"io.ktor.client.call" to arrayOf("body"),
-			"io.ktor.client.request" to arrayOf("get", "post", "put", "delete", "bearerAuth", "setBody", "parameter", "header"),
+			"io.ktor.client.request" to arrayOf("get", "post", "put", "delete", "head", "options", "patch", "bearerAuth", "setBody", "parameter", "header"),
 			"io.ktor.client.request.forms" to arrayOf("formData", "MultiPartFormDataContent"),
 			"io.ktor.client.statement" to arrayOf("readBytes")
 		)
@@ -59,18 +64,25 @@ internal class KtorApiKotlinPoet {
 	private fun getTypeSpec(classModel: ClassModel): TypeSpec {
 		val primaryConstructor = FunSpec.constructorBuilder()
 			.addModifiers(KModifier.PRIVATE)
-			.addParameter("ktorClient", ktorClientClassName)
+			.addParameter("ktorConfig", ktorConfigClassName)
+			.addParameter("httpClient", httpClientClassName)
 			.build()
-		val propertySpec = PropertySpec.builder("ktorClient", ktorClientClassName)
+		val ktorConfigPropertySpec = PropertySpec.builder("ktorConfig", ktorConfigClassName)
 			.addModifiers(KModifier.PRIVATE)
 			.mutable(false)
-			.initializer("ktorClient")
+			.initializer("ktorConfig")
+			.build()
+		val httpClientPropertySpec = PropertySpec.builder("httpClient", httpClientClassName)
+			.addModifiers(KModifier.PRIVATE)
+			.mutable(false)
+			.initializer("httpClient")
 			.build()
 		return TypeSpec.classBuilder(classModel.className)
 			.addModifiers(KModifier.PUBLIC)
 			.addSuperinterface(classModel.superinterface)
 			.primaryConstructor(primaryConstructor)
-			.addProperty(propertySpec)
+			.addProperty(ktorConfigPropertySpec)
+			.addProperty(httpClientPropertySpec)
 			.addType(companionObjectBuilder(classModel.className, classModel.superinterface))
 			.addFunctions(getFunSpecs(classModel.functionModels))
 			.build()
@@ -81,7 +93,7 @@ internal class KtorApiKotlinPoet {
 	 */
 	private fun getApiPropertySpec(className: ClassName, superinterface: ClassName): PropertySpec {
 		val getter = FunSpec.getterBuilder()
-			.addStatement("return ${className.simpleName}.getInstance(this)", superinterface)
+			.addStatement("return ${className.simpleName}.getInstance(this.ktorConfig, this.httpClient)", superinterface)
 			.build()
 		val name = superinterface.simpleName.replaceFirstChar { it.lowercase() }
 		return PropertySpec.builder(name, superinterface)
@@ -100,14 +112,15 @@ internal class KtorApiKotlinPoet {
 			.mutable(true)
 			.build()
 		val codeBlock = CodeBlock.builder()
-			.beginControlFlow("return instance ?: ${className.simpleName}(ktorClient).also")
+			.beginControlFlow("return instance ?: ${className.simpleName}(ktorConfig, httpClient).also")
 			.addStatement("instance = it")
 			.endControlFlow()
 			.build()
 		val functionSpec = FunSpec.builder("getInstance")
 			.addModifiers(KModifier.PUBLIC)
 			.returns(superinterface)
-			.addParameter("ktorClient", ktorClientClassName)
+			.addParameter("ktorConfig", ktorConfigClassName)
+			.addParameter("httpClient", httpClientClassName)
 			.addCode(codeBlock)
 			.build()
 		return TypeSpec.companionObjectBuilder()
@@ -136,19 +149,14 @@ internal class KtorApiKotlinPoet {
 	private fun getCodeBlock(functionModel: FunctionModel): CodeBlock = buildCodeBlock {
 		val isReturn = functionModel.returnTypeName != Unit::class.asTypeName()
 		beginControlFlow("${if (isReturn) "return " else ""}try {")
-		val httpClient = (if (isReturn) "val response = " else "") + "ktorClient.httpClient"
-		val requestTypeName = when (functionModel.requestType) {
-			RequestType.GET -> use("get")
-			RequestType.POST -> use("post")
-			RequestType.PUT -> use("put")
-			RequestType.DELETE -> use("delete")
-		}
+		val httpClient = (if (isReturn) "val response = " else "") + "this.httpClient"
 		
+		val requestTypeName = use(functionModel.requestType.simpleName!!.lowercase())
 		val url = parsePathToUrl(functionModel.url, functionModel.pathModels)
-		beginControlFlow("$httpClient.${requestTypeName}(urlString = \"\${ktorClient.domain}$url\")")
+		beginControlFlow("$httpClient.${requestTypeName}(urlString = \"\${ktorConfig.domain}$url\")")
 		if (functionModel.auth) {
 			use("bearerAuth")
-			addStatement("bearerAuth(ktorClient.getToken())")
+			addStatement("bearerAuth(ktorConfig.getToken!!())")
 		}
 		if (functionModel.bodyModel != null) {
 			use("contentType")
