@@ -17,9 +17,26 @@ internal class KtorApiKotlinPoet {
 	
 	companion object {
 		private val ktorClientClassName = ClassName("cn.vividcode.multiplatform.ktor.client.api", "KtorClient")
+		
+		private val importMap = mapOf(
+			"cn.vividcode.multiplatform.ktor.client.api.expends" to arrayOf("sha256"),
+			"cn.vividcode.multiplatform.ktor.client.api.model" to arrayOf("ResultBody"),
+			"kotlinx.serialization" to arrayOf("encodeToString"),
+			"kotlinx.serialization.json" to arrayOf("Json"),
+			"io.ktor.http" to arrayOf("contentType", "ContentType", "isSuccess"),
+			"io.ktor.http.content" to arrayOf("TextContent"),
+			"io.ktor.client.call" to arrayOf("body"),
+			"io.ktor.client.request" to arrayOf("get", "post", "put", "delete", "bearerAuth", "setBody", "parameter", "header"),
+			"io.ktor.client.request.forms" to arrayOf("formData", "MultiPartFormDataContent"),
+			"io.ktor.client.statement" to arrayOf("readBytes")
+		)
+		
+		private val simpleNameMap = importMap.flatMap { (packageName, simpleNames) ->
+			simpleNames.map { it to packageName }
+		}.toMap()
 	}
 	
-	private val useImports by lazy { mutableMapOf<String, MutableSet<String>>() }
+	private val useImports by lazy { mutableMapOf<String, String>() }
 	
 	/**
 	 * 生成文件
@@ -29,7 +46,9 @@ internal class KtorApiKotlinPoet {
 			.indent("\t")
 			.addType(getTypeSpec(classModel))
 			.addProperty(getApiPropertySpec(classModel.className, classModel.superinterface))
-		useImports.forEach(fileSpecBuilder::addImport)
+		useImports.forEach { simpleName, packageName ->
+			fileSpecBuilder.addImport(packageName, simpleName)
+		}
 		useImports.clear()
 		return fileSpecBuilder.build()
 	}
@@ -119,49 +138,49 @@ internal class KtorApiKotlinPoet {
 		beginControlFlow("${if (isReturn) "return " else ""}try {")
 		val httpClient = (if (isReturn) "val response = " else "") + "ktorClient.httpClient"
 		val requestTypeName = when (functionModel.requestType) {
-			RequestType.GET -> use("io.ktor.client.request", "get")
-			RequestType.POST -> use("io.ktor.client.request", "post")
-			RequestType.PUT -> use("io.ktor.client.request", "put")
-			RequestType.DELETE -> use("io.ktor.client.request", "delete")
+			RequestType.GET -> use("get")
+			RequestType.POST -> use("post")
+			RequestType.PUT -> use("put")
+			RequestType.DELETE -> use("delete")
 		}
 		
 		val url = parsePathToUrl(functionModel.url, functionModel.pathModels)
 		beginControlFlow("$httpClient.${requestTypeName}(urlString = \"\${ktorClient.domain}$url\")")
 		if (functionModel.auth) {
-			use("io.ktor.client.request", "bearerAuth")
+			use("bearerAuth")
 			addStatement("bearerAuth(ktorClient.getToken())")
 		}
 		if (functionModel.bodyModel != null) {
-			use("io.ktor.http", "contentType")
-			use("io.ktor.http", "ContentType")
-			use("io.ktor.client.request", "setBody")
-			use("io.ktor.http.content", "TextContent")
-			use("kotlinx.serialization.json", "Json")
-			use("kotlinx.serialization", "encodeToString")
+			use("contentType")
+			use("ContentType")
+			use("setBody")
+			use("TextContent")
+			use("Json")
+			use("encodeToString")
 			addStatement("contentType(ContentType.Application.Json)")
 			addStatement("setBody(TextContent(Json.encodeToString(${functionModel.bodyModel.variableName}), ContentType.Application.Json))")
 		}
 		functionModel.queryModels.forEach {
 			val variableName = if (it.sha256Layer > 0) {
-				use("cn.vividcode.multiplatform.ktor.client.api.expends", "sha256")
+				use("sha256")
 				"${it.variableName}.sha256(layer = ${it.sha256Layer})"
 			} else {
 				it.variableName
 			}
-			use("io.ktor.client.request", "parameter")
+			use("parameter")
 			addStatement("parameter(\"${it.name}\", $variableName)")
 		}
 		if (functionModel.formModels.isNotEmpty()) {
-			use("io.ktor.http", "contentType")
-			use("io.ktor.http", "ContentType")
-			use("io.ktor.client.request.forms", "formData")
-			use("io.ktor.client.request", "setBody")
-			use("io.ktor.client.request.forms", "MultiPartFormDataContent")
+			use("contentType")
+			use("ContentType")
+			use("formData")
+			use("setBody")
+			use("MultiPartFormDataContent")
 			addStatement("contentType(ContentType.MultiPart.FormData)")
 			beginControlFlow("val formData = formData {")
 			functionModel.formModels.forEach {
 				val variableName = if (it.sha256Layer > 0) {
-					use("cn.vividcode.multiplatform.ktor.client.api.expends", "sha256")
+					use("sha256")
 					"${it.variableName}.sha256(layer = ${it.sha256Layer})"
 				} else {
 					it.variableName
@@ -172,7 +191,7 @@ internal class KtorApiKotlinPoet {
 			addStatement("setBody(MultiPartFormDataContent(formData))")
 		}
 		if (functionModel.headerModels.isNotEmpty()) {
-			use("io.ktor.client.request", "header")
+			use("header")
 			functionModel.headerModels.forEach {
 				val variableName = if (it.sha256Layer > 0) {
 					"${it.variableName}.sha256(layer = ${it.sha256Layer})"
@@ -183,7 +202,7 @@ internal class KtorApiKotlinPoet {
 			}
 		}
 		if (functionModel.headersModels.isNotEmpty()) {
-			use("io.ktor.client.request", "header")
+			use("header")
 			functionModel.headersModels.forEach {
 				addStatement("header(\"${it.name}\", \"${it.value}\")")
 			}
@@ -192,8 +211,8 @@ internal class KtorApiKotlinPoet {
 		val returnQualifiedName = functionModel.returnTypeName.toString().split("<").first()
 		when (returnQualifiedName) {
 			ByteArray::class.qualifiedName -> {
-				use("io.ktor.http", "isSuccess")
-				use("io.ktor.client.statement", "readBytes")
+				use("isSuccess")
+				use("readBytes")
 				beginControlFlow("if (response.status.isSuccess())")
 				addStatement("response.readBytes()")
 				nextControlFlow("else")
@@ -204,9 +223,9 @@ internal class KtorApiKotlinPoet {
 			}
 			
 			ResultBody::class.qualifiedName -> {
-				use("io.ktor.http", "isSuccess")
-				use("io.ktor.client.call", "body")
-				use("cn.vividcode.multiplatform.ktor.client.api.model", "ResultBody")
+				use("isSuccess")
+				use("body")
+				use("ResultBody")
 				beginControlFlow("if (response.status.isSuccess())")
 				addStatement("response.body()")
 				nextControlFlow("else")
@@ -228,13 +247,16 @@ internal class KtorApiKotlinPoet {
 	 */
 	private fun parsePathToUrl(rawUrl: String, pathModels: List<PathModel>): String {
 		var url = rawUrl
-		pathModels.forEach {
-			val newValue = if (it.sha256Layer == 0) {
-				"\${${it.variableName}}"
-			} else {
-				"\${${it.variableName}.sha256(layer = ${it.sha256Layer})}"
+		if (pathModels.isNotEmpty()) {
+			use("sha256")
+			pathModels.forEach {
+				val newValue = if (it.sha256Layer == 0) {
+					"\${${it.variableName}}"
+				} else {
+					"\${${it.variableName}.sha256(layer = ${it.sha256Layer})}"
+				}
+				url = url.replace("{${it.name}}", newValue)
 			}
-			url = url.replace("{${it.name}}", newValue)
 		}
 		return url
 	}
@@ -249,9 +271,8 @@ internal class KtorApiKotlinPoet {
 		}
 	}
 	
-	private fun use(packageName: String, simpleName: String): String {
-		val simpleNames = useImports.getOrPut(packageName) { mutableSetOf() }
-		simpleNames += simpleName
+	private fun use(simpleName: String): String {
+		useImports[simpleName] = simpleNameMap[simpleName]!!
 		return simpleName
 	}
 }
