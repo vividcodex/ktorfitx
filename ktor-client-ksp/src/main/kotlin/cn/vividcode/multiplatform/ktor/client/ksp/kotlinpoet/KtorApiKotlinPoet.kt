@@ -255,16 +255,14 @@ internal class KtorApiKotlinPoet {
 	 */
 	private fun parsePathToUrl(rawUrl: String, pathModels: List<PathModel>): String {
 		var url = rawUrl
-		if (pathModels.isNotEmpty()) {
-			use("sha256")
-			pathModels.forEach {
-				val newValue = if (it.sha256Layer == 0) {
-					"\${${it.variableName}}"
-				} else {
-					"\${${it.variableName}.sha256(layer = ${it.sha256Layer})}"
-				}
-				url = url.replace("{${it.name}}", newValue)
+		pathModels.forEach {
+			val newValue = if (it.sha256Layer > 0) {
+				use("sha256")
+				"\${${it.variableName}.sha256(layer = ${it.sha256Layer})}"
+			} else {
+				"\${${it.variableName}}"
 			}
+			url = url.replace("{${it.name}}", newValue)
 		}
 		return url
 	}
