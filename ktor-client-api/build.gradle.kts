@@ -39,13 +39,13 @@ kotlin {
 	}
 	sourceSets {
 		commonMain.dependencies {
+			implementation(libs.krypto)
 			api(libs.ktor.client.core)
 			api(libs.ktor.client.logging)
 			api(libs.ktor.client.cio)
 			api(libs.ktor.client.serialization)
 			api(libs.ktor.client.content.negotiation)
 			api(libs.ktor.serialization.kotlinx.json)
-			api(libs.krypto)
 		}
 	}
 }

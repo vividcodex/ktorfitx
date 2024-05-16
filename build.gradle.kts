@@ -1,8 +1,7 @@
 plugins {
-    kotlin("jvm") version "1.9.23" apply false
-	kotlin("multiplatform") version "1.9.23" apply false
-	kotlin("plugin.serialization") version "1.9.23" apply false
-	id("com.android.library") version "8.2.2" apply false
-	id("com.google.devtools.ksp") version "1.9.23-1.0.20" apply false
-	id("com.vanniktech.maven.publish") version "0.28.0" apply false
+	alias(libs.plugins.org.jetbrains.kotlin.jvm) apply false
+	alias(libs.plugins.kotlin.multiplatform) apply false
+	alias(libs.plugins.serialization) apply false
+	alias(libs.plugins.android.library) apply false
+	alias(libs.plugins.maven.publish) apply false
 }
