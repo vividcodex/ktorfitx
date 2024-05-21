@@ -45,3 +45,4 @@ gradle.properties
 /file
 .idea
 /.run
+/.kotlin

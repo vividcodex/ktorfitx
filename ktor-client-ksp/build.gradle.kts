@@ -5,7 +5,7 @@ plugins {
 	alias(libs.plugins.maven.publish)
 }
 
-val ktorClientKspVersion: String by project
+val ktorClientKspVersion = property("ktorClientKsp.version")!!.toString()
 
 group = "cn.vividcode.multiplatform.ktor.client.ksp"
 version = ktorClientKspVersion

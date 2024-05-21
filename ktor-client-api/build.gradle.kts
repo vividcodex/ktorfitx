@@ -1,44 +1,50 @@
+
 import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
+	alias(libs.plugins.compose.compiler)
+	alias(libs.plugins.jetbrains.compose)
 	alias(libs.plugins.serialization)
 	alias(libs.plugins.android.library)
 	alias(libs.plugins.maven.publish)
 }
 
-val ktorClientKspVersion: String by project
+val ktorClientKspVersion = property("ktorClientKsp.version")!!.toString()
 
 group = "cn.vividcode.multiplatform.ktor.client.api"
 version = ktorClientKspVersion
 
 kotlin {
+	jvmToolchain(17)
+	
 	androidTarget {
-		compilations.all {
-			kotlinOptions {
-				jvmTarget = "17"
-			}
+		@OptIn(ExperimentalKotlinGradlePluginApi::class)
+		compilerOptions {
+			jvmTarget.set(JvmTarget.JVM_17)
 		}
 	}
 	jvm("desktop") {
-		compilations.all {
-			kotlinOptions {
-				jvmTarget = "17"
-			}
+		@OptIn(ExperimentalKotlinGradlePluginApi::class)
+		compilerOptions {
+			jvmTarget.set(JvmTarget.JVM_17)
 		}
 	}
 	listOf(
 		iosX64(),
 		iosArm64(),
 		iosSimulatorArm64()
-	).forEach {
-		it.binaries.framework {
+	).forEach { iosTarget ->
+		iosTarget.binaries.framework {
 			baseName = "VividCodeKtorClientApi"
 			isStatic = true
 		}
 	}
 	sourceSets {
 		commonMain.dependencies {
+			implementation(compose.runtime)
 			implementation(libs.krypto)
 			api(libs.ktor.client.core)
 			api(libs.ktor.client.logging)
