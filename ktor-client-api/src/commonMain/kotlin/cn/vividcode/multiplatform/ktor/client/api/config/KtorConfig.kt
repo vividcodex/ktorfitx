@@ -10,7 +10,7 @@ package cn.vividcode.multiplatform.ktor.client.api.config
  * 介绍：KtorConfig
  */
 data class KtorConfig internal constructor(
-	var domain: String = "",
+	var domain: String = "http://localhost:8080",
 	var getToken: (() -> String)? = null
 ) {
 	
