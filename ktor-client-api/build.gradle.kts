@@ -72,6 +72,7 @@ android {
 	packaging {
 		resources {
 			excludes += "/META-INF/{AL2.0,LGPL2.1}"
+			merges += "/META-INF/DEPENDENCIES"
 		}
 	}
 	buildTypes {
@@ -84,7 +85,7 @@ android {
 		targetCompatibility = JavaVersion.VERSION_17
 	}
 	composeOptions {
-		kotlinCompilerExtensionVersion = "1.5.13"
+		kotlinCompilerExtensionVersion = property("compose.kotlinCompilerVersion").toString()
 	}
 }
 
