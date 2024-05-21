@@ -2,15 +2,17 @@
 
 ## 版本说明
 
-ktor版本-代码生成器版本：例如：`2.3.11`-`1.0.4`
+ktor版本-代码生成器版本：例如：`2.3.11`-`1.1.0`
 
-Kotlin：1.9.23
+Kotlin：2.0.0
 
 Ktor：2.3.11
 
+KSP：2.0.0-RC3-1.0.20
+
 ## 最新版本
 
-`2.3.11`-`1.0.4`
+`2.3.11`-`1.1.0`
 
 ## 依赖说明
 
@@ -37,7 +39,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.0.4") 
+            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.1.0") 
         }
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -46,7 +48,7 @@ kotlin {
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.0.4")
+    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.1.0")
 }
 
 tasks.withType<KotlinCompile<*>>().all {
@@ -227,6 +229,13 @@ val ktorClient = KtorClient.builder()
  */
 val ktorClient2 = ktorClient {
     domain("http://localhost/api")      // 必须填写，所有请求的前缀
+    // 使用分别构建方法
+    domain(
+        host = "localhost",
+        port = 80,
+        safe = false,
+        prefix = "/api"
+    )
     getToken { "<token>" }              // 必须填写，当注解的 auth = true 后会将token附带在请求头上
     handleLog { }                       // 默认值：{ }
     connectTimeout(5000L)               // 默认值：5000L
