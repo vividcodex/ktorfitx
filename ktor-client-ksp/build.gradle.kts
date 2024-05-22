@@ -1,4 +1,5 @@
 import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
 	alias(libs.plugins.org.jetbrains.kotlin.jvm)
@@ -11,11 +12,15 @@ group = "cn.vividcode.multiplatform.ktor.client.ksp"
 version = ktorClientKspVersion
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
 }
 
 kotlin {
-	jvmToolchain(17)
+	jvmToolchain(21)
+	
+	compilerOptions {
+		jvmTarget.set(JvmTarget.JVM_21)
+	}
 }
 
 sourceSets {

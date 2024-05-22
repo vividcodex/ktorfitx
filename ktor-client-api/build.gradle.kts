@@ -18,18 +18,18 @@ group = "cn.vividcode.multiplatform.ktor.client.api"
 version = ktorClientKspVersion
 
 kotlin {
-	jvmToolchain(17)
+	jvmToolchain(21)
 	
 	androidTarget {
 		@OptIn(ExperimentalKotlinGradlePluginApi::class)
 		compilerOptions {
-			jvmTarget.set(JvmTarget.JVM_17)
+			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
 	jvm("desktop") {
 		@OptIn(ExperimentalKotlinGradlePluginApi::class)
 		compilerOptions {
-			jvmTarget.set(JvmTarget.JVM_17)
+			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
 	listOf(
@@ -81,8 +81,8 @@ android {
 		}
 	}
 	compileOptions {
-		sourceCompatibility = JavaVersion.VERSION_17
-		targetCompatibility = JavaVersion.VERSION_17
+		sourceCompatibility = JavaVersion.VERSION_21
+		targetCompatibility = JavaVersion.VERSION_21
 	}
 	composeOptions {
 		kotlinCompilerExtensionVersion = property("compose.kotlinCompilerVersion").toString()
