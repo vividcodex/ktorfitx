@@ -51,7 +51,7 @@ internal class KtorApiKotlinPoet {
 			.indent("\t")
 			.addType(getTypeSpec(classModel))
 			.addProperty(getApiPropertySpec(classModel.className, classModel.superinterface))
-		useImports.forEach { simpleName, packageName ->
+		useImports.forEach { (simpleName, packageName) ->
 			fileSpecBuilder.addImport(packageName, simpleName)
 		}
 		useImports.clear()

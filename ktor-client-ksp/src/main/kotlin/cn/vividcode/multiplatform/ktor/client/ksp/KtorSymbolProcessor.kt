@@ -26,8 +26,8 @@ internal class KtorSymbolProcessor(codeGenerator: CodeGenerator) : SymbolProcess
 		return resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)
 			.partition { it is KSClassDeclaration && it.validate() }
 			.also {
-				it.first.forEach {
-					it.accept(apiVisitor, Unit)
+				it.first.forEach { annotated ->
+					annotated.accept(apiVisitor, Unit)
 				}
 			}.second
 	}

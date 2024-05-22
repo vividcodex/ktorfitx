@@ -91,21 +91,21 @@ internal class ApiVisitor(
 	}
 	
 	private fun getReturnTypeName(functionDeclaration: KSFunctionDeclaration): TypeName {
-		return functionDeclaration.returnType!!.resolve().let {
-			if (it.arguments.isEmpty()) {
-				it.declaration.className
+		return functionDeclaration.returnType!!.resolve().let { type ->
+			if (type.arguments.isEmpty()) {
+				type.declaration.className
 			} else {
-				val parameterizedType = it.arguments.first().type!!.resolve()
-				val typeArgument = parameterizedType.declaration.className.let {
+				val parameterizedType = type.arguments.first().type!!.resolve()
+				val typeArgument = parameterizedType.declaration.className.let { className ->
 					if (parameterizedType.arguments.isEmpty()) {
-						it
+						className
 					} else if (parameterizedType.declaration.qualifiedName?.asString() == List::class.qualifiedName) {
-						it.parameterizedBy(parameterizedType.arguments.first().type!!.resolve().declaration.className)
+						className.parameterizedBy(parameterizedType.arguments.first().type!!.resolve().declaration.className)
 					} else {
 						error("不支持的类型：${parameterizedType.declaration.qualifiedName?.asString()}")
 					}
 				}
-				it.declaration.className.parameterizedBy(typeArgument)
+				type.declaration.className.parameterizedBy(typeArgument)
 			}
 		}.also {
 			val qualifiedName = it.toString().split("<").first()
