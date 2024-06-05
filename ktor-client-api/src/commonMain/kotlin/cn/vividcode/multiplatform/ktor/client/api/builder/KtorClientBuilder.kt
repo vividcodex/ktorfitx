@@ -14,6 +14,19 @@ import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 sealed interface KtorClientBuilder : Builder<KtorClientBuilder> {
 	
 	/**
+	 * 域名
+	 */
+	fun domain(
+		host: String = "localhost",
+		port: Int = 8080,
+		safe: Boolean = false,
+		prefix: String = ""
+	): KtorClientBuilder {
+		val domain = "${if (safe) "https://" else "http://"}$host:$port$prefix"
+		return domain(domain)
+	}
+	
+	/**
 	 * 构建
 	 */
 	fun build(): KtorClient

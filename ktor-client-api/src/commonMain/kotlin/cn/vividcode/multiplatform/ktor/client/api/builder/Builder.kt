@@ -17,18 +17,6 @@ sealed interface Builder<R> {
 	 * 域名
 	 */
 	fun domain(domain: String): R
-	/**
-	 * 域名
-	 */
-	fun domain(
-		host: String = "localhost",
-		port: Int = 8080,
-		safe: Boolean = false,
-		prefix: String = ""
-	): R {
-		val domain = "${if (safe) "https://" else "http://"}$host:$port$prefix"
-		return domain(domain)
-	}
 	
 	/**
 	 * 获取Token

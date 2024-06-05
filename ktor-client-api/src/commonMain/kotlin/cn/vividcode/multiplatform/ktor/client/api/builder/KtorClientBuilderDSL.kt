@@ -9,4 +9,23 @@ package cn.vividcode.multiplatform.ktor.client.api.builder
  *
  * 介绍：KtorClientBuilderDSL
  */
-sealed interface KtorClientBuilderDSL : Builder<Unit>
+sealed interface KtorClientBuilderDSL : Builder<Unit> {
+	
+	/**
+	 * 域名
+	 */
+	fun domain(builder: DomainBuilderDSL.() -> Unit) {
+		DomainBuilderDSL().apply {
+			builder()
+			val domain = "${if (safe) "https://" else "http://"}$host:$port$prefix"
+			domain(domain)
+		}
+	}
+	
+	data class DomainBuilderDSL internal constructor(
+		var host: String = "localhost",
+		var port: Int = 8080,
+		var safe: Boolean = false,
+		var prefix: String = ""
+	)
+}
