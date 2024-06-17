@@ -12,10 +12,10 @@ plugins {
 	alias(libs.plugins.maven.publish)
 }
 
-val ktorClientKspVersion = property("ktorClientKsp.version")!!.toString()
+val vividcodeKtorClientVersion = property("vividcode.ktor.client.version").toString()
 
 group = "cn.vividcode.multiplatform.ktor.client.api"
-version = ktorClientKspVersion
+version = vividcodeKtorClientVersion
 
 kotlin {
 	jvmToolchain(21)
@@ -93,7 +93,7 @@ mavenPublishing {
 	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 	signAllPublications()
 	
-	coordinates("cn.vividcode.multiplatform", "ktor-client-api", ktorClientKspVersion)
+	coordinates("cn.vividcode.multiplatform", "ktor-client-api", vividcodeKtorClientVersion)
 	
 	pom {
 		name.set("ktor-client-api")

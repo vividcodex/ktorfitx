@@ -3,10 +3,10 @@ kotlin = "2.0.0"
 agp = "8.2.2"
 ktor = "2.3.11"
 krypto = "4.0.10"
-ksp = "2.0.0-1.0.21"
-kotlinpoet = "1.16.0"
+ksp = "2.0.0-1.0.22"
+kotlinpoet-ksp = "1.17.0"
 maven-publish = "0.28.0"
-compose-plugin = "1.6.10"
+compose-plugin = "1.6.11"
 
 [libraries]
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
@@ -18,7 +18,7 @@ ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-conte
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 symbol-processing-api = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp" }
 symbol-processing = { group = "com.google.devtools.ksp", name = "symbol-processing", version.ref = "ksp" }
-kotlinpoet = { group = "com.squareup", name = "kotlinpoet", version.ref = "kotlinpoet" }
+kotlinpoet-ksp = { group = "com.squareup", name = "kotlinpoet-ksp", version.ref = "kotlinpoet-ksp" }
 krypto = { group = "com.soywiz.korlibs.krypto", name = "krypto", version.ref = "krypto" }
 
 [plugins]

@@ -6,10 +6,10 @@ plugins {
 	alias(libs.plugins.maven.publish)
 }
 
-val ktorClientKspVersion = property("ktorClientKsp.version")!!.toString()
+val vividcodeKtorClientVersion = property("vividcode.ktor.client.version").toString()
 
 group = "cn.vividcode.multiplatform.ktor.client.ksp"
-version = ktorClientKspVersion
+version = vividcodeKtorClientVersion
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_21
@@ -35,14 +35,14 @@ dependencies {
 	implementation(libs.kotlin.reflect)
 	implementation(libs.symbol.processing.api)
 	implementation(libs.symbol.processing)
-	implementation(libs.kotlinpoet)
+	implementation(libs.kotlinpoet.ksp)
 }
 
 mavenPublishing {
 	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 	signAllPublications()
 	
-	coordinates("cn.vividcode.multiplatform", "ktor-client-ksp", ktorClientKspVersion)
+	coordinates("cn.vividcode.multiplatform", "ktor-client-ksp", vividcodeKtorClientVersion)
 	
 	pom {
 		name.set("ktor-client-ksp")
