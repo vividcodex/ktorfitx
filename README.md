@@ -2,17 +2,17 @@
 
 ## 版本说明
 
-ktor版本-代码生成器版本：例如：`2.3.11`-`1.1.0`
+ktor版本-代码生成器版本：例如：`2.3.11`-`1.1.1`
 
 Kotlin：2.0.0
 
 Ktor：2.3.11
 
-KSP：2.0.0-RC3-1.0.20
+KSP：2.0.0-1.0.22
 
 ## 最新版本
 
-`2.3.11`-`1.1.0`
+`2.3.11`-`1.1.1`
 
 ## 依赖说明
 
@@ -39,7 +39,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.1.0") 
+            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.1.1") 
         }
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -48,7 +48,7 @@ kotlin {
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.1.0")
+    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.1.1")
 }
 
 tasks.withType<KotlinCompile<*>>().all {
