@@ -2,29 +2,27 @@
 
 ## 版本说明
 
-ktor版本-代码生成器版本：例如：`2.3.11`-`1.1.1`
-
 Kotlin：2.0.0
 
-Ktor：2.3.11
+Ktor：2.3.12
 
 KSP：2.0.0-1.0.22
 
 ## 最新版本
 
-`2.3.11`-`1.1.1`
+`2.3.12`-`1.2.0`
 
 ## 依赖说明
 
 模块中已经包含了以下依赖，不需要额外重新添加
 
 ``` kotlin
-io.ktor:ktor-client-core:2.3.11
-io.ktor:ktor-client-logging:2.3.11
-io.ktor:ktor-client-cio:2.3.11
-io.ktor:ktor-client-serialization:2.3.11
-io.ktor:ktor-client-content-negotiation:2.3.11
-io.ktor:ktor-serialization-kotlinx-json:2.3.11
+io.ktor:ktor-client-core:2.3.12
+io.ktor:ktor-client-logging:2.3.12
+io.ktor:ktor-client-cio:2.3.12
+io.ktor:ktor-client-serialization:2.3.12
+io.ktor:ktor-client-content-negotiation:2.3.12
+io.ktor:ktor-serialization-kotlinx-json:2.3.12
 ```
 
 ## 使用方法
@@ -39,7 +37,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.11-1.1.1") 
+            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.12-1.2.0") 
         }
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -48,7 +46,7 @@ kotlin {
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.11-1.1.1")
+    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.12-1.2.0")
 }
 
 tasks.withType<KotlinCompile<*>>().all {
@@ -62,68 +60,69 @@ tasks.withType<KotlinCompile<*>>().all {
 
 ### `@Api` `接口` 标记在接口上
 
-- `名称` baseUrl `类型` String `介绍` 接口前缀路径
+- 名称 `baseUrl` 类型 `String` 介绍 `接口前缀路径`
+- 接口作用域 `baseUrl` 类型 `KClass<*>` 默认值 `ApiScope::class` 介绍 `接口前缀路径`
 
 ### `@GET` `方法` GET请求
 
-- `名称` url `类型` String `介绍` 接口路径
-- `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
+- 名称 `url` 类型 `String` 介绍 `接口路径`
+- 名称 `auth` 类型 `Boolean` 默认值 `false` 介绍 `是否需要授权`
 
 ### `@POST` `方法` POST请求
 
-- `名称` url `类型` String `介绍` 接口路径
-- `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
+- 名称 `url` 类型 `String` 介绍 `接口路径`
+- 名称 `auth` 类型 `Boolean` 默认值 `false` 介绍 `是否需要授权`
 
 ### `@PUT` `方法` PUT请求
 
-- `名称` url `类型` String `介绍` 接口路径
-- `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
+- 名称 `url` 类型 `String` 介绍 `接口路径`
+- 名称 `auth` 类型 `Boolean` 默认值 `false` 介绍 `是否需要授权`
 
 ### `@DELETE` `方法` DELETE请求
 
-- `名称` url `类型` String `介绍` 接口路径
-- `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
+- 名称 `url` 类型 `String` 介绍 `接口路径`
+- 名称 `auth` 类型 `Boolean` 默认值 `false` 介绍 `是否需要授权`
 
 ### `@OPTIONS` `方法` OPTIONS请求
 
-- `名称` url `类型` String `介绍` 接口路径
-- `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
+- 名称 `url` 类型 `String` 介绍 `接口路径`
+- 名称 `auth` 类型 `Boolean` 默认值 `false` 介绍 `是否需要授权`
 
 ### `@PATCH` `方法` PATCH请求
 
-- `名称` url `类型` String `介绍` 接口路径
-- `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
+- 名称 `url` 类型 `String` 介绍 `接口路径`
+- 名称 `auth` 类型 `Boolean` 默认值 `false` 介绍 `是否需要授权`
 
 ### `@HEAD` `方法` HEAD请求
 
-- `名称` url `类型` String `介绍` 接口路径
-- `名称` auth `类型` Boolean `默认值` false `介绍` 是否需要授权
+- 名称 `url` 类型 `String` 介绍 `接口路径`
+- 名称 `auth` 类型 `Boolean` 默认值 `false` 介绍 `是否需要授权`
 
 ### `@Headers` `方法` 配置固定请求头
 
-- `名称` values `类型` Array<String> `介绍` 请求头：名称:值
+- 名称 `values` 类型 `Array<String>` 介绍 `请求头：名称:值`
 
 ### `@Body` `参数` 请求体
 
 ### `@Form` `参数` 表单
 
-- `名称` name `类型` String `介绍` 表单参数名称
+- 名称 `name` 类型 `String` 介绍 `表单参数名称`
 
 ### `@Query` `参数` 参数
 
-- `名称` name `类型` String `介绍` 参数名称
+- 名称 `name` 类型 `String` 介绍 `参数名称`
 
 ### `@Path` `参数` 参数
 
-- `名称` name `类型` String `介绍` 参数名称
+- 名称 `name` 类型 `String` 介绍 `参数名称`
 
 ### `@Header` `参数` 请求头
 
-- `名称` name `类型` String `介绍` 请求头参数名称
+- 名称 `name` 类型 `String` 介绍 `请求头参数名称`
 
 ### `@SHA256` `参数` 字段SHA256加密
 
-- `名称` layer `类型` Int `默认值` 1 `介绍` 加密层数
+- 名称 `layer` 类型 `Int` 默认值 `1` 介绍 `加密层数`
 
 ## 定义接口文件
 
@@ -133,7 +132,7 @@ tasks.withType<KotlinCompile<*>>().all {
 定义接口
 
 ``` kotlin
-@Api(baseUrl = "/test")
+@Api(baseUrl = "/test", apiScope = TestApiScope::class)
 interface TestApi {
 	
     /**
@@ -206,7 +205,9 @@ public class TestApiImpl private constructor(
     }
 }
 
-public val KtorClient.testApi: TestApi
+interface TestApiScope : ApiScope
+
+public val KtorClient<TestApiScope>.testApi: TestApi
     get() = TestApiImpl.getInstance(this)
 ```
 
@@ -216,7 +217,7 @@ public val KtorClient.testApi: TestApi
 /**
  * 配置 ktorClient，通过扩展属性获取实例
  */
-val ktorClient = KtorClient.builder()
+val ktorClient = KtorClient.builder<TestApiScope>()
     .domain("http://localhost/api")     // 必须填写，所有请求的前缀
     .getToken { "<token>" }             // 必须填写，当注解的 auth = true 后会将token附带在请求头上
     .handleLog { }                      // 默认值：{ }
@@ -227,15 +228,15 @@ val ktorClient = KtorClient.builder()
 /**
  * 使用 DSL 语法
  */
-val ktorClient2 = ktorClient {
-    domain("http://localhost/api")      // 必须填写，所有请求的前缀
-    // 使用分别构建方法
-    domain(
-        host = "localhost",
-        port = 80,
-        safe = false,
+val ktorClient2 = ktorClient<TestApiScope> {
+    domain("http://127.0.0.1/api")      // 必须填写，所有请求的前缀
+    // 或使用分别构建方法
+    domain {
+        host = "127.0.0.1"
+        port = 80
+        safe = false
         prefix = "/api"
-    )
+    }
     getToken { "<token>" }              // 必须填写，当注解的 auth = true 后会将token附带在请求头上
     handleLog { }                       // 默认值：{ }
     connectTimeout(5000L)               // 默认值：5000L
@@ -248,11 +249,10 @@ val ktorClient2 = ktorClient {
 @Composable
 fun Test() {
     val coroutineScope = rememberCoroutineScope()
-    val password by remember { mutableStateOf("123456") }
     var pageNum by remember { mutableIntStateOf(1) }
     Button(
         onClick = {
-            coroutineScope.launch {
+            coroutineScope.launch(Dispatchers.IO) {
                 val result = ktorClient.testApi.search(
                     searchKey = "<搜索内容>",
                     pageSize = 20,
