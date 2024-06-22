@@ -7,11 +7,18 @@ import com.squareup.kotlinpoet.ClassName
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
+private val ksAnnotationCacheMap = mutableMapOf<KSAnnotated, MutableMap<KClass<out Annotation>, KSAnnotation?>>()
+
 /**
  * 查找注解
  */
-internal fun KSAnnotated.getAnnotation(kClass: KClass<out Annotation>): KSAnnotation? = this.annotations.find {
-	it.annotationType.resolve().declaration.qualifiedName?.asString() == kClass.qualifiedName
+internal fun KSAnnotated.getAnnotation(kClass: KClass<out Annotation>): KSAnnotation? {
+	val cacheMap = ksAnnotationCacheMap.getOrPut(this) { mutableMapOf() }
+	return cacheMap.getOrPut(kClass) {
+		this.annotations.firstOrNull {
+			it.annotationType.resolve().declaration.qualifiedName?.asString() == kClass.qualifiedName
+		}
+	}
 }
 
 /**
@@ -35,17 +42,20 @@ internal fun <V> KSAnnotation.getArgumentValue(kProperty1: KProperty1<out Annota
 	return this.getArgumentValue(kProperty1.name)
 }
 
+private val argumentValueCacheMap = mutableMapOf<KSAnnotation, MutableMap<String, Any?>>()
+
 /**
  * 查找注解上的字段
  */
 @Suppress("UNCHECKED_CAST")
 internal fun <V> KSAnnotation.getArgumentValue(name: String): V? {
-	val value = this.arguments.find { it.name?.asString() == name }?.value
-	return if (value is ArrayList<*>) {
-		value.map { it.toString() }.toTypedArray() as V
-	} else {
-		value as? V
-	}
+	val cacheMap = argumentValueCacheMap.getOrPut(this) { mutableMapOf() }
+	return cacheMap.getOrPut(name) {
+		val value = this.arguments.find { it.name?.asString() == name }?.value
+		if (value is ArrayList<*>) {
+			value.toTypedArray()
+		} else value
+	} as? V
 }
 
 /**
