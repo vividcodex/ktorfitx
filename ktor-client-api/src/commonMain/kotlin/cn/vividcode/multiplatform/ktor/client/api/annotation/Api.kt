@@ -1,5 +1,8 @@
 package cn.vividcode.multiplatform.ktor.client.api.annotation
 
+import cn.vividcode.multiplatform.ktor.client.api.ApiScope
+import kotlin.reflect.KClass
+
 /**
  * 项目：vividcode-multiplatform
  *
@@ -11,4 +14,7 @@ package cn.vividcode.multiplatform.ktor.client.api.annotation
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Api(val baseUrl: String = "")
+annotation class Api(
+	val baseUrl: String = "",
+	val apiScope: KClass<out ApiScope> = ApiScope::class
+)

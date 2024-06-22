@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder
 
+import cn.vividcode.multiplatform.ktor.client.api.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 
 /**
@@ -11,7 +12,7 @@ import cn.vividcode.multiplatform.ktor.client.api.KtorClient
  *
  * 介绍：KtorClientBuilder
  */
-sealed interface KtorClientBuilder : Builder<KtorClientBuilder> {
+sealed interface KtorClientBuilder<AS : ApiScope> : Builder<KtorClientBuilder<AS>> {
 	
 	/**
 	 * 域名
@@ -21,7 +22,7 @@ sealed interface KtorClientBuilder : Builder<KtorClientBuilder> {
 		port: Int = 8080,
 		safe: Boolean = false,
 		prefix: String = ""
-	): KtorClientBuilder {
+	): KtorClientBuilder<AS> {
 		val domain = "${if (safe) "https://" else "http://"}$host:$port$prefix"
 		return domain(domain)
 	}
@@ -29,5 +30,5 @@ sealed interface KtorClientBuilder : Builder<KtorClientBuilder> {
 	/**
 	 * 构建
 	 */
-	fun build(): KtorClient
+	fun build(): KtorClient<AS>
 }

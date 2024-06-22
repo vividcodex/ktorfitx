@@ -9,7 +9,7 @@ import io.ktor.client.plugins.logging.*
  *
  * 创建：2024/5/13 上午2:19
  *
- * 介绍：KtorClientBuilder
+ * 介绍：Builder
  */
 sealed interface Builder<R> {
 	

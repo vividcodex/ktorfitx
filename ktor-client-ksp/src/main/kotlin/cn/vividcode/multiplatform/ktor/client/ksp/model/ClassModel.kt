@@ -14,5 +14,6 @@ import com.squareup.kotlinpoet.ClassName
 internal data class ClassModel(
 	val className: ClassName,
 	val superinterface: ClassName,
+	val apiScopeClassName: ClassName,
 	val functionModels: List<FunctionModel>
 )

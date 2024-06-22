@@ -22,7 +22,7 @@ import io.ktor.serialization.kotlinx.json.*
  *
  * 介绍：KtorClient
  */
-class KtorClient internal constructor(
+class KtorClient<AS : ApiScope> internal constructor(
 	val ktorConfig: KtorConfig,
 	private val httpConfig: HttpConfig,
 ) {
@@ -32,7 +32,7 @@ class KtorClient internal constructor(
 		/**
 		 * KtorClientBuilder
 		 */
-		fun builder(): KtorClientBuilder = KtorClientBuilderImpl()
+		fun <AS : ApiScope> builder(): KtorClientBuilder<AS> = KtorClientBuilderImpl()
 	}
 	
 	/**
@@ -66,6 +66,6 @@ class KtorClient internal constructor(
 /**
  * KtorClient DSL
  */
-fun ktorClient(builder: KtorClientBuilderDSL.() -> Unit): KtorClient {
-	return KtorClientBuilderDSLImpl().apply(builder).build()
+fun <AS : ApiScope> ktorClient(builder: KtorClientBuilderDSL.() -> Unit): KtorClient<AS> {
+	return KtorClientBuilderDSLImpl<AS>().apply(builder).build()
 }

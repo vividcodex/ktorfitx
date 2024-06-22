@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor
 
+import cn.vividcode.multiplatform.ktor.client.api.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.annotation.*
 import cn.vividcode.multiplatform.ktor.client.api.model.ResultBody
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.*
@@ -11,6 +12,7 @@ import com.google.devtools.ksp.visitor.KSEmptyVisitor
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.asClassName
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
@@ -29,6 +31,10 @@ internal class ApiVisitor(
 	
 	private val ktorApiKotlinPoet by lazy { KtorApiKotlinPoet() }
 	
+	private companion object {
+		private val apiScopeClassName = ApiScope::class.asClassName()
+	}
+	
 	override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit): KSClassDeclaration {
 		val classModel = getClassModel(classDeclaration)
 		val fileSpec = ktorApiKotlinPoet.getFileSpec(classModel)
@@ -42,8 +48,9 @@ internal class ApiVisitor(
 	private fun getClassModel(classDeclaration: KSClassDeclaration): ClassModel {
 		val className = classDeclaration.className.let { ClassName("${it.packageName}.impl", "${it.simpleName}Impl") }
 		val superinterfaceClassName = classDeclaration.className
+		val apiScopeClassName = classDeclaration.getAnnotation(Api::class)!!.getArgumentClassName(Api::apiScope) ?: apiScopeClassName
 		val functionModels = getFunctionModels(classDeclaration)
-		return ClassModel(className, superinterfaceClassName, functionModels)
+		return ClassModel(className, superinterfaceClassName, apiScopeClassName, functionModels)
 	}
 	
 	/**
@@ -121,7 +128,10 @@ internal class ApiVisitor(
 	/**
 	 * 获取 FunctionParamModel
 	 */
-	private fun getRequestModel(functionDeclaration: KSFunctionDeclaration, baseUrl: String): Triple<KClass<out Annotation>, String, Boolean>? {
+	private fun getRequestModel(
+		functionDeclaration: KSFunctionDeclaration,
+		baseUrl: String
+	): Triple<KClass<out Annotation>, String, Boolean>? {
 		val requestTypeClasses = arrayOf(GET::class, POST::class, PUT::class, DELETE::class, OPTIONS::class, PATCH::class, HEAD::class)
 		val requestTypes = functionDeclaration.getAnnotationSize(*requestTypeClasses)
 		val functionName = functionDeclaration.qualifiedName!!.asString()

@@ -1,11 +1,15 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet
 
+import cn.vividcode.multiplatform.ktor.client.api.KtorClient
+import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
 import cn.vividcode.multiplatform.ktor.client.api.model.ResultBody
 import cn.vividcode.multiplatform.ktor.client.ksp.model.ClassModel
 import cn.vividcode.multiplatform.ktor.client.ksp.model.FunctionModel
 import cn.vividcode.multiplatform.ktor.client.ksp.model.ParameterModel
 import cn.vividcode.multiplatform.ktor.client.ksp.model.PathModel
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import io.ktor.client.*
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -19,9 +23,9 @@ import com.squareup.kotlinpoet.*
 internal class KtorApiKotlinPoet {
 	
 	companion object {
-		private val ktorClientClassName = ClassName("cn.vividcode.multiplatform.ktor.client.api", "KtorClient")
-		private val ktorConfigClassName = ClassName("cn.vividcode.multiplatform.ktor.client.api.config", "KtorConfig")
-		private val httpClientClassName = ClassName("io.ktor.client", "HttpClient")
+		private val ktorClientClassName = KtorClient::class.asClassName()
+		private val ktorConfigClassName = KtorConfig::class.asClassName()
+		private val httpClientClassName = HttpClient::class.asClassName()
 		
 		private val importMap = mapOf(
 			"cn.vividcode.multiplatform.ktor.client.api.expends" to arrayOf("sha256"),
@@ -50,7 +54,7 @@ internal class KtorApiKotlinPoet {
 		val fileSpecBuilder = FileSpec.builder(classModel.className)
 			.indent("\t")
 			.addType(getTypeSpec(classModel))
-			.addProperty(getApiPropertySpec(classModel.className, classModel.superinterface))
+			.addProperty(getApiPropertySpec(classModel.className, classModel.superinterface, classModel.apiScopeClassName))
 		useImports.forEach { (simpleName, packageName) ->
 			fileSpecBuilder.addImport(packageName, simpleName)
 		}
@@ -91,13 +95,13 @@ internal class KtorApiKotlinPoet {
 	/**
 	 * 生成扩展属性
 	 */
-	private fun getApiPropertySpec(className: ClassName, superinterface: ClassName): PropertySpec {
+	private fun getApiPropertySpec(className: ClassName, superinterface: ClassName, apiScopeClassName: ClassName): PropertySpec {
 		val getter = FunSpec.getterBuilder()
 			.addStatement("return ${className.simpleName}.getInstance(this.ktorConfig, this.httpClient)", superinterface)
 			.build()
 		val name = superinterface.simpleName.replaceFirstChar { it.lowercase() }
 		return PropertySpec.builder(name, superinterface)
-			.receiver(ktorClientClassName)
+			.receiver(ktorClientClassName.parameterizedBy(apiScopeClassName))
 			.getter(getter)
 			.build()
 	}

@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder
 
+import cn.vividcode.multiplatform.ktor.client.api.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
@@ -14,7 +15,7 @@ import io.ktor.client.plugins.logging.*
  *
  * 介绍：KtorClientBuilderDSLImpl
  */
-internal class KtorClientBuilderDSLImpl : KtorClientBuilderDSL {
+internal class KtorClientBuilderDSLImpl<AS : ApiScope> : KtorClientBuilderDSL {
 	
 	private val ktorConfig = KtorConfig()
 	private val httpConfig = HttpConfig()
@@ -47,7 +48,7 @@ internal class KtorClientBuilderDSLImpl : KtorClientBuilderDSL {
 		this.httpConfig.handleLog = handleLog
 	}
 	
-	fun build(): KtorClient {
+	fun build(): KtorClient<AS> {
 		this.ktorConfig.check()
 		return KtorClient(this.ktorConfig, this.httpConfig)
 	}
