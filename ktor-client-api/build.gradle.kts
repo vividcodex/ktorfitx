@@ -1,7 +1,8 @@
-
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
@@ -19,6 +20,22 @@ version = vividcodeKtorClientVersion
 
 kotlin {
 	jvmToolchain(21)
+	
+	@OptIn(ExperimentalWasmDsl::class)
+	wasmJs {
+		moduleName = "ktorClientApi"
+		browser {
+			commonWebpackConfig {
+				outputFileName = "ktorClientApi.js"
+				devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+					static = (static ?: mutableListOf()).apply {
+						add(project.projectDir.path)
+					}
+				}
+			}
+		}
+		binaries.executable()
+	}
 	
 	androidTarget {
 		@OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -38,7 +55,7 @@ kotlin {
 		iosSimulatorArm64()
 	).forEach { iosTarget ->
 		iosTarget.binaries.framework {
-			baseName = "VividCodeKtorClientApi"
+			baseName = "KtorClientApi"
 			isStatic = true
 		}
 	}
