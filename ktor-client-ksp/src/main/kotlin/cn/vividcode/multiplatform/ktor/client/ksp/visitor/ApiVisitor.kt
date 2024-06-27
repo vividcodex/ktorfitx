@@ -64,8 +64,8 @@ internal class ApiVisitor(
 		}
 		return classDeclaration.getAllFunctions().toList().mapNotNull {
 			val (requestType, url, auth) = getRequestModel(it, baseUrl) ?: return@mapNotNull null
-			if (!it.modifiers.contains(Modifier.SUSPEND)) {
-				error("${it.qualifiedName!!.asString()} 方法缺少 suspend 关键字")
+			check(Modifier.SUSPEND in it.modifiers) {
+				"${it.qualifiedName!!.asString()} 方法缺少 suspend 关键字"
 			}
 			with(it.parameters) {
 				FunctionModel(

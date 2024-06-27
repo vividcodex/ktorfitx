@@ -4,6 +4,8 @@ import cn.vividcode.multiplatform.ktor.client.api.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
+import cn.vividcode.multiplatform.ktor.client.api.mock.MockScope
+import cn.vividcode.multiplatform.ktor.client.api.mock.MockScopeImpl
 import io.ktor.client.plugins.logging.*
 
 /**
@@ -52,6 +54,12 @@ internal class KtorClientBuilderImpl<AS : ApiScope> : KtorClientBuilder<AS> {
 	
 	override fun handleLog(handleLog: (message: String) -> Unit): KtorClientBuilder<AS> {
 		this.httpConfig.handleLog = handleLog
+		return this
+	}
+	
+	override fun mock(block: MockScope.() -> Unit): KtorClientBuilder<AS> {
+		val mockScope = MockScopeImpl().apply(block)
+		this.httpConfig.mockMap = mockScope.mockMap
 		return this
 	}
 	

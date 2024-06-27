@@ -1,6 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.api.config
 
 import io.ktor.client.plugins.logging.*
+import kotlin.reflect.KClass
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -17,4 +18,5 @@ internal data class HttpConfig internal constructor(
 	var keepAliveTime: Long = 5000L,
 	var logLevel: LogLevel = LogLevel.HEADERS,
 	var handleLog: (message: String) -> Unit = {},
+	var mockMap: Map<KClass<*>, Any> = emptyMap()
 )

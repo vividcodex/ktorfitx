@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder
 
+import cn.vividcode.multiplatform.ktor.client.api.mock.MockScope
 import io.ktor.client.plugins.logging.*
 
 /**
@@ -47,4 +48,9 @@ sealed interface Builder<R> {
 	 * 日志处理
 	 */
 	fun handleLog(handleLog: (message: String) -> Unit): R
+	
+	/**
+	 * Mock
+	 */
+	fun mock(block: MockScope.() -> Unit): R
 }
