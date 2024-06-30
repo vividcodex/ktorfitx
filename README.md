@@ -10,7 +10,7 @@ KSP：2.0.0-1.0.22
 
 ## 最新版本
 
-`2.3.12`-`1.2.0`
+`2.3.12`-`1.2.1`
 
 ## 依赖说明
 
@@ -18,11 +18,6 @@ KSP：2.0.0-1.0.22
 
 ``` kotlin
 io.ktor:ktor-client-core:2.3.12
-io.ktor:ktor-client-logging:2.3.12
-io.ktor:ktor-client-cio:2.3.12
-io.ktor:ktor-client-serialization:2.3.12
-io.ktor:ktor-client-content-negotiation:2.3.12
-io.ktor:ktor-serialization-kotlinx-json:2.3.12
 ```
 
 ## 使用方法
@@ -37,7 +32,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.12-1.2.0") 
+            implementation("cn.vividcode.multiplatform:ktor-client-api:2.3.12-1.2.1") 
         }
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -46,7 +41,7 @@ kotlin {
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.12-1.2.0")
+    kspCommonMainMetadata("cn.vividcode.multiplatform:ktor-client-ksp:2.3.12-1.2.1")
 }
 
 tasks.withType<KotlinCompile<*>>().all {
