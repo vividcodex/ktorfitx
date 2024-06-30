@@ -157,10 +157,12 @@ internal class KtorApiKotlinPoet {
 		
 		val requestTypeName = use(functionModel.requestType.simpleName!!.lowercase())
 		val url = parsePathToUrl(functionModel.url, functionModel.pathModels)
-		beginControlFlow("$httpClient.${requestTypeName}(urlString = \"\${ktorConfig.domain}$url\")")
+		beginControlFlow("$httpClient.${requestTypeName}(urlString = \"\${ktorConfig.baseUrl}$url\")")
 		if (functionModel.auth) {
 			use("bearerAuth")
-			addStatement("bearerAuth(ktorConfig.getToken!!())")
+			beginControlFlow("ktorConfig.jwt?.let")
+			addStatement("bearerAuth(it())")
+			endControlFlow()
 		}
 		if (functionModel.bodyModel != null) {
 			use("contentType")

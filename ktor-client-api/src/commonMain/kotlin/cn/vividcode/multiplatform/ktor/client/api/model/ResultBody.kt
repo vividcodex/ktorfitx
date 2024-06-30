@@ -21,6 +21,13 @@ data class ResultBody<T : Any>(
 	companion object {
 		
 		/**
+		 * 成功
+		 */
+		fun <T : Any> success(data: T?, msg: String): ResultBody<T> {
+			return ResultBody(0, msg, data)
+		}
+		
+		/**
 		 * 失败
 		 */
 		fun <T : Any> failure(code: Int, msg: String): ResultBody<T> {

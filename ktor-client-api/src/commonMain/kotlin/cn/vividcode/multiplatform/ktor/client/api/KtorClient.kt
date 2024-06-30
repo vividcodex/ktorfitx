@@ -1,8 +1,8 @@
 package cn.vividcode.multiplatform.ktor.client.api
 
 import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilder
-import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderDSL
-import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderDSLImpl
+import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderDsl
+import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderDslImpl
 import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderImpl
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
@@ -27,10 +27,15 @@ class KtorClient<AS : ApiScope> internal constructor(
 	private val httpConfig: HttpConfig,
 ) {
 	
+	init {
+		this.ktorConfig.check()
+		this.httpConfig.check()
+	}
+	
 	companion object {
 		
 		/**
-		 * KtorClientBuilder
+		 * ktorClient 的构造器
 		 */
 		fun <AS : ApiScope> builder(): KtorClientBuilder<AS> = KtorClientBuilderImpl()
 	}
@@ -64,8 +69,10 @@ class KtorClient<AS : ApiScope> internal constructor(
 }
 
 /**
- * KtorClient DSL
+ * ktorClient 的Dsl构造器
  */
-fun <AS : ApiScope> ktorClient(builder: KtorClientBuilderDSL.() -> Unit): KtorClient<AS> {
-	return KtorClientBuilderDSLImpl<AS>().apply(builder).build()
+fun <AS : ApiScope> ktorClient(builder: KtorClientBuilderDsl.() -> Unit): KtorClient<AS> {
+	return KtorClientBuilderDslImpl<AS>()
+		.apply(builder)
+		.build()
 }

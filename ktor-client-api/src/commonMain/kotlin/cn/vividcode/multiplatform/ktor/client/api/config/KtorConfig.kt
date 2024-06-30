@@ -9,16 +9,16 @@ package cn.vividcode.multiplatform.ktor.client.api.config
  *
  * 介绍：KtorConfig
  */
-data class KtorConfig internal constructor(
-	var domain: String = "http://localhost:8080",
-	var getToken: (() -> String)? = null
+class KtorConfig internal constructor(
+	var baseUrl: String = "http://localhost",
+	var jwt: (() -> String)? = null
 ) {
 	
 	/**
 	 * 检查
 	 */
 	fun check() {
-		check(this.domain.isNotEmpty()) { "domain 还没有配置" }
-		checkNotNull(this.getToken) { "getToken 还没有配置" }
+		check(this.baseUrl.isNotEmpty()) { "domain 还没有配置" }
+		checkNotNull(this.jwt) { "getToken 还没有配置" }
 	}
 }

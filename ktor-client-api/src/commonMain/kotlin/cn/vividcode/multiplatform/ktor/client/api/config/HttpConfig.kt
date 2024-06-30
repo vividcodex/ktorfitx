@@ -1,7 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.api.config
 
 import io.ktor.client.plugins.logging.*
-import kotlin.reflect.KClass
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -12,11 +11,23 @@ import kotlin.reflect.KClass
  *
  * 介绍：HttpConfig
  */
-internal data class HttpConfig internal constructor(
+internal class HttpConfig internal constructor(
 	var connectTimeout: Long = 5000L,
 	var socketTimeout: Long = Long.MAX_VALUE,
 	var keepAliveTime: Long = 5000L,
 	var logLevel: LogLevel = LogLevel.HEADERS,
-	var handleLog: (message: String) -> Unit = {},
-	var mockMap: Map<KClass<*>, Any> = emptyMap()
-)
+	var handleLog: (message: String) -> Unit = {}
+) {
+	
+	internal fun check() {
+		check(connectTimeout >= 0L) {
+			"connectTimeout 必须大于等于 0"
+		}
+		check(socketTimeout >= 0L) {
+			"socketTimeout 必须大于等于 0"
+		}
+		check(keepAliveTime >= 0L) {
+			"keepAliveTime 必须大于等于 0"
+		}
+	}
+}
