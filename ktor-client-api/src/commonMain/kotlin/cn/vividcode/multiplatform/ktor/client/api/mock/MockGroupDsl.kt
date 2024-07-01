@@ -12,7 +12,7 @@ import cn.vividcode.multiplatform.ktor.client.api.builder.KtorBuilderDsl
  * 介绍：MockGroup
  */
 @KtorBuilderDsl
-interface MockGroupDsl<T : Any> {
+sealed interface MockGroupDsl<T : Any> {
 	
 	var enabled: Boolean
 	
@@ -31,13 +31,6 @@ internal class MockGroupDslImpl<T : Any> : MockGroupDsl<T> {
 			val mock = mockDsl.mock ?: error("${mockDsl.name} 的 mock 必须不为空")
 			val delayRange = mockDsl.delay.range
 			mockModels[mockDsl.name] = MockModel(delayRange, mock)
-		}
-		try {
-		
-		} catch (e: Exception) {
-		
-		} finally {
-		
 		}
 	}
 }

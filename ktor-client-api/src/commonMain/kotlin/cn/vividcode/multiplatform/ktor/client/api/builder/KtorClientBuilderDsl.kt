@@ -4,6 +4,8 @@ import cn.vividcode.multiplatform.ktor.client.api.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
+import cn.vividcode.multiplatform.ktor.client.api.mock.MocksDsl
+import cn.vividcode.multiplatform.ktor.client.api.mock.MocksDslImpl
 import io.ktor.client.plugins.logging.*
 
 /**
@@ -32,6 +34,11 @@ sealed interface KtorClientBuilderDsl {
 	 * jwt
 	 */
 	fun jwt(jwt: () -> String)
+	
+	/**
+	 * mocks
+	 */
+	fun mocks(block: MocksDsl.() -> Unit)
 	
 	/**
 	 * connectTimeout
@@ -78,6 +85,12 @@ internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
 	
 	override fun jwt(jwt: () -> String) {
 		this.ktorConfig.jwt = jwt
+	}
+	
+	override fun mocks(block: MocksDsl.() -> Unit) {
+		this.ktorConfig.mocksMap = MocksDslImpl()
+			.apply(block)
+			.mocksMap
 	}
 	
 	override var connectTimeout: Long = httpConfig.connectTimeout

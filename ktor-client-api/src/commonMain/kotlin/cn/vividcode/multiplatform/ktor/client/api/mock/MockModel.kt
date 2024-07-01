@@ -9,7 +9,7 @@ package cn.vividcode.multiplatform.ktor.client.api.mock
  *
  * 介绍：MockModel
  */
-data class MockModel<T : Any>(
+data class MockModel<T : Any> internal constructor(
 	val delayRange: LongRange,
 	val mock: T
 )

@@ -12,7 +12,7 @@ import cn.vividcode.multiplatform.ktor.client.api.builder.KtorBuilderDsl
  * 介绍：MockDsl
  */
 @KtorBuilderDsl
-interface MockDsl<T : Any> {
+sealed interface MockDsl<T : Any> {
 	
 	/**
 	 * enabled

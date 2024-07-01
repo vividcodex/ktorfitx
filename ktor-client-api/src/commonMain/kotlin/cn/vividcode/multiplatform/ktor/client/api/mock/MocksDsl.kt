@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
  * 介绍：MocksDsl
  */
 @KtorBuilderDsl
-interface MocksDsl {
+sealed interface MocksDsl {
 	
 	fun <T : Any> group(kClass: KClass<T>, block: MockGroupDsl<T>.() -> Unit)
 }
