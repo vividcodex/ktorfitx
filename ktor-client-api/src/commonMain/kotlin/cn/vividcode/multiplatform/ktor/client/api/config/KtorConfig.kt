@@ -1,5 +1,8 @@
 package cn.vividcode.multiplatform.ktor.client.api.config
 
+import cn.vividcode.multiplatform.ktor.client.api.mock.MockModel
+import kotlin.reflect.KClass
+
 /**
  * 项目：vividcode-multiplatform-ktor-client
  *
@@ -11,7 +14,8 @@ package cn.vividcode.multiplatform.ktor.client.api.config
  */
 class KtorConfig internal constructor(
 	var baseUrl: String = "http://localhost",
-	var jwt: (() -> String)? = null
+	var jwt: (() -> String)? = null,
+	var mocksMap: Map<KClass<*>, Map<String, MockModel<*>>> = emptyMap()
 ) {
 	
 	/**

@@ -15,6 +15,6 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Api(
-	val baseUrl: String = "",
+	val url: String = "",
 	val apiScope: KClass<out ApiScope> = ApiScope::class
 )

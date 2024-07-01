@@ -58,7 +58,7 @@ internal class ApiVisitor(
 	 */
 	private fun getFunctionModels(classDeclaration: KSClassDeclaration): List<FunctionModel> {
 		val annotation = classDeclaration.getAnnotation(Api::class)!!
-		var baseUrl = annotation.getArgumentValue(Api::baseUrl)?.trim() ?: ""
+		var baseUrl = annotation.getArgumentValue(Api::url)?.trim() ?: ""
 		if (baseUrl.isNotEmpty() && !baseUrl.startsWith("/")) {
 			baseUrl = "/$baseUrl"
 		}
