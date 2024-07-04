@@ -20,11 +20,6 @@ sealed interface MockDsl<T : Any> {
 	var enabled: Boolean
 	
 	/**
-	 * name
-	 */
-	var name: String
-	
-	/**
 	 * delay
 	 */
 	var delay: MockDelay
@@ -48,8 +43,6 @@ sealed interface MockDsl<T : Any> {
 internal class MockDslImpl<T : Any> : MockDsl<T> {
 	
 	override var enabled: Boolean = true
-	
-	override var name: String = ""
 	
 	override var delay: MockDelay = MockDelay.Default
 	

@@ -5,10 +5,11 @@ package cn.vividcode.multiplatform.ktor.client.ksp.model
  *
  * 作者：li-jia-wei
  *
- * 创建：2024/7/1 下午4:02
+ * 创建：2024/7/2 下午9:59
  *
- * 介绍：HeadersModel
+ * 介绍：MockModel
  */
-internal data class HeadersModel(
-	val headerMap: Map<String, String>,
+@JvmInline
+internal value class MockModel(
+	val name: String
 ) : FunctionModel

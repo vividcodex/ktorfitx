@@ -1,6 +1,8 @@
 package cn.vividcode.multiplatform.ktor.client.ksp
 
 import cn.vividcode.multiplatform.ktor.client.api.annotation.Api
+import cn.vividcode.multiplatform.ktor.client.ksp.expends.generate
+import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.ApiKotlinPoet
 import cn.vividcode.multiplatform.ktor.client.ksp.visitor.ApiVisitor
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Resolver
@@ -18,17 +20,23 @@ import com.google.devtools.ksp.validate
  *
  * 介绍：KtorSymbolProcessor
  */
-internal class KtorSymbolProcessor(codeGenerator: CodeGenerator) : SymbolProcessor {
+internal class KtorSymbolProcessor(
+	private val codeGenerator: CodeGenerator
+) : SymbolProcessor {
 	
-	private val apiVisitor by lazy { ApiVisitor(codeGenerator) }
+	private val apiVisitor by lazy { ApiVisitor() }
+	private val apiKotlinPoet by lazy { ApiKotlinPoet() }
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
-		return resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)
-			.partition { it is KSClassDeclaration && it.validate() }
-			.also {
-				it.first.forEach { annotated ->
-					annotated.accept(apiVisitor, Unit)
-				}
-			}.second
+		val annotatedList = resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)
+		val rets = annotatedList.filterNot { it.validate() && it is KSClassDeclaration }.toMutableSet()
+		(annotatedList - rets).forEach {
+			val classStructure = it.accept(apiVisitor, Unit)
+			if (classStructure != null) {
+				val fileSpec = apiKotlinPoet.getFileSpec(classStructure)
+				codeGenerator.generate(fileSpec, classStructure.className)
+			} else rets += it
+		}
+		return rets.toList()
 	}
 }

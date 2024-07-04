@@ -16,7 +16,7 @@ sealed interface MockGroupDsl<T : Any> {
 	
 	var enabled: Boolean
 	
-	fun mock(block: MockDsl<T>.() -> Unit)
+	fun mock(name: String = "", block: MockDsl<T>.() -> Unit)
 }
 
 internal class MockGroupDslImpl<T : Any> : MockGroupDsl<T> {
@@ -25,12 +25,12 @@ internal class MockGroupDslImpl<T : Any> : MockGroupDsl<T> {
 	
 	override var enabled: Boolean = true
 	
-	override fun mock(block: MockDsl<T>.() -> Unit) {
+	override fun mock(name: String, block: MockDsl<T>.() -> Unit) {
 		val mockDsl = MockDslImpl<T>().apply(block)
 		if (mockDsl.enabled) {
-			val mock = mockDsl.mock ?: error("${mockDsl.name} 的 mock 必须不为空")
+			val mock = mockDsl.mock ?: error("$name 的 mock 必须不为空")
 			val delayRange = mockDsl.delay.range
-			mockModels[mockDsl.name] = MockModel(delayRange, mock)
+			mockModels[name] = MockModel(delayRange, mock)
 		}
 	}
 }

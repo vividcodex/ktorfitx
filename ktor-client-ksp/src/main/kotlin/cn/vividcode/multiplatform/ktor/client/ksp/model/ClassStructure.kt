@@ -7,13 +7,13 @@ import com.squareup.kotlinpoet.ClassName
  *
  * 作者：li-jia-wei
  *
- * 创建：2024/5/12 上午12:15
+ * 创建：2024/7/1 下午3:47
  *
- * 介绍：ClassModel
+ * 介绍：类 结构
  */
-internal data class ClassModel(
+internal data class ClassStructure(
 	val className: ClassName,
 	val superinterface: ClassName,
-	val apiScopeClassName: ClassName,
-	val functionModels: List<FunctionModel>
+	val apiStructure: ApiStructure,
+	val funStructures: Sequence<FunStructure>
 )

@@ -1,5 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.api.annotation
 
+import cn.vividcode.multiplatform.ktor.client.api.encrypt.EncryptType
+
 /**
  * 项目：vividcode-multiplatform
  *
@@ -11,4 +13,9 @@ package cn.vividcode.multiplatform.ktor.client.api.annotation
  */
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
-annotation class SHA256(val layer: Int = 1)
+annotation class Encrypt(
+	val encryptType: EncryptType = EncryptType.SHA256,
+	val layer: Int = DEFAULT_SHA_LAYER
+)
+
+private const val DEFAULT_SHA_LAYER = 1

@@ -7,11 +7,13 @@ import com.squareup.kotlinpoet.ClassName
  *
  * 作者：li-jia-wei
  *
- * 创建：2024/5/12 下午6:32
+ * 创建：2024/7/1 下午3:53
  *
- * 介绍：ParameterModel
+ * 介绍：ValueParameterModel
  */
-internal data class ParameterModel(
-	val name: String,
+internal sealed interface ValueParameterModel {
+	
+	val varName: String
+	
 	val className: ClassName
-)
+}

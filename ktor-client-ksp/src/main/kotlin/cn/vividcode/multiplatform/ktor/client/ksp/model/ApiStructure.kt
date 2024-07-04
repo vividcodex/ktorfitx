@@ -7,11 +7,11 @@ import com.squareup.kotlinpoet.ClassName
  *
  * 作者：li-jia-wei
  *
- * 创建：2024/7/1 下午3:55
+ * 创建：2024/7/3 下午2:15
  *
- * 介绍：BodyModel
+ * 介绍：ApiStructure
  */
-internal data class BodyModel(
-	override val varName: String,
-	override val className: ClassName
-) : ValueParameterModel
+internal data class ApiStructure(
+	val url: String,
+	val apiScopeClassName: ClassName
+)

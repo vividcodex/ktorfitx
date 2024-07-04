@@ -1,7 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.api.mock
 
 import cn.vividcode.multiplatform.ktor.client.api.builder.KtorBuilderDsl
-import kotlin.reflect.KClass
+import kotlin.reflect.KSuspendFunction1
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -15,23 +15,18 @@ import kotlin.reflect.KClass
 @KtorBuilderDsl
 sealed interface MocksDsl {
 	
-	fun <T : Any> group(kClass: KClass<T>, block: MockGroupDsl<T>.() -> Unit)
+	fun <T : Any> group(function: KSuspendFunction1<*, T>, block: MockGroupDsl<T>.() -> Unit)
 }
 
 internal class MocksDslImpl : MocksDsl {
 	
-	val mocksMap = mutableMapOf<KClass<*>, MutableMap<String, MockModel<*>>>()
+	val groupMocksMap = mutableMapOf<KSuspendFunction1<*, *>, MutableMap<String, MockModel<*>>>()
 	
-	override fun <T : Any> group(kClass: KClass<T>, block: MockGroupDsl<T>.() -> Unit) {
+	override fun <T : Any> group(function: KSuspendFunction1<*, T>, block: MockGroupDsl<T>.() -> Unit) {
 		val mockGroupDsl = MockGroupDslImpl<T>().apply(block)
 		if (mockGroupDsl.enabled) {
-			mocksMap[kClass] = mockGroupDsl.mockModels
+			val mockGroupMap = groupMocksMap.getOrPut(function) { mutableMapOf() }
+			mockGroupMap += mockGroupDsl.mockModels
 		}
 	}
-}
-
-inline fun <reified T : Any> MocksDsl.group(
-	noinline block: MockGroupDsl<T>.() -> Unit
-) {
-	this.group(T::class, block)
 }

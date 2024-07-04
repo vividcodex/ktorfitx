@@ -5,7 +5,6 @@ import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
 import cn.vividcode.multiplatform.ktor.client.api.mock.MocksDsl
-import cn.vividcode.multiplatform.ktor.client.api.mock.MocksDslImpl
 import io.ktor.client.plugins.logging.*
 
 /**
@@ -31,9 +30,9 @@ sealed interface KtorClientBuilderDsl {
 	fun baseUrl(block: BaseUrlBuilderDsl.() -> Unit)
 	
 	/**
-	 * jwt
+	 * token
 	 */
-	fun jwt(jwt: () -> String)
+	fun token(token: () -> String)
 	
 	/**
 	 * mocks
@@ -70,6 +69,7 @@ internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
 	
 	private val ktorConfig by lazy { KtorConfig() }
 	private val httpConfig by lazy { HttpConfig() }
+	private val mockBuilderDelegate by lazy { MockBuilderDelegate() }
 	
 	override var baseUrl: String = ktorConfig.baseUrl
 		set(value) {
@@ -83,14 +83,12 @@ internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
 			.build()
 	}
 	
-	override fun jwt(jwt: () -> String) {
-		this.ktorConfig.jwt = jwt
+	override fun token(token: () -> String) {
+		this.ktorConfig.token = token
 	}
 	
 	override fun mocks(block: MocksDsl.() -> Unit) {
-		this.ktorConfig.mocksMap = MocksDslImpl()
-			.apply(block)
-			.mocksMap
+		this.mockBuilderDelegate.mocks(this.ktorConfig.groupMocksMap, block)
 	}
 	
 	override var connectTimeout: Long = httpConfig.connectTimeout
