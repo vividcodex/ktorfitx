@@ -6,6 +6,8 @@ import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderDslIm
 import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderImpl
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
+import cn.vividcode.multiplatform.ktor.client.api.config.MockConfig
+import cn.vividcode.multiplatform.ktor.client.api.mock.MockClient
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -22,14 +24,16 @@ import io.ktor.serialization.kotlinx.json.*
  *
  * 介绍：KtorClient
  */
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class KtorClient<AS : ApiScope> internal constructor(
 	val ktorConfig: KtorConfig,
-	private val httpConfig: HttpConfig,
+	httpConfig: HttpConfig,
+	mockConfig: MockConfig
 ) {
 	
 	init {
 		this.ktorConfig.check()
-		this.httpConfig.check()
+		httpConfig.check()
 	}
 	
 	companion object {
@@ -65,6 +69,10 @@ class KtorClient<AS : ApiScope> internal constructor(
 				}
 			}
 		}
+	}
+	
+	val mockClient: MockClient by lazy {
+		MockClient(mockConfig, httpConfig.handleLog)
 	}
 }
 

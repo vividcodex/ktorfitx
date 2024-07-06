@@ -28,9 +28,9 @@ internal class MockGroupDslImpl<T : Any> : MockGroupDsl<T> {
 	override fun mock(name: String, block: MockDsl<T>.() -> Unit) {
 		val mockDsl = MockDslImpl<T>().apply(block)
 		if (mockDsl.enabled) {
-			val mock = mockDsl.mock ?: error("$name 的 mock 必须不为空")
+			val mock = mockDsl.mock
 			val delayRange = mockDsl.delay.range
-			mockModels[name] = MockModel(delayRange, mock)
+			mockModels[name.trim()] = MockModel(delayRange, mock)
 		}
 	}
 }

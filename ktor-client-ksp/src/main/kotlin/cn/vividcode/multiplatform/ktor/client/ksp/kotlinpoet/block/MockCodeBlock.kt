@@ -26,22 +26,11 @@ internal class MockCodeBlock(
 		funStructure: FunStructure,
 		mockModel: MockModel
 	) {
-		addImport("kotlinx.coroutines", "delay")
 		addImports(funStructure.returnStructure.classNames)
-		val className = classStructure.className.simpleName
 		val superinterfaceName = classStructure.superinterface.simpleName
+		val className = classStructure.className.simpleName
 		val funName = funStructure.funName
-		val returnSimpleName = funStructure.returnStructure.simpleName
 		val mockName = mockModel.name
-		beginControlFlow("val mockModel = this.ktorConfig.groupMocksMap.let")
-		addStatement("it[$superinterfaceName::$funName]?.get(\"$mockName\") ?: it[$className::$funName]?.get(\"$mockName\")")
-		endControlFlow()
-		if (mockName.isEmpty()) {
-			addStatement("?: error(\"$funName 没有默认的 Mock\")")
-		} else {
-			addStatement("?: error(\"$funName 没有名为 $mockName 的 Mock!\")")
-		}
-		addStatement("delay(mockModel.delayRange.random())")
-		addStatement("return mockModel.mock as? $returnSimpleName ?: error(\"返回类型和 Mock 数据类型不匹配\")")
+		addStatement("return this.mockClient.getMock($superinterfaceName::$funName, $className::$funName, \"$mockName\")")
 	}
 }

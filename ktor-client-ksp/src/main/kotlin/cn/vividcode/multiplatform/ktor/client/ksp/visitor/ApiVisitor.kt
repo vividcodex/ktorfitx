@@ -13,10 +13,13 @@ import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.ReturnStructur
 import cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver.FunctionModelResolver
 import cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver.ParameterModelResolver
 import cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver.ValueParameterModelResolver
+import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Visibility.INTERNAL
+import com.google.devtools.ksp.symbol.Visibility.PUBLIC
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -61,7 +64,20 @@ internal class ApiVisitor : KSEmptyVisitor<Unit, ClassStructure?>() {
 		val apiUrl = apiKSAnnotation.getArgumentValue(Api::url) ?: ""
 		val apiStructure = ApiStructure(formatApiUrl(apiUrl, simpleName.asString()), apiScopeClassName)
 		val funStructures = getFunStructures()
-		return ClassStructure(className, superinterface, apiStructure, funStructures)
+		return ClassStructure(className, superinterface, getKModifier(), apiStructure, funStructures)
+	}
+	
+	/**
+	 * 获取接口访问级别
+	 */
+	private fun KSClassDeclaration.getKModifier(): KModifier {
+		return this.getVisibility().let {
+			when (it) {
+				PUBLIC -> KModifier.PUBLIC
+				INTERNAL -> KModifier.INTERNAL
+				else -> error("被 @Api 标记的接口访问权限只允许 public 和 internal")
+			}
+		}
 	}
 	
 	/**

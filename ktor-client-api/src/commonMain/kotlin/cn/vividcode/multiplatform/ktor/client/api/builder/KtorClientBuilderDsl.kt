@@ -4,7 +4,9 @@ import cn.vividcode.multiplatform.ktor.client.api.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
+import cn.vividcode.multiplatform.ktor.client.api.config.MockConfig
 import cn.vividcode.multiplatform.ktor.client.api.mock.MocksDsl
+import cn.vividcode.multiplatform.ktor.client.api.mock.MocksDslImpl
 import io.ktor.client.plugins.logging.*
 
 /**
@@ -69,7 +71,7 @@ internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
 	
 	private val ktorConfig by lazy { KtorConfig() }
 	private val httpConfig by lazy { HttpConfig() }
-	private val mockBuilderDelegate by lazy { MockBuilderDelegate() }
+	private val mockConfig by lazy { MockConfig() }
 	
 	override var baseUrl: String = ktorConfig.baseUrl
 		set(value) {
@@ -88,7 +90,8 @@ internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
 	}
 	
 	override fun mocks(block: MocksDsl.() -> Unit) {
-		this.mockBuilderDelegate.mocks(this.ktorConfig.groupMocksMap, block)
+		val groupMocksMap = MocksDslImpl().apply(block).groupMocksMap
+		this.mockConfig.addGroupMocksMap(groupMocksMap)
 	}
 	
 	override var connectTimeout: Long = httpConfig.connectTimeout
@@ -119,9 +122,7 @@ internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
 		this.httpConfig.handleLog = handleLog
 	}
 	
-	internal fun build(): KtorClient<AS> {
-		return KtorClient(this.ktorConfig, this.httpConfig)
-	}
+	internal fun build(): KtorClient<AS> = KtorClient(ktorConfig, httpConfig, mockConfig)
 }
 
 @KtorBuilderDsl

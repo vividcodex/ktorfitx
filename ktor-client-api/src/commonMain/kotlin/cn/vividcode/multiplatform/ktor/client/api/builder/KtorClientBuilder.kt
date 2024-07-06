@@ -4,7 +4,9 @@ import cn.vividcode.multiplatform.ktor.client.api.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
+import cn.vividcode.multiplatform.ktor.client.api.config.MockConfig
 import cn.vividcode.multiplatform.ktor.client.api.mock.MocksDsl
+import cn.vividcode.multiplatform.ktor.client.api.mock.MocksDslImpl
 import io.ktor.client.plugins.logging.*
 
 /**
@@ -77,9 +79,9 @@ sealed interface KtorClientBuilder<AS : ApiScope> {
 
 internal class KtorClientBuilderImpl<AS : ApiScope> : KtorClientBuilder<AS> {
 	
-	private val ktorConfig = KtorConfig()
-	private val httpConfig = HttpConfig()
-	private val mockBuilderDelegate by lazy { MockBuilderDelegate() }
+	private val ktorConfig by lazy { KtorConfig() }
+	private val httpConfig by lazy { HttpConfig() }
+	private val mockConfig by lazy { MockConfig() }
 	
 	override fun baseUrl(baseUrl: String): KtorClientBuilder<AS> {
 		this.ktorConfig.baseUrl = baseUrl
@@ -104,7 +106,8 @@ internal class KtorClientBuilderImpl<AS : ApiScope> : KtorClientBuilder<AS> {
 	}
 	
 	override fun mocks(block: MocksDsl.() -> Unit): KtorClientBuilder<AS> {
-		this.mockBuilderDelegate.mocks(this.ktorConfig.groupMocksMap, block)
+		val groupMocksMap = MocksDslImpl().apply(block).groupMocksMap
+		this.mockConfig.addGroupMocksMap(groupMocksMap)
 		return this
 	}
 	
@@ -133,7 +136,5 @@ internal class KtorClientBuilderImpl<AS : ApiScope> : KtorClientBuilder<AS> {
 		return this
 	}
 	
-	override fun build(): KtorClient<AS> {
-		return KtorClient(this.ktorConfig, this.httpConfig)
-	}
+	override fun build(): KtorClient<AS> = KtorClient(ktorConfig, httpConfig, mockConfig)
 }

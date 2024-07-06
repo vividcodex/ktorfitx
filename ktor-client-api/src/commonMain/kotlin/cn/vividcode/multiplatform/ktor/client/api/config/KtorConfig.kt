@@ -1,8 +1,5 @@
 package cn.vividcode.multiplatform.ktor.client.api.config
 
-import cn.vividcode.multiplatform.ktor.client.api.mock.MockModel
-import kotlin.reflect.KFunction
-
 /**
  * 项目：vividcode-multiplatform-ktor-client
  *
@@ -14,8 +11,7 @@ import kotlin.reflect.KFunction
  */
 class KtorConfig internal constructor(
 	var baseUrl: String = "http://localhost",
-	var token: (() -> String)? = null,
-	val groupMocksMap: MutableMap<KFunction<*>, MutableMap<String, MockModel<*>>> = mutableMapOf()
+	var token: (() -> String)? = null
 ) {
 	
 	/**

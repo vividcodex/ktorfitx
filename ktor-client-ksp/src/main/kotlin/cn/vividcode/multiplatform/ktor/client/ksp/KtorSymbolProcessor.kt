@@ -10,6 +10,9 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.validate
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * 项目：vividcode-multiplatform
@@ -25,18 +28,24 @@ internal class KtorSymbolProcessor(
 ) : SymbolProcessor {
 	
 	private val apiVisitor by lazy { ApiVisitor() }
-	private val apiKotlinPoet by lazy { ApiKotlinPoet() }
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
 		val annotatedList = resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)
 		val rets = annotatedList.filterNot { it.validate() && it is KSClassDeclaration }.toMutableSet()
-		(annotatedList - rets).forEach {
-			val classStructure = it.accept(apiVisitor, Unit)
-			if (classStructure != null) {
-				val fileSpec = apiKotlinPoet.getFileSpec(classStructure)
-				codeGenerator.generate(fileSpec, classStructure.className)
-			} else rets += it
+		runBlocking {
+			(annotatedList - rets).forEach {
+				launch {
+					process(it)
+				}
+			}
 		}
 		return rets.toList()
+	}
+	
+	private suspend fun process(ksAnnotated: KSAnnotated) = coroutineScope {
+		val classStructure = ksAnnotated.accept(apiVisitor, Unit) ?: return@coroutineScope
+		val apiKotlinPoet = ApiKotlinPoet()
+		val fileSpec = apiKotlinPoet.getFileSpec(classStructure)
+		codeGenerator.generate(fileSpec, classStructure.className)
 	}
 }

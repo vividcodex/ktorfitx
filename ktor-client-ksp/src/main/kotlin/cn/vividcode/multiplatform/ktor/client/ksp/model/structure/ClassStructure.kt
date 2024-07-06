@@ -1,6 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.model.structure
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.KModifier
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -14,6 +15,7 @@ import com.squareup.kotlinpoet.ClassName
 internal data class ClassStructure(
 	val className: ClassName,
 	val superinterface: ClassName,
+	val kModifier: KModifier,
 	val apiStructure: ApiStructure,
 	val funStructures: Sequence<FunStructure>
 )
