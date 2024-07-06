@@ -3,12 +3,12 @@ package cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.*
-import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.code.KtorCodeBlock
-import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.code.MockCodeBlock
-import cn.vividcode.multiplatform.ktor.client.ksp.model.ClassStructure
-import cn.vividcode.multiplatform.ktor.client.ksp.model.FunStructure
-import cn.vividcode.multiplatform.ktor.client.ksp.model.MockModel
-import cn.vividcode.multiplatform.ktor.client.ksp.model.ValueParameterModel
+import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.block.KtorCodeBlock
+import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.block.MockCodeBlock
+import cn.vividcode.multiplatform.ktor.client.ksp.model.model.MockModel
+import cn.vividcode.multiplatform.ktor.client.ksp.model.model.ParameterModel
+import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.ClassStructure
+import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.FunStructure
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import io.ktor.client.*
@@ -109,15 +109,15 @@ internal class ApiKotlinPoet {
 	private fun getFunSpec(classStructure: ClassStructure, funStructure: FunStructure): FunSpec {
 		return buildFunSpec(funStructure.funName) {
 			addModifiers(KModifier.SUSPEND, KModifier.OVERRIDE)
-			addParameters(getParameterSpecs(funStructure.valueParameterModels))
+			addParameters(getParameterSpecs(funStructure.parameterModels))
 			addCode(getCodeBlock(classStructure, funStructure))
 			returns(funStructure.returnStructure.typeName)
 		}
 	}
 	
-	private fun getParameterSpecs(models: List<ValueParameterModel>): List<ParameterSpec> {
+	private fun getParameterSpecs(models: List<ParameterModel>): List<ParameterSpec> {
 		return models.map {
-			buildParameterSpec(it.varName, it.className)
+			buildParameterSpec(it.varName, it.typeName)
 		}
 	}
 	

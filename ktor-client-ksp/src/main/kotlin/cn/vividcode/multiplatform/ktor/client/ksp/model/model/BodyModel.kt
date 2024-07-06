@@ -1,6 +1,4 @@
-package cn.vividcode.multiplatform.ktor.client.ksp.model
-
-import com.squareup.kotlinpoet.ClassName
+package cn.vividcode.multiplatform.ktor.client.ksp.model.model
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -12,6 +10,5 @@ import com.squareup.kotlinpoet.ClassName
  * 介绍：BodyModel
  */
 internal data class BodyModel(
-	override val varName: String,
-	override val className: ClassName
+	override val varName: String
 ) : ValueParameterModel

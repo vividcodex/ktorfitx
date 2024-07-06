@@ -1,6 +1,4 @@
-package cn.vividcode.multiplatform.ktor.client.ksp.model
-
-import com.squareup.kotlinpoet.ClassName
+package cn.vividcode.multiplatform.ktor.client.ksp.model.model
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -14,6 +12,4 @@ import com.squareup.kotlinpoet.ClassName
 internal sealed interface ValueParameterModel {
 	
 	val varName: String
-	
-	val className: ClassName
 }

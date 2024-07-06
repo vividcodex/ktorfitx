@@ -1,4 +1,4 @@
-package cn.vividcode.multiplatform.ktor.client.ksp.model
+package cn.vividcode.multiplatform.ktor.client.ksp.model.structure
 
 import com.squareup.kotlinpoet.ClassName
 
@@ -9,7 +9,7 @@ import com.squareup.kotlinpoet.ClassName
  *
  * 创建：2024/7/1 下午3:47
  *
- * 介绍：类 结构
+ * 介绍：ClassStructure
  */
 internal data class ClassStructure(
 	val className: ClassName,

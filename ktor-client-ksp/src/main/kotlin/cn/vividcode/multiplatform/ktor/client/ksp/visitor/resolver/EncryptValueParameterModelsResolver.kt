@@ -2,10 +2,10 @@ package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktor.client.api.annotation.*
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getAnnotationByType
-import cn.vividcode.multiplatform.ktor.client.ksp.model.*
+import cn.vividcode.multiplatform.ktor.client.ksp.model.EncryptInfo
+import cn.vividcode.multiplatform.ktor.client.ksp.model.model.*
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 
@@ -18,11 +18,12 @@ import com.squareup.kotlinpoet.ksp.toClassName
  *
  * 介绍：EncryptValueParameterModelsResolver
  */
+@Suppress("unused")
 internal data object EncryptValueParameterModelsResolver : ValueParameterModelResolver<ValueParameterModel> {
 	
 	private val encryptClassName = arrayOf(String::class.asClassName(), ByteArray::class.asClassName())
 	
-	override fun KSFunctionDeclaration.getValueParameterModels(): List<ValueParameterModel> {
+	override fun KSFunctionDeclaration.resolve(): List<ValueParameterModel> {
 		return buildList {
 			this += getValueParameterModels(Query::name, ::QueryModel)
 			this += getValueParameterModels(Header::name, ::HeaderModel)
@@ -33,7 +34,7 @@ internal data object EncryptValueParameterModelsResolver : ValueParameterModelRe
 	
 	private inline fun <reified A : Annotation, M : ValueParameterModel> KSFunctionDeclaration.getValueParameterModels(
 		getName: (A) -> String,
-		newModel: (name: String, varName: String, encryptInfo: EncryptInfo?, className: ClassName) -> M
+		newModel: (name: String, varName: String, encryptInfo: EncryptInfo?) -> M
 	): List<M> {
 		return this.parameters.mapNotNull {
 			val annotation = it.getAnnotationByType(A::class) ?: return@mapNotNull null
@@ -46,7 +47,7 @@ internal data object EncryptValueParameterModelsResolver : ValueParameterModelRe
 			check(encryptInfo == null || className in encryptClassName) {
 				"${className.simpleName} 不允许使用 @Encrypt 注解"
 			}
-			newModel(name, varName, encryptInfo, className)
+			newModel(name, varName, encryptInfo)
 		}
 	}
 }

@@ -1,7 +1,5 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.ksp.model.FunctionModel
-import cn.vividcode.multiplatform.ktor.client.ksp.model.ValueParameterModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 /**
@@ -9,40 +7,19 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  *
  * 作者：li-jia-wei
  *
- * 创建：2024/7/3 下午1:03
+ * 创建：2024/7/6 上午7:48
  *
  * 介绍：ModelResolver
  */
-internal data object ModelResolvers {
+internal sealed interface ModelResolver<out M> {
 	
-	private val functionModelResolvers by lazy {
-		listOf(
-			HeadersModelResolver,
-			MockModelResolver,
-			ApiModelResolver
-		)
-	}
+	/**
+	 * 解析
+	 */
+	fun KSFunctionDeclaration.resolve(): M
 	
-	private val valueParameterModelsResolver by lazy {
-		listOf(
-			EncryptValueParameterModelsResolver,
-			BodyModelResolver
-		)
-	}
-	
-	fun getFunctionModels(functionDeclaration: KSFunctionDeclaration): List<FunctionModel> {
-		return functionModelResolvers.mapNotNull {
-			with(it) {
-				functionDeclaration.getFunctionModel()
-			}
-		}
-	}
-	
-	fun getValueParameterModels(functionDeclaration: KSFunctionDeclaration): List<ValueParameterModel> {
-		return valueParameterModelsResolver.flatMap {
-			with(it) {
-				functionDeclaration.getValueParameterModels()
-			}
-		}
+	sealed interface Resolvers<out M> {
+		
+		fun resolves(functionDeclaration: KSFunctionDeclaration): List<M>
 	}
 }

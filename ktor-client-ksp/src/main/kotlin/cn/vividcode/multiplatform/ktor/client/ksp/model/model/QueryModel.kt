@@ -1,6 +1,6 @@
-package cn.vividcode.multiplatform.ktor.client.ksp.model
+package cn.vividcode.multiplatform.ktor.client.ksp.model.model
 
-import com.squareup.kotlinpoet.ClassName
+import cn.vividcode.multiplatform.ktor.client.ksp.model.EncryptInfo
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -15,5 +15,4 @@ internal data class QueryModel(
 	val name: String,
 	override val varName: String,
 	val encryptInfo: EncryptInfo?,
-	override val className: ClassName
 ) : ValueParameterModel

@@ -2,7 +2,7 @@ package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktor.client.api.annotation.Headers
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getAnnotationByType
-import cn.vividcode.multiplatform.ktor.client.ksp.model.HeadersModel
+import cn.vividcode.multiplatform.ktor.client.ksp.model.model.HeadersModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 /**
@@ -14,18 +14,19 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  *
  * 介绍：HeadersModelResolver
  */
+@Suppress("unused")
 internal data object HeadersModelResolver : FunctionModelResolver<HeadersModel> {
 	
 	private val headersRegex = "^([^:=]+)[:=]([^:=]+)$".toRegex()
 	
-	override fun KSFunctionDeclaration.getFunctionModel(): HeadersModel? {
+	override fun KSFunctionDeclaration.resolve(): HeadersModel? {
 		val headers = getAnnotationByType(Headers::class) ?: return null
-		val headerMap = mutableMapOf<String, String>()
-		headers.values.associate {
-			val (name, value) = headersRegex.matchEntire(it)?.destructured
-				?: error("${this.simpleName.asString()} 方法的 @Headers 格式错误")
-			name to value
+		return headers.values.associate {
+			val (key, value) = headersRegex.matchEntire(it)?.destructured
+				?: error("${qualifiedName!!.asString()} 方法的 @Headers 格式错误")
+			key.trim() to value.trim()
+		}.let {
+			if (it.isNotEmpty()) HeadersModel(it) else null
 		}
-		return if (headerMap.isNotEmpty()) HeadersModel(headerMap) else null
 	}
 }

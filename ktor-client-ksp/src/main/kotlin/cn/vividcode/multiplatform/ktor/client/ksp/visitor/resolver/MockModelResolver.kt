@@ -2,7 +2,7 @@ package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktor.client.api.annotation.Mock
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getAnnotationByType
-import cn.vividcode.multiplatform.ktor.client.ksp.model.MockModel
+import cn.vividcode.multiplatform.ktor.client.ksp.model.model.MockModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 /**
@@ -14,9 +14,10 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  *
  * 介绍：MockModelResolver
  */
+@Suppress("unused")
 internal data object MockModelResolver : FunctionModelResolver<MockModel> {
 
-	override fun KSFunctionDeclaration.getFunctionModel(): MockModel? {
+	override fun KSFunctionDeclaration.resolve(): MockModel? {
 		val mock = getAnnotationByType(Mock::class) ?: return null
 		return MockModel(mock.name)
 	}

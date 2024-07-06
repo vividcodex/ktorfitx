@@ -2,8 +2,8 @@ package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktor.client.api.annotation.*
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getAnnotationByType
-import cn.vividcode.multiplatform.ktor.client.ksp.model.ApiModel
 import cn.vividcode.multiplatform.ktor.client.ksp.model.RequestType
+import cn.vividcode.multiplatform.ktor.client.ksp.model.model.ApiModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import io.ktor.util.reflect.*
 
@@ -16,29 +16,22 @@ import io.ktor.util.reflect.*
  *
  * 介绍：ApiModelResolver
  */
+@Suppress("unused")
 internal data object ApiModelResolver : FunctionModelResolver<ApiModel> {
 	
 	private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 	
-	override fun KSFunctionDeclaration.getFunctionModel(): ApiModel {
+	override fun KSFunctionDeclaration.resolve(): ApiModel {
 		val annotation = RequestType.entries.mapNotNull {
 			getAnnotationByType(it.annotation)
-		}.also {
-			check(it.size <= 1) {
-				buildString {
-					val funName = simpleName.asString()
-					append(funName)
-					append(" 方法只允许使用一种请求方式，而你使用了 ")
-					append(it.joinToString { "@${it::class.simpleName}" })
-					append(" ${it.size} 种")
-				}
+		}.also { annotations ->
+			check(annotations.size <= 1) {
+				val requestTypes = annotations.joinToString { "@${it::class.simpleName}" }
+				"${qualifiedName!!.asString()} 方法只允许使用一种请求方法，而你使用了 $requestTypes ${annotations.size} 种"
 			}
-			check(it.isNotEmpty()) {
-				buildString {
-					append("至少在 ")
-					append(RequestType.entries.joinToString { "@${it::class.simpleName}" })
-					append(" 中使用一种请求方式")
-				}
+			check(annotations.isNotEmpty()) {
+				val requestTypes = RequestType.entries.joinToString { "@${it::class.simpleName}" }
+				"${qualifiedName!!.asString()} 至少在 $requestTypes 中使用一种请求方式"
 			}
 		}.first()
 		return RequestType.entries.first { annotation.instanceOf(it.annotation) }.let {

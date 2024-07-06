@@ -1,4 +1,6 @@
-package cn.vividcode.multiplatform.ktor.client.ksp.model
+package cn.vividcode.multiplatform.ktor.client.ksp.model.model
+
+import cn.vividcode.multiplatform.ktor.client.ksp.model.RequestType
 
 /**
  * 项目：vividcode-multiplatform-ktor-client

@@ -7,6 +7,8 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
@@ -50,3 +52,39 @@ internal fun <T : Annotation> KSAnnotation.getArgumentClassName(kProperty1: KPro
 	check(value is KSType)
 	return (value.declaration as KSClassDeclaration).toClassName()
 }
+
+internal val ParameterizedTypeName.classNames: List<ClassName>
+	get() = buildList {
+		this += rawType
+		typeArguments.forEach {
+			if (it is ClassName) {
+				this += it
+			} else if (it is ParameterizedTypeName) {
+				this += it.classNames
+			}
+		}
+	}
+
+internal val TypeName.simpleName: String
+	get() = when (this) {
+		is ParameterizedTypeName -> this.simpleName
+		is ClassName -> this.simpleName
+		else -> this.toString()
+	}
+
+private val ParameterizedTypeName.simpleName: String
+	get() = buildString {
+		append(rawType.simpleName)
+		if (typeArguments.isNotEmpty()) {
+			append("<")
+			val code = typeArguments.joinToString {
+				when (it) {
+					is ClassName -> it.simpleName
+					is ParameterizedTypeName -> it.simpleName
+					else -> it.toString()
+				}
+			}
+			append(code)
+			append(">")
+		}
+	}

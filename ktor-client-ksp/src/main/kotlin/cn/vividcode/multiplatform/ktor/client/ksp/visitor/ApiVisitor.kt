@@ -6,19 +6,21 @@ import cn.vividcode.multiplatform.ktor.client.api.model.ResultBody
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getArgumentClassName
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getArgumentValue
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getKSAnnotationByType
-import cn.vividcode.multiplatform.ktor.client.ksp.model.ApiStructure
-import cn.vividcode.multiplatform.ktor.client.ksp.model.ClassStructure
-import cn.vividcode.multiplatform.ktor.client.ksp.model.FunStructure
-import cn.vividcode.multiplatform.ktor.client.ksp.model.ReturnStructure
-import cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver.ModelResolvers
+import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.ApiStructure
+import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.ClassStructure
+import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.FunStructure
+import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.ReturnStructure
+import cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver.FunctionModelResolver
+import cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver.ParameterModelResolver
+import cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver.ValueParameterModelResolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -35,7 +37,13 @@ internal class ApiVisitor : KSEmptyVisitor<Unit, ClassStructure?>() {
 		
 		private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 		
-		private val legalReturnQualifiedNames = arrayOf(Unit::class.qualifiedName, ByteArray::class.qualifiedName, ResultBody::class.qualifiedName)
+		private val legalReturnTypeNames = arrayOf(
+			Unit::class.asTypeName(),
+			ByteArray::class.asTypeName(),
+			ResultBody::class.asTypeName()
+		)
+		
+		private val listTypeName = List::class.asTypeName()
 	}
 	
 	override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit): ClassStructure? {
@@ -74,12 +82,13 @@ internal class ApiVisitor : KSEmptyVisitor<Unit, ClassStructure?>() {
 		return this.getAllFunctions()
 			.filter { it.isAbstract }
 			.map {
-				check(Modifier.SUSPEND in it.modifiers) { "${qualifiedName!!.asString()} 方法缺少 suspend 修饰" }
+				check(Modifier.SUSPEND in it.modifiers) { "${it.qualifiedName!!.asString()} 方法缺少 suspend 修饰" }
 				val funName = it.simpleName.asString()
 				val returnType = it.getReturnStructure().checkLegal()
-				val valueParameterModels = ModelResolvers.getValueParameterModels(it)
-				val functionModels = ModelResolvers.getFunctionModels(it)
-				FunStructure(funName, returnType, functionModels, valueParameterModels)
+				val parameterModels = ParameterModelResolver.resolves(it)
+				val valueParameterModels = ValueParameterModelResolver.resolves(it)
+				val functionModels = FunctionModelResolver.resolves(it)
+				FunStructure(funName, returnType, parameterModels, functionModels, valueParameterModels)
 			}
 	}
 	
@@ -87,30 +96,30 @@ internal class ApiVisitor : KSEmptyVisitor<Unit, ClassStructure?>() {
 	 * 获取 ReturnStructure
 	 */
 	private fun KSFunctionDeclaration.getReturnStructure(): ReturnStructure {
-		val type = returnType!!.resolve()
-		val className = (type.declaration as KSClassDeclaration).toClassName()
-		if (type.arguments.isEmpty()) {
-			return ReturnStructure(className)
+		val typeName = returnType!!.resolve().toTypeName()
+		return when (typeName) {
+			is ClassName -> ReturnStructure(typeName)
+			is ParameterizedTypeName -> {
+				check(typeName.typeArguments.size == 1) {
+					"不支持的返回数据类型 $typeName"
+				}
+				val typeArgument = typeName.typeArguments.first()
+				check(typeArgument is ClassName || typeArgument is WildcardTypeName || (typeArgument is ParameterizedTypeName && typeArgument.rawType == listTypeName)) {
+					"不支持的返回数据类型 $typeName" + typeArgument::class
+				}
+				ReturnStructure(typeName)
+			}
+			
+			else -> error("不支持的返回数据类型 $typeName")
 		}
-		val parameterizedType = type.arguments.first().type!!.resolve()
-		val parameterizedClassName = (parameterizedType.declaration as KSClassDeclaration).toClassName()
-		if (parameterizedType.arguments.isEmpty()) {
-			return ReturnStructure(className, parameterizedClassName)
-		}
-		if (parameterizedType.declaration.qualifiedName?.asString() == List::class.qualifiedName) {
-			val parameterizedClassName2 = (parameterizedType.arguments.first().type!!.resolve().declaration as KSClassDeclaration).toClassName()
-			return ReturnStructure(className, parameterizedClassName, parameterizedClassName2)
-		}
-		error("不支持的类型：${parameterizedType.declaration.qualifiedName?.asString()}")
 	}
 	
 	/**
 	 * 检查 ReturnStructure 合法
 	 */
 	private fun ReturnStructure.checkLegal(): ReturnStructure {
-		val qualifiedName = this.className.toString()
-		check(qualifiedName in legalReturnQualifiedNames) {
-			"$qualifiedName 不支持的类型"
+		check(rawType in legalReturnTypeNames) {
+			"$typeName 不支持的类型"
 		}
 		return this
 	}

@@ -1,4 +1,4 @@
-package cn.vividcode.multiplatform.ktor.client.ksp.model
+package cn.vividcode.multiplatform.ktor.client.ksp.model.model
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
