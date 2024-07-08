@@ -47,9 +47,9 @@ internal class MockClientCodeBlockBuilder(
 		
 		buildBearerAuthCodeBlock()
 		buildHeadersCodeBlock()
-		buildQueriesFormsPathsCodeBlock("queries", QueryModel::name)
-		buildQueriesFormsPathsCodeBlock("forms", FormModel::name)
-		buildQueriesFormsPathsCodeBlock("paths", PathModel::name)
+		buildQueriesFormsPathsCodeBlock("queries", QueryModel::name, QueryModel::encryptInfo)
+		buildQueriesFormsPathsCodeBlock("forms", FormModel::name, FormModel::encryptInfo)
+		buildQueriesFormsPathsCodeBlock("paths", PathModel::name, PathModel::encryptInfo)
 		buildBodyCodeBlock()
 		
 		endControlFlow()
@@ -87,14 +87,16 @@ internal class MockClientCodeBlockBuilder(
 	 */
 	private inline fun <reified T : ValueParameterModel> CodeBlock.Builder.buildQueriesFormsPathsCodeBlock(
 		funName: String,
-		noinline getName: T.() -> String
+		noinline getName: T.() -> String,
+		noinline getEncryptInfo: T.() -> EncryptInfo?
 	) {
 		val models = valueParameterModels.filterIsInstance<T>()
 		if (models.isEmpty()) return
 		addImport("cn.vividcode.multiplatform.ktor.client.api.mock", funName, "append")
 		beginControlFlow(funName)
 		models.forEach {
-			addStatement("append(\"${it.getName()}\", ${it.varName})")
+			val varName = it.varName + encrypt(it.getEncryptInfo())
+			addStatement("append(\"${it.getName()}\", $varName)")
 		}
 		endControlFlow()
 	}

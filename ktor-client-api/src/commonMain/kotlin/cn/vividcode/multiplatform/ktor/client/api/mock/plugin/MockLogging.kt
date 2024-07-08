@@ -70,7 +70,7 @@ internal fun MockLogging.loggingRequest(
 			if (logLevel.info) {
 				appendLine("REQUEST: $baseUrl$url")
 				appendLine("MOCK NAME: $name")
-				appendLine("METHOD: $httpMethod")
+				appendLine("METHOD: ${httpMethod.value}")
 			}
 			if (logLevel.headers && model.headers.isNotEmpty()) {
 				appendLine("HEADERS [${model.headers.size}]")
