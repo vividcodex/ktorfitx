@@ -4,8 +4,8 @@ import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
 import cn.vividcode.multiplatform.ktor.client.api.mock.MockClient
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.*
-import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.block.KtorCodeBlock
-import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.block.MockCodeBlock
+import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.block.HttpClientCodeBlockBuilder
+import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.block.MockClientCodeBlockBuilder
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.MockModel
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.ParameterModel
 import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.ClassStructure
@@ -27,8 +27,9 @@ internal class ApiKotlinPoet {
 	
 	private val imports by lazy { mutableMapOf<String, MutableSet<String>>() }
 	
-	private var includeMock = false
-	private var hasFunction = true
+	private var hasFunction = false
+	private var hasMockClient = false
+	private var hasHttpClient = false
 	
 	/**
 	 * 文件
@@ -39,18 +40,17 @@ internal class ApiKotlinPoet {
 			indent("\t")
 			addType(getTypeSpec(classStructure))
 			addProperty(getExpendPropertySpec(classStructure))
-			this@ApiKotlinPoet.imports.forEach { (packageName, simpleNames) ->
-				addImport(packageName, simpleNames)
+			this@ApiKotlinPoet.imports.let {
+				it.forEach(::addImport)
+				it.clear()
 			}
-			this@ApiKotlinPoet.imports.clear()
 		}
 	}
 	
 	private fun initFunStructuresStatus(funStructures: Sequence<FunStructure>) {
 		this.hasFunction = funStructures.iterator().hasNext()
-		this.includeMock = this.hasFunction && funStructures.any { funStructure ->
-			funStructure.functionModels.any { it is MockModel }
-		}
+		this.hasMockClient = hasFunction && funStructures.any { it.functionModels.any { it is MockModel } }
+		this.hasHttpClient = hasFunction && funStructures.any { it.functionModels.all { it !is MockModel } }
 	}
 	
 	/**
@@ -61,9 +61,11 @@ internal class ApiKotlinPoet {
 			addModifiers(KModifier.PRIVATE)
 			if (hasFunction) {
 				addParameter("ktorConfig", KtorConfig::class)
+			}
+			if (hasHttpClient) {
 				addParameter("httpClient", HttpClient::class)
 			}
-			if (includeMock) {
+			if (hasMockClient) {
 				addParameter("mockClient", MockClient::class)
 			}
 		}
@@ -76,14 +78,16 @@ internal class ApiKotlinPoet {
 					initializer("ktorConfig")
 					mutable(false)
 				}
+				addProperty(ktorConfigPropertySpec)
+			}
+			if (hasHttpClient) {
 				val httpClientPropertySpec = buildPropertySpec("httpClient", HttpClient::class, KModifier.PRIVATE) {
 					initializer("httpClient")
 					mutable(false)
 				}
-				addProperty(ktorConfigPropertySpec)
 				addProperty(httpClientPropertySpec)
 			}
-			if (includeMock) {
+			if (hasMockClient) {
 				val mockClientPropertySpec = buildPropertySpec("mockClient", MockClient::class, KModifier.PRIVATE) {
 					initializer("mockClient")
 					mutable(false)
@@ -106,13 +110,13 @@ internal class ApiKotlinPoet {
 		}
 		val codeBlock = buildCodeBlock {
 			val simpleName = classStructure.className.simpleName
-			if (includeMock) {
-				beginControlFlow("return instance ?: $simpleName(ktorConfig, httpClient, mockClient).also")
-			} else if (hasFunction) {
-				beginControlFlow("return instance ?: $simpleName(ktorConfig, httpClient).also")
-			} else {
-				beginControlFlow("return instance ?: $simpleName().also")
+			val parameters = when {
+				hasHttpClient && hasMockClient -> "ktorConfig, httpClient, mockClient"
+				hasHttpClient -> "ktorConfig, httpClient"
+				hasMockClient -> "ktorConfig, mockClient"
+				else -> ""
 			}
+			beginControlFlow("return instance ?: $simpleName($parameters).also")
 			addStatement("instance = it")
 			endControlFlow()
 		}
@@ -121,9 +125,11 @@ internal class ApiKotlinPoet {
 			returns(classStructure.superinterface)
 			if (hasFunction) {
 				addParameter("ktorConfig", KtorConfig::class)
+			}
+			if (hasHttpClient) {
 				addParameter("httpClient", HttpClient::class)
 			}
-			if (includeMock) {
+			if (hasMockClient) {
 				addParameter("mockClient", MockClient::class)
 			}
 			addCode(codeBlock)
@@ -140,17 +146,17 @@ internal class ApiKotlinPoet {
 	 */
 	private fun getExpendPropertySpec(classStructure: ClassStructure): PropertySpec {
 		val getterFunSpec = buildGetterFunSpec {
-			if (includeMock) {
-				addStatement("return ${classStructure.className.simpleName}.getInstance(ktorConfig, httpClient, mockClient)")
-			} else if (hasFunction) {
-				addStatement("return ${classStructure.className.simpleName}.getInstance(ktorConfig, httpClient)")
-			} else {
-				addStatement("return ${classStructure.className.simpleName}.getInstance()")
+			val simpleName = classStructure.className.simpleName
+			val parameters = when {
+				hasHttpClient && hasMockClient -> "ktorConfig, httpClient, mockClient"
+				hasHttpClient -> "ktorConfig, httpClient"
+				hasMockClient -> "ktorConfig, mockClient"
+				else -> ""
 			}
+			addStatement("return $simpleName.getInstance($parameters)")
 		}
-		val name = classStructure.superinterface.simpleName
-			.replaceFirstChar { it.lowercase() }
-		return buildPropertySpec(name, classStructure.superinterface, classStructure.kModifier) {
+		val expendPropertyName = classStructure.superinterface.simpleName.replaceFirstChar { it.lowercase() }
+		return buildPropertySpec(expendPropertyName, classStructure.superinterface, classStructure.kModifier) {
 			receiver(KtorClient::class.asClassName().parameterizedBy(classStructure.apiStructure.apiScopeClassName))
 			getter(getterFunSpec)
 		}
@@ -176,17 +182,14 @@ internal class ApiKotlinPoet {
 	
 	private fun getCodeBlock(classStructure: ClassStructure, funStructure: FunStructure): CodeBlock {
 		return buildCodeBlock {
-			val mockModel = funStructure.functionModels
-				.filterIsInstance<MockModel>()
-				.firstOrNull()
-			if (mockModel != null) {
-				with(MockCodeBlock(::addImport)) {
-					buildMockCodeBlock(classStructure, funStructure, mockModel)
-				}
+			val isMockClient = funStructure.functionModels.any { it is MockModel }
+			val buildCodeBlock = if (isMockClient) {
+				MockClientCodeBlockBuilder(classStructure, funStructure, ::addImport)
 			} else {
-				with(KtorCodeBlock(::addImport)) {
-					buildKtorCodeBlock(classStructure, funStructure)
-				}
+				HttpClientCodeBlockBuilder(classStructure, funStructure, ::addImport)
+			}
+			with(buildCodeBlock) {
+				buildCodeBlock()
 			}
 		}
 	}

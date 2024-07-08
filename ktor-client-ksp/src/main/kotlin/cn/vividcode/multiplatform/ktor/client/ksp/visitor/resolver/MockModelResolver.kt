@@ -16,9 +16,12 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  */
 @Suppress("unused")
 internal data object MockModelResolver : FunctionModelResolver<MockModel> {
-
+	
 	override fun KSFunctionDeclaration.resolve(): MockModel? {
 		val mock = getAnnotationByType(Mock::class) ?: return null
+		if (mock.name.isBlank()) {
+			error("${qualifiedName!!.asString()} 的 @Mock 的名称不能为空")
+		}
 		return MockModel(mock.name)
 	}
 }

@@ -6,6 +6,7 @@ import cn.vividcode.multiplatform.ktor.client.api.model.ResultBody
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getArgumentClassName
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getArgumentValue
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getKSAnnotationByType
+import cn.vividcode.multiplatform.ktor.client.ksp.expends.rawType
 import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.ApiStructure
 import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.ClassStructure
 import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.FunStructure
@@ -45,8 +46,6 @@ internal class ApiVisitor : KSEmptyVisitor<Unit, ClassStructure?>() {
 			ByteArray::class.asTypeName(),
 			ResultBody::class.asTypeName()
 		)
-		
-		private val listTypeName = List::class.asTypeName()
 	}
 	
 	override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit): ClassStructure? {
@@ -120,8 +119,8 @@ internal class ApiVisitor : KSEmptyVisitor<Unit, ClassStructure?>() {
 					"不支持的返回数据类型 $typeName"
 				}
 				val typeArgument = typeName.typeArguments.first()
-				check(typeArgument is ClassName || typeArgument is WildcardTypeName || (typeArgument is ParameterizedTypeName && typeArgument.rawType == listTypeName)) {
-					"不支持的返回数据类型 $typeName" + typeArgument::class
+				check(typeArgument is ClassName || typeArgument is ParameterizedTypeName) {
+					"不支持的返回数据类型 $typeName"
 				}
 				ReturnStructure(typeName)
 			}
@@ -134,7 +133,7 @@ internal class ApiVisitor : KSEmptyVisitor<Unit, ClassStructure?>() {
 	 * 检查 ReturnStructure 合法
 	 */
 	private fun ReturnStructure.checkLegal(): ReturnStructure {
-		check(rawType in legalReturnTypeNames) {
+		check(typeName.rawType in legalReturnTypeNames) {
 			"$typeName 不支持的类型"
 		}
 		return this

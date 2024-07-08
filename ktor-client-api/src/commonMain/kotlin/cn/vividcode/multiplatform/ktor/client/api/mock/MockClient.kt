@@ -1,8 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.api.mock
 
-import cn.vividcode.multiplatform.ktor.client.api.config.MockConfig
-import kotlinx.coroutines.delay
-import kotlin.reflect.KFunction
+import cn.vividcode.multiplatform.ktor.client.api.mock.plugin.MockClientPlugin
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -13,33 +11,42 @@ import kotlin.reflect.KFunction
  *
  * 介绍：MockClient
  */
-@Suppress("unused")
+@MockDsl
 class MockClient internal constructor(
-	private val mockConfig: MockConfig,
-	private val handleLog: (message: String) -> Unit
+	private val pluginMap: Map<MockClientPlugin<*, *>, Any>
 ) {
 	
-	/**
-	 * 获取 Mock
-	 */
-	suspend fun <T : Any> getMock(
-		kFunction1: KFunction<T>,
-		kFunction2: KFunction<T>,
-		mockName: String
-	): T {
-		val mockModel = this.mockConfig.getMockModel(kFunction1, kFunction2, mockName) ?: let {
-			if (mockName.isEmpty()) {
-				error("${kFunction1.name} 没有默认的 Mock")
-			} else {
-				error("${kFunction1.name} 没有名为 $mockName")
-			}
-		}
-		delay(mockModel.delayRange.random())
-		handleLog()
-		return mockModel.mock as? T ?: error("返回类型和 Mock 数据类型不匹配")
-	}
+	@Suppress("UNCHECKED_CAST")
+	internal fun <TConfig : Any, TPlugin : Any> getPlugin(
+		plugin: MockClientPlugin<TConfig, TPlugin>
+	): TPlugin = this.pluginMap[plugin] as? TPlugin ?: error("未找到 MockClient 插件")
+}
+
+@MockDsl
+internal fun MockClient(
+	block: MockClientConfig.() -> Unit
+): MockClient {
+	val config = MockClientConfigImpl().apply(block)
+	return MockClient(config.pluginMap)
+}
+
+@MockDsl
+internal sealed interface MockClientConfig {
 	
-	private fun handleLog() {
+	fun <TConfig : Any, TPlugin : Any> install(
+		plugin: MockClientPlugin<TConfig, TPlugin>,
+		block: (TConfig.() -> Unit)? = null
+	)
+}
+
+private class MockClientConfigImpl : MockClientConfig {
 	
+	val pluginMap = mutableMapOf<MockClientPlugin<*, *>, Any>()
+	
+	override fun <TConfig : Any, TPlugin : Any> install(
+		plugin: MockClientPlugin<TConfig, TPlugin>,
+		block: (TConfig.() -> Unit)?
+	) {
+		this.pluginMap[plugin] = plugin.install { block?.invoke(this) }
 	}
 }

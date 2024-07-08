@@ -2,11 +2,11 @@ package cn.vividcode.multiplatform.ktor.client.api.builder
 
 import cn.vividcode.multiplatform.ktor.client.api.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
+import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MocksConfig
+import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MocksConfigImpl
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.MockConfig
-import cn.vividcode.multiplatform.ktor.client.api.mock.MocksDsl
-import cn.vividcode.multiplatform.ktor.client.api.mock.MocksDslImpl
 import io.ktor.client.plugins.logging.*
 
 /**
@@ -39,7 +39,7 @@ sealed interface KtorClientBuilderDsl {
 	/**
 	 * mocks
 	 */
-	fun mocks(block: MocksDsl.() -> Unit)
+	fun mocks(block: MocksConfig.() -> Unit)
 	
 	/**
 	 * connectTimeout
@@ -89,8 +89,8 @@ internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
 		this.ktorConfig.token = token
 	}
 	
-	override fun mocks(block: MocksDsl.() -> Unit) {
-		val groupMocksMap = MocksDslImpl().apply(block).groupMocksMap
+	override fun mocks(block: MocksConfig.() -> Unit) {
+		val groupMocksMap = MocksConfigImpl().apply(block).groupMocksMap
 		this.mockConfig.addGroupMocksMap(groupMocksMap)
 	}
 	

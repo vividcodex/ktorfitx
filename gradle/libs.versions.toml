@@ -4,7 +4,7 @@ agp = "8.2.2"
 ktor = "2.3.12"
 krypto = "4.0.10"
 ksp = "2.0.0-1.0.22"
-kotlinpoet-ksp = "1.17.0"
+kotlinpoet-ksp = "1.18.0"
 maven-publish = "0.29.0"
 compose-plugin = "1.6.11"
 
@@ -27,5 +27,5 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }

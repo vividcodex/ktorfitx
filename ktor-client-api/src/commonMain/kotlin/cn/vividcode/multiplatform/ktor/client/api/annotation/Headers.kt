@@ -11,4 +11,7 @@ package cn.vividcode.multiplatform.ktor.client.api.annotation
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Headers(vararg val values: String)
+annotation class Headers(
+	val header: String,
+	vararg val headers: String
+)

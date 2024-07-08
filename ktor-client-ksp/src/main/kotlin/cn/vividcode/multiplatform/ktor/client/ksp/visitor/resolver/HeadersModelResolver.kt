@@ -20,13 +20,13 @@ internal data object HeadersModelResolver : FunctionModelResolver<HeadersModel> 
 	private val headersRegex = "^([^:=]+)[:=]([^:=]+)$".toRegex()
 	
 	override fun KSFunctionDeclaration.resolve(): HeadersModel? {
-		val headers = getAnnotationByType(Headers::class) ?: return null
-		return headers.values.associate {
-			val (key, value) = headersRegex.matchEntire(it)?.destructured
+		val headers = getAnnotationByType(Headers::class)?.let {
+			it.headers.toSet() + it.header
+		} ?: return null
+		return headers.associate {
+			val (name, value) = headersRegex.matchEntire(it)?.destructured
 				?: error("${qualifiedName!!.asString()} 方法的 @Headers 格式错误")
-			key.trim() to value.trim()
-		}.let {
-			if (it.isNotEmpty()) HeadersModel(it) else null
-		}
+			name.trim() to value.trim()
+		}.let { HeadersModel(it) }
 	}
 }

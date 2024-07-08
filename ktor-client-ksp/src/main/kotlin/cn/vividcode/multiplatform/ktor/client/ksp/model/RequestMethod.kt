@@ -10,9 +10,9 @@ import kotlin.reflect.KClass
  *
  * 创建：2024/7/1 下午3:50
  *
- * 介绍：RequestType
+ * 介绍：RequestMethod
  */
-internal enum class RequestType(
+internal enum class RequestMethod(
 	val annotation: KClass<out Annotation>
 ) {
 	Get(GET::class),

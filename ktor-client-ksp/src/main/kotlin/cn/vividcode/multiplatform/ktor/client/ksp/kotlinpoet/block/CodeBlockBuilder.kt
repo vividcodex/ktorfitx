@@ -1,7 +1,9 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.block
 
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.classNames
+import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.FunStructure
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 
@@ -12,11 +14,14 @@ import com.squareup.kotlinpoet.TypeName
  *
  * 创建：2024/7/4 下午11:31
  *
- * 介绍：BuildCodeBlock
+ * 介绍：CodeBlockBuilder
  */
-internal sealed class BuildCodeBlock(
+internal sealed class CodeBlockBuilder(
+	private val funStructure: FunStructure,
 	private val addImport: (String, Array<out String>) -> Unit
 ) {
+	
+	abstract fun CodeBlock.Builder.buildCodeBlock()
 	
 	protected fun addImport(packageName: String, vararg simpleNames: String) {
 		this.addImport(packageName, simpleNames)
@@ -34,5 +39,14 @@ internal sealed class BuildCodeBlock(
 		classNames.forEach {
 			addImport(it.packageName, it.simpleName)
 		}
+	}
+	
+	protected fun getVarName(varName: String): String {
+		var realVarName = varName
+		var num = 1
+		while (funStructure.valueParameterModels.any { it.varName == varName }) {
+			realVarName = varName + num++
+		}
+		return realVarName
 	}
 }

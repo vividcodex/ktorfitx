@@ -2,7 +2,7 @@ package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktor.client.api.annotation.*
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getAnnotationByType
-import cn.vividcode.multiplatform.ktor.client.ksp.model.RequestType
+import cn.vividcode.multiplatform.ktor.client.ksp.model.RequestMethod
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.ApiModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import io.ktor.util.reflect.*
@@ -22,19 +22,19 @@ internal data object ApiModelResolver : FunctionModelResolver<ApiModel> {
 	private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 	
 	override fun KSFunctionDeclaration.resolve(): ApiModel {
-		val annotation = RequestType.entries.mapNotNull {
+		val annotation = RequestMethod.entries.mapNotNull {
 			getAnnotationByType(it.annotation)
 		}.also { annotations ->
 			check(annotations.size <= 1) {
-				val requestTypes = annotations.joinToString { "@${it::class.simpleName}" }
-				"${qualifiedName!!.asString()} 方法只允许使用一种请求方法，而你使用了 $requestTypes ${annotations.size} 种"
+				val requestMethods = annotations.joinToString { "@${it::class.simpleName}" }
+				"${qualifiedName!!.asString()} 方法只允许使用一种请求方法，而你使用了 $requestMethods ${annotations.size} 种"
 			}
 			check(annotations.isNotEmpty()) {
-				val requestTypes = RequestType.entries.joinToString { "@${it::class.simpleName}" }
-				"${qualifiedName!!.asString()} 至少在 $requestTypes 中使用一种请求方式"
+				val requestMethods = RequestMethod.entries.joinToString { "@${it::class.simpleName}" }
+				"${qualifiedName!!.asString()} 至少在 $requestMethods 中使用一种请求方式"
 			}
 		}.first()
-		return RequestType.entries.first { annotation.instanceOf(it.annotation) }.let {
+		return RequestMethod.entries.first { annotation.instanceOf(it.annotation) }.let {
 			val funName = this.simpleName.asString()
 			when (annotation) {
 				is GET -> ApiModel(it, format(annotation.url, funName), annotation.auth)

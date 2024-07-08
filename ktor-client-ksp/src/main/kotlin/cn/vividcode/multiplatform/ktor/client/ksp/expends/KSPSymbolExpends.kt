@@ -53,7 +53,17 @@ internal fun <T : Annotation> KSAnnotation.getArgumentClassName(kProperty1: KPro
 	return (value.declaration as KSClassDeclaration).toClassName()
 }
 
-internal val ParameterizedTypeName.classNames: List<ClassName>
+/**
+ * 获取TypeName上用到的所有ClassName
+ */
+internal val TypeName.classNames: List<ClassName>
+	get() = when (this) {
+		is ClassName -> listOf(this)
+		is ParameterizedTypeName -> this.classNames
+		else -> error("不支持的类型 $simpleName")
+	}
+
+private val ParameterizedTypeName.classNames: List<ClassName>
 	get() = buildList {
 		this += rawType
 		typeArguments.forEach {
@@ -65,6 +75,9 @@ internal val ParameterizedTypeName.classNames: List<ClassName>
 		}
 	}
 
+/**
+ * 获取 TypeName 上的 simpleName
+ */
 internal val TypeName.simpleName: String
 	get() = when (this) {
 		is ParameterizedTypeName -> this.simpleName
@@ -87,4 +100,13 @@ private val ParameterizedTypeName.simpleName: String
 			append(code)
 			append(">")
 		}
+	}
+
+/**
+ * 获取 TypeName 的 rawType
+ */
+internal val TypeName.rawType: TypeName
+	get() = when (this) {
+		is ParameterizedTypeName -> this.rawType
+		else -> this
 	}

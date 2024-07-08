@@ -6,7 +6,7 @@ plugins {
 	alias(libs.plugins.kotlin.multiplatform)
 	alias(libs.plugins.compose.compiler)
 	alias(libs.plugins.jetbrains.compose)
-	alias(libs.plugins.serialization)
+	alias(libs.plugins.kotlin.serialization)
 	alias(libs.plugins.android.library)
 	alias(libs.plugins.maven.publish)
 }
@@ -48,11 +48,11 @@ kotlin {
 		commonMain.dependencies {
 			implementation(compose.runtime)
 			implementation(libs.krypto)
-			implementation(libs.ktor.client.logging)
-			implementation(libs.ktor.client.cio)
-			implementation(libs.ktor.client.serialization)
-			implementation(libs.ktor.client.content.negotiation)
-			implementation(libs.ktor.serialization.kotlinx.json)
+			api(libs.ktor.client.cio)
+			api(libs.ktor.client.serialization)
+			api(libs.ktor.client.content.negotiation)
+			api(libs.ktor.serialization.kotlinx.json)
+			api(libs.ktor.client.logging)
 			api(libs.ktor.client.core)
 		}
 	}

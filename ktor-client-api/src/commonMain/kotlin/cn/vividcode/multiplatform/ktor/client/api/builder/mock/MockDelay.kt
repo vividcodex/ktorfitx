@@ -1,4 +1,4 @@
-package cn.vividcode.multiplatform.ktor.client.api.mock
+package cn.vividcode.multiplatform.ktor.client.api.builder.mock
 
 import kotlin.jvm.JvmInline
 

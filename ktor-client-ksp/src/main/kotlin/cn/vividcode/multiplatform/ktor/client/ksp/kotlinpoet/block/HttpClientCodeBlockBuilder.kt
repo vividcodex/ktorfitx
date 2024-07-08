@@ -1,6 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.block
 
 import cn.vividcode.multiplatform.ktor.client.api.model.ResultBody
+import cn.vividcode.multiplatform.ktor.client.ksp.expends.rawType
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.simpleName
 import cn.vividcode.multiplatform.ktor.client.ksp.model.EncryptInfo
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.*
@@ -16,11 +17,13 @@ import com.squareup.kotlinpoet.asTypeName
  *
  * 创建：2024/7/4 下午11:22
  *
- * 介绍：KtorCodeBlock
+ * 介绍：HttpClientCodeBlock
  */
-internal class KtorCodeBlock(
+internal class HttpClientCodeBlockBuilder(
+	private val classStructure: ClassStructure,
+	private val funStructure: FunStructure,
 	addImport: (String, Array<out String>) -> Unit
-) : BuildCodeBlock(addImport) {
+) : CodeBlockBuilder(funStructure, addImport) {
 	
 	private companion object {
 		
@@ -29,65 +32,44 @@ internal class KtorCodeBlock(
 		private val resultBodyTypeName by lazy { ResultBody::class.asTypeName() }
 		
 		private val unitTypeName by lazy { Unit::class.asTypeName() }
-		
-		private val pathRegex = ".*\\{.*\\}.*".toRegex()
 	}
 	
+	private val functionModels by lazy { funStructure.functionModels }
+	
+	private val valueParameterModels by lazy { funStructure.valueParameterModels }
+	
+	private val returnStructure = funStructure.returnStructure
+	
+	private val responseVarName by lazy { getVarName("response") }
+	
 	/**
-	 * 构建 Ktor 网络请求代码
+	 * 构建 KtorCodeBlock
 	 */
-	fun CodeBlock.Builder.buildKtorCodeBlock(
-		classStructure: ClassStructure,
-		funStructure: FunStructure
-	) {
-		val needReturn = funStructure.returnStructure.typeName != Unit::class.asTypeName()
+	override fun CodeBlock.Builder.buildCodeBlock() {
+		val needReturn = returnStructure.typeName != Unit::class.asTypeName()
 		beginControlFlow(if (needReturn) "return try" else "try")
-		val functionModels = funStructure.functionModels
 		val apiModel = functionModels.filterIsInstance<ApiModel>().first()
-		val requestType = apiModel.requestType.toString().lowercase()
-		addImport("io.ktor.client.request", requestType)
-		val apiUrl = classStructure.apiStructure.url
-		val pathModels = funStructure.valueParameterModels.filterIsInstance<PathModel>()
-		val funName = funStructure.funName
-		val url = parsePathToUrl(apiUrl, apiModel.url, pathModels, funName)
-		val valueParameterModels = funStructure.valueParameterModels
-		val httpClientCode = "${if (needReturn) "val response = " else ""}this.httpClient.$requestType(\"\${this.ktorConfig.baseUrl}$url\")"
-		val needHttpRequestBuilder = needHttpRequestBuilder(funStructure, apiModel.auth)
+		val requestMethod = apiModel.requestMethod.toString().lowercase()
+		addImport("io.ktor.client.request", requestMethod)
+		val url = parsePathToUrl(apiModel.url)
+		val httpClientCode = "${if (needReturn) "val $responseVarName = " else ""}this.httpClient.$requestMethod(\"\${this.ktorConfig.baseUrl}$url\")"
+		val needHttpRequestBuilder = isNeedHttpRequestBuilder(apiModel.auth)
 		if (needHttpRequestBuilder) {
 			beginControlFlow(httpClientCode)
 		} else {
 			addStatement(httpClientCode)
 		}
-		if (apiModel.auth) {
-			buildAuthCodeBlock()
-		}
-		valueParameterModels.filterIsInstance<BodyModel>().firstOrNull()?.let {
-			buildBodyCodeBlock(it)
-		}
-		valueParameterModels.filterIsInstance<QueryModel>().let {
-			if (it.isNotEmpty()) {
-				buildQueryCodeBlock(it)
-			}
-		}
-		valueParameterModels.filterIsInstance<FormModel>().let {
-			if (it.isNotEmpty()) {
-				buildFormCodeBlock(it)
-			}
-		}
-		valueParameterModels.filterIsInstance<HeaderModel>().let {
-			if (it.isNotEmpty()) {
-				buildHeaderCodeBlock(it)
-			}
-		}
-		functionModels.filterIsInstance<HeadersModel>().firstOrNull()?.let {
-			buildHeadersCodeBlock(it)
-		}
+		buildBearerAuthCodeBlock(apiModel.auth)
+		buildHeadersCodeBlock()
+		buildQueryCodeBlock()
+		buildFormCodeBlock()
+		buildBodyCodeBlock()
 		if (needHttpRequestBuilder) {
 			endControlFlow()
 		}
 		val catchModels = valueParameterModels.filterIsInstance<CatchModel>()
 		val finallyModels = valueParameterModels.filterIsInstance<FinallyModel>()
-		when (funStructure.returnStructure.rawType) {
+		when (returnStructure.typeName.rawType) {
 			byteArrayTypeName -> buildReturnByteArrayCodeBlock(catchModels, finallyModels)
 			resultBodyTypeName -> buildReturnResultBodyCodeBlock(catchModels, finallyModels)
 			unitTypeName -> buildReturnUnitCodeBlock(catchModels, finallyModels)
@@ -95,17 +77,19 @@ internal class KtorCodeBlock(
 		}
 	}
 	
-	private fun needHttpRequestBuilder(funStructure: FunStructure, auth: Boolean): Boolean {
-		return auth ||
-			funStructure.valueParameterModels.any { it is BodyModel || it is QueryModel || it is FormModel || it is HeaderModel } ||
-			funStructure.functionModels.any { it is HeadersModel }
+	private fun isNeedHttpRequestBuilder(auth: Boolean): Boolean {
+		return auth || valueParameterModels.any {
+			it is BodyModel || it is QueryModel || it is FormModel || it is HeaderModel
+		} || functionModels.any { it is HeadersModel }
 	}
 	
 	/**
 	 * 解析 Path
 	 */
-	private fun parsePathToUrl(apiUrl: String, url: String, pathModels: List<PathModel>, funName: String): String {
-		var fullUrl = apiUrl + url
+	private fun parsePathToUrl(url: String): String {
+		val funName = funStructure.funName
+		var fullUrl = classStructure.apiStructure.url + url
+		val pathModels = valueParameterModels.filterIsInstance<PathModel>()
 		pathModels.forEach {
 			check(it.name.isNotBlank()) {
 				"$funName 方法的 ${it.varName} 参数上的 @Path 注解的 name 不能为空"
@@ -113,7 +97,7 @@ internal class KtorCodeBlock(
 			check(fullUrl.contains("{${it.name}}")) {
 				"$funName 方法的 ${it.varName} 参数上的 @Path 注解的 name 未在 url 上找到"
 			}
-			val newValue = "\${${formatVarName(it.varName, it.encryptInfo)}}"
+			val newValue = "\${${it.varName}${encrypt(it.encryptInfo)}}"
 			fullUrl = fullUrl.replace("{${it.name}}", newValue)
 		}
 		val notFoundPath = getNotFoundPath(fullUrl)
@@ -137,39 +121,60 @@ internal class KtorCodeBlock(
 	}
 	
 	/**
-	 * 构建 Auth
+	 * 构建 bearerAUth
 	 */
-	private fun CodeBlock.Builder.buildAuthCodeBlock() {
-		addImport("io.ktor.client.request", "bearerAuth")
-		beginControlFlow("ktorConfig.token?.let")
-		addStatement("bearerAuth(it())")
+	private fun CodeBlock.Builder.buildBearerAuthCodeBlock(auth: Boolean) {
+		if (auth) {
+			addImport("io.ktor.client.request", "bearerAuth")
+			addStatement("bearerAuth(ktorConfig.token!!())")
+		}
+	}
+	
+	/**
+	 * 构建 headers
+	 */
+	private fun CodeBlock.Builder.buildHeadersCodeBlock() {
+		val headersModel = functionModels.filterIsInstance<HeadersModel>().firstOrNull()
+		val headerModels = valueParameterModels.filterIsInstance<HeaderModel>()
+		if (headersModel == null && headerModels.isEmpty()) return
+		addImport("io.ktor.client.request", "headers")
+		beginControlFlow("headers")
+		headersModel?.headerMap?.forEach { (name, value) ->
+			addStatement("append(\"$name\", \"$value\")")
+		}
+		headerModels.forEach {
+			val varName = it.varName + encrypt(it.encryptInfo)
+			addStatement("append(\"${it.name}\", $varName)")
+		}
 		endControlFlow()
 	}
 	
 	/**
-	 * 构建 Body
+	 * 构建 Query
 	 */
-	private fun CodeBlock.Builder.buildBodyCodeBlock(bodyModel: BodyModel) {
-		addImport("kotlinx.serialization", "encodeToString")
-		addImport("kotlinx.serialization.json", "Json")
-		addImport("io.ktor.http", "contentType", "ContentType")
-		addImport("io.ktor.http.content", "TextContent")
-		addImport("io.ktor.client.request.setBody")
-		addStatement("contentType(ContentType.Application.Json)")
-		addStatement("setBody(TextContent(Json.encodeToString(${bodyModel.varName}), ContentType.Application.Json))")
+	private fun CodeBlock.Builder.buildQueryCodeBlock() {
+		val queryModels = valueParameterModels.filterIsInstance<QueryModel>()
+		if (queryModels.isEmpty()) return
+		addImport("io.ktor.client.request", "parameter")
+		queryModels.forEach {
+			val varName = it.varName + encrypt(it.encryptInfo)
+			addStatement("parameter(\"${it.name}\", $varName)")
+		}
 	}
 	
 	/**
 	 * 构建 Form
 	 */
-	private fun CodeBlock.Builder.buildFormCodeBlock(formModel: List<FormModel>) {
+	private fun CodeBlock.Builder.buildFormCodeBlock() {
+		val formModels = valueParameterModels.filterIsInstance<FormModel>()
+		if (formModels.isEmpty()) return
 		addImport("io.ktor.http", "contentType", "ContentType")
 		addImport("io.ktor.client.request", "setBody")
 		addImport("io.ktor.client.request.forms", "formData", "MultiPartFormDataContent")
 		addStatement("contentType(ContentType.MultiPart.FormData)")
 		beginControlFlow("val formData = formData {")
-		formModel.forEach {
-			val varName = formatVarName(it.varName, it.encryptInfo)
+		formModels.forEach {
+			val varName = it.varName + encrypt(it.encryptInfo)
 			addStatement("append(\"${it.name}\", $varName)")
 		}
 		endControlFlow()
@@ -177,35 +182,17 @@ internal class KtorCodeBlock(
 	}
 	
 	/**
-	 * 构建 Header
+	 * 构建 Body
 	 */
-	private fun CodeBlock.Builder.buildHeaderCodeBlock(headerModels: List<HeaderModel>) {
-		addImport("io.ktor.client.request", "header")
-		headerModels.forEach {
-			val varName = formatVarName(it.varName, it.encryptInfo)
-			addStatement("header(\"${it.name}\", $varName)")
-		}
-	}
-	
-	/**
-	 * 构建 Headers
-	 */
-	private fun CodeBlock.Builder.buildHeadersCodeBlock(headersModel: HeadersModel) {
-		addImport("io.ktor.client.request", "header")
-		headersModel.headerMap.forEach { (key, value) ->
-			addStatement("header(\"$key\", \"$value\")")
-		}
-	}
-	
-	/**
-	 * 构建 Query
-	 */
-	private fun CodeBlock.Builder.buildQueryCodeBlock(queryModels: List<QueryModel>) {
-		addImport("io.ktor.client.request", "parameter")
-		queryModels.forEach {
-			val varName = formatVarName(it.varName, it.encryptInfo)
-			addStatement("parameter(\"${it.name}\", $varName)")
-		}
+	private fun CodeBlock.Builder.buildBodyCodeBlock() {
+		val bodyModel = valueParameterModels.filterIsInstance<BodyModel>().firstOrNull() ?: return
+		addImport("kotlinx.serialization", "encodeToString")
+		addImport("kotlinx.serialization.json", "Json")
+		addImport("io.ktor.http", "contentType", "ContentType")
+		addImport("io.ktor.http.content", "TextContent")
+		addImport("io.ktor.client.request.setBody")
+		addStatement("contentType(ContentType.Application.Json)")
+		addStatement("setBody(TextContent(Json.encodeToString(${bodyModel.varName}), ContentType.Application.Json))")
 	}
 	
 	/**
@@ -288,11 +275,11 @@ internal class KtorCodeBlock(
 	}
 	
 	/**
-	 * 解析变量名
+	 * encrypt
 	 */
-	private fun formatVarName(varName: String, encryptInfo: EncryptInfo?): String {
-		if (encryptInfo == null) return varName
+	private fun encrypt(encryptInfo: EncryptInfo?): String {
+		if (encryptInfo == null) return ""
 		addImport("cn.vividcode.multiplatform.ktor.client.api.encrypt", "encrypt", "EncryptType")
-		return "$varName.encrypt(EncryptType.${encryptInfo.encryptType}, ${encryptInfo.layer})"
+		return ".encrypt(EncryptType.${encryptInfo.encryptType}, ${encryptInfo.layer})"
 	}
 }

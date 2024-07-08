@@ -1,6 +1,6 @@
-package cn.vividcode.multiplatform.ktor.client.api.mock
+package cn.vividcode.multiplatform.ktor.client.api.builder.mock
 
-import cn.vividcode.multiplatform.ktor.client.api.builder.KtorBuilderDsl
+import cn.vividcode.multiplatform.ktor.client.api.annotation.Mock
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -9,14 +9,14 @@ import cn.vividcode.multiplatform.ktor.client.api.builder.KtorBuilderDsl
  *
  * 创建：2024/7/1 下午1:34
  *
- * 介绍：MockGroup
+ * 介绍：MockGroupConfig
  */
-@KtorBuilderDsl
+@MockBuilderDsl
 sealed interface MockGroupDsl<T : Any> {
 	
 	var enabled: Boolean
 	
-	fun mock(name: String = "", block: MockDsl<T>.() -> Unit)
+	fun mock(name: String = Mock.DEFAULT, block: MockDsl<T>.() -> Unit)
 }
 
 internal class MockGroupDslImpl<T : Any> : MockGroupDsl<T> {
@@ -26,6 +26,9 @@ internal class MockGroupDslImpl<T : Any> : MockGroupDsl<T> {
 	override var enabled: Boolean = true
 	
 	override fun mock(name: String, block: MockDsl<T>.() -> Unit) {
+		if (name.isBlank()) {
+			error("Mock 的名称不能为空")
+		}
 		val mockDsl = MockDslImpl<T>().apply(block)
 		if (mockDsl.enabled) {
 			val mock = mockDsl.mock

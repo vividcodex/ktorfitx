@@ -8,6 +8,9 @@ import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.MockConfig
 import cn.vividcode.multiplatform.ktor.client.api.mock.MockClient
+import cn.vividcode.multiplatform.ktor.client.api.mock.plugin.MockCache
+import cn.vividcode.multiplatform.ktor.client.api.mock.plugin.MockLogger
+import cn.vividcode.multiplatform.ktor.client.api.mock.plugin.MockLogging
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -72,7 +75,18 @@ class KtorClient<AS : ApiScope> internal constructor(
 	}
 	
 	val mockClient: MockClient by lazy {
-		MockClient(mockConfig, httpConfig.handleLog)
+		MockClient {
+			install(MockLogging) {
+				this.baseUrl = ktorConfig.baseUrl
+				this.logger = MockLogger {
+					httpConfig.handleLog(it)
+				}
+				this.logLevel = httpConfig.logLevel
+			}
+			install(MockCache) {
+				this.groupMocksMap = mockConfig.groupMocksMap
+			}
+		}
 	}
 }
 

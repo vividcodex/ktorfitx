@@ -1,7 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.api.config
 
-import cn.vividcode.multiplatform.ktor.client.api.mock.MockModel
-import kotlin.reflect.KFunction
+import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MockModel
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -13,28 +12,17 @@ import kotlin.reflect.KFunction
  * 介绍：MockConfig
  */
 internal class MockConfig(
-	private val groupMocksMap: MutableMap<KFunction<*>, MutableMap<String, MockModel<*>>> = mutableMapOf(),
+	val groupMocksMap: MutableMap<String, MutableMap<String, MockModel<*>>> = mutableMapOf(),
 ) {
 	
 	internal fun addGroupMocksMap(
-		groupMocksMap: MutableMap<KFunction<*>, MutableMap<String, MockModel<*>>>
+		groupMocksMap: MutableMap<String, MutableMap<String, MockModel<*>>>
 	) {
-		groupMocksMap.forEach { (kFunction, mocksMap) ->
-			this.groupMocksMap.getOrPut(kFunction) { mutableMapOf() }.let {
-				mocksMap.forEach { (name, mock) ->
-					it[name] = mock
-				}
+		groupMocksMap.forEach { (url, mocksMap) ->
+			val map = this.groupMocksMap.getOrPut(url) { mutableMapOf() }
+			mocksMap.forEach { (name, mock) ->
+				map[name] = mock
 			}
 		}
-	}
-	
-	@Suppress("UNCHECKED_CAST")
-	internal fun <T : Any> getMockModel(
-		kFunction1: KFunction<T>,
-		kFunction2: KFunction<T>,
-		mockName: String
-	): MockModel<T>? {
-		return (groupMocksMap[kFunction1]?.get(mockName)
-			?: groupMocksMap[kFunction2]?.get(mockName)) as? MockModel<T>
 	}
 }

@@ -12,5 +12,9 @@ package cn.vividcode.multiplatform.ktor.client.api.annotation
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Mock(
-	val name: String = ""
-)
+	val name: String = DEFAULT
+) {
+	companion object {
+		const val DEFAULT = "DEFAULT"
+	}
+}
