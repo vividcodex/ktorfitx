@@ -186,13 +186,11 @@ internal class HttpClientCodeBlockBuilder(
 	 */
 	private fun CodeBlock.Builder.buildBodyCodeBlock() {
 		val bodyModel = valueParameterModels.filterIsInstance<BodyModel>().firstOrNull() ?: return
-		addImport("kotlinx.serialization", "encodeToString")
 		addImport("kotlinx.serialization.json", "Json")
 		addImport("io.ktor.http", "contentType", "ContentType")
-		addImport("io.ktor.http.content", "TextContent")
-		addImport("io.ktor.client.request.setBody")
+		addImport("io.ktor.client.request", "setBody")
 		addStatement("contentType(ContentType.Application.Json)")
-		addStatement("setBody(TextContent(Json.encodeToString(${bodyModel.varName}), ContentType.Application.Json))")
+		addStatement("setBody(${bodyModel.varName})")
 	}
 	
 	/**
