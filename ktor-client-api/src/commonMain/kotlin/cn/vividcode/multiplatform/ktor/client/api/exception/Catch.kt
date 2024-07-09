@@ -5,11 +5,11 @@ package cn.vividcode.multiplatform.ktor.client.api.exception
  *
  * 作者：li-jia-wei
  *
- * 创建：2024/7/5 下午2:19
+ * 创建：2024/7/5 下午2:17
  *
- * 介绍：FinallyCallback
+ * 介绍：Catch
  */
-fun interface FinallyCallback {
+fun interface Catch<E : Exception> {
 	
-	fun run()
+	fun run(e: E)
 }

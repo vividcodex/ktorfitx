@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.api.exception.CatchCallback
+import cn.vividcode.multiplatform.ktor.client.api.exception.Catch
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.simpleName
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.CatchModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -20,11 +20,11 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 @Suppress("unused")
 internal data object CatchModelResolver : ValueParameterModelResolver<CatchModel> {
 	
-	private val catchCallbackQualifiedName by lazy { CatchCallback::class.qualifiedName }
+	private val catchQualifiedName by lazy { Catch::class.qualifiedName }
 	
 	override fun KSFunctionDeclaration.resolve(): List<CatchModel> {
 		return this.parameters.filter {
-			it.type.resolve().declaration.qualifiedName?.asString() == catchCallbackQualifiedName
+			it.type.resolve().declaration.qualifiedName?.asString() == catchQualifiedName
 		}.map {
 			val type = it.type.resolve()
 			val typeArgument = type.arguments.first()

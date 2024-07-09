@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.api.exception.FinallyCallback
+import cn.vividcode.multiplatform.ktor.client.api.exception.Finally
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.FinallyModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.asClassName
@@ -17,11 +17,11 @@ import com.squareup.kotlinpoet.asClassName
 @Suppress("unused")
 internal data object FinallyModelResolver : ValueParameterModelResolver<FinallyModel> {
 	
-	private val finallyCallbackClassName by lazy { FinallyCallback::class.asClassName() }
+	private val finallyClassName by lazy { Finally::class.asClassName() }
 	
 	override fun KSFunctionDeclaration.resolve(): List<FinallyModel> {
 		return this.parameters.filter {
-			it.type.resolve().declaration.qualifiedName?.asString() == finallyCallbackClassName.canonicalName
+			it.type.resolve().declaration.qualifiedName?.asString() == finallyClassName.canonicalName
 		}.map {
 			check(!it.type.resolve().isMarkedNullable) {
 				"${qualifiedName!!.asString()} 方法中的 FinallyCallback? 使用了不被允许的可空类型"
