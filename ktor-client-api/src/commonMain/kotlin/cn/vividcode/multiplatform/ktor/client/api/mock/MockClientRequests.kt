@@ -84,12 +84,12 @@ suspend inline fun <reified T : Any> MockClient.request(
 ): T {
 	val (fullUrl, mockModel, mockLogging) = doRequest<T>(httpMethod, url, name, block)
 	
-	val delay = mockModel.delayRange.random()
+	val delay = mockModel.durationRange.random()
 	delay(delay)
 	
-	mockLogging.loggingResponse(fullUrl, name, delay, mockModel.mock)
+	mockLogging.loggingResponse(fullUrl, name, delay, mockModel.result)
 	
-	return mockModel.mock
+	return mockModel.result
 }
 
 fun <T : Any> MockClient.doRequest(

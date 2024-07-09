@@ -1,5 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder.mock
 
+import kotlin.time.Duration
+
 /**
  * 项目：vividcode-multiplatform-ktor-client
  *
@@ -29,9 +31,14 @@ internal class MockGroupDslImpl<T : Any> : MockGroupDsl<T> {
 		}
 		val mockDsl = MockDslImpl<T>().apply(block)
 		if (mockDsl.enabled) {
-			val mock = mockDsl.mock
-			val delayRange = mockDsl.delay.range
-			mockModels[name.trim()] = MockModel(delayRange, mock)
+			val result = mockDsl.result
+			val durationRange = when {
+				mockDsl.durationRange == DurationRange.ZERO && mockDsl.duration == Duration.ZERO -> DurationRange.DEFAULT
+				mockDsl.durationRange != DurationRange.ZERO -> mockDsl.durationRange
+				mockDsl.duration != Duration.ZERO -> mockDsl.duration .. mockDsl.duration
+				else -> error("不允许同时使用 duration 和 durationRange 两个参数配置")
+			}
+			mockModels[name.trim()] = MockModel(durationRange, result)
 		}
 	}
 }

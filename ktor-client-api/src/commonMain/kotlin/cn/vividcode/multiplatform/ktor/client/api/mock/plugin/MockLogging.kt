@@ -6,6 +6,7 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.time.Duration
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -99,7 +100,7 @@ internal fun MockLogging.loggingRequest(
 inline fun <reified T : Any> MockLogging.loggingResponse(
 	url: String,
 	name: String,
-	delay: Long,
+	delay: Duration,
 	mock: T
 ) {
 	this.logger?.let {
@@ -107,7 +108,7 @@ inline fun <reified T : Any> MockLogging.loggingResponse(
 			if (logLevel.info) {
 				appendLine("RESPONSE: $baseUrl$url")
 				appendLine("MOCK NAME: $name")
-				appendLine("DELAY TIME: ${delay / 1000.0}s")
+				appendLine("DELAY TIME: $delay")
 			}
 			if (logLevel.body) {
 				val json = Json.encodeToString(mock)

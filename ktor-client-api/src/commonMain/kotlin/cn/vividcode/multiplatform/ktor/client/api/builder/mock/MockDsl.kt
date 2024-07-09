@@ -1,6 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder.mock
 
 import cn.vividcode.multiplatform.ktor.client.api.model.ResultBody
+import kotlin.time.Duration
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -17,17 +18,12 @@ sealed interface MockDsl<T : Any> {
 	/**
 	 * 关闭延迟
 	 */
-	val closing: MockDelay
+	val closing: DurationRange
 	
 	/**
 	 * 无限延迟
 	 */
-	val infinite: MockDelay
-	
-	/**
-	 * 默认延迟
-	 */
-	val default: MockDelay
+	val infinite: DurationRange
 	
 	/**
 	 * enabled
@@ -35,34 +31,24 @@ sealed interface MockDsl<T : Any> {
 	var enabled: Boolean
 	
 	/**
-	 * delay
+	 * duration
 	 */
-	var delay: MockDelay
+	var duration: Duration
 	
 	/**
-	 * mock
+	 * durationRange
 	 */
-	var mock: T
+	var durationRange: DurationRange
 	
 	/**
-	 * IntRange.delay
+	 * rangeTo
 	 */
-	val IntRange.mockDelay: MockDelay
+	operator fun Duration.rangeTo(other: Duration): DurationRange
 	
 	/**
-	 * LongRange.delay
+	 * result
 	 */
-	val LongRange.mockDelay: MockDelay
-	
-	/**
-	 * Int.delay
-	 */
-	val Int.mockDelay: MockDelay
-	
-	/**
-	 * Long.delay
-	 */
-	val Long.mockDelay: MockDelay
+	var result: T
 	
 	/**
 	 * 成功
@@ -82,29 +68,19 @@ sealed interface MockDsl<T : Any> {
 
 internal class MockDslImpl<T : Any> : MockDsl<T> {
 	
-	override val closing: MockDelay by lazy { 0L.mockDelay }
+	override val closing: DurationRange by lazy { DurationRange.ZERO }
 	
-	override val infinite: MockDelay by lazy { Long.MAX_VALUE.mockDelay }
-	
-	override val default: MockDelay = (100L .. 300L).mockDelay
+	override val infinite: DurationRange by lazy { DurationRange.INFINITE }
 	
 	override var enabled: Boolean = true
 	
-	override var delay: MockDelay = this.default
+	override var duration: Duration = Duration.ZERO
 	
-	override lateinit var mock: T
+	override var durationRange: DurationRange = DurationRange.ZERO
 	
-	override val IntRange.mockDelay: MockDelay
-		get() = MockDelay(first.toLong() .. last.toLong())
+	override fun Duration.rangeTo(other: Duration): DurationRange = DurationRange(this, other)
 	
-	override val LongRange.mockDelay: MockDelay
-		get() = MockDelay(this)
-	
-	override val Int.mockDelay: MockDelay
-		get() = MockDelay(this.toLong() .. this.toLong())
-	
-	override val Long.mockDelay: MockDelay
-		get() = MockDelay(this .. this)
+	override lateinit var result: T
 	
 	override fun failure(code: Int, msg: String): ResultBody<T> {
 		return ResultBody.failure(code, msg)

@@ -1,9 +1,15 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.api.annotation.*
+import cn.vividcode.multiplatform.ktor.client.api.annotation.Encrypt
+import cn.vividcode.multiplatform.ktor.client.api.annotation.Form
+import cn.vividcode.multiplatform.ktor.client.api.annotation.Path
+import cn.vividcode.multiplatform.ktor.client.api.annotation.Query
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getAnnotationByType
 import cn.vividcode.multiplatform.ktor.client.ksp.model.EncryptInfo
-import cn.vividcode.multiplatform.ktor.client.ksp.model.model.*
+import cn.vividcode.multiplatform.ktor.client.ksp.model.model.FormModel
+import cn.vividcode.multiplatform.ktor.client.ksp.model.model.PathModel
+import cn.vividcode.multiplatform.ktor.client.ksp.model.model.QueryModel
+import cn.vividcode.multiplatform.ktor.client.ksp.model.model.ValueParameterModel
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.asClassName
@@ -21,12 +27,11 @@ import com.squareup.kotlinpoet.ksp.toClassName
 @Suppress("unused")
 internal data object EncryptValueParameterModelsResolver : ValueParameterModelResolver<ValueParameterModel> {
 	
-	private val encryptClassName = arrayOf(String::class.asClassName(), ByteArray::class.asClassName())
+	private val encryptClassName by lazy { arrayOf(String::class.asClassName(), ByteArray::class.asClassName()) }
 	
 	override fun KSFunctionDeclaration.resolve(): List<ValueParameterModel> {
 		return buildList {
 			this += getValueParameterModels(Query::name, ::QueryModel)
-			this += getValueParameterModels(Header::name, ::HeaderModel)
 			this += getValueParameterModels(Form::name, ::FormModel)
 			this += getValueParameterModels(Path::name, ::PathModel)
 		}
