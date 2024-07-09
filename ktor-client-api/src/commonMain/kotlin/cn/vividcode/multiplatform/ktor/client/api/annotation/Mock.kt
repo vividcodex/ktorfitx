@@ -1,5 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.api.annotation
 
+import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MOCK_DEFAULT_NAME
+
 /**
  * 项目：vividcode-multiplatform-ktor-client
  *
@@ -12,9 +14,5 @@ package cn.vividcode.multiplatform.ktor.client.api.annotation
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Mock(
-	val name: String = DEFAULT
-) {
-	companion object {
-		const val DEFAULT = "DEFAULT"
-	}
-}
+	val name: String = MOCK_DEFAULT_NAME
+)

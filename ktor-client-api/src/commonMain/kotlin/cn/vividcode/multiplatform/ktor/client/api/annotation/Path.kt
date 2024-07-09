@@ -7,7 +7,7 @@ package cn.vividcode.multiplatform.ktor.client.api.annotation
  *
  * 创建：2024/5/14 15:24
  *
- * 介绍：Form
+ * 介绍：Path
  */
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)

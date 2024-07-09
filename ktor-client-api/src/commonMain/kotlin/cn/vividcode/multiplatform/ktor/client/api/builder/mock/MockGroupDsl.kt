@@ -1,7 +1,5 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder.mock
 
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Mock
-
 /**
  * 项目：vividcode-multiplatform-ktor-client
  *
@@ -16,7 +14,7 @@ sealed interface MockGroupDsl<T : Any> {
 	
 	var enabled: Boolean
 	
-	fun mock(name: String = Mock.DEFAULT, block: MockDsl<T>.() -> Unit)
+	fun mock(name: String = MOCK_DEFAULT_NAME, block: MockDsl<T>.() -> Unit)
 }
 
 internal class MockGroupDslImpl<T : Any> : MockGroupDsl<T> {
@@ -37,3 +35,5 @@ internal class MockGroupDslImpl<T : Any> : MockGroupDsl<T> {
 		}
 	}
 }
+
+internal const val MOCK_DEFAULT_NAME = "DEFAULT"
