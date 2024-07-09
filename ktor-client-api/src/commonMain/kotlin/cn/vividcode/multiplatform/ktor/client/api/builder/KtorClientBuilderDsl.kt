@@ -65,6 +65,11 @@ sealed interface KtorClientBuilderDsl {
 	 * handleLog
 	 */
 	fun handleLog(handleLog: (String) -> Unit)
+	
+	/**
+	 * json
+	 */
+	fun json(block: JsonDsl.() -> Unit)
 }
 
 internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
@@ -122,6 +127,10 @@ internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
 		this.httpConfig.handleLog = handleLog
 	}
 	
+	override fun json(block: JsonDsl.() -> Unit) {
+		this.httpConfig.jsonPrettyPrint = JsonDslImpl().apply(block).prettyPrint
+	}
+	
 	internal fun build(): KtorClient<AS> = KtorClient(ktorConfig, httpConfig, mockConfig)
 }
 
@@ -154,4 +163,15 @@ private class BaseUrlBuilderDslImpl : BaseUrlBuilderDsl {
 		append(port)
 		append(if (prefix.startsWith('/')) prefix else "/$prefix")
 	}
+}
+
+@KtorBuilderDsl
+sealed interface JsonDsl {
+	
+	var prettyPrint: Boolean
+}
+
+private class JsonDslImpl : JsonDsl {
+	
+	override var prettyPrint: Boolean = false
 }

@@ -17,6 +17,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.Json
 
 /**
  * 项目：vividcode-multiplatform
@@ -61,7 +62,10 @@ class KtorClient<AS : ApiScope> internal constructor(
 				this.level = httpConfig.logLevel
 			}
 			install(ContentNegotiation) {
-				json()
+				val json = Json {
+					prettyPrint = httpConfig.jsonPrettyPrint
+				}
+				json(json)
 			}
 			install(HttpCookies)
 			engine {

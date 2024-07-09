@@ -72,6 +72,11 @@ sealed interface KtorClientBuilder<AS : ApiScope> {
 	fun handleLog(handleLog: (String) -> Unit): KtorClientBuilder<AS>
 	
 	/**
+	 * json
+	 */
+	fun json(prettyPrint: Boolean): KtorClientBuilder<AS>
+	
+	/**
 	 * build
 	 */
 	fun build(): KtorClient<AS>
@@ -133,6 +138,11 @@ internal class KtorClientBuilderImpl<AS : ApiScope> : KtorClientBuilder<AS> {
 	
 	override fun handleLog(handleLog: (String) -> Unit): KtorClientBuilder<AS> {
 		this.httpConfig.handleLog = handleLog
+		return this
+	}
+	
+	override fun json(prettyPrint: Boolean): KtorClientBuilder<AS> {
+		this.httpConfig.jsonPrettyPrint = prettyPrint
 		return this
 	}
 	
