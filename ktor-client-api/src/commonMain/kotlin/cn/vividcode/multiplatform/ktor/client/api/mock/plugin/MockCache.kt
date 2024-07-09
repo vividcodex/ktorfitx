@@ -42,6 +42,7 @@ private class MockCacheImpl(
 	override val groupMocksMap: Map<String, Map<String, MockModel<*>>>
 ) : MockCache
 
+@Suppress("UNCHECKED_CAST")
 fun <T : Any> MockCache.getMockModel(url: String, name: String): MockModel<T> {
 	return groupMocksMap[url]?.get(name) as? MockModel<T>
 		?: error("在 $url 中未找到名为 $name 的 Mock")
