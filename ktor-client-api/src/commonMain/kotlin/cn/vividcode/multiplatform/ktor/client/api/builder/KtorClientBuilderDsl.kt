@@ -5,6 +5,7 @@ import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MocksConfig
 import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MocksConfigImpl
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
+import cn.vividcode.multiplatform.ktor.client.api.config.JsonConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.MockConfig
 import io.ktor.client.plugins.logging.*
@@ -128,7 +129,8 @@ internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
 	}
 	
 	override fun json(block: JsonDsl.() -> Unit) {
-		this.httpConfig.jsonPrettyPrint = JsonDslImpl().apply(block).prettyPrint
+		val jsonDsl = JsonDslImpl().apply(block)
+		this.httpConfig.jsonConfig = JsonConfig(jsonDsl.prettyPrint, jsonDsl.prettyPrintIndent)
 	}
 	
 	internal fun build(): KtorClient<AS> = KtorClient(ktorConfig, httpConfig, mockConfig)
@@ -169,9 +171,13 @@ private class BaseUrlBuilderDslImpl : BaseUrlBuilderDsl {
 sealed interface JsonDsl {
 	
 	var prettyPrint: Boolean
+	
+	var prettyPrintIndent: String
 }
 
 private class JsonDslImpl : JsonDsl {
 	
 	override var prettyPrint: Boolean = false
+	
+	override var prettyPrintIndent: String = "    "
 }

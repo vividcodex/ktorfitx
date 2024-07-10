@@ -9,7 +9,6 @@ import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.MockConfig
 import cn.vividcode.multiplatform.ktor.client.api.mock.MockClient
 import cn.vividcode.multiplatform.ktor.client.api.mock.plugin.MockCache
-import cn.vividcode.multiplatform.ktor.client.api.mock.plugin.MockLogger
 import cn.vividcode.multiplatform.ktor.client.api.mock.plugin.MockLogging
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -17,6 +16,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
 /**
@@ -48,6 +48,12 @@ class KtorClient<AS : ApiScope> internal constructor(
 		fun <AS : ApiScope> builder(): KtorClientBuilder<AS> = KtorClientBuilderImpl()
 	}
 	
+	@OptIn(ExperimentalSerializationApi::class)
+	private val json = Json {
+		this.prettyPrint = httpConfig.jsonConfig.prettyPrint
+		this.prettyPrintIndent = httpConfig.jsonConfig.prettyPrintIndent
+	}
+	
 	/**
 	 * HttpClient
 	 */
@@ -62,10 +68,7 @@ class KtorClient<AS : ApiScope> internal constructor(
 				this.level = httpConfig.logLevel
 			}
 			install(ContentNegotiation) {
-				val json = Json {
-					prettyPrint = httpConfig.jsonPrettyPrint
-				}
-				json(json)
+				json(this@KtorClient.json)
 			}
 			install(HttpCookies)
 			engine {
@@ -82,10 +85,9 @@ class KtorClient<AS : ApiScope> internal constructor(
 		MockClient {
 			install(MockLogging) {
 				this.baseUrl = ktorConfig.baseUrl
-				this.logger = MockLogger {
-					httpConfig.handleLog(it)
-				}
 				this.logLevel = httpConfig.logLevel
+				this.handleLog = httpConfig.handleLog
+				this.json = this@KtorClient.json
 			}
 			install(MockCache) {
 				this.groupMocksMap = mockConfig.groupMocksMap

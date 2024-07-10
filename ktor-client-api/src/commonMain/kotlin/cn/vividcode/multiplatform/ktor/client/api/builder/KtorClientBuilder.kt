@@ -5,6 +5,7 @@ import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MocksConfig
 import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MocksConfigImpl
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
+import cn.vividcode.multiplatform.ktor.client.api.config.JsonConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.MockConfig
 import io.ktor.client.plugins.logging.*
@@ -74,7 +75,10 @@ sealed interface KtorClientBuilder<AS : ApiScope> {
 	/**
 	 * json
 	 */
-	fun json(prettyPrint: Boolean): KtorClientBuilder<AS>
+	fun json(
+		prettyPrint: Boolean = false,
+		prettyPrintIndent: String = "    "
+	): KtorClientBuilder<AS>
 	
 	/**
 	 * build
@@ -141,8 +145,11 @@ internal class KtorClientBuilderImpl<AS : ApiScope> : KtorClientBuilder<AS> {
 		return this
 	}
 	
-	override fun json(prettyPrint: Boolean): KtorClientBuilder<AS> {
-		this.httpConfig.jsonPrettyPrint = prettyPrint
+	override fun json(
+		prettyPrint: Boolean,
+		prettyPrintIndent: String
+	): KtorClientBuilder<AS> {
+		this.httpConfig.jsonConfig = JsonConfig(prettyPrint, prettyPrintIndent)
 		return this
 	}
 	

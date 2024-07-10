@@ -17,7 +17,7 @@ internal class HttpConfig internal constructor(
 	var keepAliveTime: Long = 5000L,
 	var logLevel: LogLevel = LogLevel.HEADERS,
 	var handleLog: (message: String) -> Unit = {},
-	var jsonPrettyPrint: Boolean = false
+	var jsonConfig: JsonConfig = JsonConfig()
 ) {
 	
 	internal fun check() {
@@ -32,3 +32,8 @@ internal class HttpConfig internal constructor(
 		}
 	}
 }
+
+internal class JsonConfig(
+	val prettyPrint: Boolean = false,
+	val prettyPrintIndent: String = "    "
+)

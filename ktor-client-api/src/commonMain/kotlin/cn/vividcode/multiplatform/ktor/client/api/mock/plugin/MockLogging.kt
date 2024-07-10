@@ -17,38 +17,45 @@ import kotlin.time.Duration
  *
  * 介绍：MockLogging
  */
+@MockDsl
 sealed interface MockLogging {
 	
 	val baseUrl: String
 	
 	val logLevel: LogLevel
 	
-	val logger: MockLogger?
+	val handleLog: (message: String) -> Unit
+	
+	val json: Json
 	
 	@MockDsl
 	sealed interface Config {
 		
 		var baseUrl: String
 		
-		var logger: MockLogger?
+		var handleLog: (message: String) -> Unit
 		
 		var logLevel: LogLevel
+		
+		var json: Json
 	}
 	
 	private class ConfigImpl : Config {
 		
 		override var baseUrl: String = ""
 		
-		override var logger: MockLogger? = null
+		override var handleLog: (message: String) -> Unit = ::println
 		
 		override var logLevel = LogLevel.HEADERS
+		
+		override var json: Json = Json
 	}
 	
 	companion object : MockClientPlugin<Config, MockLogging> {
 		
 		override fun install(block: Config.() -> Unit): MockLogging {
 			val config = ConfigImpl().apply(block)
-			return MockLoggingImpl(config.baseUrl, config.logLevel, config.logger)
+			return MockLoggingImpl(config.baseUrl, config.logLevel, config.handleLog, config.json)
 		}
 	}
 }
@@ -56,7 +63,8 @@ sealed interface MockLogging {
 private class MockLoggingImpl(
 	override val baseUrl: String,
 	override val logLevel: LogLevel,
-	override val logger: MockLogger?
+	override val handleLog: (message: String) -> Unit,
+	override val json: Json
 ) : MockLogging
 
 @MockDsl
@@ -66,35 +74,33 @@ internal fun MockLogging.loggingRequest(
 	name: String,
 	model: MockClientModel
 ) {
-	if (this.logger != null) {
-		val message = buildString {
-			if (logLevel.info) {
-				appendLine("REQUEST: $baseUrl$url")
-				appendLine("MOCK NAME: $name")
-				appendLine("METHOD: ${httpMethod.value}")
+	val message = buildString {
+		if (logLevel.info) {
+			appendLine("REQUEST: $baseUrl$url")
+			appendLine("MOCK NAME: $name")
+			appendLine("METHOD: ${httpMethod.value}")
+		}
+		if (logLevel.headers && model.headers.isNotEmpty()) {
+			appendLine("HEADERS [${model.headers.size}]")
+			model.headers.forEach { (name, value) ->
+				appendLine("-> $name: $value")
 			}
-			if (logLevel.headers && model.headers.isNotEmpty()) {
-				appendLine("HEADERS [${model.headers.size}]")
-				model.headers.forEach { (name, value) ->
+		}
+		if (logLevel.body) {
+			if (model.forms.isNotEmpty()) {
+				appendLine("FORMS [${model.forms.size}]")
+				model.forms.forEach { (name, value) ->
 					appendLine("-> $name: $value")
 				}
 			}
-			if (logLevel.body) {
-				if (model.forms.isNotEmpty()) {
-					appendLine("FORMS [${model.forms.size}]")
-					model.forms.forEach { (name, value) ->
-						appendLine("-> $name: $value")
-					}
-				}
-				if (model.body != null) {
-					appendLine("BODY START [${model.body.length}]")
-					append(model.body)
-					append("BODY END")
-				}
+			if (model.body != null) {
+				appendLine("BODY START [${model.body.length}]")
+				append(model.body)
+				append("BODY END")
 			}
 		}
-		this.logger!!.log(message)
 	}
+	this.handleLog(message)
 }
 
 inline fun <reified T : Any> MockLogging.loggingResponse(
@@ -103,26 +109,18 @@ inline fun <reified T : Any> MockLogging.loggingResponse(
 	delay: Duration,
 	mock: T
 ) {
-	this.logger?.let {
-		val message = buildString {
-			if (logLevel.info) {
-				appendLine("RESPONSE: $baseUrl$url")
-				appendLine("MOCK NAME: $name")
-				appendLine("DELAY TIME: $delay")
-			}
-			if (logLevel.body) {
-				val json = Json.encodeToString(mock)
-				appendLine("BODY START [${json.length}]")
-				appendLine(json)
-				appendLine("BODY END")
-			}
+	val message = buildString {
+		if (logLevel.info) {
+			appendLine("RESPONSE: $baseUrl$url")
+			appendLine("MOCK NAME: $name")
+			appendLine("DELAY TIME: $delay")
 		}
-		it.log(message)
+		if (logLevel.body) {
+			val json = json.encodeToString(mock)
+			appendLine("BODY START [${json.length}]")
+			appendLine(json)
+			appendLine("BODY END")
+		}
 	}
-}
-
-@MockDsl
-fun interface MockLogger {
-	
-	fun log(message: String)
+	this.handleLog(message)
 }
