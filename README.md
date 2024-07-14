@@ -10,7 +10,7 @@ KSP：2.0.0-1.0.22
 
 ## 最新版本
 
-`2.3.12`-`1.3.0`
+`2.3.12`-`1.3.1`
 
 ## 依赖说明
 
@@ -34,7 +34,7 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
-val version = "2.3.12-1.3.0"
+val version = "2.3.12-1.3.1"
 
 kotlin {
     sourceSets {
