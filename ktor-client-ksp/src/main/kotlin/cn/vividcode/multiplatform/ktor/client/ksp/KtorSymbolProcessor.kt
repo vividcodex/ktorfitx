@@ -7,6 +7,7 @@ import cn.vividcode.multiplatform.ktor.client.ksp.visitor.ApiVisitor
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.validate
@@ -29,7 +30,7 @@ internal class KtorSymbolProcessor(
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
 		val annotatedList = resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)
-		val rets = annotatedList.filterNot { it.validate() && it is KSClassDeclaration }.toMutableSet()
+		val rets = annotatedList.filterNot { it.validate() && it is KSClassDeclaration && it.classKind == ClassKind.INTERFACE }.toMutableSet()
 		(annotatedList - rets).forEach {
 			val classStructure = it.accept(apiVisitor, Unit)
 			if (classStructure != null) {
