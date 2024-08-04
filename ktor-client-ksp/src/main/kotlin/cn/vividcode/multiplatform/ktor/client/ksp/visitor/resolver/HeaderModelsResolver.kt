@@ -1,7 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Encrypt
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Header
+import cn.vividcode.multiplatform.ktor.client.annotation.Encrypt
+import cn.vividcode.multiplatform.ktor.client.annotation.Header
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getAnnotationByType
 import cn.vividcode.multiplatform.ktor.client.ksp.model.EncryptInfo
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.HeaderModel

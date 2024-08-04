@@ -1,8 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor
 
-import cn.vividcode.multiplatform.ktor.client.api.ApiScope
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Api
-import cn.vividcode.multiplatform.ktor.client.api.model.ResultBody
+import cn.vividcode.multiplatform.ktor.client.annotation.Api
+import cn.vividcode.multiplatform.ktor.client.annotation.ApiScope
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getArgumentClassName
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getArgumentValue
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getKSAnnotationByType
@@ -44,7 +43,7 @@ internal class ApiVisitor : KSEmptyVisitor<Unit, ClassStructure?>() {
 		private val legalReturnTypeNames = arrayOf(
 			Unit::class.asTypeName(),
 			ByteArray::class.asTypeName(),
-			ResultBody::class.asTypeName()
+			ClassName("cn.vividcode.multiplatform.ktor.client.api.model", "ResultBody")
 		)
 	}
 	

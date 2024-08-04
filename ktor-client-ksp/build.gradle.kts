@@ -31,7 +31,7 @@ sourceSets {
 }
 
 dependencies {
-	implementation(projects.ktorClientApi)
+	implementation(projects.ktorClientAnnotation)
 	implementation(libs.kotlin.reflect)
 	implementation(libs.symbol.processing.api)
 	implementation(libs.symbol.processing)

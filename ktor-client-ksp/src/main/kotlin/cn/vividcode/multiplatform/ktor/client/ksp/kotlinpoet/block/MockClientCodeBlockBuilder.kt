@@ -39,7 +39,7 @@ internal class MockClientCodeBlockBuilder(
 		addImports(returnStructure.typeName.classNames)
 		val apiModel = functionModels.first { it is ApiModel } as ApiModel
 		val mockModel = functionModels.first { it is MockModel } as MockModel
-		val funName = apiModel.requestMethod.name.lowercase()
+		val funName = apiModel.requestFunName
 		addImport("cn.vividcode.multiplatform.ktor.client.api.mock", funName)
 		addStatement("val $varNameUrl = \"${classStructure.apiStructure.url}${apiModel.url}\"")
 		addStatement("val $varNameMockName = \"${mockModel.name}\"")

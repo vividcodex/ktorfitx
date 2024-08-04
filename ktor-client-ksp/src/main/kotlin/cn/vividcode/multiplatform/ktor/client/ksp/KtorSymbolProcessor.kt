@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp
 
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Api
+import cn.vividcode.multiplatform.ktor.client.annotation.Api
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.generate
 import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.ApiKotlinPoet
 import cn.vividcode.multiplatform.ktor.client.ksp.visitor.ApiVisitor

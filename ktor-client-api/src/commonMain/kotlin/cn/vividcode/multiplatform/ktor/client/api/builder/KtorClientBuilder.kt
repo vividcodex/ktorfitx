@@ -1,7 +1,8 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder
 
-import cn.vividcode.multiplatform.ktor.client.api.ApiScope
+import cn.vividcode.multiplatform.ktor.client.annotation.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
+import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MocksConfig
 import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MocksConfigImpl
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
@@ -19,7 +20,7 @@ import io.ktor.client.plugins.logging.*
  *
  * 介绍：KtorClientBuilder
  */
-@KtorBuilderDsl
+@BuilderDsl
 sealed interface KtorClientBuilder<AS : ApiScope> {
 	
 	/**
@@ -73,6 +74,11 @@ sealed interface KtorClientBuilder<AS : ApiScope> {
 	fun handleLog(handleLog: (String) -> Unit): KtorClientBuilder<AS>
 	
 	/**
+	 * showApiScope
+	 */
+	fun showApiScope(showApiScope: Boolean): KtorClientBuilder<AS>
+	
+	/**
 	 * json
 	 */
 	fun json(
@@ -86,7 +92,9 @@ sealed interface KtorClientBuilder<AS : ApiScope> {
 	fun build(): KtorClient<AS>
 }
 
-internal class KtorClientBuilderImpl<AS : ApiScope> : KtorClientBuilder<AS> {
+internal class KtorClientBuilderImpl<AS : ApiScope>(
+	private val apiScope: AS
+) : KtorClientBuilder<AS> {
 	
 	private val ktorConfig by lazy { KtorConfig() }
 	private val httpConfig by lazy { HttpConfig() }
@@ -145,6 +153,11 @@ internal class KtorClientBuilderImpl<AS : ApiScope> : KtorClientBuilder<AS> {
 		return this
 	}
 	
+	override fun showApiScope(showApiScope: Boolean): KtorClientBuilder<AS> {
+		this.httpConfig.showApiScope = showApiScope
+		return this
+	}
+	
 	override fun json(
 		prettyPrint: Boolean,
 		prettyPrintIndent: String
@@ -153,5 +166,5 @@ internal class KtorClientBuilderImpl<AS : ApiScope> : KtorClientBuilder<AS> {
 		return this
 	}
 	
-	override fun build(): KtorClient<AS> = KtorClient(ktorConfig, httpConfig, mockConfig)
+	override fun build(): KtorClient<AS> = KtorClient(ktorConfig, httpConfig, mockConfig, apiScope)
 }

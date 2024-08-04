@@ -10,7 +10,7 @@ pluginManagement {
 	}
 }
 plugins {
-	id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
+	id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
 dependencyResolutionManagement {
@@ -23,3 +23,5 @@ dependencyResolutionManagement {
 }
 include("ktor-client-api")
 include("ktor-client-ksp")
+include("ktor-client-annotation")
+include("sample")

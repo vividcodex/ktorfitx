@@ -1,7 +1,8 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder
 
-import cn.vividcode.multiplatform.ktor.client.api.ApiScope
+import cn.vividcode.multiplatform.ktor.client.annotation.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
+import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MocksConfig
 import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MocksConfigImpl
 import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
@@ -19,7 +20,7 @@ import io.ktor.client.plugins.logging.*
  *
  * 介绍：KtorClientBuilderDSL
  */
-@KtorBuilderDsl
+@BuilderDsl
 sealed interface KtorClientBuilderDsl {
 	
 	/**
@@ -68,12 +69,19 @@ sealed interface KtorClientBuilderDsl {
 	fun handleLog(handleLog: (String) -> Unit)
 	
 	/**
+	 * showApiScope
+	 */
+	var showApiScope: Boolean
+	
+	/**
 	 * json
 	 */
 	fun json(block: JsonDsl.() -> Unit)
 }
 
-internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
+internal class KtorClientBuilderDslImpl<AS : ApiScope>(
+	private val apiScope: AS
+) : KtorClientBuilderDsl {
 	
 	private val ktorConfig by lazy { KtorConfig() }
 	private val httpConfig by lazy { HttpConfig() }
@@ -128,15 +136,21 @@ internal class KtorClientBuilderDslImpl<AS : ApiScope> : KtorClientBuilderDsl {
 		this.httpConfig.handleLog = handleLog
 	}
 	
+	override var showApiScope: Boolean = false
+		set(value) {
+			field = value
+			this.httpConfig.showApiScope = value
+		}
+	
 	override fun json(block: JsonDsl.() -> Unit) {
 		val jsonDsl = JsonDslImpl().apply(block)
 		this.httpConfig.jsonConfig = JsonConfig(jsonDsl.prettyPrint, jsonDsl.prettyPrintIndent)
 	}
 	
-	internal fun build(): KtorClient<AS> = KtorClient(ktorConfig, httpConfig, mockConfig)
+	internal fun build(): KtorClient<AS> = KtorClient(ktorConfig, httpConfig, mockConfig, apiScope)
 }
 
-@KtorBuilderDsl
+@BuilderDsl
 sealed interface BaseUrlBuilderDsl {
 	
 	var host: String
@@ -167,7 +181,7 @@ private class BaseUrlBuilderDslImpl : BaseUrlBuilderDsl {
 	}
 }
 
-@KtorBuilderDsl
+@BuilderDsl
 sealed interface JsonDsl {
 	
 	var prettyPrint: Boolean

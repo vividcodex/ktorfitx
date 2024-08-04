@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.model
 
-import cn.vividcode.multiplatform.ktor.client.api.annotation.*
+import cn.vividcode.multiplatform.ktor.client.annotation.*
 import kotlin.reflect.KClass
 
 /**

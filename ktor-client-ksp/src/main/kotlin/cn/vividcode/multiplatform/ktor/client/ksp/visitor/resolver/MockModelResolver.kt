@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Mock
+import cn.vividcode.multiplatform.ktor.client.annotation.Mock
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getAnnotationByType
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.MockModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration

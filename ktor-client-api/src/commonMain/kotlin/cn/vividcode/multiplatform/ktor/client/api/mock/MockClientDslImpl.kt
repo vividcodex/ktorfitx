@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.api.mock
 
+import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 import io.ktor.http.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -14,7 +15,7 @@ import kotlin.collections.set
  *
  * 介绍：MockClientConfig
  */
-@MockDsl
+@BuilderDsl
 sealed interface MockClientDsl {
 	
 	val headers: MutableMap<String, Any>

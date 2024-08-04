@@ -1,13 +1,14 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.block
 
-import cn.vividcode.multiplatform.ktor.client.api.model.ResultBody
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.rawType
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.simpleName
 import cn.vividcode.multiplatform.ktor.client.ksp.model.EncryptInfo
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.*
 import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.ClassStructure
 import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.FunStructure
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 
 /**
@@ -27,11 +28,11 @@ internal class HttpClientCodeBlockBuilder(
 	
 	private companion object {
 		
-		private val byteArrayTypeName by lazy { ByteArray::class.asTypeName() }
+		private val byteArrayClassName by lazy { ByteArray::class.asClassName() }
 		
-		private val resultBodyTypeName by lazy { ResultBody::class.asTypeName() }
+		private val resultBodyClassName by lazy { ClassName("cn.vividcode.multiplatform.ktor.client.api.model", "ResultBody") }
 		
-		private val unitTypeName by lazy { Unit::class.asTypeName() }
+		private val unitClassName by lazy { Unit::class.asClassName() }
 	}
 	
 	private val functionModels by lazy { funStructure.functionModels }
@@ -49,10 +50,10 @@ internal class HttpClientCodeBlockBuilder(
 		val needReturn = returnStructure.typeName != Unit::class.asTypeName()
 		beginControlFlow(if (needReturn) "return try" else "try")
 		val apiModel = functionModels.filterIsInstance<ApiModel>().first()
-		val requestMethod = apiModel.requestMethod.toString().lowercase()
-		addImport("io.ktor.client.request", requestMethod)
+		val funName = apiModel.requestFunName
+		addImport("io.ktor.client.request", funName)
 		val url = parsePathToUrl(apiModel.url)
-		val httpClientCode = "${if (needReturn) "val $responseVarName = " else ""}this.httpClient.$requestMethod(\"\${this.ktorConfig.baseUrl}$url\")"
+		val httpClientCode = "${if (needReturn) "val $responseVarName = " else ""}this.httpClient.$funName(\"\${this.ktorConfig.baseUrl}$url\")"
 		val needHttpRequestBuilder = isNeedHttpRequestBuilder(apiModel.auth)
 		if (needHttpRequestBuilder) {
 			beginControlFlow(httpClientCode)
@@ -70,9 +71,9 @@ internal class HttpClientCodeBlockBuilder(
 		val catchModels = valueParameterModels.filterIsInstance<CatchModel>()
 		val finallyModels = valueParameterModels.filterIsInstance<FinallyModel>()
 		when (returnStructure.typeName.rawType) {
-			byteArrayTypeName -> buildReturnByteArrayCodeBlock(catchModels, finallyModels)
-			resultBodyTypeName -> buildReturnResultBodyCodeBlock(catchModels, finallyModels)
-			unitTypeName -> buildReturnUnitCodeBlock(catchModels, finallyModels)
+			byteArrayClassName -> buildReturnByteArrayCodeBlock(catchModels, finallyModels)
+			resultBodyClassName -> buildReturnResultBodyCodeBlock(catchModels, finallyModels)
+			unitClassName -> buildReturnUnitCodeBlock(catchModels, finallyModels)
 			else -> error("不支持的类型")
 		}
 	}
@@ -277,7 +278,8 @@ internal class HttpClientCodeBlockBuilder(
 	 */
 	private fun encrypt(encryptInfo: EncryptInfo?): String {
 		if (encryptInfo == null) return ""
-		addImport("cn.vividcode.multiplatform.ktor.client.api.encrypt", "encrypt", "EncryptType")
+		addImport("cn.vividcode.multiplatform.ktor.client.annotation", "EncryptType")
+		addImport("cn.vividcode.multiplatform.ktor.client.api.encrypt", "encrypt")
 		return ".encrypt(EncryptType.${encryptInfo.encryptType}, ${encryptInfo.layer})"
 	}
 }

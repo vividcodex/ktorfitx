@@ -1,5 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.api
 
+import cn.vividcode.multiplatform.ktor.client.annotation.ApiScope
+import cn.vividcode.multiplatform.ktor.client.annotation.DefaultApiScope
 import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilder
 import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderDsl
 import cn.vividcode.multiplatform.ktor.client.api.builder.KtorClientBuilderDslImpl
@@ -32,7 +34,8 @@ import kotlinx.serialization.json.Json
 class KtorClient<AS : ApiScope> internal constructor(
 	val ktorConfig: KtorConfig,
 	httpConfig: HttpConfig,
-	mockConfig: MockConfig
+	mockConfig: MockConfig,
+	private val apiScope: AS
 ) {
 	
 	init {
@@ -42,10 +45,12 @@ class KtorClient<AS : ApiScope> internal constructor(
 	
 	companion object {
 		
+		fun builder(): KtorClientBuilder<DefaultApiScope> = KtorClientBuilderImpl(DefaultApiScope)
+		
 		/**
 		 * ktorClient 的构造器
 		 */
-		fun <AS : ApiScope> builder(): KtorClientBuilder<AS> = KtorClientBuilderImpl()
+		fun <AS : ApiScope> builder(apiScope: AS): KtorClientBuilder<AS> = KtorClientBuilderImpl(apiScope)
 	}
 	
 	@OptIn(ExperimentalSerializationApi::class)
@@ -62,7 +67,7 @@ class KtorClient<AS : ApiScope> internal constructor(
 			install(Logging) {
 				this.logger = object : Logger {
 					override fun log(message: String) {
-						httpConfig.handleLog(message)
+						httpConfig.handleLog?.invoke(format(message, httpConfig.showApiScope))
 					}
 				}
 				this.level = httpConfig.logLevel
@@ -81,12 +86,17 @@ class KtorClient<AS : ApiScope> internal constructor(
 		}
 	}
 	
+	/**
+	 * MockClient
+	 */
 	val mockClient: MockClient by lazy {
 		MockClient {
 			install(MockLogging) {
 				this.baseUrl = ktorConfig.baseUrl
 				this.logLevel = httpConfig.logLevel
-				this.handleLog = httpConfig.handleLog
+				this.handleLog = {
+					httpConfig.handleLog?.invoke(format(it, httpConfig.showApiScope))
+				}
 				this.json = this@KtorClient.json
 			}
 			install(MockCache) {
@@ -94,13 +104,26 @@ class KtorClient<AS : ApiScope> internal constructor(
 			}
 		}
 	}
+	
+	private fun format(message: String, showApiScope: Boolean): String {
+		return message + if (showApiScope) " <[$apiScope]>" else ""
+	}
 }
 
 /**
- * ktorClient 的Dsl构造器
+ * DefaultApiScope 的 ktorClient 构造器
  */
-fun <AS : ApiScope> ktorClient(builder: KtorClientBuilderDsl.() -> Unit): KtorClient<AS> {
-	return KtorClientBuilderDslImpl<AS>()
+fun ktorClient(builder: KtorClientBuilderDsl.() -> Unit): KtorClient<DefaultApiScope> {
+	return KtorClientBuilderDslImpl(DefaultApiScope)
+		.apply(builder)
+		.build()
+}
+
+/**
+ * 自定义 ApiScope 的 ktorClient 构造器
+ */
+fun <AS : ApiScope> ktorClient(apiScope: AS, builder: KtorClientBuilderDsl.() -> Unit): KtorClient<AS> {
+	return KtorClientBuilderDslImpl(apiScope)
 		.apply(builder)
 		.build()
 }

@@ -1,5 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder.mock
 
+import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
+
 /**
  * 项目：vividcode-multiplatform-ktor-client
  *
@@ -9,17 +11,17 @@ package cn.vividcode.multiplatform.ktor.client.api.builder.mock
  *
  * 介绍：MocksConfig
  */
-@MockBuilderDsl
+@BuilderDsl
 sealed interface MocksConfig {
 	
-	fun <T : Any> group(url: String, block: MockGroupDsl<T>.() -> Unit)
+	fun <T : Any> api(url: String, block: MockGroupDsl<T>.() -> Unit)
 }
 
 internal class MocksConfigImpl : MocksConfig {
 	
 	val groupMocksMap = mutableMapOf<String, MutableMap<String, MockModel<*>>>()
 	
-	override fun <T : Any> group(url: String, block: MockGroupDsl<T>.() -> Unit) {
+	override fun <T : Any> api(url: String, block: MockGroupDsl<T>.() -> Unit) {
 		if (url.isBlank()) {
 			error("url 不能为空")
 		}

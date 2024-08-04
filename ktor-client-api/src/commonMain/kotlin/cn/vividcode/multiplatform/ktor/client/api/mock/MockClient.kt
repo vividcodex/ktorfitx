@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.api.mock
 
+import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 import cn.vividcode.multiplatform.ktor.client.api.mock.plugin.MockClientPlugin
 
 /**
@@ -11,7 +12,7 @@ import cn.vividcode.multiplatform.ktor.client.api.mock.plugin.MockClientPlugin
  *
  * 介绍：MockClient
  */
-@MockDsl
+@BuilderDsl
 class MockClient internal constructor(
 	private val pluginMap: Map<MockClientPlugin<*, *>, Any>
 ) {
@@ -22,7 +23,7 @@ class MockClient internal constructor(
 	): TPlugin = this.pluginMap[plugin] as? TPlugin ?: error("未找到 MockClient 插件")
 }
 
-@MockDsl
+@BuilderDsl
 internal fun MockClient(
 	block: MockClientConfig.() -> Unit
 ): MockClient {
@@ -30,7 +31,7 @@ internal fun MockClient(
 	return MockClient(config.pluginMap)
 }
 
-@MockDsl
+@BuilderDsl
 internal sealed interface MockClientConfig {
 	
 	fun <TConfig : Any, TPlugin : Any> install(

@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.model
 
-import cn.vividcode.multiplatform.ktor.client.api.encrypt.EncryptType
+import cn.vividcode.multiplatform.ktor.client.annotation.EncryptType
 
 /**
  * 项目：vividcode-multiplatform-ktor-client

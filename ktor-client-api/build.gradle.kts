@@ -48,6 +48,7 @@ kotlin {
 		commonMain.dependencies {
 			implementation(compose.runtime)
 			implementation(libs.krypto)
+			api(projects.ktorClientAnnotation)
 			api(libs.ktor.client.cio)
 			api(libs.ktor.client.serialization)
 			api(libs.ktor.client.content.negotiation)

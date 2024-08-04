@@ -1,8 +1,5 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet
 
-import cn.vividcode.multiplatform.ktor.client.api.KtorClient
-import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
-import cn.vividcode.multiplatform.ktor.client.api.mock.MockClient
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.*
 import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.block.HttpClientCodeBlockBuilder
 import cn.vividcode.multiplatform.ktor.client.ksp.kotlinpoet.block.MockClientCodeBlockBuilder
@@ -12,7 +9,6 @@ import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.ClassStructure
 import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.FunStructure
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import io.ktor.client.*
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -30,6 +26,17 @@ internal class ApiKotlinPoet {
 	private var hasFunction = false
 	private var hasMockClient = false
 	private var hasHttpClient = false
+	
+	private companion object {
+		
+		private val ktorConfigClassName = ClassName("cn.vividcode.multiplatform.ktor.client.api.config", "KtorConfig")
+		
+		private val ktorClientClassName = ClassName("cn.vividcode.multiplatform.ktor.client.api", "KtorClient")
+		
+		private val httpClientClassName = ClassName("io.ktor.client", "HttpClient")
+		
+		private val mockClientClassName = ClassName("cn.vividcode.multiplatform.ktor.client.api.mock", "MockClient")
+	}
 	
 	/**
 	 * 文件
@@ -60,13 +67,13 @@ internal class ApiKotlinPoet {
 		val primaryConstructorFunSpec = buildConstructorFunSpec {
 			addModifiers(KModifier.PRIVATE)
 			if (hasFunction) {
-				addParameter("ktorConfig", KtorConfig::class)
+				addParameter("ktorConfig", ktorConfigClassName)
 			}
 			if (hasHttpClient) {
-				addParameter("httpClient", HttpClient::class)
+				addParameter("httpClient", httpClientClassName)
 			}
 			if (hasMockClient) {
-				addParameter("mockClient", MockClient::class)
+				addParameter("mockClient", mockClientClassName)
 			}
 		}
 		return buildClassTypeSpec(classStructure.className) {
@@ -74,21 +81,21 @@ internal class ApiKotlinPoet {
 			addSuperinterface(classStructure.superinterface)
 			primaryConstructor(primaryConstructorFunSpec)
 			if (hasFunction) {
-				val ktorConfigPropertySpec = buildPropertySpec("ktorConfig", KtorConfig::class, KModifier.PRIVATE) {
+				val ktorConfigPropertySpec = buildPropertySpec("ktorConfig", ktorConfigClassName, KModifier.PRIVATE) {
 					initializer("ktorConfig")
 					mutable(false)
 				}
 				addProperty(ktorConfigPropertySpec)
 			}
 			if (hasHttpClient) {
-				val httpClientPropertySpec = buildPropertySpec("httpClient", HttpClient::class, KModifier.PRIVATE) {
+				val httpClientPropertySpec = buildPropertySpec("httpClient", httpClientClassName, KModifier.PRIVATE) {
 					initializer("httpClient")
 					mutable(false)
 				}
 				addProperty(httpClientPropertySpec)
 			}
 			if (hasMockClient) {
-				val mockClientPropertySpec = buildPropertySpec("mockClient", MockClient::class, KModifier.PRIVATE) {
+				val mockClientPropertySpec = buildPropertySpec("mockClient", mockClientClassName, KModifier.PRIVATE) {
 					initializer("mockClient")
 					mutable(false)
 				}
@@ -124,13 +131,13 @@ internal class ApiKotlinPoet {
 			addModifiers(classStructure.kModifier)
 			returns(classStructure.superinterface)
 			if (hasFunction) {
-				addParameter("ktorConfig", KtorConfig::class)
+				addParameter("ktorConfig", ktorConfigClassName)
 			}
 			if (hasHttpClient) {
-				addParameter("httpClient", HttpClient::class)
+				addParameter("httpClient", httpClientClassName)
 			}
 			if (hasMockClient) {
-				addParameter("mockClient", MockClient::class)
+				addParameter("mockClient", mockClientClassName)
 			}
 			addCode(codeBlock)
 		}
@@ -157,7 +164,7 @@ internal class ApiKotlinPoet {
 		}
 		val expendPropertyName = classStructure.superinterface.simpleName.replaceFirstChar { it.lowercase() }
 		return buildPropertySpec(expendPropertyName, classStructure.superinterface, classStructure.kModifier) {
-			receiver(KtorClient::class.asClassName().parameterizedBy(classStructure.apiStructure.apiScopeClassName))
+			receiver(ktorClientClassName.parameterizedBy(classStructure.apiStructure.apiScopeClassName))
 			getter(getterFunSpec)
 		}
 	}

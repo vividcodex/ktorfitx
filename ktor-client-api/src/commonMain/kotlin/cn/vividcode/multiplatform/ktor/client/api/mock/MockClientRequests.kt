@@ -1,14 +1,16 @@
 package cn.vividcode.multiplatform.ktor.client.api.mock
 
+import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MockModel
 import cn.vividcode.multiplatform.ktor.client.api.mock.plugin.*
 import io.ktor.http.*
 import kotlinx.coroutines.delay
+import kotlin.reflect.KClass
 
 /**
  * mock get
  */
-@MockDsl
+@BuilderDsl
 suspend inline fun <reified T : Any> MockClient.get(
 	url: String,
 	name: String,
@@ -18,7 +20,7 @@ suspend inline fun <reified T : Any> MockClient.get(
 /**
  * mock post
  */
-@MockDsl
+@BuilderDsl
 suspend inline fun <reified T : Any> MockClient.post(
 	url: String,
 	name: String,
@@ -28,7 +30,7 @@ suspend inline fun <reified T : Any> MockClient.post(
 /**
  * mock put
  */
-@MockDsl
+@BuilderDsl
 suspend inline fun <reified T : Any> MockClient.put(
 	url: String,
 	name: String,
@@ -38,7 +40,7 @@ suspend inline fun <reified T : Any> MockClient.put(
 /**
  * mock delete
  */
-@MockDsl
+@BuilderDsl
 suspend inline fun <reified T : Any> MockClient.delete(
 	url: String,
 	name: String,
@@ -48,7 +50,7 @@ suspend inline fun <reified T : Any> MockClient.delete(
 /**
  * mock patch
  */
-@MockDsl
+@BuilderDsl
 suspend inline fun <reified T : Any> MockClient.patch(
 	url: String,
 	name: String,
@@ -58,7 +60,7 @@ suspend inline fun <reified T : Any> MockClient.patch(
 /**
  * mock options
  */
-@MockDsl
+@BuilderDsl
 suspend inline fun <reified T : Any> MockClient.options(
 	url: String,
 	name: String,
@@ -68,21 +70,21 @@ suspend inline fun <reified T : Any> MockClient.options(
 /**
  * mock head
  */
-@MockDsl
+@BuilderDsl
 suspend inline fun <reified T : Any> MockClient.head(
 	url: String,
 	name: String,
 	noinline block: MockClientDsl.() -> Unit
 ): T = request(HttpMethod.Head, url, name, block)
 
-@MockDsl
+@BuilderDsl
 suspend inline fun <reified T : Any> MockClient.request(
 	httpMethod: HttpMethod,
 	url: String,
 	name: String,
 	noinline block: MockClientDsl.() -> Unit
 ): T {
-	val (fullUrl, mockModel, mockLogging) = doRequest<T>(httpMethod, url, name, block)
+	val (fullUrl, mockModel, mockLogging) = doRequest(httpMethod, url, name, T::class, block)
 	
 	val delay = mockModel.durationRange.random()
 	delay(delay)
@@ -96,6 +98,7 @@ fun <T : Any> MockClient.doRequest(
 	httpMethod: HttpMethod,
 	url: String,
 	name: String,
+	kClass: KClass<T>,
 	block: MockClientDsl.() -> Unit
 ): Triple<String, MockModel<T>, MockLogging> {
 	val model = MockClientDslImpl().apply(block).build()
@@ -104,7 +107,7 @@ fun <T : Any> MockClient.doRequest(
 	mockLogging.loggingRequest(httpMethod, fullUrl, name, model)
 	
 	val mockCache = getPlugin(MockCache)
-	val mockModel = mockCache.getMockModel<T>(url, name)
+	val mockModel = mockCache.getMockModel(url, name, kClass)
 	
 	return Triple(fullUrl, mockModel, mockLogging)
 }

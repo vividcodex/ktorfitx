@@ -1,7 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.api.mock.plugin
 
+import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 import cn.vividcode.multiplatform.ktor.client.api.mock.MockClientModel
-import cn.vividcode.multiplatform.ktor.client.api.mock.MockDsl
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import kotlinx.serialization.encodeToString
@@ -17,7 +17,7 @@ import kotlin.time.Duration
  *
  * 介绍：MockLogging
  */
-@MockDsl
+@BuilderDsl
 sealed interface MockLogging {
 	
 	val baseUrl: String
@@ -28,34 +28,30 @@ sealed interface MockLogging {
 	
 	val json: Json
 	
-	@MockDsl
+	@BuilderDsl
 	sealed interface Config {
 		
 		var baseUrl: String
 		
-		var handleLog: (message: String) -> Unit
-		
 		var logLevel: LogLevel
+		
+		var handleLog: (message: String) -> Unit
 		
 		var json: Json
 	}
 	
-	private class ConfigImpl : Config {
-		
-		override var baseUrl: String = ""
-		
-		override var handleLog: (message: String) -> Unit = ::println
-		
-		override var logLevel = LogLevel.HEADERS
-		
+	private data class ConfigImpl(
+		override var baseUrl: String = "",
+		override var logLevel: LogLevel = LogLevel.HEADERS,
+		override var handleLog: (message: String) -> Unit = {},
 		override var json: Json = Json
-	}
+	) : Config
 	
 	companion object : MockClientPlugin<Config, MockLogging> {
 		
 		override fun install(block: Config.() -> Unit): MockLogging {
-			val config = ConfigImpl().apply(block)
-			return MockLoggingImpl(config.baseUrl, config.logLevel, config.handleLog, config.json)
+			val (baseUrl, logLevel, handleLog, json) = ConfigImpl().apply(block)
+			return MockLoggingImpl(baseUrl, logLevel, handleLog, json)
 		}
 	}
 }
@@ -67,7 +63,7 @@ private class MockLoggingImpl(
 	override val json: Json
 ) : MockLogging
 
-@MockDsl
+@BuilderDsl
 internal fun MockLogging.loggingRequest(
 	httpMethod: HttpMethod,
 	url: String,
@@ -100,7 +96,7 @@ internal fun MockLogging.loggingRequest(
 			}
 		}
 	}
-	this.handleLog(message)
+	this.handleLog.invoke(message)
 }
 
 inline fun <reified T : Any> MockLogging.loggingResponse(
@@ -122,5 +118,5 @@ inline fun <reified T : Any> MockLogging.loggingResponse(
 			appendLine("BODY END")
 		}
 	}
-	this.handleLog(message)
+	this.handleLog.invoke(message)
 }

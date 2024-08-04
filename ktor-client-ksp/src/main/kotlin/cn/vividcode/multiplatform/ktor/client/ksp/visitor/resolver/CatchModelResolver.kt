@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.api.exception.Catch
+import cn.vividcode.multiplatform.ktor.client.annotation.Catch
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.simpleName
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.CatchModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration

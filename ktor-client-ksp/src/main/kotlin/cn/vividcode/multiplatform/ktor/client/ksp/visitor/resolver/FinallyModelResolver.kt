@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.api.exception.Finally
+import cn.vividcode.multiplatform.ktor.client.annotation.Finally
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.FinallyModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.asClassName

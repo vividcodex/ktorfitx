@@ -1,9 +1,9 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Encrypt
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Form
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Path
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Query
+import cn.vividcode.multiplatform.ktor.client.annotation.Encrypt
+import cn.vividcode.multiplatform.ktor.client.annotation.Form
+import cn.vividcode.multiplatform.ktor.client.annotation.Path
+import cn.vividcode.multiplatform.ktor.client.annotation.Query
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getAnnotationByType
 import cn.vividcode.multiplatform.ktor.client.ksp.model.EncryptInfo
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.FormModel

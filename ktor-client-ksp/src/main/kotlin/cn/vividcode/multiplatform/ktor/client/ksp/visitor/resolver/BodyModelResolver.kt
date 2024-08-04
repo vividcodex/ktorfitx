@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Body
+import cn.vividcode.multiplatform.ktor.client.annotation.Body
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.BodyModel
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.isAnnotationPresent

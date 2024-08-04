@@ -1,5 +1,7 @@
 package cn.vividcode.multiplatform.ktor.client.api.mock
 
+import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
+
 /**
  * 项目：vividcode-multiplatform
  *
@@ -9,7 +11,7 @@ package cn.vividcode.multiplatform.ktor.client.api.mock
  *
  * 介绍：MockClientMapDsl
  */
-@MockDsl
+@BuilderDsl
 sealed interface MockClientMapDsl {
 	
 	val valueMap: MutableMap<String, Any>

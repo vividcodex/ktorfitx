@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder.mock
 
+import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 import cn.vividcode.multiplatform.ktor.client.api.model.ResultBody
 import kotlin.time.Duration
 
@@ -12,7 +13,7 @@ import kotlin.time.Duration
  *
  * 介绍：MockDsl
  */
-@MockBuilderDsl
+@BuilderDsl
 sealed interface MockDsl<T : Any> {
 	
 	/**
@@ -46,11 +47,6 @@ sealed interface MockDsl<T : Any> {
 	operator fun Duration.rangeTo(other: Duration): DurationRange
 	
 	/**
-	 * result
-	 */
-	var result: T
-	
-	/**
 	 * 成功
 	 */
 	fun success(data: T? = null, msg: String = "操作成功"): ResultBody<T>
@@ -79,8 +75,6 @@ internal class MockDslImpl<T : Any> : MockDsl<T> {
 	override var durationRange: DurationRange = DurationRange.ZERO
 	
 	override fun Duration.rangeTo(other: Duration): DurationRange = DurationRange(this, other)
-	
-	override lateinit var result: T
 	
 	override fun failure(code: Int, msg: String): ResultBody<T> {
 		return ResultBody.failure(code, msg)

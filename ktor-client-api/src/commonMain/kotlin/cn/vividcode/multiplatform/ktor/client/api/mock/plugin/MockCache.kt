@@ -1,7 +1,8 @@
 package cn.vividcode.multiplatform.ktor.client.api.mock.plugin
 
+import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MockModel
-import cn.vividcode.multiplatform.ktor.client.api.mock.MockDsl
+import kotlin.reflect.KClass
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -12,38 +13,40 @@ import cn.vividcode.multiplatform.ktor.client.api.mock.MockDsl
  *
  * 介绍：MockCache
  */
-@MockDsl
+@BuilderDsl
 sealed interface MockCache {
 	
 	val groupMocksMap: Map<String, Map<String, MockModel<*>>>
 	
-	@MockDsl
+	@BuilderDsl
 	sealed interface Config {
 		
 		var groupMocksMap: Map<String, Map<String, MockModel<*>>>
 	}
 	
-	private class ConfigImpl : Config {
-		
-		override var groupMocksMap: Map<String, Map<String, MockModel<*>>> = mapOf()
-	}
-	
+	private data class ConfigImpl(
+		override var groupMocksMap: Map<String, Map<String, MockModel<*>>> = emptyMap()
+	) : Config
+
 	companion object : MockClientPlugin<Config, MockCache> {
 		
 		override fun install(block: Config.() -> Unit): MockCache {
-			val config = ConfigImpl().apply(block)
-			return MockCacheImpl(config.groupMocksMap)
+			val (groupMocksMap) = ConfigImpl().apply(block)
+			return MockCacheImpl(groupMocksMap)
 		}
 	}
 }
 
-@MockDsl
+@BuilderDsl
 private class MockCacheImpl(
 	override val groupMocksMap: Map<String, Map<String, MockModel<*>>>
 ) : MockCache
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> MockCache.getMockModel(url: String, name: String): MockModel<T> {
+fun <T : Any> MockCache.getMockModel(url: String, name: String, kClass: KClass<T>): MockModel<T> {
+	val mockModel = groupMocksMap[url]?.get(name)
+	check(mockModel != null) { "在 $url 中未找到名为 $name 的 Mock" }
+	return mockModel as? MockModel<T> ?: error("在 $url 中找到名为 $name 的 Mock, 但是类型不匹配，需要的类型是: ${kClass.simpleName}, 实际的是 ${mockModel::class.simpleName}")
 	return groupMocksMap[url]?.get(name) as? MockModel<T>
 		?: error("在 $url 中未找到名为 $name 的 Mock")
 }

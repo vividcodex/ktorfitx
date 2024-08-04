@@ -16,8 +16,9 @@ internal class HttpConfig internal constructor(
 	var socketTimeout: Long = Long.MAX_VALUE,
 	var keepAliveTime: Long = 5000L,
 	var logLevel: LogLevel = LogLevel.HEADERS,
-	var handleLog: (message: String) -> Unit = {},
-	var jsonConfig: JsonConfig = JsonConfig()
+	var handleLog: ((message: String) -> Unit)? = null,
+	var jsonConfig: JsonConfig = JsonConfig(),
+	var showApiScope: Boolean = false
 ) {
 	
 	internal fun check() {

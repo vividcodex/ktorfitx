@@ -1,7 +1,5 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.model.model
 
-import cn.vividcode.multiplatform.ktor.client.ksp.model.RequestMethod
-
 /**
  * 项目：vividcode-multiplatform-ktor-client
  *
@@ -12,7 +10,7 @@ import cn.vividcode.multiplatform.ktor.client.ksp.model.RequestMethod
  * 介绍：ApiModel
  */
 internal data class ApiModel(
-	val requestMethod: RequestMethod,
+	val requestFunName: String,
 	val url: String,
 	val auth: Boolean
-): FunctionModel
+) : FunctionModel

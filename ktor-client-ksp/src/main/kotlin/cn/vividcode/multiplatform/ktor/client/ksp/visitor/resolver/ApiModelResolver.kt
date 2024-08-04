@@ -1,11 +1,10 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.api.annotation.*
+import cn.vividcode.multiplatform.ktor.client.annotation.*
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getAnnotationByType
 import cn.vividcode.multiplatform.ktor.client.ksp.model.RequestMethod
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.ApiModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import io.ktor.util.reflect.*
 
 /**
  * 项目：vividcode-multiplatform-ktor-client
@@ -34,18 +33,16 @@ internal data object ApiModelResolver : FunctionModelResolver<ApiModel> {
 				"${qualifiedName!!.asString()} 至少在 $requestMethods 中使用一种请求方式"
 			}
 		}.first()
-		return RequestMethod.entries.first { annotation.instanceOf(it.annotation) }.let {
-			val funName = this.simpleName.asString()
-			when (annotation) {
-				is GET -> ApiModel(it, format(annotation.url, funName), annotation.auth)
-				is POST -> ApiModel(it, format(annotation.url, funName), annotation.auth)
-				is PUT -> ApiModel(it, format(annotation.url, funName), annotation.auth)
-				is DELETE -> ApiModel(it, format(annotation.url, funName), annotation.auth)
-				is PATCH -> ApiModel(it, format(annotation.url, funName), annotation.auth)
-				is OPTIONS -> ApiModel(it, format(annotation.url, funName), annotation.auth)
-				is HEAD -> ApiModel(it, format(annotation.url, funName), annotation.auth)
-				else -> error("不支持的请求类型")
-			}
+		val funName = this.simpleName.asString()
+		return when (annotation) {
+			is GET -> ApiModel("get", format(annotation.url, funName), annotation.auth)
+			is POST -> ApiModel("post", format(annotation.url, funName), annotation.auth)
+			is PUT -> ApiModel("put", format(annotation.url, funName), annotation.auth)
+			is DELETE -> ApiModel("delete", format(annotation.url, funName), annotation.auth)
+			is HEAD -> ApiModel("head", format(annotation.url, funName), annotation.auth)
+			is PATCH -> ApiModel("patch", format(annotation.url, funName), annotation.auth)
+			is OPTIONS -> ApiModel("options", format(annotation.url, funName), annotation.auth)
+			else -> error("不支持的请求类型")
 		}
 	}
 	

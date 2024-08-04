@@ -12,9 +12,13 @@ fun CodeGenerator.generate(
 	fileSpec: FileSpec,
 	className: ClassName
 ) {
-	this.createNewFile(
-		dependencies = Dependencies.ALL_FILES,
-		packageName = className.packageName,
-		fileName = className.simpleName
-	).bufferedWriter().use(fileSpec::writeTo)
+	try {
+		this.createNewFile(
+			dependencies = Dependencies.ALL_FILES,
+			packageName = className.packageName,
+			fileName = className.simpleName
+		).bufferedWriter().use(fileSpec::writeTo)
+	} catch (e: Exception) {
+		e.printStackTrace()
+	}
 }

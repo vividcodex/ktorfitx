@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktor.client.api.annotation.Headers
+import cn.vividcode.multiplatform.ktor.client.annotation.Headers
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getAnnotationByType
 import cn.vividcode.multiplatform.ktor.client.ksp.model.model.HeadersModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
