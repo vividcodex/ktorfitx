@@ -6,11 +6,11 @@ Kotlin：2.0.0
 
 Ktor：2.3.12
 
-KSP：2.0.0-1.0.22
+KSP：2.0.0-1.0.23
 
 ## 最新版本
 
-`2.3.12`-`1.3.1`
+`2.3.12`-`1.3.2`
 
 ## 依赖说明
 
@@ -34,7 +34,7 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
-val version = "2.3.12-1.3.1"
+val version = "2.3.12-1.3.2"
 
 kotlin {
     sourceSets {
