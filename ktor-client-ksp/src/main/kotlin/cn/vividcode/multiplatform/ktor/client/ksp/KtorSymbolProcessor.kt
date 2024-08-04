@@ -30,14 +30,19 @@ internal class KtorSymbolProcessor(
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
 		val annotatedList = resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)
-		val rets = annotatedList.filterNot { it.validate() && it is KSClassDeclaration && it.classKind == ClassKind.INTERFACE }.toMutableSet()
-		(annotatedList - rets).forEach {
-			val classStructure = it.accept(apiVisitor, Unit)
-			if (classStructure != null) {
-				val fileSpec = apiKotlinPoet.getFileSpec(classStructure)
-				codeGenerator.generate(fileSpec, classStructure.className)
-			} else rets += it
+		val rets = mutableListOf<KSAnnotated>()
+		annotatedList.forEach {
+			if (it.validate()) {
+				rets += it
+			}
+			if (it is KSClassDeclaration && it.classKind == ClassKind.INTERFACE) {
+				val classStructure = it.accept(apiVisitor, Unit)
+				if (classStructure != null) {
+					val fileSpec = apiKotlinPoet.getFileSpec(classStructure)
+					codeGenerator.generate(fileSpec, classStructure.className)
+				}
+			}
 		}
-		return rets.toList()
+		return rets
 	}
 }
