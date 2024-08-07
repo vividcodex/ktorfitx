@@ -117,13 +117,17 @@ internal class ApiKotlinPoet {
 		}
 		val codeBlock = buildCodeBlock {
 			val simpleName = classStructure.className.simpleName
-			val parameters = when {
-				hasHttpClient && hasMockClient -> "ktorConfig, httpClient, mockClient"
-				hasHttpClient -> "ktorConfig, httpClient"
-				hasMockClient -> "ktorConfig, mockClient"
-				else -> ""
+			val parameters = mutableListOf<String>()
+			if (hasFunction) {
+				parameters += "ktorClient.ktorConfig"
 			}
-			beginControlFlow("return instance ?: $simpleName($parameters).also")
+			if (hasHttpClient) {
+				parameters += "ktorClient.httpClient"
+			}
+			if (hasMockClient) {
+				parameters += "ktorClient.mockClient"
+			}
+			beginControlFlow("return instance ?: $simpleName(${parameters.joinToString()}).also")
 			addStatement("instance = it")
 			endControlFlow()
 		}
@@ -131,13 +135,7 @@ internal class ApiKotlinPoet {
 			addModifiers(classStructure.kModifier)
 			returns(classStructure.superinterface)
 			if (hasFunction) {
-				addParameter("ktorConfig", ktorConfigClassName)
-			}
-			if (hasHttpClient) {
-				addParameter("httpClient", httpClientClassName)
-			}
-			if (hasMockClient) {
-				addParameter("mockClient", mockClientClassName)
+				addParameter("ktorClient", ktorClientClassName.parameterizedBy(classStructure.apiStructure.apiScopeClassName))
 			}
 			addCode(codeBlock)
 		}
@@ -154,13 +152,8 @@ internal class ApiKotlinPoet {
 	private fun getExpendPropertySpec(classStructure: ClassStructure): PropertySpec {
 		val getterFunSpec = buildGetterFunSpec {
 			val simpleName = classStructure.className.simpleName
-			val parameters = when {
-				hasHttpClient && hasMockClient -> "ktorConfig, httpClient, mockClient"
-				hasHttpClient -> "ktorConfig, httpClient"
-				hasMockClient -> "ktorConfig, mockClient"
-				else -> ""
-			}
-			addStatement("return $simpleName.getInstance($parameters)")
+			val parameter = if (hasFunction) "this" else ""
+			addStatement("return $simpleName.getInstance($parameter)")
 		}
 		val expendPropertyName = classStructure.superinterface.simpleName.replaceFirstChar { it.lowercase() }
 		return buildPropertySpec(expendPropertyName, classStructure.superinterface, classStructure.kModifier) {
