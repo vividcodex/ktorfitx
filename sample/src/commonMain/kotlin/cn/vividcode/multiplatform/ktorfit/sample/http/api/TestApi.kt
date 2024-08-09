@@ -49,6 +49,9 @@ interface TestApi {
 	@HEAD(url = "/test07")
 	suspend fun test07()
 	
+	@GET(url = "/test08")
+	suspend fun test08(catch: Catch<Exception>, finally: Finally): ByteArray
+	
 	@Mock(name = "mock01")
 	@GET(url = "/testMock01")
 	suspend fun testMock01(

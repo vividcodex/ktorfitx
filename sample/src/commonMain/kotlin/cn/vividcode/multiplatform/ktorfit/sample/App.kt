@@ -8,7 +8,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import cn.vividcode.multiplatform.ktorfit.sample.http.api.impl.testApi
-import cn.vividcode.multiplatform.ktorfit.sample.http.testKtorClient
+import cn.vividcode.multiplatform.ktorfit.sample.http.testKtorfit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
@@ -32,7 +32,7 @@ fun App() {
 				Button(
 					onClick = {
 						coroutineScope.launch(Dispatchers.IO) {
-							testKtorClient.testApi.testMock01("Hello", "World")
+							testKtorfit.testApi.testMock01("Hello", "World")
 						}
 					}
 				) {

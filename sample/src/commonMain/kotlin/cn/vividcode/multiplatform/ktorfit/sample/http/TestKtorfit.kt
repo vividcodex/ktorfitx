@@ -1,12 +1,12 @@
 package cn.vividcode.multiplatform.ktorfit.sample.http
 
-import cn.vividcode.multiplatform.ktorfit.api.ktorClient
+import cn.vividcode.multiplatform.ktorfit.api.ktorfit
 import cn.vividcode.multiplatform.ktorfit.sample.http.api.TestResponse
 import cn.vividcode.multiplatform.ktorfit.scope.ApiScope
 import io.ktor.client.plugins.logging.*
 
-val testKtorClient by lazy {
-	ktorClient(TestApiScope) {
+val testKtorfit by lazy {
+	ktorfit(TestApiScope) {
 		baseUrls("default") {
 			this["default"] = "http://localhost:9000/api"
 		}
@@ -32,5 +32,5 @@ object TestApiScope : ApiScope {
 	
 	override val name: String = "测试作用域"
 	
-	override val declaration: String = "vividcode-multiplatform-ktorfit 项目的 sample 模块的测试作用域"
+	override val description: String = "ktorfit 项目的 sample 模块的测试作用域"
 }
