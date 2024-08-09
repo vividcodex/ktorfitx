@@ -1,12 +1,12 @@
 [versions]
-android-compileSdk = "34"
+android-compileSdk = "35"
 android-minSdk = "24"
-android-targetSdk = "34"
-kotlin = "2.0.0"
-agp = "8.2.2"
+android-targetSdk = "35"
+kotlin = "2.0.10"
+agp = "8.5.1"
 ktor = "2.3.12"
 krypto = "4.0.10"
-ksp = "2.0.0-1.0.24"
+ksp = "2.0.10-1.0.24"
 kotlinpoet-ksp = "1.18.1"
 maven-publish = "0.29.0"
 compose-plugin = "1.6.11"
@@ -24,7 +24,7 @@ symbol-processing-api = { group = "com.google.devtools.ksp", name = "symbol-proc
 symbol-processing = { group = "com.google.devtools.ksp", name = "symbol-processing", version.ref = "ksp" }
 kotlinpoet-ksp = { group = "com.squareup", name = "kotlinpoet-ksp", version.ref = "kotlinpoet-ksp" }
 krypto = { group = "com.soywiz.korlibs.krypto", name = "krypto", version.ref = "krypto" }
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity-compose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

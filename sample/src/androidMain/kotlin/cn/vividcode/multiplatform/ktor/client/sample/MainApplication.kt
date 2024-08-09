@@ -5,9 +5,4 @@ import android.app.Application
 /**
  * MainApplication
  */
-class MainApplication : Application() {
-	
-	override fun onCreate() {
-		super.onCreate()
-	}
-}
+class MainApplication : Application()

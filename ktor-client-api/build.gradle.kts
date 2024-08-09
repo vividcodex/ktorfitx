@@ -61,7 +61,7 @@ kotlin {
 
 android {
 	namespace = "cn.vividcode.multiplatform.ktor.client.api"
-	compileSdk = 34
+	compileSdk = libs.versions.android.compileSdk.get().toInt()
 	
 	sourceSets["main"].apply {
 		manifest.srcFile("src/androidMain/AndroidManifest.xml")
