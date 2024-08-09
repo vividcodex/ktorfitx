@@ -12,7 +12,7 @@ plugins {
 	alias(libs.plugins.kotlin.serialization)
 }
 
-val vividcodeSampleVersion = property("vividcode.sample.version").toString()
+val sampleVersion = property("sample.version").toString()
 
 kotlin {
 	androidTarget {
@@ -48,7 +48,7 @@ kotlin {
 			implementation(libs.androidx.activity.compose)
 		}
 		commonMain.dependencies {
-			implementation(projects.ktorClientApi)
+			implementation(projects.ktorfitApi)
 			implementation(compose.runtime)
 			implementation(compose.foundation)
 			implementation(compose.material)
@@ -67,7 +67,7 @@ kotlin {
 }
 
 dependencies {
-	kspCommonMainMetadata(projects.ktorClientKsp)
+	kspCommonMainMetadata(projects.ktorfitKsp)
 }
 
 tasks.withType<KotlinCompilationTask<*>>().all {
@@ -89,7 +89,7 @@ android {
 		minSdk = libs.versions.android.minSdk.get().toInt()
 		targetSdk = libs.versions.android.targetSdk.get().toInt()
 		versionCode = 1
-		versionName = vividcodeSampleVersion
+		versionName = sampleVersion
 	}
 	packaging {
 		resources {
@@ -115,12 +115,12 @@ android {
 
 compose.desktop {
 	application {
-		mainClass = "cn.vividcode.multiplatform.ktor.client.sample.MainKt"
+		mainClass = "cn.vividcode.multiplatform.ktorfit.sample.MainKt"
 		
 		nativeDistributions {
 			targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-			packageName = "cn.vividcode.multiplatform.ktor.client.sample"
-			packageVersion = vividcodeSampleVersion
+			packageName = "cn.vividcode.multiplatform.ktorfit.sample"
+			packageVersion = sampleVersion
 		}
 	}
 }
