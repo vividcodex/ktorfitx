@@ -9,13 +9,13 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/6 上午6:54
+ * 创建日期：2024/7/6 6:54
  *
- * 介绍：CatchModelResolver
+ * 文件介绍：CatchModelResolver
  */
 @Suppress("unused")
 internal data object CatchModelResolver : ValueParameterModelResolver<CatchModel> {

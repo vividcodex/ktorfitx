@@ -6,13 +6,13 @@ import cn.vividcode.multiplatform.ktor.client.sample.http.TestApiScope
 import kotlinx.serialization.Serializable
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/8/4 下午11:09
+ * 创建日期：2024/8/4 23:09
  *
- * 介绍：TestApi
+ * 文件介绍：TestApi
  */
 @Api(url = "/test", apiScope = TestApiScope::class)
 interface TestApi {

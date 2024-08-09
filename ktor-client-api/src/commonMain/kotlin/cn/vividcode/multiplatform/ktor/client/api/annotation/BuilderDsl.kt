@@ -1,13 +1,13 @@
 package cn.vividcode.multiplatform.ktor.client.api.annotation
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/8/5 上午12:52
+ * 创建日期：2024/8/5 12:52
  *
- * 介绍：BuilderDsl
+ * 文件介绍：BuilderDsl
  */
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)

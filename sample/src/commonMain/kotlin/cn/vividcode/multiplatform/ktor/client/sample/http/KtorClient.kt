@@ -1,8 +1,8 @@
 package cn.vividcode.multiplatform.ktor.client.sample.http
 
-import cn.vividcode.multiplatform.ktor.client.annotation.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.ktorClient
 import cn.vividcode.multiplatform.ktor.client.sample.http.api.TestResponse
+import cn.vividcode.multiplatform.ktor.client.scope.ApiScope
 import io.ktor.client.plugins.logging.*
 
 val testKtorClient by lazy {

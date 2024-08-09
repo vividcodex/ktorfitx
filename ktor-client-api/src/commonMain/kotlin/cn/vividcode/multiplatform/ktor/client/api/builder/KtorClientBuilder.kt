@@ -1,6 +1,5 @@
 package cn.vividcode.multiplatform.ktor.client.api.builder
 
-import cn.vividcode.multiplatform.ktor.client.annotation.ApiScope
 import cn.vividcode.multiplatform.ktor.client.api.KtorClient
 import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MocksConfig
@@ -9,16 +8,17 @@ import cn.vividcode.multiplatform.ktor.client.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.JsonConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.KtorConfig
 import cn.vividcode.multiplatform.ktor.client.api.config.MockConfig
+import cn.vividcode.multiplatform.ktor.client.scope.ApiScope
 import io.ktor.client.plugins.logging.*
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/6/28 下午3:37
+ * 创建日期：2024/6/28 15:37
  *
- * 介绍：KtorClientBuilder
+ * 文件介绍：KtorClientBuilder
  */
 @BuilderDsl
 sealed interface KtorClientBuilder<AS : ApiScope> {

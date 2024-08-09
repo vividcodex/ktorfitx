@@ -3,13 +3,13 @@ package cn.vividcode.multiplatform.ktor.client.api.config
 import io.ktor.client.plugins.logging.*
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/5/14 下午9:07
+ * 创建日期：2024/5/14 21:07
  *
- * 介绍：HttpConfig
+ * 文件介绍：HttpConfig
  */
 internal class HttpConfig internal constructor(
 	var connectTimeout: Long = 5000L,

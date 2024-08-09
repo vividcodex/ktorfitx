@@ -11,13 +11,13 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/1 下午9:20
+ * 创建日期：2024/7/1 21:20
  *
- * 介绍：ApiKotlinPoet
+ * 文件介绍：ApiKotlinPoet
  */
 internal class ApiKotlinPoet {
 	
@@ -135,7 +135,10 @@ internal class ApiKotlinPoet {
 			addModifiers(classStructure.kModifier)
 			returns(classStructure.superinterface)
 			if (hasFunction) {
-				addParameter("ktorClient", ktorClientClassName.parameterizedBy(classStructure.apiStructure.apiScopeClassName))
+				addParameter(
+					"ktorClient",
+					ktorClientClassName.parameterizedBy(classStructure.apiStructure.apiScopeClassName)
+				)
 			}
 			addCode(codeBlock)
 		}

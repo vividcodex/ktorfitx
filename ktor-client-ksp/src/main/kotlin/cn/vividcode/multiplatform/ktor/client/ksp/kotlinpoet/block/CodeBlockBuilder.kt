@@ -8,13 +8,13 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/4 下午11:31
+ * 创建日期：2024/7/4 23:31
  *
- * 介绍：CodeBlockBuilder
+ * 文件介绍：CodeBlockBuilder
  */
 internal sealed class CodeBlockBuilder(
 	private val funStructure: FunStructure,

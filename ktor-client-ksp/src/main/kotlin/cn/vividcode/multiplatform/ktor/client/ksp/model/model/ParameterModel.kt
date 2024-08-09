@@ -3,13 +3,13 @@ package cn.vividcode.multiplatform.ktor.client.ksp.model.model
 import com.squareup.kotlinpoet.TypeName
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/6 上午9:41
+ * 创建日期：2024/7/6 9:41
  *
- * 介绍：ParameterModel
+ * 文件介绍：ParameterModel
  */
 internal data class ParameterModel(
 	val varName: String,

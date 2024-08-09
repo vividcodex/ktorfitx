@@ -16,13 +16,13 @@ import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/3 下午2:30
+ * 创建日期：2024/7/3 14:30
  *
- * 介绍：EncryptValueParameterModelsResolver
+ * 文件介绍：EncryptValueParameterModelsResolver
  */
 @Suppress("unused")
 internal data object EncryptValueParameterModelsResolver : ValueParameterModelResolver<ValueParameterModel> {

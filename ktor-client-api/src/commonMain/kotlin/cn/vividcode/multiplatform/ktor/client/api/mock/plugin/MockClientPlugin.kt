@@ -1,13 +1,13 @@
 package cn.vividcode.multiplatform.ktor.client.api.mock.plugin
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/7 上午3:56
+ * 创建日期：2024/7/7 3:56
  *
- * 介绍：MockClientPlugin
+ * 文件介绍：MockClientPlugin
  */
 internal sealed interface MockClientPlugin<out TConfig : Any, TPlugin : Any> {
 	

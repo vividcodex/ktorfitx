@@ -3,13 +3,13 @@ package cn.vividcode.multiplatform.ktor.client.api.mock
 import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 
 /**
- * 项目：vividcode-multiplatform
+ * 项目名称：vividcode-multiplatform
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/7 下午6:39
+ * 创建日期：2024/7/7 18:39
  *
- * 介绍：MockClientMapDsl
+ * 文件介绍：MockClientMapDsl
  */
 @BuilderDsl
 sealed interface MockClientMapDsl {

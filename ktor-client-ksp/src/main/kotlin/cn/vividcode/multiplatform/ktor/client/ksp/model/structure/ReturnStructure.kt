@@ -6,13 +6,13 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/3 下午11:04
+ * 创建日期：2024/7/3 23:04
  *
- * 介绍：ReturnStructure
+ * 文件介绍：ReturnStructure
  */
 internal data class ReturnStructure(
 	val typeName: TypeName

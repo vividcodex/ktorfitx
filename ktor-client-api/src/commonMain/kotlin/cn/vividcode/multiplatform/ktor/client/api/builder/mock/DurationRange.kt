@@ -6,13 +6,13 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/9 下午9:45
+ * 创建日期：2024/7/9 21:45
  *
- * 介绍：DurationRange
+ * 文件介绍：DurationRange
  */
 data class DurationRange internal constructor(
 	val first: Duration,

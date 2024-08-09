@@ -4,13 +4,13 @@ import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 import kotlin.time.Duration
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/1 下午1:34
+ * 创建日期：2024/7/1 13:34
  *
- * 介绍：MockGroupConfig
+ * 文件介绍：MockGroupConfig
  */
 @BuilderDsl
 sealed interface MockGroupDsl<T : Any> {

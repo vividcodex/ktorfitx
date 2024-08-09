@@ -6,13 +6,13 @@ import cn.vividcode.multiplatform.ktor.client.ksp.model.model.ValueParameterMode
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/2 下午10:16
+ * 创建日期：2024/7/2 22:16
  *
- * 介绍：ValueParameterModelResolver
+ * 文件介绍：ValueParameterModelResolver
  */
 internal sealed interface ValueParameterModelResolver<out M : ValueParameterModel> : ModelResolver<List<M>> {
 	

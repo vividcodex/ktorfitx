@@ -1,12 +1,12 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.model.model
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/2 下午9:22
+ * 创建日期：2024/7/2 21:22
  *
- * 介绍：FunModel
+ * 文件介绍：FunModel
  */
 internal sealed interface FunctionModel

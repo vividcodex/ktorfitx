@@ -7,13 +7,13 @@ import kotlinx.serialization.json.Json
 import kotlin.collections.set
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/7 上午3:21
+ * 创建日期：2024/7/7 3:21
  *
- * 介绍：MockClientConfig
+ * 文件介绍：MockClientConfig
  */
 @BuilderDsl
 sealed interface MockClientDsl {

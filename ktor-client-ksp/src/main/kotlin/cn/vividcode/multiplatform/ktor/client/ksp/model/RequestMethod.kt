@@ -4,13 +4,13 @@ import cn.vividcode.multiplatform.ktor.client.annotation.*
 import kotlin.reflect.KClass
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/1 下午3:50
+ * 创建日期：2024/7/1 15:50
  *
- * 介绍：RequestMethod
+ * 文件介绍：RequestMethod
  */
 internal enum class RequestMethod(
 	val annotation: KClass<out Annotation>

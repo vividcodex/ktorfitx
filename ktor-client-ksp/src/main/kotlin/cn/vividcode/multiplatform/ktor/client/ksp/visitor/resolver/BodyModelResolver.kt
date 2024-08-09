@@ -7,13 +7,13 @@ import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/3 下午1:25
+ * 创建日期：2024/7/3 13:25
  *
- * 介绍：BodyModelResolver
+ * 文件介绍：BodyModelResolver
  */
 @Suppress("unused")
 internal data object BodyModelResolver : ValueParameterModelResolver<BodyModel> {

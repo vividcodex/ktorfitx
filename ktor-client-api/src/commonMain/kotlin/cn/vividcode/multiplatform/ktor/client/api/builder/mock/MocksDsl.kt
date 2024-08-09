@@ -3,13 +3,13 @@ package cn.vividcode.multiplatform.ktor.client.api.builder.mock
 import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/6/27 下午9:33
+ * 创建日期：2024/6/27 21:33
  *
- * 介绍：MocksConfig
+ * 文件介绍：MocksConfig
  */
 @BuilderDsl
 sealed interface MocksConfig {

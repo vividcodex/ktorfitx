@@ -1,13 +1,13 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.model.model
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/3 下午2:07
+ * 创建日期：2024/7/3 14:07
  *
- * 介绍：ApiModel
+ * 文件介绍：ApiModel
  */
 internal data class ApiModel(
 	val requestFunName: String,

@@ -1,13 +1,13 @@
 package cn.vividcode.multiplatform.ktor.client.annotation
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/5/14 下午10:01
+ * 创建日期：2024/5/14 22:01
  *
- * 介绍：HEAD
+ * 文件介绍：HEAD
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)

@@ -2,15 +2,16 @@
 
 ## 版本说明
 
-Kotlin：2.0.0
+Kotlin `2.0.10`
 
-Ktor：2.3.12
+Ktor `2.3.12`
 
-KSP：2.0.0-1.0.23
+KSP `2.0.10-1.0.24`
 
 ## 最新版本
 
-`2.3.12`-`1.3.2`
+项目版本 `2.3.12-1.4.0`
+示例版本 `1.0.0`
 
 ## 依赖说明
 
@@ -66,10 +67,10 @@ tasks.withType<KotlinCompile<*>>().all {
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Api(
-	
+
     // 接口前缀
     val url: String = "",
-	
+
     // 接口作用域
     val apiScope: KClass<out ApiScope> = ApiScope::class
 )
@@ -81,10 +82,10 @@ annotation class Api(
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class GET(
-	
+
     // 接口路径
     val url: String,
-	
+
     // 是否授权
     val auth: Boolean = false
 )
@@ -96,10 +97,10 @@ annotation class GET(
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class POST(
-	
+
     // 接口路径
     val url: String,
-	
+
     // 是否授权
     val auth: Boolean = false
 )
@@ -111,10 +112,10 @@ annotation class POST(
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class PUT(
-	
+
     // 接口路径
     val url: String,
-	
+
     // 是否授权
     val auth: Boolean = false
 )
@@ -126,10 +127,10 @@ annotation class PUT(
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class DELETE(
-	
+
     // 接口路径
     val url: String,
-	
+
     // 是否授权
     val auth: Boolean = false
 )
@@ -141,10 +142,10 @@ annotation class DELETE(
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class OPTIONS(
-	
+
     // 接口路径
     val url: String,
-	
+
     // 是否授权
     val auth: Boolean = false
 )
@@ -156,10 +157,10 @@ annotation class OPTIONS(
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class PATCH(
-	
+
     // 接口路径
     val url: String,
-	
+
     // 是否授权
     val auth: Boolean = false
 )
@@ -171,10 +172,10 @@ annotation class PATCH(
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class HEAD(
-	
+
     // 接口路径
     val url: String,
-	
+
     // 是否授权
     val auth: Boolean = false
 )
@@ -186,10 +187,10 @@ annotation class HEAD(
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Headers(
-	
+
     // 至少一个请求头  名称:值
     val header: String,
-	
+
     // 多个请求头  名称:值
     vararg val headers: String
 )
@@ -201,7 +202,7 @@ annotation class Headers(
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Mock(
-	
+
     // Mock 名称
     val name: String = "DEFAULT"
 )
@@ -221,7 +222,7 @@ annotation class Body
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Form(
-	
+
     // 表单参数名称 默认：变量名
     val name: String = ""
 )
@@ -233,7 +234,7 @@ annotation class Form(
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Query(
-	
+
     // 查询参数名称 默认：变量名
     val name: String = ""
 )
@@ -245,7 +246,7 @@ annotation class Query(
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Path(
-	
+
     // 路径参数名称 默认：变量名
     val name: String = ""
 )
@@ -257,7 +258,7 @@ annotation class Path(
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Header(
-	
+
     // 请求头名称 默认：变量名
     val name: String = ""
 )
@@ -269,10 +270,10 @@ annotation class Header(
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Encrypt(
-	
+
     // 加密类型 默认：SHA256
     val encryptType: EncryptType = EncryptType.SHA256,
-	
+
     // 加密层数 默认：1
     val layer: Int = 1
 )
@@ -284,7 +285,7 @@ annotation class Encrypt(
 
 ```kotlin
 fun interface Catch<E : Exception> {
-	
+
     fun run(e: E)
 }
 ```
@@ -297,7 +298,7 @@ fun interface Catch<E : Exception> {
 
 ```kotlin
 fun interface Finally {
-	
+
     fun run()
 }
 ```

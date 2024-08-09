@@ -6,13 +6,13 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.asClassName
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/5 下午12:30
+ * 创建日期：2024/7/5 12:30
  *
- * 介绍：FinallyModelResolver
+ * 文件介绍：FinallyModelResolver
  */
 @Suppress("unused")
 internal data object FinallyModelResolver : ValueParameterModelResolver<FinallyModel> {

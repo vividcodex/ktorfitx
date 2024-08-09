@@ -4,13 +4,13 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/1 下午3:47
+ * 创建日期：2024/7/1 15:47
  *
- * 介绍：ClassStructure
+ * 文件介绍：ClassStructure
  */
 internal data class ClassStructure(
 	val className: ClassName,

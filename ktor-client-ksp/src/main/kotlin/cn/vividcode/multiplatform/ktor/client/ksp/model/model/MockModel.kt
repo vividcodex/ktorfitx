@@ -1,13 +1,13 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.model.model
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/2 下午9:59
+ * 创建日期：2024/7/2 21:59
  *
- * 介绍：MockModel
+ * 文件介绍：MockModel
  */
 @JvmInline
 internal value class MockModel(

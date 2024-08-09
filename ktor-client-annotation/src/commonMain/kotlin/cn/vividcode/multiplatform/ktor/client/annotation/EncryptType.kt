@@ -1,13 +1,13 @@
 package cn.vividcode.multiplatform.ktor.client.annotation
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/8/4 下午11:39
+ * 创建日期：2024/8/4 23:39
  *
- * 介绍：EncryptType
+ * 文件介绍：EncryptType
  */
 enum class EncryptType {
 	

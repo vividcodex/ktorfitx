@@ -11,13 +11,13 @@ import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/9 下午10:12
+ * 创建日期：2024/7/9 22:12
  *
- * 介绍：HeaderModelsResolver
+ * 文件介绍：HeaderModelsResolver
  */
 @Suppress("unused")
 internal data object HeaderModelsResolver : ValueParameterModelResolver<HeaderModel> {

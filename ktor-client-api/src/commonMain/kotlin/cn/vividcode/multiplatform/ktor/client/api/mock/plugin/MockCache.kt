@@ -5,13 +5,13 @@ import cn.vividcode.multiplatform.ktor.client.api.builder.mock.MockModel
 import kotlin.reflect.KClass
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/7 上午4:30
+ * 创建日期：2024/7/7 4:30
  *
- * 介绍：MockCache
+ * 文件介绍：MockCache
  */
 @BuilderDsl
 sealed interface MockCache {

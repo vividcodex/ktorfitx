@@ -4,13 +4,13 @@ import cn.vividcode.multiplatform.ktor.client.api.annotation.BuilderDsl
 import cn.vividcode.multiplatform.ktor.client.api.mock.plugin.MockClientPlugin
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/6 下午5:43
+ * 创建日期：2024/7/6 17:43
  *
- * 介绍：MockClient
+ * 文件介绍：MockClient
  */
 @BuilderDsl
 class MockClient internal constructor(

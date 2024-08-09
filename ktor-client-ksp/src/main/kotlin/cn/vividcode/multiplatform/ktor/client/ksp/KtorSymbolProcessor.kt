@@ -13,13 +13,13 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.validate
 
 /**
- * 项目：vividcode-multiplatform
+ * 项目名称：vividcode-multiplatform
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/3/23 22:13
+ * 创建日期：2024/3/23 22:13
  *
- * 介绍：KtorSymbolProcessor
+ * 文件介绍：KtorSymbolProcessor
  */
 internal class KtorSymbolProcessor(
 	private val codeGenerator: CodeGenerator

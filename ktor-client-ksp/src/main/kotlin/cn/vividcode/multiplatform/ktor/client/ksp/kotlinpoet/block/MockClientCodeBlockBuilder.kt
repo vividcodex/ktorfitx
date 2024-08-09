@@ -8,13 +8,13 @@ import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.FunStructure
 import com.squareup.kotlinpoet.CodeBlock
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/4 下午11:07
+ * 创建日期：2024/7/4 23:07
  *
- * 介绍：MockClientCodeBlockBuilder
+ * 文件介绍：MockClientCodeBlockBuilder
  */
 internal class MockClientCodeBlockBuilder(
 	private val classStructure: ClassStructure,

@@ -12,13 +12,13 @@ import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/4 下午11:22
+ * 创建日期：2024/7/4 23:22
  *
- * 介绍：HttpClientCodeBlock
+ * 文件介绍：HttpClientCodeBlock
  */
 internal class HttpClientCodeBlockBuilder(
 	private val classStructure: ClassStructure,

@@ -1,7 +1,6 @@
 package cn.vividcode.multiplatform.ktor.client.ksp.visitor
 
 import cn.vividcode.multiplatform.ktor.client.annotation.Api
-import cn.vividcode.multiplatform.ktor.client.annotation.ApiScope
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getArgumentClassName
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getArgumentValue
 import cn.vividcode.multiplatform.ktor.client.ksp.expends.getKSAnnotationByType
@@ -13,6 +12,7 @@ import cn.vividcode.multiplatform.ktor.client.ksp.model.structure.ReturnStructur
 import cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver.FunctionModelResolver
 import cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver.ParameterModelResolver
 import cn.vividcode.multiplatform.ktor.client.ksp.visitor.resolver.ValueParameterModelResolver
+import cn.vividcode.multiplatform.ktor.client.scope.ApiScope
 import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -26,13 +26,13 @@ import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/1 下午4:17
+ * 创建日期：2024/7/1 16:17
  *
- * 介绍：ApiVisitor2
+ * 文件介绍：ApiVisitor2
  */
 internal class ApiVisitor : KSEmptyVisitor<Unit, ClassStructure?>() {
 	

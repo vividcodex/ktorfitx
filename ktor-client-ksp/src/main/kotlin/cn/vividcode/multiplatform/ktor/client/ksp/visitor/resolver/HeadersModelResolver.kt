@@ -6,13 +6,13 @@ import cn.vividcode.multiplatform.ktor.client.ksp.model.model.HeadersModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 /**
- * 项目：vividcode-multiplatform-ktor-client
+ * 项目名称：vividcode-multiplatform-ktor-client
  *
- * 作者：li-jia-wei
+ * 作者昵称：li-jia-wei
  *
- * 创建：2024/7/2 下午10:22
+ * 创建日期：2024/7/2 22:22
  *
- * 介绍：HeadersModelResolver
+ * 文件介绍：HeadersModelResolver
  */
 @Suppress("unused")
 internal data object HeadersModelResolver : FunctionModelResolver<HeadersModel> {
