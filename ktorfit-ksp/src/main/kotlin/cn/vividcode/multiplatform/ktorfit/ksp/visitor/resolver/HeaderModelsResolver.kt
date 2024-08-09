@@ -28,7 +28,11 @@ internal data object HeaderModelsResolver : ValueParameterModelResolver<HeaderMo
 		return this.parameters.mapNotNull {
 			val header = it.getAnnotationByType(Header::class) ?: return@mapNotNull null
 			val varName = it.name!!.asString()
-			val name = header.name.ifBlank { varName.replaceFirstChar { it.uppercaseChar() } }
+			val name = header.name.ifBlank {
+				varName.replace("([a-z])([A-Z])".toRegex()) {
+					"${it.groupValues[1]}-${it.groupValues[2]}"
+				}.replaceFirstChar { it.uppercase() }
+			}
 			val encryptInfo = it.getAnnotationByType(Encrypt::class)?.let {
 				EncryptInfo(it.encryptType, it.layer)
 			}

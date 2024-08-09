@@ -23,15 +23,15 @@ internal class ApiKotlinPoet {
 	
 	private val imports by lazy { mutableMapOf<String, MutableSet<String>>() }
 	
-	private var hasFunction = false
+	private var hasApiFunction = false
 	private var hasMockClient = false
 	private var hasHttpClient = false
 	
 	private companion object {
 		
-		private val ktorConfigClassName = ClassName("cn.vividcode.multiplatform.ktorfit.api.config", "KtorConfig")
+		private val ktorfitConfigClassName = ClassName("cn.vividcode.multiplatform.ktorfit.api.config", "KtorfitConfig")
 		
-		private val ktorClientClassName = ClassName("cn.vividcode.multiplatform.ktorfit.api", "KtorClient")
+		private val ktorfitClassName = ClassName("cn.vividcode.multiplatform.ktorfit.api", "Ktorfit")
 		
 		private val httpClientClassName = ClassName("io.ktor.client", "HttpClient")
 		
@@ -55,9 +55,9 @@ internal class ApiKotlinPoet {
 	}
 	
 	private fun initFunStructuresStatus(funStructures: Sequence<FunStructure>) {
-		this.hasFunction = funStructures.iterator().hasNext()
-		this.hasMockClient = hasFunction && funStructures.any { it.functionModels.any { it is MockModel } }
-		this.hasHttpClient = hasFunction && funStructures.any { it.functionModels.all { it !is MockModel } }
+		this.hasApiFunction = funStructures.iterator().hasNext()
+		this.hasMockClient = hasApiFunction && funStructures.any { it.functionModels.any { it is MockModel } }
+		this.hasHttpClient = hasApiFunction && funStructures.any { it.functionModels.all { it !is MockModel } }
 	}
 	
 	/**
@@ -66,8 +66,8 @@ internal class ApiKotlinPoet {
 	private fun getTypeSpec(classStructure: ClassStructure): TypeSpec {
 		val primaryConstructorFunSpec = buildConstructorFunSpec {
 			addModifiers(KModifier.PRIVATE)
-			if (hasFunction) {
-				addParameter("ktorConfig", ktorConfigClassName)
+			if (hasApiFunction) {
+				addParameter("ktorfitConfig", ktorfitConfigClassName)
 			}
 			if (hasHttpClient) {
 				addParameter("httpClient", httpClientClassName)
@@ -80,12 +80,12 @@ internal class ApiKotlinPoet {
 			addModifiers(classStructure.kModifier)
 			addSuperinterface(classStructure.superinterface)
 			primaryConstructor(primaryConstructorFunSpec)
-			if (hasFunction) {
-				val ktorConfigPropertySpec = buildPropertySpec("ktorConfig", ktorConfigClassName, KModifier.PRIVATE) {
-					initializer("ktorConfig")
+			if (hasApiFunction) {
+				val ktorfitConfigPropertySpec = buildPropertySpec("ktorfitConfig", ktorfitConfigClassName, KModifier.PRIVATE) {
+					initializer("ktorfitConfig")
 					mutable(false)
 				}
-				addProperty(ktorConfigPropertySpec)
+				addProperty(ktorfitConfigPropertySpec)
 			}
 			if (hasHttpClient) {
 				val httpClientPropertySpec = buildPropertySpec("httpClient", httpClientClassName, KModifier.PRIVATE) {
@@ -118,8 +118,8 @@ internal class ApiKotlinPoet {
 		val codeBlock = buildCodeBlock {
 			val simpleName = classStructure.className.simpleName
 			val parameters = mutableListOf<String>()
-			if (hasFunction) {
-				parameters += "ktorClient.ktorConfig"
+			if (hasApiFunction) {
+				parameters += "ktorClient.ktorfitConfig"
 			}
 			if (hasHttpClient) {
 				parameters += "ktorClient.httpClient"
@@ -134,10 +134,10 @@ internal class ApiKotlinPoet {
 		val funSpec = buildFunSpec("getInstance") {
 			addModifiers(classStructure.kModifier)
 			returns(classStructure.superinterface)
-			if (hasFunction) {
+			if (hasApiFunction) {
 				addParameter(
 					"ktorClient",
-					ktorClientClassName.parameterizedBy(classStructure.apiStructure.apiScopeClassName)
+					ktorfitClassName.parameterizedBy(classStructure.apiStructure.apiScopeClassName)
 				)
 			}
 			addCode(codeBlock)
@@ -155,12 +155,12 @@ internal class ApiKotlinPoet {
 	private fun getExpendPropertySpec(classStructure: ClassStructure): PropertySpec {
 		val getterFunSpec = buildGetterFunSpec {
 			val simpleName = classStructure.className.simpleName
-			val parameter = if (hasFunction) "this" else ""
+			val parameter = if (hasApiFunction) "this" else ""
 			addStatement("return $simpleName.getInstance($parameter)")
 		}
 		val expendPropertyName = classStructure.superinterface.simpleName.replaceFirstChar { it.lowercase() }
 		return buildPropertySpec(expendPropertyName, classStructure.superinterface, classStructure.kModifier) {
-			receiver(ktorClientClassName.parameterizedBy(classStructure.apiStructure.apiScopeClassName))
+			receiver(ktorfitClassName.parameterizedBy(classStructure.apiStructure.apiScopeClassName))
 			getter(getterFunSpec)
 		}
 	}

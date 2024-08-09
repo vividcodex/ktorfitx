@@ -1,12 +1,12 @@
 package cn.vividcode.multiplatform.ktorfit.api.builder
 
-import cn.vividcode.multiplatform.ktorfit.api.KtorClient
+import cn.vividcode.multiplatform.ktorfit.api.Ktorfit
 import cn.vividcode.multiplatform.ktorfit.api.annotation.BuilderDsl
 import cn.vividcode.multiplatform.ktorfit.api.builder.mock.MocksConfig
 import cn.vividcode.multiplatform.ktorfit.api.builder.mock.MocksConfigImpl
-import cn.vividcode.multiplatform.ktorfit.api.config.HttpConfig
 import cn.vividcode.multiplatform.ktorfit.api.config.JsonConfig
 import cn.vividcode.multiplatform.ktorfit.api.config.KtorConfig
+import cn.vividcode.multiplatform.ktorfit.api.config.KtorfitConfig
 import cn.vividcode.multiplatform.ktorfit.api.config.MockConfig
 import cn.vividcode.multiplatform.ktorfit.scope.ApiScope
 import io.ktor.client.plugins.logging.*
@@ -21,7 +21,7 @@ import io.ktor.client.plugins.logging.*
  * 文件介绍：KtorClientBuilderDSL
  */
 @BuilderDsl
-sealed interface KtorClientBuilderDsl {
+sealed interface KtorfitBuilder {
 	
 	/**
 	 * baseUrl
@@ -81,32 +81,32 @@ sealed interface KtorClientBuilderDsl {
 	
 }
 
-internal class KtorClientBuilderDslImpl<AS : ApiScope>(
+internal class KtorfitBuilderImpl<AS : ApiScope>(
 	private val apiScope: AS
-) : KtorClientBuilderDsl {
+) : KtorfitBuilder {
 	
+	private val ktorfitConfig by lazy { KtorfitConfig() }
 	private val ktorConfig by lazy { KtorConfig() }
-	private val httpConfig by lazy { HttpConfig() }
 	private val mockConfig by lazy { MockConfig() }
 	
-	override var baseUrl: String = ktorConfig.baseUrl
+	override var baseUrl: String = ktorfitConfig.baseUrl
 		set(value) {
-			if (ktorConfig.baseUrl.isBlank()) {
+			if (ktorfitConfig.baseUrl.isBlank()) {
 				field = value
-				this.ktorConfig.baseUrl = baseUrl
+				this.ktorfitConfig.baseUrl = baseUrl
 			}
 		}
 	
 	override fun baseUrls(useKey: String, block: MutableMap<String, String>.() -> Unit) {
-		if (ktorConfig.baseUrl.isBlank()) {
+		if (ktorfitConfig.baseUrl.isBlank()) {
 			val baseUrls = mutableMapOf<String, String>()
 				.apply(block)
-			this.ktorConfig.baseUrl = baseUrls[useKey] ?: "$useKey 没有定义"
+			this.ktorfitConfig.baseUrl = baseUrls[useKey] ?: "$useKey 没有定义"
 		}
 	}
 	
 	override fun token(token: () -> String) {
-		this.ktorConfig.token = token
+		this.ktorfitConfig.token = token
 	}
 	
 	override fun mocks(block: MocksConfig.() -> Unit) {
@@ -114,46 +114,46 @@ internal class KtorClientBuilderDslImpl<AS : ApiScope>(
 		this.mockConfig.addGroupMocksMap(groupMocksMap)
 	}
 	
-	override var connectTimeout: Long = httpConfig.connectTimeout
+	override var connectTimeout: Long = ktorConfig.connectTimeout
 		set(value) {
 			field = value
-			this.httpConfig.connectTimeout = value
+			this.ktorConfig.connectTimeout = value
 		}
 	
-	override var socketTimeout: Long = httpConfig.socketTimeout
+	override var socketTimeout: Long = ktorConfig.socketTimeout
 		set(value) {
 			field = value
-			this.httpConfig.connectTimeout = value
+			this.ktorConfig.connectTimeout = value
 		}
 	
-	override var keepAliveTime: Long = httpConfig.keepAliveTime
+	override var keepAliveTime: Long = ktorConfig.keepAliveTime
 		set(value) {
 			field = value
-			this.httpConfig.keepAliveTime = value
+			this.ktorConfig.keepAliveTime = value
 		}
 	
-	override var logLevel: LogLevel = httpConfig.logLevel
+	override var logLevel: LogLevel = ktorConfig.logLevel
 		set(value) {
 			field = value
-			this.httpConfig.logLevel = value
+			this.ktorConfig.logLevel = value
 		}
 	
 	override fun handleLog(handleLog: (String) -> Unit) {
-		this.httpConfig.handleLog = handleLog
+		this.ktorConfig.handleLog = handleLog
 	}
 	
 	override var showApiScope: Boolean = false
 		set(value) {
 			field = value
-			this.httpConfig.showApiScope = value
+			this.ktorConfig.showApiScope = value
 		}
 	
 	override fun json(block: JsonDsl.() -> Unit) {
 		val jsonDsl = JsonDslImpl().apply(block)
-		this.httpConfig.jsonConfig = JsonConfig(jsonDsl.prettyPrint, jsonDsl.prettyPrintIndent)
+		this.ktorConfig.jsonConfig = JsonConfig(jsonDsl.prettyPrint, jsonDsl.prettyPrintIndent)
 	}
 	
-	internal fun build(): KtorClient<AS> = KtorClient(ktorConfig, httpConfig, mockConfig, apiScope)
+	internal fun build(): Ktorfit<AS> = Ktorfit(ktorfitConfig, ktorConfig, mockConfig, apiScope)
 }
 
 @BuilderDsl

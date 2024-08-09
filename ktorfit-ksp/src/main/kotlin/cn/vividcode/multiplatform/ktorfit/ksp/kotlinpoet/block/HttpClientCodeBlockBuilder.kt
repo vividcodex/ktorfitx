@@ -53,7 +53,7 @@ internal class HttpClientCodeBlockBuilder(
 		val funName = apiModel.requestFunName
 		addImport("io.ktor.client.request", funName)
 		val url = parsePathToUrl(apiModel.url)
-		val httpClientCode = "${if (needReturn) "val $responseVarName = " else ""}this.httpClient.$funName(\"\${this.ktorConfig.baseUrl}$url\")"
+		val httpClientCode = "${if (needReturn) "val $responseVarName = " else ""}this.httpClient.$funName(\"\${this.ktorfitConfig.baseUrl}$url\")"
 		val needHttpRequestBuilder = isNeedHttpRequestBuilder(apiModel.auth)
 		if (needHttpRequestBuilder) {
 			beginControlFlow(httpClientCode)
@@ -127,7 +127,7 @@ internal class HttpClientCodeBlockBuilder(
 	private fun CodeBlock.Builder.buildBearerAuthCodeBlock(auth: Boolean) {
 		if (auth) {
 			addImport("io.ktor.client.request", "bearerAuth")
-			addStatement("bearerAuth(ktorConfig.token!!())")
+			addStatement("bearerAuth(ktorfitConfig.token!!())")
 		}
 	}
 	
@@ -187,7 +187,6 @@ internal class HttpClientCodeBlockBuilder(
 	 */
 	private fun CodeBlock.Builder.buildBodyCodeBlock() {
 		val bodyModel = valueParameterModels.filterIsInstance<BodyModel>().firstOrNull() ?: return
-		addImport("kotlinx.serialization.json", "Json")
 		addImport("io.ktor.http", "contentType", "ContentType")
 		addImport("io.ktor.client.request", "setBody")
 		addStatement("contentType(ContentType.Application.Json)")

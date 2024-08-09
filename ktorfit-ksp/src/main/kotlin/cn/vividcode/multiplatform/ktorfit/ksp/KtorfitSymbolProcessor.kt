@@ -19,9 +19,9 @@ import com.google.devtools.ksp.validate
  *
  * 创建日期：2024/3/23 22:13
  *
- * 文件介绍：KtorSymbolProcessor
+ * 文件介绍：KtorfitSymbolProcessor
  */
-internal class KtorSymbolProcessor(
+internal class KtorfitSymbolProcessor(
 	private val codeGenerator: CodeGenerator
 ) : SymbolProcessor {
 	

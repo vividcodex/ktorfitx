@@ -27,7 +27,7 @@ sealed interface MockCache {
 	private data class ConfigImpl(
 		override var groupMocksMap: Map<String, Map<String, MockModel<*>>> = emptyMap()
 	) : Config
-
+	
 	companion object : MockClientPlugin<Config, MockCache> {
 		
 		override fun install(block: Config.() -> Unit): MockCache {
@@ -46,7 +46,8 @@ private class MockCacheImpl(
 fun <T : Any> MockCache.getMockModel(url: String, name: String, kClass: KClass<T>): MockModel<T> {
 	val mockModel = groupMocksMap[url]?.get(name)
 	check(mockModel != null) { "在 $url 中未找到名为 $name 的 Mock" }
-	return mockModel as? MockModel<T> ?: error("在 $url 中找到名为 $name 的 Mock, 但是类型不匹配，需要的类型是: ${kClass.simpleName}, 实际的是 ${mockModel::class.simpleName}")
+	return mockModel as? MockModel<T>
+		?: error("在 $url 中找到名为 $name 的 Mock, 但是类型不匹配，需要的类型是: ${kClass.simpleName}, 实际的是 ${mockModel::class.simpleName}")
 	return groupMocksMap[url]?.get(name) as? MockModel<T>
 		?: error("在 $url 中未找到名为 $name 的 Mock")
 }

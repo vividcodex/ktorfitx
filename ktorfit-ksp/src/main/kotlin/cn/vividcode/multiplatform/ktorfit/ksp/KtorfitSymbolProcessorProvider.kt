@@ -11,11 +11,11 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
  *
  * 创建日期：2024/3/23 22:14
  *
- * 文件介绍：KtorSymbolProcessorProvider
+ * 文件介绍：KtorfitSymbolProcessorProvider
  */
-internal class KtorSymbolProcessorProvider : SymbolProcessorProvider {
+internal class KtorfitSymbolProcessorProvider : SymbolProcessorProvider {
 
 	override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-		return KtorSymbolProcessor(environment.codeGenerator)
+		return KtorfitSymbolProcessor(environment.codeGenerator)
 	}
 }

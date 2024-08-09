@@ -6,7 +6,7 @@ import androidx.compose.ui.window.application
 fun main() = application {
 	Window(
 		onCloseRequest = ::exitApplication,
-		title = "vividcode-multiplatform-ktorfit-sample",
+		title = "ktorfit-sample",
 	) {
 		App()
 	}
