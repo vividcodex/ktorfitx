@@ -31,10 +31,7 @@ internal class HttpClientCodeBlockBuilder(
 		private val byteArrayClassName by lazy { ByteArray::class.asClassName() }
 		
 		private val resultBodyClassName by lazy {
-			ClassName(
-				"cn.vividcode.multiplatform.ktorfit.api.model",
-				"ResultBody"
-			)
+			ClassName("cn.vividcode.multiplatform.ktorfit.api.model", "ResultBody")
 		}
 		
 		private val unitClassName by lazy { Unit::class.asClassName() }

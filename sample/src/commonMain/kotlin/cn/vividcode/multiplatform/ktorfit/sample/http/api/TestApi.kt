@@ -1,7 +1,6 @@
 package cn.vividcode.multiplatform.ktorfit.sample.http.api
 
 import cn.vividcode.multiplatform.ktorfit.annotation.*
-import cn.vividcode.multiplatform.ktorfit.api.encrypt.EncryptType
 import cn.vividcode.multiplatform.ktorfit.api.mock.MockStatus
 import cn.vividcode.multiplatform.ktorfit.api.model.ResultBody
 import cn.vividcode.multiplatform.ktorfit.sample.http.TestApiScope
@@ -21,10 +20,7 @@ import kotlinx.serialization.Serializable
 interface TestApi {
 	
 	@GET(url = "/test01")
-	suspend fun test01(
-		@Query param1: String,
-		@Query @Encrypt(EncryptType.SHA512, 2) param2: String,
-	): ResultBody<TestResponse>
+	suspend fun test01(): ResultBody<String>
 	
 	@POST(url = "/test02")
 	@Headers("Content-Type: application/json")
@@ -57,7 +53,7 @@ interface TestApi {
 	suspend fun test08(catch: Catch<Exception>, finally: Finally): ByteArray
 	
 	@BearerAuth
-	@Mock(TestMockProvider::class, MockStatus.SUCCESS)
+	@Mock(TestMockProvider::class, MockStatus.SUCCESS, delayRange = [1000, 2000])
 	@GET(url = "/testMock01")
 	suspend fun testMock01(
 		@Query param1: String,

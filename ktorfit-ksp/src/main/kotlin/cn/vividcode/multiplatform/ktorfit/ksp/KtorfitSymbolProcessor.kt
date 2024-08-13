@@ -1,6 +1,5 @@
 package cn.vividcode.multiplatform.ktorfit.ksp
 
-import cn.vividcode.multiplatform.ktorfit.annotation.Api
 import cn.vividcode.multiplatform.ktorfit.ksp.expends.generate
 import cn.vividcode.multiplatform.ktorfit.ksp.kotlinpoet.ApiKotlinPoet
 import cn.vividcode.multiplatform.ktorfit.ksp.visitor.ApiVisitor
@@ -11,6 +10,7 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.validate
+import com.squareup.kotlinpoet.ClassName
 
 /**
  * 项目名称：vividcode-multiplatform-ktorfit
@@ -25,12 +25,16 @@ internal class KtorfitSymbolProcessor(
 	private val codeGenerator: CodeGenerator
 ) : SymbolProcessor {
 	
+	private companion object {
+		private val apiClassName = ClassName("cn.vividcode.multiplatform.ktorfit.annotation", "Api")
+	}
+	
 	private var apiVisitor: ApiVisitor? = null
 	private val apiKotlinPoet by lazy { ApiKotlinPoet() }
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
 		this.apiVisitor = ApiVisitor(resolver)
-		val annotatedList = resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)
+		val annotatedList = resolver.getSymbolsWithAnnotation(apiClassName.canonicalName)
 		val rets = mutableListOf<KSAnnotated>()
 		annotatedList.forEach {
 			if (it.validate()) {

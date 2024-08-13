@@ -32,7 +32,7 @@ fun App() {
 				Button(
 					onClick = {
 						coroutineScope.launch(Dispatchers.IO) {
-							testKtorfit.testApi.testMock01("Hello", "World")
+							testKtorfit.testApi.test01()
 						}
 					}
 				) {

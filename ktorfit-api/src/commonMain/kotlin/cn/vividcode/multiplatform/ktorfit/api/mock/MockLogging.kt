@@ -1,10 +1,11 @@
 package cn.vividcode.multiplatform.ktorfit.api.mock
 
 import cn.vividcode.multiplatform.ktorfit.api.config.LogConfig
-import io.ktor.client.plugins.logging.*
+import io.ktor.client.plugins.logging.LogLevel.*
 import io.ktor.http.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 项目名称：vividcode-multiplatform-ktorfit
@@ -26,28 +27,27 @@ class MockLogging(
 	}
 	
 	fun request(method: HttpMethod) {
-		if (log.level != LogLevel.NONE) {
+		if (log.level != NONE) {
 			buildString {
 				if (log.level.info) {
-					val url = formatUrl(urlString, mockRequest.paths, mockRequest.queries)
-					appendLine("REQUEST: $url")
+					appendLine("REQUEST: $urlString")
 					appendLine("METHOD: ${method.value}")
 				}
 				if (log.level.headers && mockRequest.headers.isNotEmpty()) {
-					appendLine("HEADERS [${mockRequest.headers.size}]")
+					appendLine("HEADERS: COUNT=${mockRequest.headers.size}")
 					mockRequest.headers.forEach { (name, value) ->
 						appendLine("-> $name: $value")
 					}
 				}
 				if (log.level.body) {
 					if (mockRequest.forms.isNotEmpty()) {
-						appendLine("FORMS [${mockRequest.forms.size}]")
+						appendLine("FORMS: COUNT=${mockRequest.forms.size}")
 						mockRequest.forms.forEach { (name, value) ->
 							appendLine("-> $name: $value")
 						}
 					}
 					if (mockRequest.body != null) {
-						appendLine("BODY START [${mockRequest.body!!.length}]")
+						appendLine("BODY START: LENGTH=${mockRequest.body!!.length}")
 						appendLine(mockRequest.body!!)
 						appendLine("BODY END")
 					}
@@ -61,16 +61,16 @@ class MockLogging(
 		json: Json,
 		delay: Long
 	) {
-		if (log.level != LogLevel.NONE) {
+		if (log.level != NONE) {
 			buildString {
 				if (log.level.info) {
 					appendLine("RESPONSE: $urlString")
-					appendLine("DELAY TIME: $delay")
+					appendLine("DELAY TIME: ${delay.milliseconds}")
 				}
 				if (log.level.body) {
 					val stringJson = json.encodeToString(mock)
 					val length = stringJson.filterNot { it == ' ' || it == '\n' }.length
-					appendLine("BODY START [$length]")
+					appendLine("BODY START: LENGTH=$length")
 					appendLine(stringJson)
 					appendLine("BODY END")
 				}

@@ -6,7 +6,7 @@ import io.ktor.client.plugins.logging.*
 
 val testKtorfit by lazy {
 	ktorfit(TestApiScope) {
-		baseUrl = "http://localhost:9000"
+		baseUrl = "http://localhost:8080/api"
 		token { "<token>" }
 		log {
 			level = LogLevel.ALL

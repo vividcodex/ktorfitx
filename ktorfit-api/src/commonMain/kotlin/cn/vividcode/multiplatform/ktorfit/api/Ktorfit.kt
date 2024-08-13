@@ -30,10 +30,9 @@ class Ktorfit<AS : ApiScope> internal constructor(
 	
 	@OptIn(ExperimentalSerializationApi::class)
 	private val json = Json {
-		ktorfit.json!!.let {
-			this.prettyPrint = it.prettyPrint
-			this.prettyPrintIndent = it.prettyPrintIndent
-		}
+		this.prettyPrint = ktorfit.json!!.prettyPrint
+		this.prettyPrintIndent = ktorfit.json!!.prettyPrintIndent
+		this.ignoreUnknownKeys = ktorfit.json!!.ignoreUnknownKeys
 	}
 	
 	/**

@@ -1,7 +1,5 @@
 package cn.vividcode.multiplatform.ktorfit.ksp.visitor
 
-import cn.vividcode.multiplatform.ktorfit.annotation.Api
-import cn.vividcode.multiplatform.ktorfit.api.scope.ApiScope
 import cn.vividcode.multiplatform.ktorfit.ksp.expends.getArgumentClassName
 import cn.vividcode.multiplatform.ktorfit.ksp.expends.getArgumentValue
 import cn.vividcode.multiplatform.ktorfit.ksp.expends.getKSAnnotationByType
@@ -20,7 +18,10 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Visibility.INTERNAL
 import com.google.devtools.ksp.symbol.Visibility.PUBLIC
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
@@ -46,6 +47,11 @@ internal class ApiVisitor(
 			ByteArray::class.asTypeName(),
 			ClassName("cn.vividcode.multiplatform.ktorfit.api.model", "ResultBody")
 		)
+		
+		private val apiClassName = ClassName("cn.vividcode.multiplatform.ktorfit.annotation", "Api")
+		private val apiScopeClassName by lazy {
+			ClassName("cn.vividcode.multiplatform.ktorfit.api.scope", "ApiScope")
+		}
 	}
 	
 	override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit): ClassStructure? {
@@ -56,14 +62,14 @@ internal class ApiVisitor(
 	 * 获取 ClassStructure
 	 */
 	private fun KSClassDeclaration.getClassStructure(): ClassStructure? {
-		val apiKSAnnotation = getKSAnnotationByType(Api::class) ?: return null
+		val apiKSAnnotation = getKSAnnotationByType(apiClassName) ?: return null
 		val className = ClassName("${packageName.asString()}.impl", "${simpleName.asString()}Impl")
 		val superinterface = this.toClassName()
-		val apiScopeClassName = apiKSAnnotation.getArgumentClassName(Api::apiScope) ?: ApiScope::class.asClassName()
-		val apiUrl = apiKSAnnotation.getArgumentValue(Api::url) ?: ""
+		val apiScopeClassName = apiKSAnnotation.getArgumentClassName("apiScope") ?: apiScopeClassName
+		val apiUrl = apiKSAnnotation.getArgumentValue<String>("url") ?: ""
 		val apiStructure = ApiStructure(formatApiUrl(apiUrl, simpleName.asString()), apiScopeClassName)
-		val funStructures = getFunStructures()
-		return ClassStructure(className, superinterface, getKModifier(), apiStructure, funStructures)
+		val funStructure = getFunStructures()
+		return ClassStructure(className, superinterface, getKModifier(), apiStructure, funStructure)
 	}
 	
 	/**

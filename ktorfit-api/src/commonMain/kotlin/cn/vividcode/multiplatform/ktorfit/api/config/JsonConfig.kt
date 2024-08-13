@@ -17,4 +17,6 @@ class JsonConfig internal constructor() {
 	var prettyPrint: Boolean = true
 	
 	var prettyPrintIndent: String = "    "
+	
+	var ignoreUnknownKeys: Boolean = false
 }
