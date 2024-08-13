@@ -24,12 +24,11 @@ import com.squareup.kotlinpoet.ksp.toClassName
  *
  * 文件介绍：EncryptValueParameterModelsResolver
  */
-@Suppress("unused")
-internal data object EncryptValueParameterModelsResolver : ValueParameterModelResolver<ValueParameterModel> {
+internal object EncryptValueParameterModelsResolver {
 	
 	private val encryptClassName by lazy { arrayOf(String::class.asClassName(), ByteArray::class.asClassName()) }
 	
-	override fun KSFunctionDeclaration.resolve(): List<ValueParameterModel> {
+	fun KSFunctionDeclaration.resolve(): List<ValueParameterModel> {
 		return buildList {
 			this += getValueParameterModels(Query::name, ::QueryModel)
 			this += getValueParameterModels(Form::name, ::FormModel)

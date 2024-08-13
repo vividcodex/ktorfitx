@@ -12,6 +12,5 @@ package cn.vividcode.multiplatform.ktorfit.annotation
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class POST(
-	val url: String,
-	val auth: Boolean = false
+	val url: String
 )

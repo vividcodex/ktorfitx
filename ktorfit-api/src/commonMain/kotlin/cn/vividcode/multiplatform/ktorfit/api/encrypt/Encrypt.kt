@@ -1,20 +1,25 @@
+@file:Suppress("UnusedReceiverParameter")
+
 package cn.vividcode.multiplatform.ktorfit.api.encrypt
 
-import cn.vividcode.multiplatform.ktorfit.annotation.EncryptType
+import cn.vividcode.multiplatform.ktorfit.api.mock.MockRequestBuilder
+import io.ktor.client.request.*
 import korlibs.crypto.*
 
-/**
- * encrypt String
- */
-fun String.encrypt(encryptType: EncryptType, layer: Int): String {
-	return this.encodeToByteArray().encrypt(encryptType, layer)
+fun HttpRequestBuilder.encrypt(content: Any, encryptType: EncryptType, layer: Int): String {
+	return content.encrypt(encryptType, layer)
 }
 
-/**
- * encrypt ByteArray
- */
-fun ByteArray.encrypt(encryptType: EncryptType, layer: Int): String {
-	var hash = encryptType.factory.digest(this)
+fun MockRequestBuilder.encrypt(content: Any, encryptType: EncryptType, layer: Int): String {
+	return content.encrypt(encryptType, layer)
+}
+
+private fun Any.encrypt(encryptType: EncryptType, layer: Int): String {
+	var hash = when (this) {
+		is String -> this.encodeToByteArray()
+		is ByteArray -> this
+		else -> this.toString().encodeToByteArray()
+	}.let { encryptType.factory.digest(it) }
 	repeat(layer - 1) {
 		hash = encryptType.factory.digest(hash.bytes)
 	}

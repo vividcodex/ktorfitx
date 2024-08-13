@@ -41,6 +41,14 @@ internal sealed class CodeBlockBuilder(
 		}
 	}
 	
+	protected fun addImports(className1: ClassName, className2: ClassName, vararg classNames: ClassName) {
+		addImport(className1.packageName, className1.simpleName)
+		addImport(className2.packageName, className2.simpleName)
+		classNames.forEach {
+			addImport(it.packageName, it.simpleName)
+		}
+	}
+	
 	protected fun getVarName(varName: String): String {
 		var realVarName = varName
 		var num = 1

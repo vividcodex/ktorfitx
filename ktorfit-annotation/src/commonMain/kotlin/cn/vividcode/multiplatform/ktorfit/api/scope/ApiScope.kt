@@ -1,4 +1,4 @@
-package cn.vividcode.multiplatform.ktorfit.scope
+package cn.vividcode.multiplatform.ktorfit.api.scope
 
 /**
  * 项目名称：vividcode-multiplatform-ktorfit

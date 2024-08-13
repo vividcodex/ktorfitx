@@ -1,5 +1,7 @@
 package cn.vividcode.multiplatform.ktorfit.ksp.model.model
 
+import com.squareup.kotlinpoet.ClassName
+
 /**
  * 项目名称：vividcode-multiplatform-ktorfit
  *
@@ -9,7 +11,8 @@ package cn.vividcode.multiplatform.ktorfit.ksp.model.model
  *
  * 文件介绍：MockModel
  */
-@JvmInline
-internal value class MockModel(
-	val name: String
+internal class MockModel(
+	val provider: ClassName,
+	val status: ClassName,
+	val delayRange: Array<Long>
 ) : FunctionModel

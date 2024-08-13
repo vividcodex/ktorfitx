@@ -1,8 +1,11 @@
 package cn.vividcode.multiplatform.ktorfit.sample.http.api
 
 import cn.vividcode.multiplatform.ktorfit.annotation.*
+import cn.vividcode.multiplatform.ktorfit.api.encrypt.EncryptType
+import cn.vividcode.multiplatform.ktorfit.api.mock.MockStatus
 import cn.vividcode.multiplatform.ktorfit.api.model.ResultBody
 import cn.vividcode.multiplatform.ktorfit.sample.http.TestApiScope
+import cn.vividcode.multiplatform.ktorfit.sample.http.mock.TestMockProvider
 import kotlinx.serialization.Serializable
 
 /**
@@ -20,13 +23,13 @@ interface TestApi {
 	@GET(url = "/test01")
 	suspend fun test01(
 		@Query param1: String,
-		@Query param2: String,
+		@Query @Encrypt(EncryptType.SHA512, 2) param2: String,
 	): ResultBody<TestResponse>
 	
 	@POST(url = "/test02")
 	@Headers("Content-Type: application/json")
 	suspend fun test02(
-		@Body request: Test01Request,
+		@Body request: TestRequest,
 		@Header testHeader: String
 	): ResultBody<TestResponse>
 	
@@ -35,7 +38,8 @@ interface TestApi {
 		@Form form1: String
 	): ResultBody<TestResponse>
 	
-	@DELETE(url = "/test04/{deleteId}", auth = true)
+	@BearerAuth
+	@DELETE(url = "/test04/{deleteId}")
 	suspend fun test04(
 		@Path deleteId: Int,
 	): ResultBody<TestResponse>
@@ -52,26 +56,27 @@ interface TestApi {
 	@GET(url = "/test08")
 	suspend fun test08(catch: Catch<Exception>, finally: Finally): ByteArray
 	
-	@Mock(name = "mock01")
+	@BearerAuth
+	@Mock(TestMockProvider::class, MockStatus.SUCCESS)
 	@GET(url = "/testMock01")
 	suspend fun testMock01(
 		@Query param1: String,
-		@Query param2: String,
+		@Query @Encrypt param2: String,
 	): ResultBody<TestResponse>
 	
-	@Mock(name = "mock02")
+	@Mock(TestMockProvider::class)
 	@POST(url = "/testMock02")
 	suspend fun testMock02(
-		@Body request: Test01Request,
+		@Body request: TestResponse,
 	): ResultBody<TestResponse>
 	
-	@Mock(name = "mock03")
+	@Mock(TestMockProvider::class)
 	@PUT(url = "/testMock03")
 	suspend fun testMock03(
 		@Form form1: String
 	): ResultBody<TestResponse>
 	
-	@Mock(name = "mock04")
+	@Mock(TestMockProvider::class)
 	@DELETE(url = "/testMock04/{deleteId}")
 	suspend fun testMock04(
 		@Path deleteId: Int,
@@ -79,7 +84,7 @@ interface TestApi {
 }
 
 @Serializable
-data class Test01Request(
+data class TestRequest(
 	val param1: String,
 	val param2: String
 )

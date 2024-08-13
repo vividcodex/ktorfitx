@@ -1,9 +1,14 @@
 package cn.vividcode.multiplatform.ktorfit.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktorfit.annotation.Mock
-import cn.vividcode.multiplatform.ktorfit.ksp.expends.getAnnotationByType
+import cn.vividcode.multiplatform.ktorfit.ksp.expends.getArgumentArrayValue
+import cn.vividcode.multiplatform.ktorfit.ksp.expends.getArgumentClassName
+import cn.vividcode.multiplatform.ktorfit.ksp.expends.getKSAnnotationByType
 import cn.vividcode.multiplatform.ktorfit.ksp.model.model.MockModel
+import com.google.devtools.ksp.getClassDeclarationByName
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.squareup.kotlinpoet.ClassName
 
 /**
  * 项目名称：vividcode-multiplatform-ktorfit
@@ -14,14 +19,26 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  *
  * 文件介绍：MockModelResolver
  */
-@Suppress("unused")
-internal data object MockModelResolver : FunctionModelResolver<MockModel> {
+internal object MockModelResolver {
 	
-	override fun KSFunctionDeclaration.resolve(): MockModel? {
-		val mock = getAnnotationByType(Mock::class) ?: return null
-		if (mock.name.isBlank()) {
-			error("${qualifiedName!!.asString()} 的 @Mock 的名称不能为空")
+	private val mockClassName = ClassName("cn.vividcode.multiplatform.ktorfit.annotation", "Mock")
+	private val statusSuccessClassName by lazy {
+		ClassName("cn.vividcode.multiplatform.ktorfit.api.mock", "MockStatus", "SUCCESS")
+	}
+	
+	fun KSFunctionDeclaration.resolve(resolver: Resolver): MockModel? {
+		val annotation = getKSAnnotationByType(mockClassName) ?: return null
+		val providerClassName = annotation.getArgumentClassName("provider")!!
+		resolver.getClassDeclarationByName(providerClassName.canonicalName)!!.also {
+			check(it.classKind == ClassKind.OBJECT) {
+				"${it.simpleName.asString()} 的 ClassKind 只允许是 ${ClassKind.OBJECT} 类型"
+			}
 		}
-		return MockModel(mock.name)
+		val status = annotation.getArgumentClassName("status") ?: statusSuccessClassName
+		val delayRange = annotation.getArgumentArrayValue("delayRange") ?: arrayOf(200L)
+		check(delayRange.size == 1 || (delayRange.size == 2 && delayRange[0] <= delayRange[1])) {
+			"delayRange 必须有 1-2 个时间，并且 delayRange[0] <= delayRange[1]"
+		}
+		return MockModel(providerClassName, status, delayRange)
 	}
 }

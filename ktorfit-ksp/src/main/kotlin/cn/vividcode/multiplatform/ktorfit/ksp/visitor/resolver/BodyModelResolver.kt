@@ -15,11 +15,10 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  *
  * 文件介绍：BodyModelResolver
  */
-@Suppress("unused")
-internal data object BodyModelResolver : ValueParameterModelResolver<BodyModel> {
+internal object BodyModelResolver {
 	
 	@OptIn(KspExperimental::class)
-	override fun KSFunctionDeclaration.resolve(): List<BodyModel> {
+	fun KSFunctionDeclaration.resolve(): List<BodyModel> {
 		return this.parameters.filter { it.isAnnotationPresent(Body::class) }
 			.also { check(it.size <= 1) { "@Body 不允许在同一个方法参数列表上多次使用" } }
 			.map {

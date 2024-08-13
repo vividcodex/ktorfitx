@@ -1,15 +1,9 @@
 package cn.vividcode.multiplatform.ktorfit.api
 
-import cn.vividcode.multiplatform.ktorfit.api.builder.KtorfitBuilder
-import cn.vividcode.multiplatform.ktorfit.api.builder.KtorfitBuilderImpl
-import cn.vividcode.multiplatform.ktorfit.api.config.KtorConfig
 import cn.vividcode.multiplatform.ktorfit.api.config.KtorfitConfig
-import cn.vividcode.multiplatform.ktorfit.api.config.MockConfig
 import cn.vividcode.multiplatform.ktorfit.api.mock.MockClient
-import cn.vividcode.multiplatform.ktorfit.api.mock.plugin.MockCache
-import cn.vividcode.multiplatform.ktorfit.api.mock.plugin.MockLogging
-import cn.vividcode.multiplatform.ktorfit.scope.ApiScope
-import cn.vividcode.multiplatform.ktorfit.scope.DefaultApiScope
+import cn.vividcode.multiplatform.ktorfit.api.scope.ApiScope
+import cn.vividcode.multiplatform.ktorfit.api.scope.DefaultApiScope
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -30,21 +24,16 @@ import kotlinx.serialization.json.Json
  */
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class Ktorfit<AS : ApiScope> internal constructor(
-	val ktorfitConfig: KtorfitConfig,
-	ktorConfig: KtorConfig,
-	mockConfig: MockConfig,
+	val ktorfit: KtorfitConfig,
 	private val apiScope: AS
 ) {
 	
-	init {
-		this.ktorfitConfig.check()
-		ktorConfig.check()
-	}
-	
 	@OptIn(ExperimentalSerializationApi::class)
 	private val json = Json {
-		this.prettyPrint = ktorConfig.jsonConfig.prettyPrint
-		this.prettyPrintIndent = ktorConfig.jsonConfig.prettyPrintIndent
+		ktorfit.json!!.let {
+			this.prettyPrint = it.prettyPrint
+			this.prettyPrintIndent = it.prettyPrintIndent
+		}
 	}
 	
 	/**
@@ -53,12 +42,8 @@ class Ktorfit<AS : ApiScope> internal constructor(
 	val httpClient: HttpClient by lazy {
 		HttpClient(CIO) {
 			install(Logging) {
-				this.logger = object : Logger {
-					override fun log(message: String) {
-						ktorConfig.handleLog?.invoke(format(message, ktorConfig.showApiScope))
-					}
-				}
-				this.level = ktorConfig.logLevel
+				this.logger = KtorfitLogger()
+				this.level = ktorfit.log!!.level
 			}
 			install(ContentNegotiation) {
 				json(this@Ktorfit.json)
@@ -66,11 +51,27 @@ class Ktorfit<AS : ApiScope> internal constructor(
 			install(HttpCookies)
 			engine {
 				endpoint {
-					this.connectTimeout = ktorConfig.connectTimeout
-					this.socketTimeout = ktorConfig.socketTimeout
-					this.keepAliveTime = ktorConfig.keepAliveTime
+					ktorfit.endpoint!!.let {
+						this.maxConnectionsPerRoute = it.maxConnectionsPerRoute
+						this.keepAliveTime = it.keepAliveTime
+						this.pipelineMaxSize = it.pipelineMaxSize
+						this.connectTimeout = it.connectTimeout
+						this.socketTimeout = it.socketTimeout
+						this.connectAttempts = it.connectAttempts
+					}
 				}
 			}
+		}
+	}
+	
+	private inner class KtorfitLogger : Logger {
+		
+		override fun log(message: String) {
+			ktorfit.log!!.logger(formatMessage(message))
+		}
+		
+		private fun formatMessage(message: String): String {
+			return message + if (ktorfit.apiScope!!.printName) " [${apiScope.name}]" else ""
 		}
 	}
 	
@@ -78,40 +79,25 @@ class Ktorfit<AS : ApiScope> internal constructor(
 	 * MockClient
 	 */
 	val mockClient: MockClient by lazy {
-		MockClient {
-			install(MockLogging) {
-				this.baseUrl = ktorfitConfig.baseUrl
-				this.logLevel = ktorConfig.logLevel
-				this.handleLog = {
-					ktorConfig.handleLog?.invoke(format(it, ktorConfig.showApiScope))
-				}
-				this.json = this@Ktorfit.json
-			}
-			install(MockCache) {
-				this.groupMocksMap = mockConfig.groupMocksMap
-			}
-		}
-	}
-	
-	private fun format(message: String, showApiScope: Boolean): String {
-		return message + if (showApiScope) " <[$apiScope]>" else ""
+		MockClient(ktorfit.log!!, json)
 	}
 }
 
 /**
- * DefaultApiScope 的 ktorfit 构造器
+ * ktorfit
  */
-fun ktorfit(builder: KtorfitBuilder.() -> Unit): Ktorfit<DefaultApiScope> {
-	return KtorfitBuilderImpl(DefaultApiScope)
-		.apply(builder)
-		.build()
-}
+fun ktorfit(
+	config: KtorfitConfig.() -> Unit
+): Ktorfit<DefaultApiScope> = KtorfitConfig()
+	.apply(config)
+	.build(DefaultApiScope)
 
 /**
- * 自定义 ApiScope 的 ktorfit 构造器
+ * ktorfit
  */
-fun <AS : ApiScope> ktorfit(apiScope: AS, builder: KtorfitBuilder.() -> Unit): Ktorfit<AS> {
-	return KtorfitBuilderImpl(apiScope)
-		.apply(builder)
-		.build()
-}
+fun <AS : ApiScope> ktorfit(
+	apiScope: AS,
+	config: KtorfitConfig.() -> Unit
+): Ktorfit<AS> = KtorfitConfig()
+	.apply(config)
+	.build(apiScope)

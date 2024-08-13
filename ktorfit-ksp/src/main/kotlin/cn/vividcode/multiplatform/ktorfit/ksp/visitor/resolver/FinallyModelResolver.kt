@@ -14,12 +14,11 @@ import com.squareup.kotlinpoet.asClassName
  *
  * 文件介绍：FinallyModelResolver
  */
-@Suppress("unused")
-internal data object FinallyModelResolver : ValueParameterModelResolver<FinallyModel> {
+internal object FinallyModelResolver {
 	
 	private val finallyClassName by lazy { Finally::class.asClassName() }
 	
-	override fun KSFunctionDeclaration.resolve(): List<FinallyModel> {
+	fun KSFunctionDeclaration.resolve(): List<FinallyModel> {
 		return this.parameters.filter {
 			it.type.resolve().declaration.qualifiedName?.asString() == finallyClassName.canonicalName
 		}.map {

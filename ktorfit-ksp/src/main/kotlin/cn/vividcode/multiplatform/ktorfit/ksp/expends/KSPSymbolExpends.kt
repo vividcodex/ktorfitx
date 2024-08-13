@@ -19,7 +19,17 @@ import kotlin.reflect.KProperty1
 internal fun <T : Annotation> KSAnnotated.getKSAnnotationByType(annotationKClass: KClass<T>): KSAnnotation? {
 	return this.annotations.filter {
 		it.shortName.getShortName() == annotationKClass.simpleName &&
-			it.annotationType.resolve().declaration.qualifiedName?.asString() == annotationKClass.qualifiedName
+				it.annotationType.resolve().declaration.qualifiedName?.asString() == annotationKClass.qualifiedName
+	}.firstOrNull()
+}
+
+/**
+ * 获取 KSAnnotation
+ */
+internal fun KSAnnotated.getKSAnnotationByType(annotationClassName: ClassName): KSAnnotation? {
+	return this.annotations.filter {
+		it.shortName.getShortName() == annotationClassName.simpleName &&
+				it.annotationType.resolve().declaration.qualifiedName?.asString() == annotationClassName.canonicalName
 	}.firstOrNull()
 }
 
@@ -34,22 +44,53 @@ internal fun <T : Annotation> KSAnnotated.getAnnotationByType(annotationKClass: 
 /**
  * 获取注解上的数据
  */
+internal fun <V> KSAnnotation.getArgumentValue(property: KProperty1<*, V>): V? {
+	return this.getArgumentValue(property.name)
+}
+
+/**
+ * 获取注解上的数据
+ */
 @Suppress("UNCHECKED_CAST")
-internal fun <T, V> KSAnnotation.getArgumentValue(kProperty1: KProperty1<T, V>): V? {
-	var value = this.arguments.find { it.name?.asString() == kProperty1.name }?.value
-	check(value !is KSType)
-	if (value is ArrayList<*>) {
-		value = value.toTypedArray()
-	}
+internal fun <V> KSAnnotation.getArgumentValue(propertyName: String): V? {
+	val value = this.arguments.find { it.name?.asString() == propertyName }?.value
+	check(value !is KSType) { "value 是 KSType 类型的！" }
+	check(value !is ArrayList<*>) { "value 是 ArrayList<*> 类型的" }
 	return value as? V
+}
+
+/**
+ * 获取注解上的数组数据
+ */
+internal inline fun <reified T : Any> KSAnnotation.getArgumentArrayValue(property: KProperty1<*, *>): Array<T>? {
+	return this.getArgumentArrayValue(property.name)
+}
+
+/**
+ * 获取注解上的数组数据
+ */
+internal inline fun <reified T : Any> KSAnnotation.getArgumentArrayValue(propertyName: String): Array<T>? {
+	val value = this.arguments.find { it.name?.asString() == propertyName }?.value
+	return if (value is ArrayList<*>) {
+		return value.toTypedArray().map {
+			it as T
+		}.toTypedArray()
+	} else null
 }
 
 /**
  * 获取注解上的 KClass 的 ClassName
  */
-internal fun <T : Annotation> KSAnnotation.getArgumentClassName(kProperty1: KProperty1<T, KClass<*>>): ClassName? {
-	val value = this.arguments.find { it.name?.asString() == kProperty1.name }?.value ?: return null
-	check(value is KSType)
+internal fun <T : Annotation> KSAnnotation.getArgumentClassName(property: KProperty1<T, KClass<*>>): ClassName? {
+	return this.getArgumentClassName(property.name)
+}
+
+/**
+ * 获取注解上的 KClass 的 ClassName
+ */
+internal fun KSAnnotation.getArgumentClassName(propertyName: String): ClassName? {
+	val value = this.arguments.find { it.name?.asString() == propertyName }?.value ?: return null
+	check(value is KSType) { "value is not KSType!" }
 	return (value.declaration as KSClassDeclaration).toClassName()
 }
 

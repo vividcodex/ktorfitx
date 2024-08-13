@@ -17,12 +17,11 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  *
  * 文件介绍：CatchModelResolver
  */
-@Suppress("unused")
-internal data object CatchModelResolver : ValueParameterModelResolver<CatchModel> {
+internal object CatchModelResolver {
 	
 	private val catchQualifiedName by lazy { Catch::class.qualifiedName }
 	
-	override fun KSFunctionDeclaration.resolve(): List<CatchModel> {
+	fun KSFunctionDeclaration.resolve(): List<CatchModel> {
 		return this.parameters.filter {
 			it.type.resolve().declaration.qualifiedName?.asString() == catchQualifiedName
 		}.map {

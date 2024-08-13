@@ -1,53 +1,97 @@
 package cn.vividcode.multiplatform.ktorfit.api.mock
 
-import cn.vividcode.multiplatform.ktorfit.api.annotation.BuilderDsl
-import cn.vividcode.multiplatform.ktorfit.api.mock.plugin.MockClientPlugin
+import cn.vividcode.multiplatform.ktorfit.annotation.MockDsl
+import cn.vividcode.multiplatform.ktorfit.api.config.LogConfig
+import io.ktor.http.*
+import kotlinx.coroutines.delay
+import kotlinx.serialization.json.Json
 
 /**
  * 项目名称：vividcode-multiplatform-ktorfit
  *
  * 作者昵称：li-jia-wei
  *
- * 创建日期：2024/7/6 17:43
+ * 创建日期：2024/8/11 03:42
  *
  * 文件介绍：MockClient
  */
-@BuilderDsl
+@MockDsl
 class MockClient internal constructor(
-	private val pluginMap: Map<MockClientPlugin<*, *>, Any>
+	val log: LogConfig,
+	val json: Json
 ) {
 	
-	@Suppress("UNCHECKED_CAST")
-	internal fun <TConfig : Any, TPlugin : Any> getPlugin(
-		plugin: MockClientPlugin<TConfig, TPlugin>
-	): TPlugin = this.pluginMap[plugin] as? TPlugin ?: error("未找到 MockClient 插件")
-}
-
-@BuilderDsl
-internal fun MockClient(
-	block: MockClientConfig.() -> Unit
-): MockClient {
-	val config = MockClientConfigImpl().apply(block)
-	return MockClient(config.pluginMap)
-}
-
-@BuilderDsl
-internal sealed interface MockClientConfig {
+	suspend inline fun <reified Mock : Any> get(
+		urlString: String,
+		mockProvider: MockProvider<Mock>,
+		status: MockStatus,
+		delayRange: LongRange,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): Mock = request(HttpMethod.Get, urlString, mockProvider, status, delayRange, builder)
 	
-	fun <TConfig : Any, TPlugin : Any> install(
-		plugin: MockClientPlugin<TConfig, TPlugin>,
-		block: (TConfig.() -> Unit)? = null
-	)
-}
-
-private class MockClientConfigImpl : MockClientConfig {
+	suspend inline fun <reified Mock : Any> post(
+		urlString: String,
+		mockProvider: MockProvider<Mock>,
+		status: MockStatus,
+		delayRange: LongRange,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): Mock = request(HttpMethod.Post, urlString, mockProvider, status, delayRange, builder)
 	
-	val pluginMap = mutableMapOf<MockClientPlugin<*, *>, Any>()
+	suspend inline fun <reified Mock : Any> put(
+		urlString: String,
+		mockProvider: MockProvider<Mock>,
+		status: MockStatus,
+		delayRange: LongRange,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): Mock = request(HttpMethod.Put, urlString, mockProvider, status, delayRange, builder)
 	
-	override fun <TConfig : Any, TPlugin : Any> install(
-		plugin: MockClientPlugin<TConfig, TPlugin>,
-		block: (TConfig.() -> Unit)?
-	) {
-		this.pluginMap[plugin] = plugin.install { block?.invoke(this) }
+	suspend inline fun <reified Mock : Any> delete(
+		urlString: String,
+		mockProvider: MockProvider<Mock>,
+		status: MockStatus,
+		delayRange: LongRange,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): Mock = request(HttpMethod.Delete, urlString, mockProvider, status, delayRange, builder)
+	
+	suspend inline fun <reified Mock : Any> options(
+		urlString: String,
+		mockProvider: MockProvider<Mock>,
+		status: MockStatus,
+		delayRange: LongRange,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): Mock = request(HttpMethod.Options, urlString, mockProvider, status, delayRange, builder)
+	
+	suspend inline fun <reified Mock : Any> head(
+		urlString: String,
+		mockProvider: MockProvider<Mock>,
+		status: MockStatus,
+		delayRange: LongRange,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): Mock = request(HttpMethod.Head, urlString, mockProvider, status, delayRange, builder)
+	
+	suspend inline fun <reified Mock : Any> patch(
+		urlString: String,
+		mockProvider: MockProvider<Mock>,
+		status: MockStatus,
+		delayRange: LongRange,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): Mock = request(HttpMethod.Patch, urlString, mockProvider, status, delayRange, builder)
+	
+	suspend inline fun <reified Mock : Any> request(
+		method: HttpMethod,
+		urlString: String,
+		mockProvider: MockProvider<Mock>,
+		status: MockStatus,
+		delayRange: LongRange,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): Mock {
+		val mockRequest = MockRequestBuilder(this.json).apply(builder)
+		val mockLogging = MockLogging(this.log, mockRequest, urlString)
+		mockLogging.request(method)
+		val delay = delayRange.random()
+		delay(delay)
+		val mock = mockProvider.provide(status)
+		mockLogging.response(mock, json, delay)
+		return mock
 	}
 }

@@ -25,10 +25,11 @@ internal class KtorfitSymbolProcessor(
 	private val codeGenerator: CodeGenerator
 ) : SymbolProcessor {
 	
-	private val apiVisitor by lazy { ApiVisitor() }
+	private var apiVisitor: ApiVisitor? = null
 	private val apiKotlinPoet by lazy { ApiKotlinPoet() }
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
+		this.apiVisitor = ApiVisitor(resolver)
 		val annotatedList = resolver.getSymbolsWithAnnotation(Api::class.qualifiedName!!)
 		val rets = mutableListOf<KSAnnotated>()
 		annotatedList.forEach {
@@ -36,7 +37,7 @@ internal class KtorfitSymbolProcessor(
 				rets += it
 			}
 			if (it is KSClassDeclaration && it.classKind == ClassKind.INTERFACE) {
-				val classStructure = it.accept(apiVisitor, Unit)
+				val classStructure = it.accept(apiVisitor!!, Unit)
 				if (classStructure != null) {
 					val fileSpec = apiKotlinPoet.getFileSpec(classStructure)
 					codeGenerator.generate(fileSpec, classStructure.className)

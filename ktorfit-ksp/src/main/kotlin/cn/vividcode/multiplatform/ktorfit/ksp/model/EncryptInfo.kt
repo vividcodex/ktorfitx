@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktorfit.ksp.model
 
-import cn.vividcode.multiplatform.ktorfit.annotation.EncryptType
+import cn.vividcode.multiplatform.ktorfit.api.encrypt.EncryptType
 
 /**
  * 项目名称：vividcode-multiplatform-ktorfit

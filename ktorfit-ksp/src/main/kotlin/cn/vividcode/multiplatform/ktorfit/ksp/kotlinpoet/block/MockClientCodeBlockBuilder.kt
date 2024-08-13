@@ -28,38 +28,47 @@ internal class MockClientCodeBlockBuilder(
 	
 	private val returnStructure = funStructure.returnStructure
 	
-	private val varNameUrl = getVarName("url")
-	
-	private val varNameMockName = getVarName("mockName")
-	
 	/**
 	 * 构建 MockCodeBlock
 	 */
 	override fun CodeBlock.Builder.buildCodeBlock() {
 		addImports(returnStructure.typeName.classNames)
+		buildMockRequestCodeBlock {
+			buildBearerAuthCodeBlock()
+			buildHeadersCodeBlock()
+			buildQueriesFormsPathsCodeBlock("queries", QueryModel::name, QueryModel::encryptInfo)
+			buildQueriesFormsPathsCodeBlock("forms", FormModel::name, FormModel::encryptInfo)
+			buildQueriesFormsPathsCodeBlock("paths", PathModel::name, PathModel::encryptInfo)
+			buildBodyCodeBlock()
+		}
+	}
+	
+	private fun CodeBlock.Builder.buildMockRequestCodeBlock(
+		block: CodeBlock.Builder.() -> Unit
+	) {
 		val apiModel = functionModels.first { it is ApiModel } as ApiModel
 		val mockModel = functionModels.first { it is MockModel } as MockModel
-		val funName = apiModel.requestFunName
-		addImport("cn.vividcode.multiplatform.ktorfit.api.mock", funName)
-		addStatement("val $varNameUrl = \"${classStructure.apiStructure.url}${apiModel.url}\"")
-		addStatement("val $varNameMockName = \"${mockModel.name}\"")
-		beginControlFlow("return this.mockClient.$funName($varNameUrl, $varNameMockName)")
-		
-		buildBearerAuthCodeBlock()
-		buildHeadersCodeBlock()
-		buildQueriesFormsPathsCodeBlock("queries", QueryModel::name, QueryModel::encryptInfo)
-		buildQueriesFormsPathsCodeBlock("forms", FormModel::name, FormModel::encryptInfo)
-		buildQueriesFormsPathsCodeBlock("paths", PathModel::name, PathModel::encryptInfo)
-		buildBodyCodeBlock()
-		
+		addImport(mockModel.provider)
+		addImport(mockModel.status.packageName, mockModel.status.simpleNames.first())
+		val url = classStructure.apiStructure.url + formatUrl(apiModel.url)
+		val fullUrl = "\"\${this.ktorfit.baseUrl}$url\""
+		val provider = mockModel.provider.simpleName
+		val status = "MockStatus.${mockModel.status.simpleName}"
+		val delayRange = mockModel.delayRange.let { "${it[0]}L..${if (it.size == 1) "${it[0]}L" else "${it[1]}L"}" }
+		val params = "$fullUrl, $provider, $status, $delayRange"
+		beginControlFlow("return this.mockClient.${apiModel.requestFunName}($params)")
+		block()
 		endControlFlow()
 	}
 	
+	private fun formatUrl(url: String): String {
+		return url
+	}
+	
 	private fun CodeBlock.Builder.buildBearerAuthCodeBlock() {
-		val apiModel = functionModels.filterIsInstance<ApiModel>().first()
-		if (apiModel.auth) {
-			addImport("cn.vividcode.multiplatform.ktorfit.api.mock", "bearerAuth")
-			addStatement("bearerAuth(ktorConfig.token!!())")
+		val bearerAuth = functionModels.filterIsInstance<BearerAuthModel>().isNotEmpty()
+		if (bearerAuth) {
+			addStatement("ktorfit.token?.let { bearerAuth(it()) }")
 		}
 	}
 	
@@ -70,13 +79,12 @@ internal class MockClientCodeBlockBuilder(
 		val headersModel = functionModels.filterIsInstance<HeadersModel>().firstOrNull()
 		val headerModels = valueParameterModels.filterIsInstance<HeaderModel>()
 		if (headersModel == null && headerModels.isEmpty()) return
-		addImport("cn.vividcode.multiplatform.ktorfit.api.mock", "headers", "append")
 		beginControlFlow("headers")
 		headersModel?.headerMap?.forEach { (name, value) ->
 			addStatement("append(\"$name\", \"$value\")")
 		}
 		headerModels.forEach {
-			val varName = it.varName + encrypt(it.encryptInfo)
+			val varName = encrypt(it.varName, it.encryptInfo)
 			addStatement("append(\"${it.name}\", $varName)")
 		}
 		endControlFlow()
@@ -87,16 +95,15 @@ internal class MockClientCodeBlockBuilder(
 	 */
 	private inline fun <reified T : ValueParameterModel> CodeBlock.Builder.buildQueriesFormsPathsCodeBlock(
 		funName: String,
-		noinline getName: T.() -> String,
-		noinline getEncryptInfo: T.() -> EncryptInfo?
+		noinline name: T.() -> String,
+		noinline encryptInfo: T.() -> EncryptInfo?
 	) {
 		val models = valueParameterModels.filterIsInstance<T>()
 		if (models.isEmpty()) return
-		addImport("cn.vividcode.multiplatform.ktorfit.api.mock", funName, "append")
 		beginControlFlow(funName)
 		models.forEach {
-			val varName = it.varName + encrypt(it.getEncryptInfo())
-			addStatement("append(\"${it.getName()}\", $varName)")
+			val varName = encrypt(it.varName, it.encryptInfo())
+			addStatement("append(\"${it.name()}\", $varName)")
 		}
 		endControlFlow()
 	}
@@ -106,16 +113,15 @@ internal class MockClientCodeBlockBuilder(
 	 */
 	private fun CodeBlock.Builder.buildBodyCodeBlock() {
 		val bodyModel = valueParameterModels.find { it is BodyModel } as? BodyModel ?: return
-		addImport("cn.vividcode.multiplatform.ktorfit.api.mock", "body")
 		addStatement("body(${bodyModel.varName})")
 	}
 	
 	/**
 	 * encrypt
 	 */
-	private fun encrypt(encryptInfo: EncryptInfo?): String {
-		if (encryptInfo == null) return ""
+	private fun encrypt(varName: String, encryptInfo: EncryptInfo?): String {
+		if (encryptInfo == null) return varName
 		addImport("cn.vividcode.multiplatform.ktorfit.api.encrypt", "encrypt", "EncryptType")
-		return ".encrypt(EncryptType.${encryptInfo.encryptType}, ${encryptInfo.layer})"
+		return "encrypt($varName, EncryptType.${encryptInfo.encryptType}, ${encryptInfo.layer})"
 	}
 }

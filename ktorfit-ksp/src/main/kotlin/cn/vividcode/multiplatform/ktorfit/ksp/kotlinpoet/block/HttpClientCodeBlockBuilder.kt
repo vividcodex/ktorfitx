@@ -30,7 +30,12 @@ internal class HttpClientCodeBlockBuilder(
 		
 		private val byteArrayClassName by lazy { ByteArray::class.asClassName() }
 		
-		private val resultBodyClassName by lazy { ClassName("cn.vividcode.multiplatform.ktorfit.api.model", "ResultBody") }
+		private val resultBodyClassName by lazy {
+			ClassName(
+				"cn.vividcode.multiplatform.ktorfit.api.model",
+				"ResultBody"
+			)
+		}
 		
 		private val unitClassName by lazy { Unit::class.asClassName() }
 	}
@@ -50,17 +55,19 @@ internal class HttpClientCodeBlockBuilder(
 		val needReturn = returnStructure.typeName != Unit::class.asTypeName()
 		beginControlFlow(if (needReturn) "return try" else "try")
 		val apiModel = functionModels.filterIsInstance<ApiModel>().first()
+		val bearerAuth = functionModels.filterIsInstance<BearerAuthModel>().isNotEmpty()
 		val funName = apiModel.requestFunName
 		addImport("io.ktor.client.request", funName)
 		val url = parsePathToUrl(apiModel.url)
-		val httpClientCode = "${if (needReturn) "val $responseVarName = " else ""}this.httpClient.$funName(\"\${this.ktorfitConfig.baseUrl}$url\")"
-		val needHttpRequestBuilder = isNeedHttpRequestBuilder(apiModel.auth)
+		val httpClientCode =
+			"${if (needReturn) "val $responseVarName = " else ""}this.httpClient.$funName(\"\${this.ktorfit.baseUrl}$url\")"
+		val needHttpRequestBuilder = isNeedHttpRequestBuilder(bearerAuth)
 		if (needHttpRequestBuilder) {
 			beginControlFlow(httpClientCode)
 		} else {
 			addStatement(httpClientCode)
 		}
-		buildBearerAuthCodeBlock(apiModel.auth)
+		buildBearerAuthCodeBlock(bearerAuth)
 		buildHeadersCodeBlock()
 		buildQueryCodeBlock()
 		buildFormCodeBlock()
@@ -78,8 +85,8 @@ internal class HttpClientCodeBlockBuilder(
 		}
 	}
 	
-	private fun isNeedHttpRequestBuilder(auth: Boolean): Boolean {
-		return auth || valueParameterModels.any {
+	private fun isNeedHttpRequestBuilder(bearerAuth: Boolean): Boolean {
+		return bearerAuth || valueParameterModels.any {
 			it is BodyModel || it is QueryModel || it is FormModel || it is HeaderModel
 		} || functionModels.any { it is HeadersModel }
 	}
@@ -98,7 +105,7 @@ internal class HttpClientCodeBlockBuilder(
 			check(fullUrl.contains("{${it.name}}")) {
 				"$funName 方法的 ${it.varName} 参数上的 @Path 注解的 name 未在 url 上找到"
 			}
-			val newValue = "\${${it.varName}${encrypt(it.encryptInfo)}}"
+			val newValue = "\${${encrypt(it.varName, it.encryptInfo)}}"
 			fullUrl = fullUrl.replace("{${it.name}}", newValue)
 		}
 		val notFoundPath = getNotFoundPath(fullUrl)
@@ -112,7 +119,7 @@ internal class HttpClientCodeBlockBuilder(
 	 * 获取没有找到的Path
 	 */
 	private fun getNotFoundPath(fullUrl: String): String? {
-		for (i in 1 ..< fullUrl.length) {
+		for (i in 1..<fullUrl.length) {
 			if (fullUrl[i] == '{' && fullUrl[i - 1] != '$') {
 				val j = fullUrl.indexOf('}', i)
 				return fullUrl.substring(i + 1, j)
@@ -124,10 +131,10 @@ internal class HttpClientCodeBlockBuilder(
 	/**
 	 * 构建 bearerAUth
 	 */
-	private fun CodeBlock.Builder.buildBearerAuthCodeBlock(auth: Boolean) {
-		if (auth) {
+	private fun CodeBlock.Builder.buildBearerAuthCodeBlock(bearerAuth: Boolean) {
+		if (bearerAuth) {
 			addImport("io.ktor.client.request", "bearerAuth")
-			addStatement("bearerAuth(ktorfitConfig.token!!())")
+			addStatement("ktorfit.token?.let { bearerAuth(it()) }")
 		}
 	}
 	
@@ -144,7 +151,7 @@ internal class HttpClientCodeBlockBuilder(
 			addStatement("append(\"$name\", \"$value\")")
 		}
 		headerModels.forEach {
-			val varName = it.varName + encrypt(it.encryptInfo)
+			val varName = encrypt(it.varName, it.encryptInfo)
 			addStatement("append(\"${it.name}\", $varName)")
 		}
 		endControlFlow()
@@ -158,7 +165,7 @@ internal class HttpClientCodeBlockBuilder(
 		if (queryModels.isEmpty()) return
 		addImport("io.ktor.client.request", "parameter")
 		queryModels.forEach {
-			val varName = it.varName + encrypt(it.encryptInfo)
+			val varName = encrypt(it.varName, it.encryptInfo)
 			addStatement("parameter(\"${it.name}\", $varName)")
 		}
 	}
@@ -175,7 +182,7 @@ internal class HttpClientCodeBlockBuilder(
 		addStatement("contentType(ContentType.MultiPart.FormData)")
 		beginControlFlow("val formData = formData {")
 		formModels.forEach {
-			val varName = it.varName + encrypt(it.encryptInfo)
+			val varName = encrypt(it.varName, it.encryptInfo)
 			addStatement("append(\"${it.name}\", $varName)")
 		}
 		endControlFlow()
@@ -275,10 +282,9 @@ internal class HttpClientCodeBlockBuilder(
 	/**
 	 * encrypt
 	 */
-	private fun encrypt(encryptInfo: EncryptInfo?): String {
-		if (encryptInfo == null) return ""
-		addImport("cn.vividcode.multiplatform.ktorfit.annotation", "EncryptType")
-		addImport("cn.vividcode.multiplatform.ktorfit.api.encrypt", "encrypt")
-		return ".encrypt(EncryptType.${encryptInfo.encryptType}, ${encryptInfo.layer})"
+	private fun encrypt(varName: String, encryptInfo: EncryptInfo?): String {
+		if (encryptInfo == null) return varName
+		addImport("cn.vividcode.multiplatform.ktorfit.api.encrypt", "EncryptType", "encrypt")
+		return "encrypt($varName, EncryptType.${encryptInfo.encryptType}, ${encryptInfo.layer})"
 	}
 }

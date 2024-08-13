@@ -67,7 +67,7 @@ internal class ApiKotlinPoet {
 		val primaryConstructorFunSpec = buildConstructorFunSpec {
 			addModifiers(KModifier.PRIVATE)
 			if (hasApiFunction) {
-				addParameter("ktorfitConfig", ktorfitConfigClassName)
+				addParameter("ktorfit", ktorfitConfigClassName)
 			}
 			if (hasHttpClient) {
 				addParameter("httpClient", httpClientClassName)
@@ -81,8 +81,8 @@ internal class ApiKotlinPoet {
 			addSuperinterface(classStructure.superinterface)
 			primaryConstructor(primaryConstructorFunSpec)
 			if (hasApiFunction) {
-				val ktorfitConfigPropertySpec = buildPropertySpec("ktorfitConfig", ktorfitConfigClassName, KModifier.PRIVATE) {
-					initializer("ktorfitConfig")
+				val ktorfitConfigPropertySpec = buildPropertySpec("ktorfit", ktorfitConfigClassName, KModifier.PRIVATE) {
+					initializer("ktorfit")
 					mutable(false)
 				}
 				addProperty(ktorfitConfigPropertySpec)
@@ -119,7 +119,7 @@ internal class ApiKotlinPoet {
 			val simpleName = classStructure.className.simpleName
 			val parameters = mutableListOf<String>()
 			if (hasApiFunction) {
-				parameters += "ktorClient.ktorfitConfig"
+				parameters += "ktorClient.ktorfit"
 			}
 			if (hasHttpClient) {
 				parameters += "ktorClient.httpClient"

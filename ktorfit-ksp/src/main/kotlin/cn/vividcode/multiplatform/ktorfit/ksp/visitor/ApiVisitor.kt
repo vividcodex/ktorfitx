@@ -1,6 +1,7 @@
 package cn.vividcode.multiplatform.ktorfit.ksp.visitor
 
 import cn.vividcode.multiplatform.ktorfit.annotation.Api
+import cn.vividcode.multiplatform.ktorfit.api.scope.ApiScope
 import cn.vividcode.multiplatform.ktorfit.ksp.expends.getArgumentClassName
 import cn.vividcode.multiplatform.ktorfit.ksp.expends.getArgumentValue
 import cn.vividcode.multiplatform.ktorfit.ksp.expends.getKSAnnotationByType
@@ -9,11 +10,9 @@ import cn.vividcode.multiplatform.ktorfit.ksp.model.structure.ApiStructure
 import cn.vividcode.multiplatform.ktorfit.ksp.model.structure.ClassStructure
 import cn.vividcode.multiplatform.ktorfit.ksp.model.structure.FunStructure
 import cn.vividcode.multiplatform.ktorfit.ksp.model.structure.ReturnStructure
-import cn.vividcode.multiplatform.ktorfit.ksp.visitor.resolver.FunctionModelResolver
-import cn.vividcode.multiplatform.ktorfit.ksp.visitor.resolver.ParameterModelResolver
-import cn.vividcode.multiplatform.ktorfit.ksp.visitor.resolver.ValueParameterModelResolver
-import cn.vividcode.multiplatform.ktorfit.scope.ApiScope
+import cn.vividcode.multiplatform.ktorfit.ksp.visitor.resolver.ModelResolvers
 import com.google.devtools.ksp.getVisibility
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
@@ -34,7 +33,9 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  *
  * 文件介绍：ApiVisitor2
  */
-internal class ApiVisitor : KSEmptyVisitor<Unit, ClassStructure?>() {
+internal class ApiVisitor(
+	private val resolver: Resolver
+) : KSEmptyVisitor<Unit, ClassStructure?>() {
 	
 	private companion object {
 		
@@ -99,9 +100,9 @@ internal class ApiVisitor : KSEmptyVisitor<Unit, ClassStructure?>() {
 				check(Modifier.SUSPEND in it.modifiers) { "${it.qualifiedName!!.asString()} 方法缺少 suspend 修饰" }
 				val funName = it.simpleName.asString()
 				val returnType = it.getReturnStructure().checkLegal()
-				val parameterModels = ParameterModelResolver.resolves(it)
-				val valueParameterModels = ValueParameterModelResolver.resolves(it)
-				val functionModels = FunctionModelResolver.resolves(it)
+				val parameterModels = with(ModelResolvers) { it.getAllParameterModel() }
+				val valueParameterModels = with(ModelResolvers) { it.getAllValueParameterModels() }
+				val functionModels = with(ModelResolvers) { it.getAllFunctionModels(resolver) }
 				FunStructure(funName, returnType, parameterModels, functionModels, valueParameterModels)
 			}
 	}

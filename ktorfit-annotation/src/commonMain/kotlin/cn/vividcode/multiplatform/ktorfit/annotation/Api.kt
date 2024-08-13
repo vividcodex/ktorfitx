@@ -1,7 +1,7 @@
 package cn.vividcode.multiplatform.ktorfit.annotation
 
-import cn.vividcode.multiplatform.ktorfit.scope.ApiScope
-import cn.vividcode.multiplatform.ktorfit.scope.DefaultApiScope
+import cn.vividcode.multiplatform.ktorfit.api.scope.ApiScope
+import cn.vividcode.multiplatform.ktorfit.api.scope.DefaultApiScope
 import kotlin.reflect.KClass
 
 /**

@@ -1,29 +1,19 @@
 package cn.vividcode.multiplatform.ktorfit.sample.http
 
 import cn.vividcode.multiplatform.ktorfit.api.ktorfit
-import cn.vividcode.multiplatform.ktorfit.sample.http.api.TestResponse
-import cn.vividcode.multiplatform.ktorfit.scope.ApiScope
+import cn.vividcode.multiplatform.ktorfit.api.scope.ApiScope
 import io.ktor.client.plugins.logging.*
 
 val testKtorfit by lazy {
 	ktorfit(TestApiScope) {
-		baseUrls("default") {
-			this["default"] = "http://localhost:9000/api"
+		baseUrl = "http://localhost:9000"
+		token { "<token>" }
+		log {
+			level = LogLevel.ALL
+			logger = ::println
 		}
-		handleLog {
-			println(it)
-		}
-		token { "<TOKEN>" }
-		logLevel = LogLevel.ALL
 		json {
 			prettyPrint = true
-		}
-		mocks {
-			api("/test/testMock01") {
-				mock(name = "mock01") {
-					success(TestResponse("测试响应"))
-				}
-			}
 		}
 	}
 }

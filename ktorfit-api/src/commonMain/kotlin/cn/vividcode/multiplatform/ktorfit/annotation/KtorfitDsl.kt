@@ -1,4 +1,4 @@
-package cn.vividcode.multiplatform.ktorfit.api.annotation
+package cn.vividcode.multiplatform.ktorfit.annotation
 
 /**
  * 项目名称：vividcode-multiplatform-ktorfit
@@ -11,4 +11,4 @@ package cn.vividcode.multiplatform.ktorfit.api.annotation
  */
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
-internal annotation class BuilderDsl
+internal annotation class KtorfitDsl

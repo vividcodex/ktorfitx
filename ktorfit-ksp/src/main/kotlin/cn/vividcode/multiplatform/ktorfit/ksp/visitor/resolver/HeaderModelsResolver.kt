@@ -19,12 +19,11 @@ import com.squareup.kotlinpoet.ksp.toClassName
  *
  * 文件介绍：HeaderModelsResolver
  */
-@Suppress("unused")
-internal data object HeaderModelsResolver : ValueParameterModelResolver<HeaderModel> {
+internal object HeaderModelsResolver {
 	
 	private val encryptClassName by lazy { arrayOf(String::class.asClassName(), ByteArray::class.asClassName()) }
 	
-	override fun KSFunctionDeclaration.resolve(): List<HeaderModel> {
+	fun KSFunctionDeclaration.resolve(): List<HeaderModel> {
 		return this.parameters.mapNotNull {
 			val header = it.getAnnotationByType(Header::class) ?: return@mapNotNull null
 			val varName = it.name!!.asString()

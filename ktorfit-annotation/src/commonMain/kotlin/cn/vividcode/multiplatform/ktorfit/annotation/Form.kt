@@ -11,4 +11,6 @@ package cn.vividcode.multiplatform.ktorfit.annotation
  */
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Form(val name: String = "")
+annotation class Form(
+	val name: String = ""
+)

@@ -1,7 +1,7 @@
 package cn.vividcode.multiplatform.ktorfit.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktorfit.annotation.*
-import cn.vividcode.multiplatform.ktorfit.ksp.expends.getAnnotationByType
+import cn.vividcode.multiplatform.ktorfit.ksp.expends.getArgumentValue
+import cn.vividcode.multiplatform.ktorfit.ksp.expends.getKSAnnotationByType
 import cn.vividcode.multiplatform.ktorfit.ksp.model.RequestMethod
 import cn.vividcode.multiplatform.ktorfit.ksp.model.model.ApiModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -15,40 +15,34 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  *
  * 文件介绍：ApiModelResolver
  */
-@Suppress("unused")
-internal data object ApiModelResolver : FunctionModelResolver<ApiModel> {
+internal object ApiModelResolver {
 	
 	private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 	
-	override fun KSFunctionDeclaration.resolve(): ApiModel {
+	fun KSFunctionDeclaration.resolve(): ApiModel {
 		val annotation = RequestMethod.entries.mapNotNull {
-			getAnnotationByType(it.annotation)
+			getKSAnnotationByType(it.annotation)
 		}.also { annotations ->
 			check(annotations.size <= 1) {
-				val requestMethods = annotations.joinToString { "@${it::class.simpleName}" }
+				val requestMethods = annotations.joinToString {
+					"@${it.shortName.asString()}"
+				}
 				"${qualifiedName!!.asString()} 方法只允许使用一种请求方法，而你使用了 $requestMethods ${annotations.size} 种"
 			}
 			check(annotations.isNotEmpty()) {
-				val requestMethods = RequestMethod.entries.joinToString { "@${it::class.simpleName}" }
-				"${qualifiedName!!.asString()} 至少在 $requestMethods 中使用一种请求方式"
+				val requestMethods = RequestMethod.entries.joinToString { "@${it.annotation.simpleName!!}" }
+				"缺少请求类型，${qualifiedName!!.asString()} 方法需要使用 $requestMethods 中的一种"
 			}
 		}.first()
 		val funName = this.simpleName.asString()
-		return when (annotation) {
-			is GET -> ApiModel("get", format(annotation.url, funName), annotation.auth)
-			is POST -> ApiModel("post", format(annotation.url, funName), annotation.auth)
-			is PUT -> ApiModel("put", format(annotation.url, funName), annotation.auth)
-			is DELETE -> ApiModel("delete", format(annotation.url, funName), annotation.auth)
-			is HEAD -> ApiModel("head", format(annotation.url, funName), annotation.auth)
-			is PATCH -> ApiModel("patch", format(annotation.url, funName), annotation.auth)
-			is OPTIONS -> ApiModel("options", format(annotation.url, funName), annotation.auth)
-			else -> error("不支持的请求类型")
-		}
+		val requestFunName = annotation.shortName.asString().lowercase()
+		val url = annotation.getArgumentValue<String>("url")!!
+		return ApiModel(requestFunName, formatUrl(url, funName))
 	}
 	
-	private fun format(url: String, funName: String): String {
+	private fun formatUrl(url: String, funName: String): String {
 		check(urlRegex.matches(url)) {
-			"$funName 的 url 参数格式错误"
+			"$funName 的 url 参数格式数据"
 		}
 		return if (url.startsWith('/')) url else "/$url"
 	}

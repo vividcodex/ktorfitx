@@ -1,24 +1,65 @@
 package cn.vividcode.multiplatform.ktorfit.api.config
 
+import cn.vividcode.multiplatform.ktorfit.annotation.KtorfitDsl
+import cn.vividcode.multiplatform.ktorfit.api.Ktorfit
+import cn.vividcode.multiplatform.ktorfit.api.scope.ApiScope
+
 /**
  * 项目名称：vividcode-multiplatform-ktorfit
  *
  * 作者昵称：li-jia-wei
  *
- * 创建日期：2024/5/14 21:04
+ * 创建日期：2024/8/10 20:40
  *
- * 文件介绍：KtorConfig
+ * 文件介绍：KtorfitConfig
  */
-class KtorfitConfig internal constructor(
-	var baseUrl: String = "",
-	var token: (() -> String)? = null
-) {
+@KtorfitDsl
+class KtorfitConfig internal constructor() {
 	
-	/**
-	 * 检查
-	 */
-	fun check() {
-		check(this.baseUrl.isNotEmpty()) { "baseUrl 没有配置" }
-		checkNotNull(this.token) { "token 没有配置" }
+	var baseUrl: String = ""
+	
+	var token: (() -> String)? = null
+		private set
+	
+	internal var endpoint: EndpointConfig? = null
+		private set
+	
+	internal var log: LogConfig? = null
+		private set
+	
+	internal var json: JsonConfig? = null
+		private set
+	
+	internal var apiScope: ApiScopeConfig? = null
+		private set
+	
+	fun token(token: () -> String) {
+		this.token = token
+	}
+	
+	fun endpoint(config: EndpointConfig.() -> Unit) {
+		this.endpoint = EndpointConfig().apply(config)
+	}
+	
+	fun log(config: LogConfig.() -> Unit) {
+		this.log = LogConfig().apply(config)
+	}
+	
+	fun json(config: JsonConfig.() -> Unit) {
+		this.json = JsonConfig().apply(config)
+	}
+	
+	fun apiScope(config: ApiScopeConfig.() -> Unit) {
+		this.apiScope = ApiScopeConfig().apply(config)
+	}
+	
+	fun <AS : ApiScope> build(apiScope: AS): Ktorfit<AS> {
+		check(baseUrl.isNotBlank()) { "请设置 baseUrl" }
+		this.token = this.token ?: { "" }
+		this.endpoint = this.endpoint ?: EndpointConfig()
+		this.log = this.log ?: LogConfig()
+		this.json = this.json ?: JsonConfig()
+		this.apiScope = this.apiScope ?: ApiScopeConfig()
+		return Ktorfit(this, apiScope)
 	}
 }

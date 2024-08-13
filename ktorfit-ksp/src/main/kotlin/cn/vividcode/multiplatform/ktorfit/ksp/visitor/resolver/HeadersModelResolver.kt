@@ -14,12 +14,11 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  *
  * 文件介绍：HeadersModelResolver
  */
-@Suppress("unused")
-internal data object HeadersModelResolver : FunctionModelResolver<HeadersModel> {
+internal object HeadersModelResolver {
 	
 	private val headersRegex = "^([^:=]+)[:=]([^:=]+)$".toRegex()
 	
-	override fun KSFunctionDeclaration.resolve(): HeadersModel? {
+	fun KSFunctionDeclaration.resolve(): HeadersModel? {
 		val headers = getAnnotationByType(Headers::class)?.let {
 			it.headers.toSet() + it.header
 		} ?: return null

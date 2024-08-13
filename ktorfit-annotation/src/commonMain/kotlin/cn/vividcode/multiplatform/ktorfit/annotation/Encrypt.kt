@@ -1,5 +1,7 @@
 package cn.vividcode.multiplatform.ktorfit.annotation
 
+import cn.vividcode.multiplatform.ktorfit.api.encrypt.EncryptType
+
 /**
  * 项目名称：vividcode-multiplatform-ktorfit
  *
