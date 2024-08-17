@@ -1,4 +1,4 @@
-rootProject.name = "vividcode-multiplatform-ktorfit"
+rootProject.name = "ktorfitx"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -21,7 +21,7 @@ dependencyResolutionManagement {
 		maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 	}
 }
-include("ktorfit-api")
-include("ktorfit-ksp")
-include("ktorfit-annotation")
-include("sample")
+include("ktorfitx-api")
+include("ktorfitx-ksp")
+include("ktorfitx-annotation")
+include("ktorfitx-sample")
