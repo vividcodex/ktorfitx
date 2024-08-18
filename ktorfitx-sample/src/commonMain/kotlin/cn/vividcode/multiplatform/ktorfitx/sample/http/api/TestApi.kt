@@ -4,8 +4,8 @@ import cn.vividcode.multiplatform.ktorfitx.annotation.*
 import cn.vividcode.multiplatform.ktorfitx.api.mock.MockStatus
 import cn.vividcode.multiplatform.ktorfitx.api.model.ResultBody
 import cn.vividcode.multiplatform.ktorfitx.sample.http.TestApiScope
-import cn.vividcode.multiplatform.ktorfitx.sample.http.handler.TestResultBodyExceptionListener
-import cn.vividcode.multiplatform.ktorfitx.sample.http.handler.TestUnitExceptionListener
+import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestResultBodyExceptionListener
+import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestUnitExceptionListener
 import cn.vividcode.multiplatform.ktorfitx.sample.http.mock.TestMockProvider
 import kotlinx.serialization.Serializable
 

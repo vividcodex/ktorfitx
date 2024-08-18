@@ -5,7 +5,7 @@ import cn.vividcode.multiplatform.ktorfitx.api.mock.MockStatus
 import cn.vividcode.multiplatform.ktorfitx.api.mock.MockStatus.*
 import cn.vividcode.multiplatform.ktorfitx.api.model.ResultBody
 import cn.vividcode.multiplatform.ktorfitx.sample.http.api.TestResponse
-import cn.vividcode.multiplatform.ktorfitx.sample.http.handler.TestException
+import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestException
 
 /**
  * 项目名称：vividcode-multiplatform-ktorfit
