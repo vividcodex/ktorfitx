@@ -1,4 +1,8 @@
-# Kotlin 多平台 KtorClient 代码生成器
+# Ktorfitx 2.3.12-1.4.0
+
+## 更新时间
+
+### 2024-08-18
 
 ## 版本说明
 
@@ -10,18 +14,23 @@ KSP `2.0.10-1.0.24`
 
 ## 项目迁移
 
-原项目由于包名规范性问题更名为：cn.vividcode.multiplatform.ktorfit
+项目包名更改为：cn.vividcode.multiplatform.ktorfitx
 
 依赖迁移：
 
-`2.3.12-1.3.2` 及以下使用的是 `cn.vividcode.multiplatform:ktor-client-api/ktor-client-ksp`
+`2.3.12-1.3.2` 及以前使用的是
 
-`2.3.12-1.4.0` 及以后使用的是 `cn.vividcode.multiplatform:ktorfit-api/ktorfit-ksp`
+``` kotlin
+cn.vividcode.multiplatform:ktor-client-api
+cn.vividcode.multiplatform:ktor-client-ksp
+```
 
-## 最新版本
+`2.3.12-1.4.0` 及以后使用的是
 
-项目版本 `2.3.12-1.4.0`
-示例版本 `1.0.0`
+``` kotlin
+cn.vividcode.multiplatform:ktorfitx-api
+cn.vividcode.multiplatform:ktorfitx-ksp
+```
 
 ## 依赖说明
 
@@ -43,14 +52,15 @@ io.ktor:ktor-serialization-kotlinx-json:2.3.12
 ``` kotlin
 plugins {
     id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val version = "2.3.12-1.3.2"
+val version = "2.3.12-1.4.0"
 
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktorfit-api:$version") 
+            implementation("cn.vividcode.multiplatform:ktorfitx-api:$version") 
         }
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -59,7 +69,7 @@ kotlin {
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.vividcode.multiplatform:ktorfit-ksp:$version")
+    kspCommonMainMetadata("cn.vividcode.multiplatform:ktorfitx-ksp:$version")
 }
 
 tasks.withType<KotlinCompile<*>>().all {
@@ -73,154 +83,162 @@ tasks.withType<KotlinCompile<*>>().all {
 
 ### `@Api` `接口` 标记在接口上
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Api(
-	
-	// 接口前缀
-	val url: String = "",
-	
-	// 接口作用域
-	val apiScope: KClass<out ApiScope> = ApiScope::class
+    
+    // 接口前缀
+    val url: String = "",
+    
+    // 接口作用域 
+    val apiScope: KClass<out ApiScope> = DefaultApiScope::class
 )
+```
+
+### `@BearerAuth` `方法` 授权
+
+``` kotlin
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.SOURCE)
+annotation class BearerAuth
 ```
 
 ### `@GET` `方法` GET请求
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class GET(
-	
-	// 接口路径
-	val url: String,
-	
-	// 是否授权
-	val auth: Boolean = false
+    
+    // 接口路径
+    val url: String
 )
 ```
 
 ### `@POST` `方法` POST请求
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class POST(
-	
-	// 接口路径
-	val url: String,
-	
-	// 是否授权
-	val auth: Boolean = false
+    
+    // 接口路径
+    val url: String
 )
 ```
 
 ### `@PUT` `方法` PUT请求
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class PUT(
-	
-	// 接口路径
-	val url: String,
-	
-	// 是否授权
-	val auth: Boolean = false
+    
+    // 接口路径
+    val url: String
 )
 ```
 
 ### `@DELETE` `方法` DELETE请求
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class DELETE(
-	
-	// 接口路径
-	val url: String,
-	
-	// 是否授权
-	val auth: Boolean = false
+    
+    // 接口路径
+    val url: String
 )
 ```
 
 ### `@OPTIONS` `方法` OPTIONS请求
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class OPTIONS(
-	
-	// 接口路径
-	val url: String,
-	
-	// 是否授权
-	val auth: Boolean = false
+    
+    // 接口路径
+    val url: String
 )
 ```
 
 ### `@PATCH` `方法` PATCH请求
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class PATCH(
-	
-	// 接口路径
-	val url: String,
-	
-	// 是否授权
-	val auth: Boolean = false
+    
+    // 接口路径
+    val url: String
 )
 ```
 
 ### `@HEAD` `方法` HEAD请求
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class HEAD(
-	
-	// 接口路径
-	val url: String,
-	
-	// 是否授权
-	val auth: Boolean = false
+    
+    // 接口路径
+    val url: String
 )
 ```
 
 ### `@Headers` `方法` 请求头
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Headers(
-	
-	// 至少一个请求头  名称:值
-	val header: String,
-	
-	// 多个请求头  名称:值
-	vararg val headers: String
+    
+    // 请求头  名称:值
+    val header: String,
+    
+    // 多个请求头  名称:值
+    vararg val headers: String
+)
+```
+
+### `@ExceptionListeners` `方法` 异常监听器
+
+``` kotlin
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.SOURCE)
+annotation class ExceptionListeners(
+
+    // 异常监听器
+    val listener: KClass<out ExceptionListener<*, *>>,
+    
+    // 多个异常监听器
+    vararg val listeners: KClass<out ExceptionListener<*, *>>
 )
 ```
 
 ### `@Mock` `参数` Mock 本地模拟请求
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Mock(
-	
-	// Mock 名称
-	val name: String = "DEFAULT"
+    
+    // Mock 提供者
+    val provider: KClass<out MockProvider<*>>,
+    
+    // Mock 状态
+    val status: MockStatus = MockStatus.SUCCESS,
+    
+    // Mock 延迟
+    val delayRange: LongArray = [200L]
 )
 ```
 
 ### `@Body` `参数` Body请求体
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Body
@@ -228,7 +246,7 @@ annotation class Body
 
 ### `@Form` `参数` 表单
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Form(
@@ -240,7 +258,7 @@ annotation class Form(
 
 ### `@Query` `参数` 查询参数
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Query(
@@ -252,7 +270,7 @@ annotation class Query(
 
 ### `@Path` `参数` 路径参数
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Path(
@@ -264,209 +282,361 @@ annotation class Path(
 
 ### `@Header` `参数` 请求头
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Header(
-	
-	// 请求头名称 默认：变量名
-	val name: String = ""
+    
+    // 请求头名称 默认：变量名
+    val name: String = ""
 )
 ```
 
 ### `@Encrypt` `参数` 加密
 
-```kotlin
+``` kotlin
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Encrypt(
-	
-	// 加密类型 默认：SHA256
-	val encryptType: EncryptType = EncryptType.SHA256,
-	
-	// 加密层数 默认：1
-	val layer: Int = 1
+    
+    // 加密类型 默认：SHA256
+    val encryptType: EncryptType = EncryptType.SHA256,
+    
+    // 加密后的二进制字符串的类型
+    val hexType: HexType = HexType.Lower,
+    
+    // 加密层数 默认：1
+    val layer: Int = 1
 )
 ```
 
-## 异常处理
+## 示例代码
 
-### `Catch` catch 语句异常捕获
-
-```kotlin
-fun interface Catch<E : Exception> {
-	
-	fun run(e: E)
-}
-```
-
-1. 泛型定义为需要捕获的异常，不允许使用 * 投影类型
-2. Catch 在方法参数中使用
-3. 可以定义多个，按照定义顺序执行
-
-### `Finally` finally 语句
-
-```kotlin
-fun interface Finally {
-	
-	fun run()
-}
-```
-
-1. Finally 在方法参数中使用
-2. 可以定义多个，按照定义顺序执行
-
-## 定义接口文件
-
-- 只允许使用 suspend 方法
-- 支持的返回类型有 `Unit` `ResultBody<T>` `ByteArray`
-
-定义接口
+### 以下为项目测试文件，比较杂乱，但是包含了绝大部分功能
 
 ``` kotlin
+/**
+ * TestApi
+ */
 @Api(url = "/test", apiScope = TestApiScope::class)
 interface TestApi {
-	
-    /**
-     * 通过 @Query 查询
-     */
-    @GET(url = "/search")
-    suspend fun search(
-        @Query searchKey: String,
-        @Query pageSize: Int,
-        @Query pageNum: Int
-    ): ResultBody<Unit>
-	
-    /**
-     * 通过 @Path 查询
-     */
-    @GET(url = "/search/{id}")
-    suspend fun searchById(
-        @Path id: Int
-    ): ResultBody<Unit>
     
-    /**
-     * 测试Mock
-     */
-    @Mock
-    @POST(url = "/mock")
-    suspend fun testMock(@Form name: String, @Form test: String): ResultBody<Unit>
+    @GET(url = "/test01")
+    @ExceptionListeners(TestResultBodyExceptionListener::class)
+    suspend fun test01(): ResultBody<String>
+    
+    @POST(url = "/test02")
+    @Headers("Content-Type: application/json")
+    @ExceptionListeners(TestUnitExceptionListener::class)
+    suspend fun test02(
+        @Body testRequest: TestRequest,
+        @Header testHeader: String
+    ): ResultBody<TestResponse>
+    
+    @BearerAuth
+    @PUT(url = "/test03")
+    suspend fun test03(
+        @Form form1: String
+    ): ResultBody<TestResponse>
+    
+    @BearerAuth
+    @DELETE(url = "/test04/{deleteId}")
+    suspend fun test04(
+        @Path deleteId: Int,
+    ): ResultBody<TestResponse>
+    
+    @PATCH(url = "/test05")
+    suspend fun test05(
+        @Form @Encrypt form1: String
+    ): ByteArray
+    
+    @BearerAuth
+    @OPTIONS(url = "/{name}/test06")
+    suspend fun test06(
+        @Path @Encrypt name: String
+    ): ByteArray
+    
+    @HEAD(url = "/test07")
+    suspend fun test07()
+    
+    @ExceptionListeners(TestUnitExceptionListener::class)
+    @GET(url = "/test08")
+    suspend fun test08(): ByteArray?
+    
+    @BearerAuth
+    @Mock(TestMockProvider::class, MockStatus.SUCCESS, delayRange = [1000, 2000])
+    @GET(url = "/testMock01")
+    suspend fun testMock01(
+        @Query param1: String,
+        @Query @Encrypt param2: String,
+    ): ResultBody<TestResponse>
+    
+    @Mock(TestMockProvider::class, MockStatus.EXCEPTION)
+    @ExceptionListeners(TestUnitExceptionListener::class)
+    @POST(url = "/testMock02")
+    suspend fun testMock02(
+        @Body request: TestResponse,
+    ): ResultBody<TestResponse>
+    
+    @Mock(TestMockProvider::class)
+    @PUT(url = "/testMock03")
+    suspend fun testMock03(
+        @Form form1: String
+    ): ResultBody<TestResponse>
+    
+    @Mock(TestMockProvider::class)
+    @DELETE(url = "/testMock04/{deleteId}")
+    suspend fun testMock04(
+        @Path deleteId: Int,
+    ): ResultBody<TestResponse>
 }
+
+/**
+ * TestRequest
+ */
+@Serializable
+data class TestRequest(
+    val param1: String,
+    val param2: String
+)
+
+/**
+ * TestResponse
+ */
+@Serializable
+data class TestResponse(
+    val param1: String
+)
+
+/**
+ * TestMockProvider
+ */
+object TestMockProvider : MockProvider<ResultBody<TestResponse>> {
+    
+    override fun provide(status: MockStatus): ResultBody<TestResponse> {
+        return when (status) {
+            MockStatus.SUCCESS -> ResultBody.success(TestResponse("测试Mock 参数一"), "测试Mock 操作成功")
+            MockStatus.FAILURE -> ResultBody.failure(-1, "测试Mock 操作失败")
+            MockStatus.EXCEPTION -> throw TestException()
+        }
+    }
+}
+
+/**
+ * TestUnitExceptionListener
+ */
+object TestUnitExceptionListener : ExceptionListener<TestException, Unit> {
+    
+    override fun KFunction<*>.onExceptionListener(e: TestException) {
+        println(e.message!!)
+    }
+}
+
+/**
+ * TestResultBodyExceptionListener
+ */
+object TestResultBodyExceptionListener : ExceptionListener<Exception, ResultBody<String>> {
+    
+    override fun KFunction<*>.onExceptionListener(e: Exception): ResultBody<String> {
+        println("??? : ${e.message}")
+        return ResultBody.exception(e)
+    }
+}
+
+/**
+ * TestException
+ */
+class TestException : Exception("TestExceptionListener 异常测试")
 ```
 
-构建后将会生成以下代码
+### 构建后会生成实现类以及扩展调用属性
 
 ``` kotlin
 public class TestApiImpl private constructor(
-    private val ktorConfig: KtorConfig,
+    private val ktorfit: KtorfitConfig,
     private val httpClient: HttpClient,
     private val mockClient: MockClient,
 ) : TestApi {
-    override suspend fun search(
-        searchKey: String,
-        pageSize: Int,
-        pageNum: Int,
-    ): ResultBody<Unit> = try {
-        val response = this.httpClient.get("${this.ktorConfig.baseUrl}/test/search") {
-            parameter("searchKey", searchKey)
-            parameter("pageSize", pageSize)
-            parameter("pageNum", pageNum)
+    override suspend fun test01(): ResultBody<String> = try {
+        this.httpClient.get("${this.ktorfit.baseUrl}/test/test01").safeResultBody()
+    } catch (e: Exception) {
+        with(TestResultBodyExceptionListener) {
+            TestApi::test01.onExceptionListener(e)
         }
-        if (response.status.isSuccess()) {
-            response.body()
-        } else {
-            ResultBody.failure(response.status.value, response.status.description)
+    }
+
+    override suspend fun test02(testRequest: TestRequest, testHeader: String): ResultBody<TestResponse>
+            = try {
+        this.httpClient.post("${this.ktorfit.baseUrl}/test/test02") {
+            headers {
+                append("Content-Type", "application/json")
+                append("Test-Header", testHeader)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(testRequest)
         }
+        .safeResultBody()
+    } catch (e: TestException) {
+        with(TestUnitExceptionListener) {
+            TestApi::test02.onExceptionListener(e)
+        }
+        ResultBody.exception(e)
     } catch (e: Exception) {
         ResultBody.exception(e)
     }
 
-    override suspend fun searchById(id: Int): ResultBody<Unit> = try {
-        val response = this.httpClient.get("${this.ktorConfig.baseUrl}/test/search/${id}")
-        if (response.status.isSuccess()) {
-            response.body()
-        } else {
-            ResultBody.failure(response.status.value, response.status.description)
-        }
-    } catch (e: Exception) {
-        ResultBody.exception(e)
-    }
-
-    override suspend fun testMock(name: String, test: String): ResultBody<Unit> {
-        val url = "/test/mock"
-        val mockName = "DEFAULT"
-        return this.mockClient.post(url, mockName) {
-            forms {
-                append("name", name)
-                append("test", test)
+    override suspend fun test03(form1: String): ResultBody<TestResponse> = try {
+        this.httpClient.put("${this.ktorfit.baseUrl}/test/test03") {
+            this@TestApiImpl.ktorfit.token?.let { bearerAuth(it()) }
+            contentType(ContentType.MultiPart.FormData)
+            formData {
+                append("form1", form1)
+            } .let {
+                setBody(MultiPartFormDataContent(it))
             }
         }
+        .safeResultBody()
+    } catch (e: Exception) {
+        ResultBody.exception(e)
+    }
+
+    override suspend fun test04(deleteId: Int): ResultBody<TestResponse> = try {
+        this.httpClient.delete("${this.ktorfit.baseUrl}/test/test04/${deleteId}") {
+            this@TestApiImpl.ktorfit.token?.let { bearerAuth(it()) }
+        }
+        .safeResultBody()
+    } catch (e: Exception) {
+        ResultBody.exception(e)
+    }
+
+    override suspend fun test05(form1: String): ByteArray = try {
+        this.httpClient.patch("${this.ktorfit.baseUrl}/test/test05") {
+            contentType(ContentType.MultiPart.FormData)
+            formData {
+                append("form1", form1.encrypt(EncryptType.SHA256, HexType.Lower, 1))
+            } .let {
+                setBody(MultiPartFormDataContent(it))
+            }
+        }
+        .safeByteArray()
+    } catch (_: Exception) {
+        ByteArray(0)
+    }
+
+    override suspend fun test06(name: String): ByteArray = try {
+        this.httpClient.options("${this.ktorfit.baseUrl}/test/${name.encrypt(EncryptType.SHA256,
+                HexType.Lower, 1)}/test06") {
+            this@TestApiImpl.ktorfit.token?.let { bearerAuth(it()) }
+        }
+        .safeByteArray()
+    } catch (_: Exception) {
+        ByteArray(0)
+    }
+
+    override suspend fun test07() {
+        try {
+            this.httpClient.head("${this.ktorfit.baseUrl}/test/test07")
+        } catch (_: Exception) {
+        }
+    }
+
+    override suspend fun test08(): ByteArray? = try {
+        this.httpClient.get("${this.ktorfit.baseUrl}/test/test08").safeByteArrayOrNull()
+    } catch (e: TestException) {
+        with(TestUnitExceptionListener) {
+            TestApi::test08.onExceptionListener(e)
+        }
+        null
+    } catch (_: Exception) {
+        null
+    }
+
+    override suspend fun testMock01(param1: String, param2: String): ResultBody<TestResponse> = try {
+        this.mockClient.get("${this.ktorfit.baseUrl}/test/testMock01", TestMockProvider,
+                MockStatus.SUCCESS, 1000L..2000L) {
+            this@TestApiImpl.ktorfit.token?.let { bearerAuth(it()) }
+            queries {
+                append("param1", param1)
+                append("param2", param2.encrypt(EncryptType.SHA256, HexType.Lower, 1))
+            }
+        }
+    } catch (e: Exception) {
+        ResultBody.exception(e)
+    }
+
+    override suspend fun testMock02(request: TestResponse): ResultBody<TestResponse> = try {
+        this.mockClient.post("${this.ktorfit.baseUrl}/test/testMock02", TestMockProvider,
+                MockStatus.EXCEPTION, 200L..200L) {
+            body(request)
+        }
+    } catch (e: TestException) {
+        with(TestUnitExceptionListener) {
+            TestApi::testMock02.onExceptionListener(e)
+        }
+        ResultBody.exception(e)
+    } catch (e: Exception) {
+        ResultBody.exception(e)
+    }
+
+    override suspend fun testMock03(form1: String): ResultBody<TestResponse> = try {
+        this.mockClient.put("${this.ktorfit.baseUrl}/test/testMock03", TestMockProvider,
+                MockStatus.SUCCESS, 200L..200L) {
+            forms {
+                append("form1", form1)
+            }
+        }
+    } catch (e: Exception) {
+        ResultBody.exception(e)
+    }
+
+    override suspend fun testMock04(deleteId: Int): ResultBody<TestResponse> = try {
+        this.mockClient.delete("${this.ktorfit.baseUrl}/test/testMock04/${deleteId}", TestMockProvider,
+                MockStatus.SUCCESS, 200L..200L)
+    } catch (e: Exception) {
+        ResultBody.exception(e)
     }
 
     public companion object {
         private var instance: TestApi? = null
 
-        public fun getInstance(
-            ktorConfig: KtorConfig,
-            httpClient: HttpClient,
-            mockClient: MockClient,
-        ): TestApi = instance ?: TestApiImpl(ktorConfig, httpClient, mockClient).also {
+        public fun getInstance(ktorClient: Ktorfit<TestApiScope>): TestApi = instance ?:
+                TestApiImpl(ktorClient.ktorfit, ktorClient.httpClient, ktorClient.mockClient).also {
             instance = it
         }
     }
 }
 
-public val KtorClient<TestApiScope>.testApi: TestApi
-    get() = TestApiImpl.getInstance(ktorConfig, httpClient, mockClient)
-
+public val Ktorfit<TestApiScope>.testApi: TestApi
+    get() = TestApiImpl.getInstance(this)
 ```
 
 ### 接口调用方法
 
 ``` kotlin
 /**
- * 配置 ktorClient，通过扩展属性获取实例
+ * 定义 ktorfit
  */
-val ktorClient = KtorClient.builder<TestApiScope>()
-    .domain("http://localhost/api")     // 必须填写，所有请求的前缀
-    .getToken { "<token>" }             // 必须填写，当注解的 auth = true 后会将token附带在请求头上
-    .handleLog { }                      // 默认值：{ }
-    .connectTimeout(5000L)              // 默认值：5000L
-    .socketTimeout(Long.MAX_VALUE)      // 默认值：Long.MAX_VALUE
-    .mocks {
-        group("/testMock/test1") {
-            mock(name = "<MockName>") {
-                mock = success(LoginVO("test"))
-                delay = (1000..2000).mockDelay
-            }
+val testKtorfit by lazy {
+    ktorfit(TestApiScope) {
+        baseUrl = "http://localhost:8080/api"
+        token { "<token>" }
+        log {
+            level = LogLevel.ALL
+            logger = ::println
+        }
+        json {
+            prettyPrint = true
+            prettyPrintIndent = "\t"
         }
     }
-    .build()
-    
+}
+
 /**
- * 使用 DSL 语法
+ * TestApiScope
  */
-val ktorClientDsl = ktorClient<TestApiScope> {
-    domain("http://127.0.0.1/api")      // 必须填写，所有请求的前缀
-    // 或使用分别构建方法
-    domain {
-        host = "127.0.0.1"
-        port = 80
-        safe = false
-        prefix = "/api"
-    }
-    getToken { "<token>" }              // 必须填写，当注解的 auth = true 后会将token附带在请求头上
-    handleLog { }                       // 默认值：{ }
-    connectTimeout(5000L)               // 默认值：5000L
-    socketTimeout(Long.MAX_VALUE)       // 默认值：Long.MAX_VALUE
-    mocks {
-        group("/testMock/test1") {
-            mock(name = "<MockName>") {
-                mock = success(LoginVO("test"))
-                delay = (1000..2000).mockDelay
-            }
-        }
-    }
+object TestApiScope : ApiScope {
+    
+    override val name: String = "测试作用域"
 }
 
 /**
@@ -475,15 +645,11 @@ val ktorClientDsl = ktorClient<TestApiScope> {
 @Composable
 fun Test() {
     val coroutineScope = rememberCoroutineScope()
-    var pageNum by remember { mutableIntStateOf(1) }
     Button(
         onClick = {
             coroutineScope.launch(Dispatchers.IO) {
-                val result = ktorClient.testApi.search(
-                    searchKey = "<搜索内容>",
-                    pageSize = 20,
-                    pageNum = pageNum++
-                )
+                val result = testKtorfit.testApi.test01()
+                println(result.data)
             }
         }
     ) {
