@@ -95,6 +95,7 @@ internal class CodeBlockBuilder(
 		}
 		if (exceptionListenerModels.all { it.exceptionTypeName !in exceptionClassNames }) {
 			nextControlFlow("catch (e: Exception)")
+			addStatement("println(e::class)")
 			buildExceptionReturnCodeBlock()
 		}
 		endControlFlow()

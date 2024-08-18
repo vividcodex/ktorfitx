@@ -23,7 +23,7 @@ interface TestApi {
 	
 	@GET(url = "/test01")
 	@ExceptionListeners(TestResultBodyExceptionListener::class)
-	suspend fun test01(): ResultBody<String>?
+	suspend fun test01(): ResultBody<String>
 	
 	@POST(url = "/test02")
 	@Headers("Content-Type: application/json")

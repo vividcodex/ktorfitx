@@ -2,6 +2,7 @@ package cn.vividcode.multiplatform.ktorfitx.sample.http.handler
 
 import cn.vividcode.multiplatform.ktorfitx.api.exception.ExceptionListener
 import cn.vividcode.multiplatform.ktorfitx.api.model.ResultBody
+import io.ktor.client.plugins.*
 import kotlin.reflect.KFunction
 
 /**
@@ -20,9 +21,10 @@ object TestUnitExceptionListener : ExceptionListener<TestException, Unit> {
 	}
 }
 
-object TestResultBodyExceptionListener : ExceptionListener<Exception, ResultBody<String>> {
+object TestResultBodyExceptionListener : ExceptionListener<ResponseException, ResultBody<String>> {
 	
-	override fun KFunction<*>.onExceptionListener(e: Exception): ResultBody<String> {
+	override fun KFunction<*>.onExceptionListener(e: ResponseException): ResultBody<String> {
+		println("??? : ${e.message}")
 		return ResultBody.exception(e)
 	}
 }

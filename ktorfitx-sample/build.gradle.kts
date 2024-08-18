@@ -49,6 +49,7 @@ kotlin {
 		}
 		commonMain.dependencies {
 			implementation(projects.ktorfitxApi)
+			implementation(libs.kotlin.reflect)
 			implementation(compose.runtime)
 			implementation(compose.foundation)
 			implementation(compose.material)

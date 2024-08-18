@@ -32,7 +32,8 @@ fun App() {
 				Button(
 					onClick = {
 						coroutineScope.launch(Dispatchers.IO) {
-							testKtorfit.testApi.test01()
+							val result = testKtorfit.testApi.test01()
+							println(result)
 						}
 					}
 				) {

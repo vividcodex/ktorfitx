@@ -8,7 +8,7 @@ import io.ktor.http.*
 /**
  * 获取 ResultBody，如果失败返回 ResultBody.failure()
  */
-suspend fun <T : Any> HttpResponse.safeResultBody(): ResultBody<T> {
+suspend inline fun <reified T : Any> HttpResponse.safeResultBody(): ResultBody<T> {
 	return if (this.status.isSuccess()) {
 		this.body()
 	} else {
@@ -19,7 +19,7 @@ suspend fun <T : Any> HttpResponse.safeResultBody(): ResultBody<T> {
 /**
  * 获取 ResultBody，如果失败返回 null
  */
-suspend fun <T : Any> HttpResponse.safeResultBodyOrNull(): ResultBody<T>? {
+suspend inline fun <reified T : Any> HttpResponse.safeResultBodyOrNull(): ResultBody<T>? {
 	return if (this.status.isSuccess()) {
 		this.body()
 	} else null
