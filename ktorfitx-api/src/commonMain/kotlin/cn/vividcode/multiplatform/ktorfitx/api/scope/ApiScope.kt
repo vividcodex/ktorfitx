@@ -16,20 +16,4 @@ interface ApiScope {
 	 */
 	val name: String
 		get() = this::class.simpleName!!
-	
-	/**
-	 * Api 作用域描述，第一次使用打印，可通过配置关闭
-	 */
-	val description: String
-		get() = "这是 ${this::class.simpleName!!}"
-}
-
-/**
- * 默认的 ApiScope
- */
-object DefaultApiScope : ApiScope {
-	
-	override val name: String = "默认的接口作用域"
-	
-	override val description: String = "默认的接口作用域，不建议使用"
 }

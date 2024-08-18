@@ -15,6 +15,4 @@ import cn.vividcode.multiplatform.ktorfitx.annotation.KtorfitDsl
 class ApiScopeConfig internal constructor() {
 	
 	var printName: Boolean = false
-	
-	var printDescription: Boolean = false
 }
