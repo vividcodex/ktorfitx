@@ -11,10 +11,10 @@ plugins {
 	alias(libs.plugins.maven.publish)
 }
 
-val ktorfitVersion = property("ktorfitx.version").toString()
+val ktorfitxVersion = property("ktorfitx.version").toString()
 
 group = "cn.vividcode.multiplatform.ktorfitx.api"
-version = ktorfitVersion
+version = ktorfitxVersion
 
 kotlin {
 	jvmToolchain(21)
@@ -39,7 +39,7 @@ kotlin {
 		iosSimulatorArm64()
 	).forEach { iosTarget ->
 		iosTarget.binaries.framework {
-			baseName = "KtorfitApi"
+			baseName = "KtorfitxApi"
 			isStatic = true
 		}
 	}
@@ -48,6 +48,7 @@ kotlin {
 		commonMain.dependencies {
 			implementation(compose.runtime)
 			implementation(libs.krypto)
+			implementation(libs.kotlin.reflect)
 			api(projects.ktorfitxAnnotation)
 			api(libs.ktor.client.cio)
 			api(libs.ktor.client.serialization)
@@ -70,7 +71,7 @@ android {
 	}
 	
 	defaultConfig {
-		minSdk = 24
+		minSdk = libs.versions.android.minSdk.get().toInt()
 	}
 	packaging {
 		resources {
@@ -96,13 +97,13 @@ mavenPublishing {
 	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 	signAllPublications()
 	
-	coordinates("cn.vividcode.multiplatform", "ktorfit", ktorfitVersion)
+	coordinates("cn.vividcode.multiplatform", "ktorfitx-api", ktorfitxVersion)
 	
 	pom {
-		name.set("ktorfit-api")
-		description.set("Ktorfit：基于Ktor的网络请求框架，自研的Mock机制，充分利用Kotlin语法特性，提供更好的使用体验是我们的宗旨")
+		name.set("ktorfitx-api")
+		description.set("Ktorfitx：基于Ktor的网络请求框架，提供自定义本地Mock，异常处理机制，使用简单")
 		inceptionYear.set("2024")
-		url.set("https://github.com/vividcodex/ktorfit")
+		url.set("https://github.com/vividcodex/ktorfitx")
 		licenses {
 			license {
 				name.set("The Apache License, Version 2.0")
@@ -114,12 +115,12 @@ mavenPublishing {
 			developer {
 				id.set("li-jia-wei")
 				name.set("li-jia-wei")
-				url.set("https://github.com/vividcodex/ktorfit")
+				url.set("https://github.com/vividcodex/ktorfitx")
 			}
 		}
 		
 		scm {
-			url.set("https://github.com/vividcodex/ktorfit")
+			url.set("https://github.com/vividcodex/ktorfitx")
 			connection.set("scm:git:git://github.com/vividcodex/ktorfitx.git")
 			developerConnection.set("scm:git:ssh://git@github.com:vividcodex/ktorfitx.git")
 		}

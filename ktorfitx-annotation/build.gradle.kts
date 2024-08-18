@@ -51,7 +51,7 @@ android {
 	}
 	
 	defaultConfig {
-		minSdk = 24
+		minSdk = libs.versions.android.minSdk.get().toInt()
 	}
 	packaging {
 		resources {

@@ -49,7 +49,6 @@ kotlin {
 		}
 		commonMain.dependencies {
 			implementation(projects.ktorfitxApi)
-			implementation(libs.kotlin.reflect)
 			implementation(compose.runtime)
 			implementation(compose.foundation)
 			implementation(compose.material)
@@ -89,7 +88,7 @@ android {
 		applicationId = "cn.vividcode.multiplatform.config.sample"
 		minSdk = libs.versions.android.minSdk.get().toInt()
 		targetSdk = libs.versions.android.targetSdk.get().toInt()
-		versionCode = 1
+		versionCode = 2
 		versionName = ktorfitxSampleVersion
 	}
 	packaging {
@@ -119,7 +118,7 @@ compose.desktop {
 		mainClass = "cn.vividcode.multiplatform.ktorfitx.sample.MainKt"
 		
 		nativeDistributions {
-			targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+			targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
 			packageName = "cn.vividcode.multiplatform.ktorfitx.sample"
 			packageVersion = ktorfitxSampleVersion
 		}

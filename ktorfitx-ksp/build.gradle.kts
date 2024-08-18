@@ -6,10 +6,10 @@ plugins {
 	alias(libs.plugins.maven.publish)
 }
 
-val ktorfitVersion = property("ktorfitx.version").toString()
+val ktorfitxVersion = property("ktorfitx.version").toString()
 
 group = "cn.vividcode.multiplatform.ktorfitx.ksp"
-version = ktorfitVersion
+version = ktorfitxVersion
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_21
@@ -42,13 +42,13 @@ mavenPublishing {
 	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 	signAllPublications()
 	
-	coordinates("cn.vividcode.multiplatform", "ktorfit-ksp", ktorfitVersion)
+	coordinates("cn.vividcode.multiplatform", "ktorfitx-ksp", ktorfitxVersion)
 	
 	pom {
-		name.set("ktorfit-ksp")
-		description.set("Ktorfit：基于Ktor的网络请求框架，自研的Mock机制，充分利用Kotlin语法特性，提供更好的使用体验是我们的宗旨")
+		name.set("ktorfitx-ksp")
+		description.set("Ktorfitx：基于Ktor的网络请求框架，提供自定义本地Mock，异常处理机制，使用简单")
 		inceptionYear.set("2024")
-		url.set("https://github.com/vividcodex/ktorfit")
+		url.set("https://github.com/vividcodex/ktorfitx")
 		licenses {
 			license {
 				name.set("The Apache License, Version 2.0")
@@ -60,12 +60,12 @@ mavenPublishing {
 			developer {
 				id.set("li-jia-wei")
 				name.set("li-jia-wei")
-				url.set("https://github.com/vividcodex/ktorfit")
+				url.set("https://github.com/vividcodex/ktorfitx")
 			}
 		}
 		
 		scm {
-			url.set("https://gitlab.com/vividcodex/ktorfit")
+			url.set("https://gitlab.com/vividcodex/ktorfitx")
 			connection.set("scm:git:git://github.com/vividcodex/ktorfitx.git")
 			developerConnection.set("scm:git:ssh://git@github.com:vividcodex/ktorfitx.git")
 		}
