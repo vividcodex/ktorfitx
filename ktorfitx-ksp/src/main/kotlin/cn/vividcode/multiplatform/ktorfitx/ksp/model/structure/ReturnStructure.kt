@@ -1,6 +1,7 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.model.structure
 
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.classNames
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.rawType
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
@@ -25,4 +26,14 @@ internal data class ReturnStructure(
 			else -> error("不支持的返回类型 $typeName")
 		}
 	}
+	
+	val rawType by lazy { this.typeName.rawType }
+	
+	val notNullRawType by lazy {
+		if (rawType.isNullable) {
+			this.rawType.copy(nullable = false)
+		} else this.rawType
+	}
+	
+	val isNullable by lazy { this.typeName.isNullable }
 }

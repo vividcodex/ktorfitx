@@ -35,7 +35,7 @@ internal object ParameterModelResolver {
 			val varName = it.name!!.asString()
 			it.checkAnnotations(funName, varName)
 			varName.checkVarName(funName)
-			val typeName = it.type.resolve().toTypeName()
+			val typeName = it.type.toTypeName()
 			ParameterModel(varName, typeName)
 		}
 	}

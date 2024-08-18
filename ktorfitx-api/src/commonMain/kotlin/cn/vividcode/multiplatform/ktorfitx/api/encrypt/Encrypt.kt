@@ -2,22 +2,15 @@ package cn.vividcode.multiplatform.ktorfitx.api.encrypt
 
 import cn.vividcode.multiplatform.ktorfitx.api.encrypt.HexType.Lower
 import cn.vividcode.multiplatform.ktorfitx.api.encrypt.HexType.Upper
-import cn.vividcode.multiplatform.ktorfitx.api.mock.MockRequestBuilder
-import io.ktor.client.request.*
 import korlibs.crypto.*
 import korlibs.crypto.encoding.hexLower
 import korlibs.crypto.encoding.hexUpper
 
-@Suppress("UnusedReceiverParameter")
-fun HttpRequestBuilder.encrypt(content: String, encryptType: EncryptType, hexType: HexType, layer: Int): String {
-	return (0..<layer).fold(content.encodeToByteArray()) { acc, _ ->
-		encryptType.factory.digest(acc).bytes
-	}.toHex(hexType)
-}
-
-@Suppress("UnusedReceiverParameter")
-fun MockRequestBuilder.encrypt(content: String, encryptType: EncryptType, hexType: HexType, layer: Int): String {
-	return (0..<layer).fold(content.encodeToByteArray()) { acc, _ ->
+/**
+ * String 加密工具
+ */
+fun String.encrypt(encryptType: EncryptType, hexType: HexType, layer: Int): String {
+	return (0 ..< layer).fold(this.encodeToByteArray()) { acc, _ ->
 		encryptType.factory.digest(acc).bytes
 	}.toHex(hexType)
 }

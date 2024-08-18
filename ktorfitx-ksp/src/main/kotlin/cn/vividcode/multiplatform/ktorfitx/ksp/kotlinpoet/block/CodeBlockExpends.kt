@@ -6,5 +6,5 @@ internal fun String.encryptVarName(encryptInfo: EncryptInfo?): String {
 	if (encryptInfo == null) return this
 	UseImports.addImports("cn.vividcode.multiplatform.ktorfitx.api.encrypt", "EncryptType", "HexType", "encrypt")
 	val (encryptType, hexType, layer) = encryptInfo
-	return "encrypt($this, EncryptType.$encryptType, HexType.$hexType, $layer)"
+	return "$this.encrypt(EncryptType.$encryptType, HexType.$hexType, $layer)"
 }

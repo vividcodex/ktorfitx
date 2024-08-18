@@ -3,7 +3,6 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.visitor
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassName
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.rawType
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ApiStructure
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ClassStructure
@@ -111,7 +110,7 @@ internal class ApiVisitor(
 	 * 获取 ReturnStructure
 	 */
 	private fun KSFunctionDeclaration.getReturnStructure(): ReturnStructure {
-		val typeName = returnType!!.resolve().toTypeName()
+		val typeName = this.returnType!!.toTypeName()
 		return when (typeName) {
 			is ClassName -> ReturnStructure(typeName)
 			is ParameterizedTypeName -> {
@@ -133,7 +132,7 @@ internal class ApiVisitor(
 	 * 检查 ReturnStructure 合法
 	 */
 	private fun ReturnStructure.checkLegal(): ReturnStructure {
-		check(typeName.rawType.copy(nullable = false) in ReturnTypes.returnTypes) {
+		check(this.notNullRawType in ReturnTypes.returnTypes) {
 			"$typeName 不支持的类型"
 		}
 		return this

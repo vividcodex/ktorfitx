@@ -2,6 +2,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
 
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.*
+import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ReturnStructure
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 
@@ -16,7 +17,7 @@ import com.squareup.kotlinpoet.CodeBlock
  */
 internal class HttpClientCodeBlock(
 	private val className: ClassName,
-	private val returnRawType: ClassName,
+	private val returnStructure: ReturnStructure
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
@@ -31,7 +32,7 @@ internal class HttpClientCodeBlock(
 			beginControlFlow(httpClientCode)
 			builder()
 			endControlFlow()
-			if (returnRawType != ReturnTypes.unitClassName) {
+			if (returnStructure.rawType != ReturnTypes.unitClassName) {
 				addStatement(returnFunName)
 			}
 		} else {
@@ -41,67 +42,20 @@ internal class HttpClientCodeBlock(
 	
 	private val returnFunName: String
 		get() {
-			var funName = when (returnRawType.copy(nullable = false)) {
+			var funName = when (returnStructure.notNullRawType) {
 				ReturnTypes.unitClassName -> null
 				ReturnTypes.resultBodyClassName -> "safeResultBody"
 				ReturnTypes.byteArrayClassName -> "safeByteArray"
 				else -> null
 			}
 			if (funName != null) {
-				if (returnRawType.isNullable) {
+				if (returnStructure.isNullable) {
 					funName += "OrNull"
 				}
 				UseImports.addImports("cn.vividcode.multiplatform.ktorfitx.api.expends", funName)
 			}
 			return funName?.let { ".$funName()" } ?: ""
 		}
-	
-	fun CodeBlock.Builder.buildClientCodeBlock2(
-		funName: String,
-		fullUrl: String,
-		isNeedClientBuilder: Boolean,
-		builder: CodeBlock.Builder.() -> Unit
-	) {
-		UseImports.addImports("io.ktor.client.request", funName)
-		if (returnRawType == ReturnTypes.unitClassName) {
-			if (isNeedClientBuilder) {
-				beginControlFlow("this.httpClient.$funName(\"\${this.ktorfit.baseUrl}$fullUrl\")")
-				builder()
-				endControlFlow()
-			} else {
-				addStatement("this.httpClient.$funName(\"\${this.ktorfit.baseUrl}$fullUrl\")")
-			}
-		} else {
-			if (isNeedClientBuilder) {
-				beginControlFlow("this.httpClient.$funName(\"\${this.ktorfit.baseUrl}$fullUrl\")")
-				builder()
-				nextControlFlow(".let")
-			} else {
-				beginControlFlow("this.httpClient.$funName(\"\${this.ktorfit.baseUrl}$fullUrl\").let")
-			}
-			UseImports.addImports("io.ktor.http", "isSuccess")
-			beginControlFlow("if (it.status.isSuccess())")
-			if (returnRawType == ReturnTypes.byteArrayClassName) {
-				UseImports.addImports("io.ktor.client.statement", "readBytes")
-				addStatement("it.readBytes()")
-			} else {
-				UseImports.addImports("io.ktor.client.call", "body")
-				addStatement("it.body()")
-			}
-			nextControlFlow("else")
-			if (returnRawType.isNullable) {
-				addStatement("null")
-			} else if (returnRawType == ReturnTypes.byteArrayClassName) {
-				addStatement("ByteArray(0)")
-			} else {
-				UseImports += ReturnTypes.resultBodyClassName
-				UseImports.addImports("cn.vividcode.multiplatform.ktorfitx.api.model", "ResultBody")
-				addStatement("ResultBody.failure(it.status.value, it.status.description)")
-			}
-			endControlFlow()
-			endControlFlow()
-		}
-	}
 	
 	override fun CodeBlock.Builder.buildBearerAuthCodeBlock() {
 		UseImports.addImports("io.ktor.client.request", "bearerAuth")

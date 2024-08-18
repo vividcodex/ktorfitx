@@ -1,6 +1,5 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
 
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.rawType
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.simpleName
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.*
@@ -77,7 +76,7 @@ internal class CodeBlockBuilder(
 	private fun CodeBlock.Builder.buildExceptionCodeBlock(
 		builder: CodeBlock.Builder.() -> Unit
 	) {
-		beginControlFlow(if (returnStructure.typeName != ReturnTypes.unitClassName) "return try" else "try")
+		beginControlFlow(if (returnStructure.rawType != ReturnTypes.unitClassName) "return try" else "try")
 		builder()
 		val exceptionListenerModels = functionModels.filterIsInstance<ExceptionListenerModel>()
 		exceptionListenerModels.forEach {
@@ -94,20 +93,22 @@ internal class CodeBlockBuilder(
 			}
 		}
 		if (exceptionListenerModels.all { it.exceptionTypeName !in exceptionClassNames }) {
-			nextControlFlow("catch (e: Exception)")
-			addStatement("println(e::class)")
+			if (returnStructure.rawType == ReturnTypes.resultBodyClassName) {
+				nextControlFlow("catch (e: Exception)")
+			} else {
+				nextControlFlow("catch (_: Exception)")
+			}
 			buildExceptionReturnCodeBlock()
 		}
 		endControlFlow()
 	}
 	
 	private fun CodeBlock.Builder.buildExceptionReturnCodeBlock() {
-		val returnType = returnStructure.typeName.rawType
-		if (returnType.isNullable) {
+		if (returnStructure.isNullable) {
 			addStatement("null")
 			return
 		}
-		when (returnType.rawType) {
+		when (returnStructure.rawType) {
 			ReturnTypes.resultBodyClassName -> {
 				addStatement("ResultBody.exception(e)")
 			}
@@ -121,8 +122,7 @@ internal class CodeBlockBuilder(
 	private fun getClientCodeBlock(): ClientCodeBlock {
 		return when (this.codeBlockKClass) {
 			HttpClientCodeBlock::class -> {
-				val returnRawType = returnStructure.typeName.rawType
-				HttpClientCodeBlock(classStructure.className, returnRawType)
+				HttpClientCodeBlock(classStructure.className, returnStructure)
 			}
 			
 			MockClientCodeBlock::class -> {

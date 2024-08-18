@@ -51,8 +51,10 @@ interface TestApi {
 	): ByteArray
 	
 	@BearerAuth
-	@OPTIONS(url = "/test06")
-	suspend fun test06()
+	@OPTIONS(url = "/{name}/test06")
+	suspend fun test06(
+		@Path @Encrypt name: String
+	): ByteArray
 	
 	@HEAD(url = "/test07")
 	suspend fun test07()

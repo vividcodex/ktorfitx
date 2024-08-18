@@ -25,7 +25,7 @@ internal object EncryptInfoResolver {
 	
 	fun KSValueParameter.resolve(funName: String, varName: String): EncryptInfo? {
 		val annotation = this.getKSAnnotationByType(encryptClassName) ?: return null
-		val typeName = this.type.resolve().toTypeName()
+		val typeName = this.type.toTypeName()
 		check(!typeName.isNullable && typeName == String::class.asClassName()) {
 			"$funName 方法的 $varName 参数使用了 @Encrypt 注解，所以类型必须是 String 类型，而你使用了 ${typeName.simpleName} 类型"
 		}
