@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Mock(
-	val mockProvider: KClass<out MockProvider<*>>,
+	val provider: KClass<out MockProvider<*>>,
 	val status: MockStatus = MockStatus.SUCCESS,
 	val delayRange: LongArray = [200L]
 )

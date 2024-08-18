@@ -29,9 +29,9 @@ internal object MockModelResolver {
 	
 	fun KSFunctionDeclaration.resolve(resolver: Resolver): MockModel? {
 		val annotation = getKSAnnotationByType(mockClassName) ?: return null
-		val mockProviderClassName = annotation.getClassName("mockProvider")!!
+		val mockProviderClassName = annotation.getClassName("provider")!!
 		check(mockProviderClassName != this@MockModelResolver.mockProviderClassName) {
-			"${this.simpleName.asString()} 的 @Mock 注解的参数 mockProvider 不能使用 MockProvider::class"
+			"${this.simpleName.asString()} 的 @Mock 注解的参数 provider 不能使用 MockProvider::class，请继承 MockProvider 并且类型为 object 的实现"
 		}
 		resolver.getClassDeclarationByName(mockProviderClassName.canonicalName)!!.also {
 			check(it.classKind == ClassKind.OBJECT) {
