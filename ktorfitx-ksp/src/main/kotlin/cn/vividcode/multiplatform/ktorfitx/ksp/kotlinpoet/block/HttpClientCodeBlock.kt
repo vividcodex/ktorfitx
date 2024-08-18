@@ -15,10 +15,48 @@ import com.squareup.kotlinpoet.CodeBlock
  * 文件介绍：HttpClientCodeBlock
  */
 internal class HttpClientCodeBlock(
+	private val className: ClassName,
 	private val returnRawType: ClassName,
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
+		funName: String,
+		fullUrl: String,
+		hasBuilder: Boolean,
+		builder: CodeBlock.Builder.() -> Unit
+	) {
+		UseImports.addImports("io.ktor.client.request", funName)
+		val httpClientCode = "this.httpClient.$funName(\"\${this.ktorfit.baseUrl}$fullUrl\")"
+		if (hasBuilder) {
+			beginControlFlow(httpClientCode)
+			builder()
+			endControlFlow()
+			if (returnRawType != ReturnTypes.unitClassName) {
+				addStatement(returnFunName)
+			}
+		} else {
+			addStatement(httpClientCode + returnFunName)
+		}
+	}
+	
+	private val returnFunName: String
+		get() {
+			var funName = when (returnRawType.copy(nullable = false)) {
+				ReturnTypes.unitClassName -> null
+				ReturnTypes.resultBodyClassName -> "safeResultBody"
+				ReturnTypes.byteArrayClassName -> "safeByteArray"
+				else -> null
+			}
+			if (funName != null) {
+				if (returnRawType.isNullable) {
+					funName += "OrNull"
+				}
+				UseImports.addImports("cn.vividcode.multiplatform.ktorfitx.api.expends", funName)
+			}
+			return funName?.let { ".$funName()" } ?: ""
+		}
+	
+	fun CodeBlock.Builder.buildClientCodeBlock2(
 		funName: String,
 		fullUrl: String,
 		isNeedClientBuilder: Boolean,
@@ -57,6 +95,7 @@ internal class HttpClientCodeBlock(
 				addStatement("ByteArray(0)")
 			} else {
 				UseImports += ReturnTypes.resultBodyClassName
+				UseImports.addImports("cn.vividcode.multiplatform.ktorfitx.api.model", "ResultBody")
 				addStatement("ResultBody.failure(it.status.value, it.status.description)")
 			}
 			endControlFlow()
@@ -66,7 +105,7 @@ internal class HttpClientCodeBlock(
 	
 	override fun CodeBlock.Builder.buildBearerAuthCodeBlock() {
 		UseImports.addImports("io.ktor.client.request", "bearerAuth")
-		addStatement("ktorfit.token?.let { bearerAuth(it()) }")
+		addStatement("this@${className.simpleName}.ktorfit.token?.let { bearerAuth(it()) }")
 	}
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(

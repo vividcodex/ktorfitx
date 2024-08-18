@@ -121,12 +121,12 @@ internal class CodeBlockBuilder(
 		return when (this.codeBlockKClass) {
 			HttpClientCodeBlock::class -> {
 				val returnRawType = returnStructure.typeName.rawType
-				HttpClientCodeBlock(returnRawType)
+				HttpClientCodeBlock(classStructure.className, returnRawType)
 			}
 			
 			MockClientCodeBlock::class -> {
 				val mockModel = funStructure.functionModels.first { it is MockModel } as MockModel
-				MockClientCodeBlock(mockModel)
+				MockClientCodeBlock(classStructure.className, mockModel)
 			}
 			
 			else -> error("不支持的类型")

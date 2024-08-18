@@ -20,9 +20,12 @@ internal object ReturnTypes {
 	
 	val resultBodyClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.api.model", "ResultBody")
 	
+	val stringClassName = String::class.asClassName()
+	
 	val returnTypes = arrayOf(
 		unitClassName,
 		byteArrayClassName,
-		resultBodyClassName
+		resultBodyClassName,
+		stringClassName
 	)
 }

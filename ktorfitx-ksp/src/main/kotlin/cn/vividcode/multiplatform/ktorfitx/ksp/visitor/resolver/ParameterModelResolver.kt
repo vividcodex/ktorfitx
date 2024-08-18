@@ -1,5 +1,7 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isLowerCamelCase
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.lowerCamelCase
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ParameterModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
@@ -29,33 +31,36 @@ internal object ParameterModelResolver {
 	
 	fun KSFunctionDeclaration.resolves(): List<ParameterModel> {
 		return this.parameters.map {
-			it.checkAnnotations(this.simpleName.asString())
+			val funName = this.simpleName.asString()
 			val varName = it.name!!.asString()
+			it.checkAnnotations(funName, varName)
+			varName.checkVarName(funName)
 			val typeName = it.type.resolve().toTypeName()
 			ParameterModel(varName, typeName)
 		}
 	}
 	
-	private fun KSValueParameter.checkAnnotations(funName: String) {
+	private fun KSValueParameter.checkAnnotations(funName: String, varName: String) {
 		val annotations = this.annotations.mapNotNull {
 			val qualifiedName = it.annotationType.resolve().declaration.qualifiedName?.asString()
 			if (qualifiedName in annotationQualifiedNames) qualifiedName else null
 		}.toMutableSet()
 		check(annotations.isNotEmpty()) {
-			"$funName 方法的 ${this.name!!.asString()} 参数未使用任何注解"
+			"$funName 方法的 $varName 参数未使用任何注解"
 		}
 		annotations.remove(ENCRYPT_QUALIFIED_NAME)
 		check(annotations.isNotEmpty()) {
-			"$funName 方法的 ${this.name!!.asString()} 参数不允许只使用 @Encrypt 注解"
+			"$funName 方法的 $varName 参数不允许只使用 @Encrypt 注解"
 		}
 		check(annotations.size == 1) {
-			"$funName 方法的 ${this.name!!.asString()} 参数不允许同时使用 ${annotations.getUseAnnotations()} 注解"
+			val useAnnotations = annotations.joinToString { "@${it.substringAfterLast(".")}" }
+			"$funName 方法的 $varName 参数不允许同时使用 $useAnnotations 注解"
 		}
 	}
 	
-	private fun Set<String>.getUseAnnotations(): String {
-		return this.map {
-			"@${it.substringAfterLast(".")}"
-		}.joinToString()
+	private fun String.checkVarName(funName: String) {
+		check(this.isLowerCamelCase()) {
+			"$funName 方法的 $this 参数不符合小驼峰命名规则，建议修改为 ${this.lowerCamelCase()}"
+		}
 	}
 }

@@ -20,7 +20,7 @@ internal sealed interface ClientCodeBlock {
 	fun CodeBlock.Builder.buildClientCodeBlock(
 		funName: String,
 		fullUrl: String,
-		isNeedClientBuilder: Boolean,
+		hasBuilder: Boolean,
 		builder: CodeBlock.Builder.() -> Unit
 	)
 	

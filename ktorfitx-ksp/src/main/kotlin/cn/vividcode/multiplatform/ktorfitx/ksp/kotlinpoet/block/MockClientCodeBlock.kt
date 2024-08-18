@@ -1,6 +1,7 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
 
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.*
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 
 /**
@@ -13,13 +14,14 @@ import com.squareup.kotlinpoet.CodeBlock
  * 文件介绍：MockClientCodeBlock
  */
 internal class MockClientCodeBlock(
+	private val className: ClassName,
 	private val mockModel: MockModel
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
 		funName: String,
 		fullUrl: String,
-		isNeedClientBuilder: Boolean,
+		hasBuilder: Boolean,
 		builder: CodeBlock.Builder.() -> Unit
 	) {
 		UseImports += mockModel.provider
@@ -31,7 +33,7 @@ internal class MockClientCodeBlock(
 		val rightRound = mockModel.delayRange.let { if (it.size == 1) it[0] else it[1] }
 		val delayRange = "${leftRound}L..${rightRound}L"
 		val mockClientCode = "this.mockClient.$funName($url, $provider, $status, $delayRange)"
-		if (isNeedClientBuilder) {
+		if (hasBuilder) {
 			beginControlFlow(mockClientCode)
 			builder()
 			endControlFlow()
@@ -41,7 +43,7 @@ internal class MockClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildBearerAuthCodeBlock() {
-		addStatement("ktorfit.token?.let { bearerAuth(it()) }")
+		addStatement("this@${className.simpleName}.ktorfit.token?.let { bearerAuth(it()) }")
 	}
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(

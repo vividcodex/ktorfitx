@@ -29,7 +29,7 @@ interface TestApi {
 	@Headers("Content-Type: application/json")
 	@ExceptionListeners(TestUnitExceptionListener::class)
 	suspend fun test02(
-		@Body request: TestRequest,
+		@Body testRequest: TestRequest,
 		@Header testHeader: String
 	): ResultBody<TestResponse>
 	
