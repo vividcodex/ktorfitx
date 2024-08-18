@@ -12,6 +12,7 @@ plugins {
 }
 
 val ktorfitxVersion = property("ktorfitx.version").toString()
+val ktorfitxAutomaticRelease = property("ktorfitx.automaticRelease").toString().toBoolean()
 
 group = "cn.vividcode.multiplatform.ktorfitx.api"
 version = ktorfitxVersion
@@ -93,8 +94,16 @@ android {
 	}
 }
 
+fun checkVersion() {
+	val size = ktorfitxVersion.split("-").size
+	check((ktorfitxAutomaticRelease && size == 2) || (!ktorfitxAutomaticRelease && size == 3)) {
+		"ktorfitx 的 version 是 $ktorfitxVersion，但是 automaticRelease 是 $ktorfitxAutomaticRelease 的"
+	}
+}
+
 mavenPublishing {
-	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+	checkVersion()
+	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, ktorfitxAutomaticRelease)
 	signAllPublications()
 	
 	coordinates("cn.vividcode.multiplatform", "ktorfitx-api", ktorfitxVersion)
