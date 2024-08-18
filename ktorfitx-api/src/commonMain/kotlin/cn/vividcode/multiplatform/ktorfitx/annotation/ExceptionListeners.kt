@@ -10,10 +10,10 @@ import kotlin.reflect.KClass
  *
  * 创建日期：2024/8/13 14:38
  *
- * 文件介绍：Exception
+ * 文件介绍：ExceptionListeners
  */
-@DslMarker
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.SOURCE)
 annotation class ExceptionListeners(
 	val listener: KClass<out ExceptionListener<*, *>>,
 	vararg val listeners: KClass<out ExceptionListener<*, *>>
