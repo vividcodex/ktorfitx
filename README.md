@@ -1,4 +1,4 @@
-# Ktorfitx 2.3.12-1.4.0
+# Ktorfitx 2.3.12-1.4.1
 
 ## 更新时间
 
@@ -6,11 +6,11 @@
 
 ## 版本说明
 
-Kotlin `2.0.10`
+Kotlin `2.0.20`
 
 Ktor `2.3.12`
 
-KSP `2.0.10-1.0.24`
+KSP `2.0.20-1.0.25`
 
 ## 项目迁移
 
@@ -55,7 +55,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val version = "2.3.12-1.4.0"
+val version = "2.3.12-1.4.1"
 
 kotlin {
     sourceSets {
@@ -318,6 +318,27 @@ annotation class Encrypt(
 /**
  * TestApi
  */
+package cn.vividcode.multiplatform.ktorfitx.sample.http.api
+
+import cn.vividcode.multiplatform.ktorfitx.annotation.*
+import cn.vividcode.multiplatform.ktorfitx.api.mock.MockStatus
+import cn.vividcode.multiplatform.ktorfitx.api.model.ResultBody
+import cn.vividcode.multiplatform.ktorfitx.sample.http.TestApiScope
+import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestResultBodyExceptionListener
+import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestUnitExceptionListener
+import cn.vividcode.multiplatform.ktorfitx.sample.http.mock.ResultBodyMockProvider
+import cn.vividcode.multiplatform.ktorfitx.sample.http.mock.StringMockProvider
+import kotlinx.serialization.Serializable
+
+/**
+ * 项目名称：vividcode-multiplatform-ktorfit
+ *
+ * 作者昵称：li-jia-wei
+ *
+ * 创建日期：2024/8/4 23:09
+ *
+ * 文件介绍：TestApi
+ */
 @Api(url = "/test", apiScope = TestApiScope::class)
 interface TestApi {
     
@@ -330,13 +351,13 @@ interface TestApi {
     @ExceptionListeners(TestUnitExceptionListener::class)
     suspend fun test02(
         @Body testRequest: TestRequest,
-        @Header testHeader: String
+        @Header testHeader: String,
     ): ResultBody<TestResponse>
     
     @BearerAuth
     @PUT(url = "/test03")
     suspend fun test03(
-        @Form form1: String
+        @Form form1: String,
     ): ResultBody<TestResponse>
     
     @BearerAuth
@@ -347,13 +368,13 @@ interface TestApi {
     
     @PATCH(url = "/test05")
     suspend fun test05(
-        @Form @Encrypt form1: String
+        @Form @Encrypt form1: String,
     ): ByteArray
     
     @BearerAuth
     @OPTIONS(url = "/{name}/test06")
     suspend fun test06(
-        @Path @Encrypt name: String
+        @Path @Encrypt name: String,
     ): ByteArray
     
     @HEAD(url = "/test07")
@@ -363,55 +384,63 @@ interface TestApi {
     @GET(url = "/test08")
     suspend fun test08(): ByteArray?
     
+    @GET(url = "/test09")
+    suspend fun test09(): String
+    
+    @POST(url = "/test10")
+    suspend fun test10(): String?
+    
     @BearerAuth
-    @Mock(TestMockProvider::class, MockStatus.SUCCESS, delayRange = [1000, 2000])
+    @Mock(ResultBodyMockProvider::class, MockStatus.SUCCESS, delayRange = [1000, 2000])
     @GET(url = "/testMock01")
     suspend fun testMock01(
         @Query param1: String,
         @Query @Encrypt param2: String,
     ): ResultBody<TestResponse>
     
-    @Mock(TestMockProvider::class, MockStatus.EXCEPTION)
+    @Mock(ResultBodyMockProvider::class, MockStatus.EXCEPTION)
     @ExceptionListeners(TestUnitExceptionListener::class)
     @POST(url = "/testMock02")
     suspend fun testMock02(
         @Body request: TestResponse,
     ): ResultBody<TestResponse>
     
-    @Mock(TestMockProvider::class)
+    @Mock(ResultBodyMockProvider::class)
     @PUT(url = "/testMock03")
     suspend fun testMock03(
-        @Form form1: String
+        @Form form1: String,
     ): ResultBody<TestResponse>
     
-    @Mock(TestMockProvider::class)
+    @Mock(ResultBodyMockProvider::class)
     @DELETE(url = "/testMock04/{deleteId}")
     suspend fun testMock04(
         @Path deleteId: Int,
     ): ResultBody<TestResponse>
+    
+    @Mock(StringMockProvider::class)
+    @GET(url = "/testMock05")
+    suspend fun testMock05(): String
+    
+    @Mock(StringMockProvider::class)
+    @GET(url = "/testMock06")
+    suspend fun testMock06(): String?
 }
 
-/**
- * TestRequest
- */
 @Serializable
 data class TestRequest(
     val param1: String,
-    val param2: String
+    val param2: String,
 )
 
-/**
- * TestResponse
- */
 @Serializable
 data class TestResponse(
-    val param1: String
+    val param1: String,
 )
 
 /**
- * TestMockProvider
+ * ResultBodyMockProvider
  */
-object TestMockProvider : MockProvider<ResultBody<TestResponse>> {
+object ResultBodyMockProvider : MockProvider<ResultBody<TestResponse>> {
     
     override fun provide(status: MockStatus): ResultBody<TestResponse> {
         return when (status) {
@@ -419,6 +448,16 @@ object TestMockProvider : MockProvider<ResultBody<TestResponse>> {
             MockStatus.FAILURE -> ResultBody.failure(-1, "测试Mock 操作失败")
             MockStatus.EXCEPTION -> throw TestException()
         }
+    }
+}
+
+/**
+ * StringMockProvider
+ */
+object StringMockProvider : MockProvider<String> {
+    
+    override fun provide(status: MockStatus): String {
+        return status.toString()
     }
 }
 
@@ -520,7 +559,7 @@ public class TestApiImpl private constructor(
         }
         .safeByteArray()
     } catch (_: Exception) {
-        ByteArray(0)
+        EmptyByteArray
     }
 
     override suspend fun test06(name: String): ByteArray = try {
@@ -530,7 +569,7 @@ public class TestApiImpl private constructor(
         }
         .safeByteArray()
     } catch (_: Exception) {
-        ByteArray(0)
+        EmptyByteArray
     }
 
     override suspend fun test07() {
@@ -551,8 +590,20 @@ public class TestApiImpl private constructor(
         null
     }
 
+    override suspend fun test09(): String = try {
+        this.httpClient.get("${this.ktorfit.baseUrl}/test/test09").safeText()
+    } catch (_: Exception) {
+        ""
+    }
+
+    override suspend fun test10(): String? = try {
+        this.httpClient.post("${this.ktorfit.baseUrl}/test/test10").safeTextOrNull()
+    } catch (_: Exception) {
+        null
+    }
+
     override suspend fun testMock01(param1: String, param2: String): ResultBody<TestResponse> = try {
-        this.mockClient.get("${this.ktorfit.baseUrl}/test/testMock01", TestMockProvider,
+        this.mockClient.get("${this.ktorfit.baseUrl}/test/testMock01", ResultBodyMockProvider,
                 MockStatus.SUCCESS, 1000L..2000L) {
             this@TestApiImpl.ktorfit.token?.let { bearerAuth(it()) }
             queries {
@@ -565,7 +616,7 @@ public class TestApiImpl private constructor(
     }
 
     override suspend fun testMock02(request: TestResponse): ResultBody<TestResponse> = try {
-        this.mockClient.post("${this.ktorfit.baseUrl}/test/testMock02", TestMockProvider,
+        this.mockClient.post("${this.ktorfit.baseUrl}/test/testMock02", ResultBodyMockProvider,
                 MockStatus.EXCEPTION, 200L..200L) {
             body(request)
         }
@@ -579,7 +630,7 @@ public class TestApiImpl private constructor(
     }
 
     override suspend fun testMock03(form1: String): ResultBody<TestResponse> = try {
-        this.mockClient.put("${this.ktorfit.baseUrl}/test/testMock03", TestMockProvider,
+        this.mockClient.put("${this.ktorfit.baseUrl}/test/testMock03", ResultBodyMockProvider,
                 MockStatus.SUCCESS, 200L..200L) {
             forms {
                 append("form1", form1)
@@ -590,10 +641,24 @@ public class TestApiImpl private constructor(
     }
 
     override suspend fun testMock04(deleteId: Int): ResultBody<TestResponse> = try {
-        this.mockClient.delete("${this.ktorfit.baseUrl}/test/testMock04/${deleteId}", TestMockProvider,
-                MockStatus.SUCCESS, 200L..200L)
+        this.mockClient.delete("${this.ktorfit.baseUrl}/test/testMock04/${deleteId}",
+                ResultBodyMockProvider, MockStatus.SUCCESS, 200L..200L)
     } catch (e: Exception) {
         ResultBody.exception(e)
+    }
+
+    override suspend fun testMock05(): String = try {
+        this.mockClient.get("${this.ktorfit.baseUrl}/test/testMock05", StringMockProvider,
+                MockStatus.SUCCESS, 200L..200L)
+    } catch (_: Exception) {
+        ""
+    }
+
+    override suspend fun testMock06(): String? = try {
+        this.mockClient.get("${this.ktorfit.baseUrl}/test/testMock06", StringMockProvider,
+                MockStatus.SUCCESS, 200L..200L)
+    } catch (_: Exception) {
+        null
     }
 
     public companion object {
