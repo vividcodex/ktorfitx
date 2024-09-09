@@ -90,7 +90,7 @@ android {
 		targetCompatibility = JavaVersion.VERSION_21
 	}
 	composeOptions {
-		kotlinCompilerExtensionVersion = property("compose.kotlinCompilerVersion").toString()
+		kotlinCompilerExtensionVersion = libs.versions.compose.kotlin.compiler.get()
 	}
 }
 

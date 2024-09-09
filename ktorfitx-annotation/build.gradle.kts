@@ -73,7 +73,7 @@ android {
 		targetCompatibility = JavaVersion.VERSION_21
 	}
 	composeOptions {
-		kotlinCompilerExtensionVersion = property("compose.kotlinCompilerVersion").toString()
+		kotlinCompilerExtensionVersion = libs.versions.compose.kotlin.compiler.get()
 	}
 }
 
@@ -89,7 +89,7 @@ mavenPublishing {
 	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, ktorfitxAutomaticRelease)
 	signAllPublications()
 	
-	coordinates("cn.vividcode.multiplatform", "ktorfitx-api", ktorfitxVersion)
+	coordinates("cn.vividcode.multiplatform", "ktorfitx-annotation", ktorfitxVersion)
 	
 	pom {
 		name.set("ktorfitx-api")
