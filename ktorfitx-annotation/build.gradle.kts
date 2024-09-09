@@ -1,15 +1,19 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
 	alias(libs.plugins.android.library)
+	alias(libs.plugins.maven.publish)
 }
 
 val ktorfitxVersion = property("ktorfitx.version").toString()
+val ktorfitxAutomaticRelease = property("ktorfitx.automaticRelease").toString().toBoolean()
 
 group = "cn.vividcode.multiplatform.ktorfitx.annotation"
 version = ktorfitxVersion
+
 
 kotlin {
 	jvmToolchain(21)
@@ -70,5 +74,47 @@ android {
 	}
 	composeOptions {
 		kotlinCompilerExtensionVersion = property("compose.kotlinCompilerVersion").toString()
+	}
+}
+
+fun checkVersion() {
+	val size = ktorfitxVersion.split("-").size
+	check((ktorfitxAutomaticRelease && size == 2) || (!ktorfitxAutomaticRelease && size == 3)) {
+		"ktorfitx 的 version 是 $ktorfitxVersion，但是 automaticRelease 是 $ktorfitxAutomaticRelease 的"
+	}
+}
+
+mavenPublishing {
+	checkVersion()
+	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, ktorfitxAutomaticRelease)
+	signAllPublications()
+	
+	coordinates("cn.vividcode.multiplatform", "ktorfitx-api", ktorfitxVersion)
+	
+	pom {
+		name.set("ktorfitx-api")
+		description.set("Ktorfitx：基于Ktor的网络请求框架，提供自定义本地Mock，异常处理机制，使用简单")
+		inceptionYear.set("2024")
+		url.set("https://github.com/vividcodex/ktorfitx")
+		licenses {
+			license {
+				name.set("The Apache License, Version 2.0")
+				url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+				distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+			}
+		}
+		developers {
+			developer {
+				id.set("li-jia-wei")
+				name.set("li-jia-wei")
+				url.set("https://github.com/vividcodex/ktorfitx")
+			}
+		}
+		
+		scm {
+			url.set("https://github.com/vividcodex/ktorfitx")
+			connection.set("scm:git:git://github.com/vividcodex/ktorfitx.git")
+			developerConnection.set("scm:git:ssh://git@github.com:vividcodex/ktorfitx.git")
+		}
 	}
 }

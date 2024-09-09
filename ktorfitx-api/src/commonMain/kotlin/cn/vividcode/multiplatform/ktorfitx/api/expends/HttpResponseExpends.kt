@@ -61,4 +61,4 @@ suspend fun HttpResponse.safeTextOrNull(): String? {
 	} else null
 }
 
-private val EmptyByteArray by lazy { ByteArray(0) }
+val EmptyByteArray by lazy { ByteArray(0) }

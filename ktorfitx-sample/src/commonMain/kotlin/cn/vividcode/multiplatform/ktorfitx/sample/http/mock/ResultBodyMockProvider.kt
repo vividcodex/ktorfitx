@@ -16,7 +16,7 @@ import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestException
  *
  * 文件介绍：TestMockProvider
  */
-object TestMockProvider : MockProvider<ResultBody<TestResponse>> {
+object ResultBodyMockProvider : MockProvider<ResultBody<TestResponse>> {
 	
 	override fun provide(status: MockStatus): ResultBody<TestResponse> {
 		return when (status) {

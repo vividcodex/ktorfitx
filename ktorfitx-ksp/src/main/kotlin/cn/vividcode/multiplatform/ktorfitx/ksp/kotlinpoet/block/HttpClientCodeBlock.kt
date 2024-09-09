@@ -17,14 +17,14 @@ import com.squareup.kotlinpoet.CodeBlock
  */
 internal class HttpClientCodeBlock(
 	private val className: ClassName,
-	private val returnStructure: ReturnStructure
+	private val returnStructure: ReturnStructure,
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
 		funName: String,
 		fullUrl: String,
 		hasBuilder: Boolean,
-		builder: CodeBlock.Builder.() -> Unit
+		builder: CodeBlock.Builder.() -> Unit,
 	) {
 		UseImports.addImports("io.ktor.client.request", funName)
 		val httpClientCode = "this.httpClient.$funName(\"\${this.ktorfit.baseUrl}$fullUrl\")"
@@ -46,6 +46,7 @@ internal class HttpClientCodeBlock(
 				ReturnTypes.unitClassName -> null
 				ReturnTypes.resultBodyClassName -> "safeResultBody"
 				ReturnTypes.byteArrayClassName -> "safeByteArray"
+				ReturnTypes.stringClassName -> "safeText"
 				else -> null
 			}
 			if (funName != null) {
@@ -64,7 +65,7 @@ internal class HttpClientCodeBlock(
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(
 		headersModel: HeadersModel?,
-		headerModels: List<HeaderModel>
+		headerModels: List<HeaderModel>,
 	) {
 		UseImports.addImports("io.ktor.client.request", "headers")
 		beginControlFlow("headers")

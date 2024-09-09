@@ -9,7 +9,7 @@ package cn.vividcode.multiplatform.ktorfitx.api.mock
  *
  * 文件介绍：MockProvider
  */
-interface MockProvider<out Mock : Any> {
+interface MockProvider<out Mock : Any?> {
 	
 	fun provide(status: MockStatus): Mock
 }

@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
 internal class CodeBlockBuilder(
 	private val classStructure: ClassStructure,
 	private val funStructure: FunStructure,
-	private val codeBlockKClass: KClass<out ClientCodeBlock>
+	private val codeBlockKClass: KClass<out ClientCodeBlock>,
 ) {
 	
 	private val returnStructure = funStructure.returnStructure
@@ -33,6 +33,8 @@ internal class CodeBlockBuilder(
 			ClassName.bestGuess("kotlin.Exception"),
 			ClassName.bestGuess("java.lang.Exception"),
 		)
+		
+		private val EmptyByteArrayClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.api.expends", "EmptyByteArray")
 	}
 	
 	fun CodeBlock.Builder.buildCodeBlock() = with(getClientCodeBlock()) {
@@ -74,7 +76,7 @@ internal class CodeBlockBuilder(
 	}
 	
 	private fun CodeBlock.Builder.buildExceptionCodeBlock(
-		builder: CodeBlock.Builder.() -> Unit
+		builder: CodeBlock.Builder.() -> Unit,
 	) {
 		beginControlFlow(if (returnStructure.rawType != ReturnTypes.unitClassName) "return try" else "try")
 		builder()
@@ -114,7 +116,12 @@ internal class CodeBlockBuilder(
 			}
 			
 			ReturnTypes.byteArrayClassName -> {
-				addStatement("ByteArray(0)")
+				UseImports += EmptyByteArrayClassName
+				addStatement("EmptyByteArray")
+			}
+			
+			ReturnTypes.stringClassName -> {
+				addStatement("\"\"")
 			}
 		}
 	}
@@ -163,7 +170,6 @@ internal class CodeBlockBuilder(
 	}
 	
 	private fun isNeedClientBuilder(): Boolean {
-		return valueParameterModels.any { it !is PathModel } ||
-			functionModels.any { it is BearerAuthModel || it is HeadersModel }
+		return valueParameterModels.any { it !is PathModel } || functionModels.any { it is BearerAuthModel || it is HeadersModel }
 	}
 }
