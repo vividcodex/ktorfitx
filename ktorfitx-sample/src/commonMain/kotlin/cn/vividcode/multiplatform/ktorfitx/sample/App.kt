@@ -9,8 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import cn.vividcode.multiplatform.ktorfitx.sample.http.api.impl.testApi
 import cn.vividcode.multiplatform.ktorfitx.sample.http.testKtorfit
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -31,7 +29,7 @@ fun App() {
 			) {
 				Button(
 					onClick = {
-						coroutineScope.launch(Dispatchers.IO) {
+						coroutineScope.launch {
 							val result = testKtorfit.testApi.test01()
 							println(result)
 						}
