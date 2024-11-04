@@ -21,7 +21,7 @@ class KtorfitConfig internal constructor() {
 	var token: (() -> String)? = null
 		private set
 	
-	internal var endpoint: EndpointConfig? = null
+	internal var timeout: TimeoutConfig? = null
 		private set
 	
 	internal var log: LogConfig? = null
@@ -37,8 +37,8 @@ class KtorfitConfig internal constructor() {
 		this.token = token
 	}
 	
-	fun endpoint(config: EndpointConfig.() -> Unit) {
-		this.endpoint = EndpointConfig().apply(config)
+	fun timeout(config: TimeoutConfig.() -> Unit) {
+		this.timeout = TimeoutConfig().apply(config)
 	}
 	
 	fun log(config: LogConfig.() -> Unit) {
@@ -56,7 +56,7 @@ class KtorfitConfig internal constructor() {
 	fun <AS : ApiScope> build(apiScope: AS): Ktorfit<AS> {
 		check(baseUrl.isNotBlank()) { "请设置 baseUrl" }
 		this.token = this.token ?: { "" }
-		this.endpoint = this.endpoint ?: EndpointConfig()
+		this.timeout = this.timeout ?: TimeoutConfig()
 		this.log = this.log ?: LogConfig()
 		this.json = this.json ?: JsonConfig()
 		this.apiScope = this.apiScope ?: ApiScopeConfig()

@@ -1,48 +1,32 @@
-# Ktorfitx 2.3.12-1.4.1
+# Ktorfitx 3.0.1-2.0.0
 
 ## 更新时间
 
-### 2024-08-18
+### 2024-11-04
 
 ## 版本说明
 
-Kotlin `2.0.20`
+Kotlin `2.0.21`
 
-Ktor `2.3.12`
+Ktor `3.0.1`
 
-KSP `2.0.20-1.0.25`
+KSP `2.0.21-1.0.26`
 
-## 项目迁移
+## 支持平台
 
-项目包名更改为：cn.vividcode.multiplatform.ktorfitx
-
-依赖迁移：
-
-`2.3.12-1.3.2` 及以前使用的是
-
-``` kotlin
-cn.vividcode.multiplatform:ktor-client-api
-cn.vividcode.multiplatform:ktor-client-ksp
-```
-
-`2.3.12-1.4.0` 及以后使用的是
-
-``` kotlin
-cn.vividcode.multiplatform:ktorfitx-api
-cn.vividcode.multiplatform:ktorfitx-ksp
-```
+Android, IOS, Desktop, WasmJs
 
 ## 依赖说明
 
 模块中已经包含了以下依赖，不需要额外重新添加
 
 ``` kotlin
-io.ktor:ktor-client-core:2.3.12
-io.ktor:ktor-client-logging:2.3.12
-io.ktor:ktor-client-cio:2.3.12
-io.ktor:ktor-client-serialization:2.3.12
-io.ktor:ktor-client-content-negotiation:2.3.12
-io.ktor:ktor-serialization-kotlinx-json:2.3.12
+io.ktor:ktor-client-core:$ktorVersion
+io.ktor:ktor-client-logging:$ktorVersion
+io.ktor:ktor-client-cio:$ktorVersion
+io.ktor:ktor-client-serialization:$ktorVersion
+io.ktor:ktor-client-content-negotiation:$ktorVersion
+io.ktor:ktor-serialization-kotlinx-json:$ktorVersion
 ```
 
 ## 使用方法
@@ -55,12 +39,12 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val version = "2.3.12-1.4.1"
+val ktorVersion = "3.0.1-2.0.0"
 
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktorfitx-api:$version") 
+            implementation("cn.vividcode.multiplatform:ktorfitx-api:$ktorVersion") 
         }
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -69,7 +53,7 @@ kotlin {
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.vividcode.multiplatform:ktorfitx-ksp:$version")
+    kspCommonMainMetadata("cn.vividcode.multiplatform:ktorfitx-ksp:$ktorVersion")
 }
 
 tasks.withType<KotlinCompile<*>>().all {

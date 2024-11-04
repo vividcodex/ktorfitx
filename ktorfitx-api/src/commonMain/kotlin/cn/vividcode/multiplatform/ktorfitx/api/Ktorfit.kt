@@ -5,7 +5,7 @@ import cn.vividcode.multiplatform.ktorfitx.api.mock.MockClient
 import cn.vividcode.multiplatform.ktorfitx.api.scope.ApiScope
 import cn.vividcode.multiplatform.ktorfitx.api.scope.DefaultApiScope
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.plugins.logging.*
@@ -25,7 +25,7 @@ import kotlinx.serialization.json.Json
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class Ktorfit<AS : ApiScope> internal constructor(
 	val ktorfit: KtorfitConfig,
-	private val apiScope: AS
+	private val apiScope: AS,
 ) {
 	
 	@OptIn(ExperimentalSerializationApi::class)
@@ -39,7 +39,7 @@ class Ktorfit<AS : ApiScope> internal constructor(
 	 * HttpClient
 	 */
 	val httpClient: HttpClient by lazy {
-		HttpClient(CIO) {
+		HttpClient(HttpClientEngineFactory) {
 			install(Logging) {
 				this.logger = KtorfitLogger()
 				this.level = ktorfit.log!!.level
@@ -48,16 +48,11 @@ class Ktorfit<AS : ApiScope> internal constructor(
 				json(globalJson)
 			}
 			install(HttpCookies)
-			engine {
-				endpoint {
-					ktorfit.endpoint!!.let {
-						this.maxConnectionsPerRoute = it.maxConnectionsPerRoute
-						this.keepAliveTime = it.keepAliveTime
-						this.pipelineMaxSize = it.pipelineMaxSize
-						this.connectTimeout = it.connectTimeout
-						this.socketTimeout = it.socketTimeout
-						this.connectAttempts = it.connectAttempts
-					}
+			install(HttpTimeout) {
+				ktorfit.timeout?.let {
+					connectTimeoutMillis = it.connectTimeoutMillis
+					requestTimeoutMillis = it.requestTimeoutMillis
+					socketTimeoutMillis = it.socketTimeoutMillis
 				}
 			}
 		}
@@ -86,7 +81,7 @@ class Ktorfit<AS : ApiScope> internal constructor(
  * ktorfit
  */
 fun ktorfit(
-	config: KtorfitConfig.() -> Unit
+	config: KtorfitConfig.() -> Unit,
 ): Ktorfit<DefaultApiScope> = KtorfitConfig()
 	.apply(config)
 	.build(DefaultApiScope)
@@ -96,7 +91,7 @@ fun ktorfit(
  */
 fun <AS : ApiScope> ktorfit(
 	apiScope: AS,
-	config: KtorfitConfig.() -> Unit
+	config: KtorfitConfig.() -> Unit,
 ): Ktorfit<AS> = KtorfitConfig()
 	.apply(config)
 	.build(apiScope)

@@ -3,21 +3,22 @@ android-compileSdk = "34"
 android-minSdk = "24"
 android-targetSdk = "34"
 compose-kotlin-compiler = "1.5.13"
-kotlin = "2.0.20"
+kotlin = "2.0.21"
 agp = "8.5.2"
-ktor = "2.3.12"
+ktor = "3.0.1"
 krypto = "4.0.10"
-ksp = "2.0.20-1.0.25"
-kotlinpoet-ksp = "1.18.1"
-maven-publish = "0.29.0"
-compose-plugin = "1.6.11"
-androidx-activity-compose = "1.9.2"
+ksp = "2.0.21-1.0.26"
+kotlinpoet-ksp = "2.0.0"
+maven-publish = "0.30.0"
+compose-plugin = "1.7.0"
+androidx-activity-compose = "1.9.3"
 
 [libraries]
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
-ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { group = "io.ktor", name = "ktor-client-darwin", version.ref = "ktor" }
 ktor-client-serialization = { group = "io.ktor", name = "ktor-client-serialization", version.ref = "ktor" }
 ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }

@@ -1,6 +1,8 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
@@ -45,18 +47,46 @@ kotlin {
 		}
 	}
 	
+	@OptIn(ExperimentalWasmDsl::class)
+	wasmJs {
+		moduleName = "ktorfitxApi"
+		browser {
+			val rootDirPath = project.rootDir.path
+			val projectDirPath = project.projectDir.path
+			commonWebpackConfig {
+				outputFileName = "ktorfitxApi.js"
+				devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+					static = (static ?: mutableListOf()).apply {
+						add(rootDirPath)
+						add(projectDirPath)
+					}
+				}
+			}
+		}
+		binaries.executable()
+	}
+	
 	sourceSets {
 		commonMain.dependencies {
 			implementation(compose.runtime)
 			implementation(libs.krypto)
 			implementation(libs.kotlin.reflect)
 			api(projects.ktorfitxAnnotation)
-			api(libs.ktor.client.cio)
 			api(libs.ktor.client.serialization)
 			api(libs.ktor.client.content.negotiation)
 			api(libs.ktor.serialization.kotlinx.json)
 			api(libs.ktor.client.logging)
 			api(libs.ktor.client.core)
+		}
+		androidMain.dependencies {
+			api(libs.ktor.client.okhttp)
+		}
+		val desktopMain by getting
+		desktopMain.dependencies {
+			api(libs.ktor.client.okhttp)
+		}
+		iosMain.dependencies {
+			api(libs.ktor.client.darwin)
 		}
 	}
 }

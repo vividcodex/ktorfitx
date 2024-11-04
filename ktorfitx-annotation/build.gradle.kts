@@ -1,6 +1,8 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
@@ -41,6 +43,25 @@ kotlin {
 			baseName = "KtorfitxAnnotation"
 			isStatic = true
 		}
+	}
+	
+	@OptIn(ExperimentalWasmDsl::class)
+	wasmJs {
+		moduleName = "ktorfitxAnnotation"
+		browser {
+			val rootDirPath = project.rootDir.path
+			val projectDirPath = project.projectDir.path
+			commonWebpackConfig {
+				outputFileName = "ktorfitxAnnotation.js"
+				devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+					static = (static ?: mutableListOf()).apply {
+						add(rootDirPath)
+						add(projectDirPath)
+					}
+				}
+			}
+		}
+		binaries.executable()
 	}
 }
 
