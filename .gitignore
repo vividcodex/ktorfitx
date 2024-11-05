@@ -46,3 +46,4 @@ gradle.properties
 .idea
 /.run
 /.kotlin
+/local.properties
