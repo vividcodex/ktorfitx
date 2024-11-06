@@ -2,7 +2,7 @@
 
 ## 更新时间
 
-### 2024-11-04
+### 2024-11-07
 
 ## 版本说明
 
@@ -11,6 +11,10 @@ Kotlin `2.0.21`
 Ktor `3.0.1`
 
 KSP `2.0.21-1.0.26`
+
+## 详细文档地址
+
+> http://vividcodex.github.io/ktorfitx-document/starter.html
 
 ## 支持平台
 
