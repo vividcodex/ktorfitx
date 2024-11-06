@@ -23,14 +23,14 @@ kotlin {
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
-	
+
 	jvm("desktop") {
 		@OptIn(ExperimentalKotlinGradlePluginApi::class)
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
-	
+
 	listOf(
 		iosX64(),
 		iosArm64(),
@@ -41,7 +41,7 @@ kotlin {
 			isStatic = true
 		}
 	}
-	
+
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
 		moduleName = "sampleApp"
@@ -60,10 +60,10 @@ kotlin {
 		}
 		binaries.executable()
 	}
-	
+
 	sourceSets {
 		val desktopMain by getting
-		
+
 		androidMain.dependencies {
 			implementation(compose.preview)
 			implementation(libs.androidx.activity.compose)
@@ -72,7 +72,7 @@ kotlin {
 			implementation(projects.ktorfitxApi)
 			implementation(compose.runtime)
 			implementation(compose.foundation)
-			implementation(compose.material)
+			implementation(compose.material3)
 			implementation(compose.ui)
 			implementation(compose.components.resources)
 			implementation(compose.components.uiToolingPreview)
@@ -80,7 +80,7 @@ kotlin {
 		desktopMain.dependencies {
 			implementation(compose.desktop.currentOs)
 		}
-		
+
 		commonMain {
 			kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
 		}
@@ -100,11 +100,11 @@ tasks.withType<KotlinCompilationTask<*>>().all {
 android {
 	namespace = "cn.vividcode.multiplatform.config.sample"
 	compileSdk = libs.versions.android.compileSdk.get().toInt()
-	
+
 	sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 	sourceSets["main"].res.srcDirs("src/androidMain/res")
 	sourceSets["main"].resources.srcDirs("src/commonMain/resources")
-	
+
 	defaultConfig {
 		applicationId = "cn.vividcode.multiplatform.config.sample"
 		minSdk = libs.versions.android.minSdk.get().toInt()
@@ -137,7 +137,7 @@ android {
 compose.desktop {
 	application {
 		mainClass = "cn.vividcode.multiplatform.ktorfitx.sample.MainKt"
-		
+
 		nativeDistributions {
 			targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
 			packageName = "cn.vividcode.multiplatform.ktorfitx.sample"
