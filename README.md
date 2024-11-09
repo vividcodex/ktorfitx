@@ -18,7 +18,7 @@ KSP `2.0.21-1.0.26`
 
 ## 支持平台
 
-Android, IOS, Desktop, WasmJs
+Android, IOS, Desktop (JVM), WasmJs
 
 ## 依赖说明
 
@@ -27,7 +27,8 @@ Android, IOS, Desktop, WasmJs
 ``` kotlin
 io.ktor:ktor-client-core:$ktorVersion
 io.ktor:ktor-client-logging:$ktorVersion
-io.ktor:ktor-client-cio:$ktorVersion
+io.ktor:ktor-client-okhttp:$ktorVersion
+io.ktor:ktor-client-darwin:$ktorVersion
 io.ktor:ktor-client-serialization:$ktorVersion
 io.ktor:ktor-client-content-negotiation:$ktorVersion
 io.ktor:ktor-serialization-kotlinx-json:$ktorVersion
