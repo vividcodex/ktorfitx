@@ -30,7 +30,7 @@ suspend inline fun <reified T : Any> HttpResponse.safeResultBodyOrNull(): Result
  */
 suspend fun HttpResponse.safeByteArray(): ByteArray {
 	return if (this.status.isSuccess()) {
-		this.readBytes()
+		this.readRawBytes()
 	} else EmptyByteArray
 }
 
@@ -39,7 +39,7 @@ suspend fun HttpResponse.safeByteArray(): ByteArray {
  */
 suspend fun HttpResponse.safeByteArrayOrNull(): ByteArray? {
 	return if (this.status.isSuccess()) {
-		this.readBytes()
+		this.readRawBytes()
 	} else null
 }
 

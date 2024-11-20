@@ -2,6 +2,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isHttpOrHttps
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.RequestMethod
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ApiModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -41,6 +42,7 @@ internal object ApiModelResolver {
 	}
 	
 	private fun formatUrl(url: String, funName: String): String {
+		if (url.isHttpOrHttps()) return url
 		check(urlRegex.matches(url)) {
 			"$funName 的 url 参数格式数据"
 		}

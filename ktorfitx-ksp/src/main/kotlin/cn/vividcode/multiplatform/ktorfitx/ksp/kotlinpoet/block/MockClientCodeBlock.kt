@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isHttpOrHttps
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -15,24 +16,24 @@ import com.squareup.kotlinpoet.CodeBlock
  */
 internal class MockClientCodeBlock(
 	private val className: ClassName,
-	private val mockModel: MockModel
+	private val mockModel: MockModel,
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
 		funName: String,
 		fullUrl: String,
 		hasBuilder: Boolean,
-		builder: CodeBlock.Builder.() -> Unit
+		builder: CodeBlock.Builder.() -> Unit,
 	) {
 		UseImports += mockModel.provider
 		UseImports.addImports(mockModel.status.packageName, mockModel.status.simpleNames.first())
-		val url = "\"\${this.ktorfit.baseUrl}$fullUrl\""
+		val buildUrl = if (fullUrl.isHttpOrHttps()) fullUrl else "\${this.ktorfit.baseUrl}$fullUrl"
 		val provider = mockModel.provider.simpleName
 		val status = "MockStatus.${mockModel.status.simpleName}"
 		val leftRound = mockModel.delayRange[0]
 		val rightRound = mockModel.delayRange.let { if (it.size == 1) it[0] else it[1] }
 		val delayRange = "${leftRound}L..${rightRound}L"
-		val mockClientCode = "this.mockClient.$funName($url, $provider, $status, $delayRange)"
+		val mockClientCode = "this.mockClient.$funName(\"$buildUrl\", $provider, $status, $delayRange)"
 		if (hasBuilder) {
 			beginControlFlow(mockClientCode)
 			builder()
@@ -48,7 +49,7 @@ internal class MockClientCodeBlock(
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(
 		headersModel: HeadersModel?,
-		headerModels: List<HeaderModel>
+		headerModels: List<HeaderModel>,
 	) {
 		beginControlFlow("headers")
 		headersModel?.headerMap?.forEach { (name, value) ->
@@ -62,7 +63,7 @@ internal class MockClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildQueriesCodeBlock(
-		queryModels: List<QueryModel>
+		queryModels: List<QueryModel>,
 	) {
 		beginControlFlow("queries")
 		queryModels.forEach {
@@ -73,7 +74,7 @@ internal class MockClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildFormsCodeBlock(
-		formModels: List<FormModel>
+		formModels: List<FormModel>,
 	) {
 		beginControlFlow("forms")
 		formModels.forEach {
@@ -84,7 +85,7 @@ internal class MockClientCodeBlock(
 	}
 	
 	fun CodeBlock.Builder.buildPathsCodeBlock(
-		pathModels: List<PathModel>
+		pathModels: List<PathModel>,
 	) {
 		beginControlFlow("paths")
 		pathModels.forEach {

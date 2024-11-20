@@ -67,3 +67,10 @@ internal fun String.replaceFirstToLowercase(): String {
 internal fun String.replaceFirstToUppercase(): String {
 	return this.replaceFirstChar { it.uppercaseChar() }
 }
+
+/**
+ * 是否开头是http或https
+ */
+internal fun String.isHttpOrHttps(): Boolean {
+	return this.startsWith("http://") || this.startsWith("https://")
+}

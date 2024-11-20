@@ -2,7 +2,9 @@ package cn.vividcode.multiplatform.ktorfitx.sample
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -11,12 +13,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cn.vividcode.multiplatform.ktorfitx.api.model.ResultBody
 import cn.vividcode.multiplatform.ktorfitx.sample.http.api.impl.testApi
 import cn.vividcode.multiplatform.ktorfitx.sample.http.testKtorfit
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -32,7 +31,7 @@ fun App() {
 				modifier = Modifier.fillMaxSize(),
 				horizontalAlignment = Alignment.CenterHorizontally
 			) {
-				var result: ResultBody<String>? by remember { mutableStateOf(null) }
+				var result: String? by remember { mutableStateOf(null) }
 				Spacer(modifier = Modifier.height(40.dp))
 				Button(
 					onClick = {
@@ -44,11 +43,9 @@ fun App() {
 					Text("功能测试按钮")
 				}
 				Spacer(modifier = Modifier.height(24.dp))
-				val json = Json {
-					prettyPrint = true
-				}
+				val scrollState = rememberScrollState()
 				Text(
-					text = if (result != null) json.encodeToString(result) else "",
+					text = result ?: "",
 					modifier = Modifier
 						.width(400.dp)
 						.height(400.dp)
@@ -56,7 +53,12 @@ fun App() {
 							color = MaterialTheme.colorScheme.surfaceContainer,
 							shape = RoundedCornerShape(8.dp)
 						)
-						.padding(16.dp),
+						.padding(vertical = 8.dp)
+						.verticalScroll(scrollState)
+						.padding(
+							horizontal = 16.dp,
+							vertical = 8.dp
+						),
 					color = MaterialTheme.colorScheme.onSurface
 				)
 			}

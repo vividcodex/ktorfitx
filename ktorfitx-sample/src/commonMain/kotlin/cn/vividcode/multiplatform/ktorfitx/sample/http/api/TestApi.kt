@@ -22,9 +22,9 @@ import kotlinx.serialization.Serializable
 @Api(url = "/test", apiScope = TestApiScope::class)
 interface TestApi {
 	
-	@GET(url = "/test01")
+	@GET(url = "https://www.baidu.com")
 	@ExceptionListeners(TestResultBodyExceptionListener::class)
-	suspend fun test01(): ResultBody<String>
+	suspend fun test01(): String
 	
 	@POST(url = "/test02")
 	@Headers("Content-Type: application/json")

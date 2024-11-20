@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isHttpOrHttps
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.simpleName
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.*
@@ -143,7 +144,8 @@ internal class CodeBlockBuilder(
 	
 	private fun parseToFullUrl(url: String): String {
 		val pathModels = valueParameterModels.filterIsInstance<PathModel>()
-		val fullUrl = pathModels.fold(classStructure.apiStructure.url + url) { acc, it ->
+		val initialUrl = if (url.isHttpOrHttps()) url else classStructure.apiStructure.url + url
+		val fullUrl = pathModels.fold(initialUrl) { acc, it ->
 			check(it.name.isNotBlank()) {
 				"${funStructure.funName} 方法的 ${it.varName} 参数上的 @Path 注解的 name 不能为空"
 			}
