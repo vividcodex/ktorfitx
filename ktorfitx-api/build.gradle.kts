@@ -119,9 +119,6 @@ android {
 		sourceCompatibility = JavaVersion.VERSION_21
 		targetCompatibility = JavaVersion.VERSION_21
 	}
-	composeOptions {
-		kotlinCompilerExtensionVersion = libs.versions.compose.kotlin.compiler.get()
-	}
 }
 
 fun checkVersion() {

@@ -16,7 +16,6 @@ val ktorfitxAutomaticRelease = property("ktorfitx.automaticRelease").toString().
 group = "cn.vividcode.multiplatform.ktorfitx.annotation"
 version = ktorfitxVersion
 
-
 kotlin {
 	jvmToolchain(21)
 	
@@ -92,9 +91,6 @@ android {
 	compileOptions {
 		sourceCompatibility = JavaVersion.VERSION_21
 		targetCompatibility = JavaVersion.VERSION_21
-	}
-	composeOptions {
-		kotlinCompilerExtensionVersion = libs.versions.compose.kotlin.compiler.get()
 	}
 }
 
