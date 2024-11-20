@@ -1,4 +1,4 @@
-# Ktorfitx 3.0.1-2.0.1
+# Ktorfitx 3.0.1-2.0.2
 
 ## 更新时间
 
@@ -12,7 +12,7 @@ Ktor `3.0.1`
 
 KSP `2.0.21-1.0.28`
 
-## 详细文档地址
+## 详细文档地址（设计中）
 
 > http://vividcodex.github.io/ktorfitx-document/index_md.html
 
@@ -44,7 +44,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val ktorVersion = "3.0.1-2.0.0"
+val ktorVersion = "3.0.1-2.0.2"
 
 kotlin {
     sourceSets {
@@ -461,7 +461,7 @@ object TestResultBodyExceptionListener : ExceptionListener<Exception, String> {
 class TestException : Exception("TestExceptionListener 异常测试")
 ```
 
-### 构建后会生成实现类以及扩展调用属性
+### 构建后会生成实现类以及扩展调用属性，对应的包会自动导入
 
 ``` kotlin
 public class TestApiImpl private constructor(
@@ -469,16 +469,15 @@ public class TestApiImpl private constructor(
     private val httpClient: HttpClient,
     private val mockClient: MockClient,
 ) : TestApi {
-    override suspend fun test01(): ResultBody<String> = try {
-        this.httpClient.get("${this.ktorfit.baseUrl}/test/test01").safeResultBody()
+    override suspend fun test01(): String = try {
+        this.httpClient.get("https://www.baidu.com").safeText()
     } catch (e: Exception) {
         with(TestResultBodyExceptionListener) {
             TestApi::test01.onExceptionListener(e)
         }
     }
 
-    override suspend fun test02(testRequest: TestRequest, testHeader: String): ResultBody<TestResponse>
-            = try {
+    override suspend fun test02(testRequest: TestRequest, testHeader: String): ResultBody<TestResponse> = try {
         this.httpClient.post("${this.ktorfit.baseUrl}/test/test02") {
             headers {
                 append("Content-Type", "application/json")
@@ -525,7 +524,7 @@ public class TestApiImpl private constructor(
         this.httpClient.patch("${this.ktorfit.baseUrl}/test/test05") {
             contentType(ContentType.MultiPart.FormData)
             formData {
-                append("form1", form1.encrypt(EncryptType.SHA256, HexType.Lower, 1))
+                append("form1", form1)
             } .let {
                 setBody(MultiPartFormDataContent(it))
             }
@@ -536,8 +535,7 @@ public class TestApiImpl private constructor(
     }
 
     override suspend fun test06(name: String): ByteArray = try {
-        this.httpClient.options("${this.ktorfit.baseUrl}/test/${name.encrypt(EncryptType.SHA256,
-                HexType.Lower, 1)}/test06") {
+        this.httpClient.options("${this.ktorfit.baseUrl}/test/${name}/test06") {
             this@TestApiImpl.ktorfit.token?.let { bearerAuth(it()) }
         }
         .safeByteArray()
@@ -576,12 +574,11 @@ public class TestApiImpl private constructor(
     }
 
     override suspend fun testMock01(param1: String, param2: String): ResultBody<TestResponse> = try {
-        this.mockClient.get("${this.ktorfit.baseUrl}/test/testMock01", ResultBodyMockProvider,
-                MockStatus.SUCCESS, 1000L..2000L) {
+        this.mockClient.get("${this.ktorfit.baseUrl}/test/testMock01", ResultBodyMockProvider, MockStatus.SUCCESS, 1000L..2000L) {
             this@TestApiImpl.ktorfit.token?.let { bearerAuth(it()) }
             queries {
                 append("param1", param1)
-                append("param2", param2.encrypt(EncryptType.SHA256, HexType.Lower, 1))
+                append("param2", param2)
             }
         }
     } catch (e: Exception) {
@@ -589,8 +586,7 @@ public class TestApiImpl private constructor(
     }
 
     override suspend fun testMock02(request: TestResponse): ResultBody<TestResponse> = try {
-        this.mockClient.post("${this.ktorfit.baseUrl}/test/testMock02", ResultBodyMockProvider,
-                MockStatus.EXCEPTION, 200L..200L) {
+        this.mockClient.post("${this.ktorfit.baseUrl}/test/testMock02", ResultBodyMockProvider, MockStatus.EXCEPTION, 200L..200L) {
             body(request)
         }
     } catch (e: TestException) {
@@ -603,8 +599,7 @@ public class TestApiImpl private constructor(
     }
 
     override suspend fun testMock03(form1: String): ResultBody<TestResponse> = try {
-        this.mockClient.put("${this.ktorfit.baseUrl}/test/testMock03", ResultBodyMockProvider,
-                MockStatus.SUCCESS, 200L..200L) {
+        this.mockClient.put("${this.ktorfit.baseUrl}/test/testMock03", ResultBodyMockProvider, MockStatus.SUCCESS, 200L..200L) {
             forms {
                 append("form1", form1)
             }
@@ -614,22 +609,19 @@ public class TestApiImpl private constructor(
     }
 
     override suspend fun testMock04(deleteId: Int): ResultBody<TestResponse> = try {
-        this.mockClient.delete("${this.ktorfit.baseUrl}/test/testMock04/${deleteId}",
-                ResultBodyMockProvider, MockStatus.SUCCESS, 200L..200L)
+        this.mockClient.delete("${this.ktorfit.baseUrl}/test/testMock04/${deleteId}", ResultBodyMockProvider, MockStatus.SUCCESS, 200L..200L)
     } catch (e: Exception) {
         ResultBody.exception(e)
     }
 
     override suspend fun testMock05(): String = try {
-        this.mockClient.get("${this.ktorfit.baseUrl}/test/testMock05", StringMockProvider,
-                MockStatus.SUCCESS, 200L..200L)
+        this.mockClient.get("${this.ktorfit.baseUrl}/test/testMock05", StringMockProvider, MockStatus.SUCCESS, 200L..200L)
     } catch (_: Exception) {
         ""
     }
 
     override suspend fun testMock06(): String? = try {
-        this.mockClient.get("${this.ktorfit.baseUrl}/test/testMock06", StringMockProvider,
-                MockStatus.SUCCESS, 200L..200L)
+        this.mockClient.get("${this.ktorfit.baseUrl}/test/testMock06", StringMockProvider, MockStatus.SUCCESS, 200L..200L)
     } catch (_: Exception) {
         null
     }
@@ -637,8 +629,7 @@ public class TestApiImpl private constructor(
     public companion object {
         private var instance: TestApi? = null
 
-        public fun getInstance(ktorClient: Ktorfit<TestApiScope>): TestApi = instance ?:
-                TestApiImpl(ktorClient.ktorfit, ktorClient.httpClient, ktorClient.mockClient).also {
+        public fun getInstance(ktorClient: Ktorfit<TestApiScope>): TestApi = instance ?: TestApiImpl(ktorClient.ktorfit, ktorClient.httpClient, ktorClient.mockClient).also {
             instance = it
         }
     }
@@ -646,6 +637,7 @@ public class TestApiImpl private constructor(
 
 public val Ktorfit<TestApiScope>.testApi: TestApi
     get() = TestApiImpl.getInstance(this)
+
 ```
 
 ### 接口调用方法
