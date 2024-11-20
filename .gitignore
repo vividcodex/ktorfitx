@@ -47,3 +47,4 @@ gradle.properties
 /.run
 /.kotlin
 /local.properties
+/kotlin-js-store
