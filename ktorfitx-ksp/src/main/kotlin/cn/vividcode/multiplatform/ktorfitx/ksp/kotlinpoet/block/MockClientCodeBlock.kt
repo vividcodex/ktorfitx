@@ -56,8 +56,7 @@ internal class MockClientCodeBlock(
 			addStatement("append(\"$name\", \"$value\"")
 		}
 		headerModels.forEach {
-			val varName = it.varName.encryptVarName(it.encryptInfo)
-			addStatement("append(\"${it.name}\", $varName)")
+			addStatement("append(\"${it.name}\", ${it.varName})")
 		}
 		endControlFlow()
 	}
@@ -67,8 +66,7 @@ internal class MockClientCodeBlock(
 	) {
 		beginControlFlow("queries")
 		queryModels.forEach {
-			val varName = it.varName.encryptVarName(it.encryptInfo)
-			addStatement("append(\"${it.name}\", $varName)")
+			addStatement("append(\"${it.name}\", ${it.varName})")
 		}
 		endControlFlow()
 	}
@@ -78,8 +76,7 @@ internal class MockClientCodeBlock(
 	) {
 		beginControlFlow("forms")
 		formModels.forEach {
-			val varName = it.varName.encryptVarName(it.encryptInfo)
-			addStatement("append(\"${it.name}\", $varName)")
+			addStatement("append(\"${it.name}\", ${it.varName})")
 		}
 		endControlFlow()
 	}
@@ -89,8 +86,7 @@ internal class MockClientCodeBlock(
 	) {
 		beginControlFlow("paths")
 		pathModels.forEach {
-			val varName = it.varName.encryptVarName(it.encryptInfo)
-			addStatement("append(\"${it.name}\", $varName)")
+			addStatement("append(\"${it.name}\", ${it.varName})")
 		}
 		endControlFlow()
 	}

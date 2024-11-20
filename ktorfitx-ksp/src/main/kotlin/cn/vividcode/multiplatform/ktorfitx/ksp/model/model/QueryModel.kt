@@ -1,7 +1,5 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.model.model
 
-import cn.vividcode.multiplatform.ktorfitx.ksp.model.EncryptInfo
-
 /**
  * 项目名称：vividcode-multiplatform-ktorfit
  *
@@ -14,5 +12,4 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.model.EncryptInfo
 internal data class QueryModel(
 	val name: String,
 	override val varName: String,
-	val encryptInfo: EncryptInfo?,
 ) : ValueParameterModel

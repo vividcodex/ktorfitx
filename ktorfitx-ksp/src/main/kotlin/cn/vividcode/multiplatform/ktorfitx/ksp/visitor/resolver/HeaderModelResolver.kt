@@ -25,8 +25,7 @@ internal object HeaderModelResolver {
 					"${it.groupValues[1]}-${it.groupValues[2]}"
 				}.replaceFirstChar { it.uppercase() }
 			}
-			val encryptInfo = with(EncryptInfoResolver) { it.resolve(simpleName.asString(), varName) }
-			HeaderModel(name, varName, encryptInfo)
+			HeaderModel(name, varName)
 		}
 	}
 }

@@ -152,8 +152,7 @@ internal class CodeBlockBuilder(
 			check(acc.contains("{${it.name}}")) {
 				"${funStructure.funName} 方法的 ${it.varName} 参数上的 @Path 注解的 name 没有在 url 上找到"
 			}
-			val newValue = "\${${it.varName.encryptVarName(it.encryptInfo)}}"
-			acc.replace("{${it.name}}", newValue)
+			acc.replace("{${it.name}}", "\${${it.varName}}")
 		}
 		getNotFoundPath(fullUrl)?.let {
 			error("${funStructure.funName} 方法的 url 上名称为 $it 的 path 没有匹配到")

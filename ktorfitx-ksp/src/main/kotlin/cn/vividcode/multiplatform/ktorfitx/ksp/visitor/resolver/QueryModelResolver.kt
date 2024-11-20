@@ -21,8 +21,7 @@ internal object QueryModelResolver {
 			val annotation = valueParameter.getAnnotationByType(Query::class) ?: return@mapNotNull null
 			val varName = valueParameter.name!!.asString()
 			val name = annotation.name.ifBlank { varName }
-			val encryptInfo = with(EncryptInfoResolver) { valueParameter.resolve(simpleName.asString(), varName) }
-			QueryModel(name, varName, encryptInfo)
+			QueryModel(name, varName)
 		}
 	}
 }

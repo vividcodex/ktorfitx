@@ -69,7 +69,6 @@ kotlin {
 	sourceSets {
 		commonMain.dependencies {
 			implementation(compose.runtime)
-			implementation(libs.krypto)
 			implementation(libs.kotlin.reflect)
 			api(projects.ktorfitxAnnotation)
 			api(libs.ktor.client.serialization)
@@ -137,7 +136,7 @@ mavenPublishing {
 	
 	pom {
 		name.set("ktorfitx-api")
-		description.set("Ktorfitx：基于Ktor的网络请求框架，提供自定义本地Mock，异常处理机制，使用简单")
+		description.set("Ktorfitx 基于 Ktor 的 RESTful API 框架")
 		inceptionYear.set("2024")
 		url.set("https://github.com/vividcodex/ktorfitx")
 		licenses {

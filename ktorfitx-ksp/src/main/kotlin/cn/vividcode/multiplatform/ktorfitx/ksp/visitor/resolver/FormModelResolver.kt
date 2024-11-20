@@ -21,8 +21,7 @@ internal object FormModelResolver {
 			val annotation = valueParameter.getAnnotationByType(Form::class) ?: return@mapNotNull null
 			val varName = valueParameter.name!!.asString()
 			val name = annotation.name.ifBlank { varName }
-			val encryptInfo = with(EncryptInfoResolver) { valueParameter.resolve(simpleName.asString(), varName) }
-			FormModel(name, varName, encryptInfo)
+			FormModel(name, varName)
 		}
 	}
 }

@@ -18,15 +18,12 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  */
 internal object ParameterModelResolver {
 	
-	private const val ENCRYPT_QUALIFIED_NAME = "cn.vividcode.multiplatform.ktorfitx.annotation.Encrypt"
-	
 	private val annotationQualifiedNames = arrayOf(
 		"cn.vividcode.multiplatform.ktorfitx.annotation.Body",
 		"cn.vividcode.multiplatform.ktorfitx.annotation.Form",
 		"cn.vividcode.multiplatform.ktorfitx.annotation.Header",
 		"cn.vividcode.multiplatform.ktorfitx.annotation.Path",
 		"cn.vividcode.multiplatform.ktorfitx.annotation.Query",
-		"cn.vividcode.multiplatform.ktorfitx.annotation.Encrypt"
 	)
 	
 	fun KSFunctionDeclaration.resolves(): List<ParameterModel> {
@@ -47,10 +44,6 @@ internal object ParameterModelResolver {
 		}.toMutableSet()
 		check(annotations.isNotEmpty()) {
 			"$funName 方法的 $varName 参数未使用任何注解"
-		}
-		annotations.remove(ENCRYPT_QUALIFIED_NAME)
-		check(annotations.isNotEmpty()) {
-			"$funName 方法的 $varName 参数不允许只使用 @Encrypt 注解"
 		}
 		check(annotations.size == 1) {
 			val useAnnotations = annotations.joinToString { "@${it.substringAfterLast(".")}" }

@@ -21,8 +21,7 @@ internal object PathModelResolver {
 			val annotation = valueParameter.getAnnotationByType(Path::class) ?: return@mapNotNull null
 			val varName = valueParameter.name!!.asString()
 			val name = annotation.name.ifBlank { varName }
-			val encryptInfo = with(EncryptInfoResolver) { valueParameter.resolve(simpleName.asString(), varName) }
-			PathModel(name, varName, encryptInfo)
+			PathModel(name, varName)
 		}
 	}
 }

@@ -281,24 +281,6 @@ annotation class Header(
 )
 ```
 
-### `@Encrypt` `参数` 加密
-
-``` kotlin
-@Target(AnnotationTarget.VALUE_PARAMETER)
-@Retention(AnnotationRetention.SOURCE)
-annotation class Encrypt(
-    
-    // 加密类型 默认：SHA256
-    val encryptType: EncryptType = EncryptType.SHA256,
-    
-    // 加密后的二进制字符串的类型
-    val hexType: HexType = HexType.Lower,
-    
-    // 加密层数 默认：1
-    val layer: Int = 1
-)
-```
-
 ## 示例代码
 
 ### 以下为项目测试文件，比较杂乱，但是包含了绝大部分功能
@@ -360,13 +342,13 @@ interface TestApi {
     
     @PATCH(url = "/test05")
     suspend fun test05(
-        @Form @Encrypt form1: String,
+        @Form form1: String,
     ): ByteArray
     
     @BearerAuth
     @OPTIONS(url = "/{name}/test06")
     suspend fun test06(
-        @Path @Encrypt name: String,
+        @Path name: String,
     ): ByteArray
     
     @HEAD(url = "/test07")
@@ -387,7 +369,7 @@ interface TestApi {
     @GET(url = "/testMock01")
     suspend fun testMock01(
         @Query param1: String,
-        @Query @Encrypt param2: String,
+        @Query param2: String,
     ): ResultBody<TestResponse>
     
     @Mock(ResultBodyMockProvider::class, MockStatus.EXCEPTION)

@@ -48,13 +48,13 @@ interface TestApi {
 	
 	@PATCH(url = "/test05")
 	suspend fun test05(
-		@Form @Encrypt form1: String,
+		@Form form1: String,
 	): ByteArray
 	
 	@BearerAuth
 	@OPTIONS(url = "/{name}/test06")
 	suspend fun test06(
-		@Path @Encrypt name: String,
+		@Path name: String,
 	): ByteArray
 	
 	@HEAD(url = "/test07")
@@ -75,7 +75,7 @@ interface TestApi {
 	@GET(url = "/testMock01")
 	suspend fun testMock01(
 		@Query param1: String,
-		@Query @Encrypt param2: String,
+		@Query param2: String,
 	): ResultBody<TestResponse>
 	
 	@Mock(ResultBodyMockProvider::class, MockStatus.EXCEPTION)

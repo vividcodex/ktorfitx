@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
  * 文件介绍：RequestMethod
  */
 internal enum class RequestMethod(
-	val annotation: KClass<out Annotation>
+	val annotation: KClass<out Annotation>,
 ) {
 	Get(GET::class),
 	

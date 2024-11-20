@@ -75,8 +75,7 @@ internal class HttpClientCodeBlock(
 			addStatement("append(\"$name\", \"$value\")")
 		}
 		headerModels.forEach {
-			val varName = it.varName.encryptVarName(it.encryptInfo)
-			addStatement("append(\"${it.name}\", $varName)")
+			addStatement("append(\"${it.name}\", ${it.varName})")
 		}
 		endControlFlow()
 	}
@@ -84,8 +83,7 @@ internal class HttpClientCodeBlock(
 	override fun CodeBlock.Builder.buildQueriesCodeBlock(queryModels: List<QueryModel>) {
 		UseImports.addImports("io.ktor.client.request", "parameter")
 		queryModels.forEach {
-			val varName = it.varName.encryptVarName(it.encryptInfo)
-			addStatement("parameter(\"${it.name}\", $varName)")
+			addStatement("parameter(\"${it.name}\", ${it.varName})")
 		}
 	}
 	
@@ -96,8 +94,7 @@ internal class HttpClientCodeBlock(
 		addStatement("contentType(ContentType.MultiPart.FormData)")
 		beginControlFlow("formData {")
 		formModels.forEach {
-			val varName = it.varName.encryptVarName(it.encryptInfo)
-			addStatement("append(\"${it.name}\", $varName)")
+			addStatement("append(\"${it.name}\", ${it.varName})")
 		}
 		nextControlFlow(".let")
 		addStatement("setBody(MultiPartFormDataContent(it))")
