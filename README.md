@@ -1,8 +1,8 @@
-# Ktorfitx 3.0.1-2.0.0
+# Ktorfitx 3.0.1-2.0.1
 
 ## 更新时间
 
-### 2024-11-07
+### 2024-11-20
 
 ## 版本说明
 
@@ -10,11 +10,11 @@ Kotlin `2.0.21`
 
 Ktor `3.0.1`
 
-KSP `2.0.21-1.0.26`
+KSP `2.0.21-1.0.28`
 
 ## 详细文档地址
 
-> http://vividcodex.github.io/ktorfitx-document
+> http://vividcodex.github.io/ktorfitx-document/index_md.html
 
 ## 支持平台
 
@@ -331,9 +331,12 @@ import kotlinx.serialization.Serializable
 @Api(url = "/test", apiScope = TestApiScope::class)
 interface TestApi {
     
-    @GET(url = "/test01")
+    /**
+     * 从 3.0.1-2.0.1 开始支持定义 http:// 和 https:// 开头的API接口
+     */
+    @GET(url = "https://baidu.com")
     @ExceptionListeners(TestResultBodyExceptionListener::class)
-    suspend fun test01(): ResultBody<String>
+    suspend fun test01(): String
     
     @POST(url = "/test02")
     @Headers("Content-Type: application/json")
@@ -463,11 +466,10 @@ object TestUnitExceptionListener : ExceptionListener<TestException, Unit> {
 /**
  * TestResultBodyExceptionListener
  */
-object TestResultBodyExceptionListener : ExceptionListener<Exception, ResultBody<String>> {
+object TestResultBodyExceptionListener : ExceptionListener<Exception, String> {
     
-    override fun KFunction<*>.onExceptionListener(e: Exception): ResultBody<String> {
-        println("??? : ${e.message}")
-        return ResultBody.exception(e)
+    override fun KFunction<*>.onExceptionListener(e: Exception): String {
+        return e.toString()
     }
 }
 
