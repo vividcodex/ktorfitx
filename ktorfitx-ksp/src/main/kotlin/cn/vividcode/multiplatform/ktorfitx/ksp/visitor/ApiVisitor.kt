@@ -42,8 +42,8 @@ internal class ApiVisitor(
 		private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 		
 		private val apiClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.annotation", "Api")
-		private val apiScopeClassName by lazy {
-			ClassName("cn.vividcode.multiplatform.ktorfitx.api.scope", "ApiScope")
+		private val defaultApiScopeClassName by lazy {
+			ClassName("cn.vividcode.multiplatform.ktorfitx.api.scope", "DefaultApiScope")
 		}
 	}
 	
@@ -58,7 +58,7 @@ internal class ApiVisitor(
 		val apiKSAnnotation = getKSAnnotationByType(apiClassName) ?: return null
 		val className = ClassName("${packageName.asString()}.impl", "${simpleName.asString()}Impl")
 		val superinterface = this.toClassName()
-		val apiScopeClassName = apiKSAnnotation.getClassName("apiScope") ?: apiScopeClassName
+		val apiScopeClassName = apiKSAnnotation.getClassName("apiScope") ?: defaultApiScopeClassName
 		val apiUrl = apiKSAnnotation.getValue<String>("url") ?: ""
 		val apiStructure = ApiStructure(formatApiUrl(apiUrl, simpleName.asString()), apiScopeClassName)
 		val funStructure = getFunStructures()
