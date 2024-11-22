@@ -46,7 +46,7 @@ internal class ApiKotlinPoet {
 		return buildFileSpec(classStructure.className) {
 			indent("\t")
 			addType(getTypeSpec(classStructure))
-			addProperty(getExpendPropertySpec(classStructure))
+			addProperties(getExpendPropertySpecs(classStructure))
 			UseImports.get().forEach(::addImport)
 			UseImports.clear()
 		}
@@ -129,37 +129,49 @@ internal class ApiKotlinPoet {
 			addStatement("instance = it")
 			endControlFlow()
 		}
-		val funSpec = buildFunSpec("getInstance") {
-			addModifiers(classStructure.kModifier)
-			returns(classStructure.superinterface)
-			if (hasApiFunction) {
-				addParameter(
-					"ktorClient",
-					ktorfitClassName.parameterizedBy(classStructure.apiStructure.apiScopeClassName)
-				)
+		val funSpecs = classStructure.apiStructure.apiScopeClassNames.map { apiScopeClassName ->
+			val jvmNameAnnotationSpec = buildAnnotationSpec(JvmName::class) {
+				addMember("%S", "getInstanceBy${apiScopeClassName.simpleName}")
 			}
-			addCode(codeBlock)
+			buildFunSpec("getInstance") {
+				addAnnotation(jvmNameAnnotationSpec)
+				addModifiers(classStructure.kModifier)
+				returns(classStructure.superinterface)
+				if (hasApiFunction) {
+					addParameter(
+						"ktorClient",
+						ktorfitClassName.parameterizedBy(apiScopeClassName)
+					)
+				}
+				addCode(codeBlock)
+			}
 		}
 		return buildCompanionObjectTypeSpec {
 			addModifiers(classStructure.kModifier)
 			addProperty(propertySpec)
-			addFunction(funSpec)
+			addFunctions(funSpecs)
 		}
 	}
 	
 	/**
 	 * 扩展函数
 	 */
-	private fun getExpendPropertySpec(classStructure: ClassStructure): PropertySpec {
-		val getterFunSpec = buildGetterFunSpec {
-			val simpleName = classStructure.className.simpleName
-			val parameter = if (hasApiFunction) "this" else ""
-			addStatement("return $simpleName.getInstance($parameter)")
-		}
+	private fun getExpendPropertySpecs(classStructure: ClassStructure): List<PropertySpec> {
 		val expendPropertyName = classStructure.superinterface.simpleName.replaceFirstChar { it.lowercase() }
-		return buildPropertySpec(expendPropertyName, classStructure.superinterface, classStructure.kModifier) {
-			receiver(ktorfitClassName.parameterizedBy(classStructure.apiStructure.apiScopeClassName))
-			getter(getterFunSpec)
+		return classStructure.apiStructure.apiScopeClassNames.map { apiScopeClassName ->
+			val jvmNameAnnotationSpec = buildAnnotationSpec(JvmName::class) {
+				addMember("%S", "${expendPropertyName}By${apiScopeClassName.simpleName}")
+			}
+			val getterFunSpec = buildGetterFunSpec {
+				addAnnotation(jvmNameAnnotationSpec)
+				val simpleName = classStructure.className.simpleName
+				val parameter = if (hasApiFunction) "this" else ""
+				addStatement("return $simpleName.getInstance($parameter)")
+			}
+			buildPropertySpec(expendPropertyName, classStructure.superinterface, classStructure.kModifier) {
+				receiver(ktorfitClassName.parameterizedBy(apiScopeClassName))
+				getter(getterFunSpec)
+			}
 		}
 	}
 	

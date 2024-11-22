@@ -1,6 +1,7 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor
 
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassName
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassNames
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
@@ -34,7 +35,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  * 文件介绍：ApiVisitor2
  */
 internal class ApiVisitor(
-	private val resolver: Resolver
+	private val resolver: Resolver,
 ) : KSEmptyVisitor<Unit, ClassStructure?>() {
 	
 	private companion object {
@@ -59,8 +60,14 @@ internal class ApiVisitor(
 		val className = ClassName("${packageName.asString()}.impl", "${simpleName.asString()}Impl")
 		val superinterface = this.toClassName()
 		val apiScopeClassName = apiKSAnnotation.getClassName("apiScope") ?: defaultApiScopeClassName
+		val apiScopeClassNames = apiKSAnnotation.getClassNames("apiScopes")?.toSet() ?: emptySet()
+		val mergeApiScopeClassNames = when {
+			apiScopeClassName == defaultApiScopeClassName && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames
+			apiScopeClassName != defaultApiScopeClassName && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames + apiScopeClassName
+			else -> setOf(apiScopeClassName)
+		}
 		val apiUrl = apiKSAnnotation.getValue<String>("url") ?: ""
-		val apiStructure = ApiStructure(formatApiUrl(apiUrl, simpleName.asString()), apiScopeClassName)
+		val apiStructure = ApiStructure(formatApiUrl(apiUrl, simpleName.asString()), mergeApiScopeClassNames)
 		val funStructure = getFunStructures()
 		return ClassStructure(className, superinterface, getKModifier(), apiStructure, funStructure)
 	}

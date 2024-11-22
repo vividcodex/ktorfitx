@@ -13,5 +13,5 @@ import com.squareup.kotlinpoet.ClassName
  */
 internal data class ApiStructure(
 	val url: String,
-	val apiScopeClassName: ClassName
+	val apiScopeClassNames: Set<ClassName>
 )
