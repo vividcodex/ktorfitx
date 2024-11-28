@@ -23,7 +23,7 @@ import kotlinx.serialization.Serializable
 @Api(url = "/test", apiScope = TestApiScope::class, apiScopes = [ApiScope::class])
 interface TestApi {
 	
-	@GET(url = "https://www.baidu.com")
+	@GET(url = "/test01")
 	@ExceptionListeners(TestResultBodyExceptionListener::class)
 	suspend fun test01(): String
 	
@@ -105,6 +105,15 @@ interface TestApi {
 	@Mock(StringMockProvider::class)
 	@GET(url = "/testMock06")
 	suspend fun testMock06(): String?
+	
+	@GET(url = "http://v.juhe.cn/toutiao/index")
+	suspend fun headlineNews(
+		@Query("key") key: String,
+		@Query("type") type: String,
+		@Query("page") page: String,
+		@Query("page_size") pageSize: String,
+		@Query("is_filter") isFilter: Int,
+	): String?
 }
 
 @Serializable
