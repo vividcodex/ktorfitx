@@ -1,8 +1,8 @@
-# Ktorfitx 3.0.1-2.0.2
+# Ktorfitx 3.0.1-2.0.3
 
 ## 更新时间
 
-### 2024-11-20
+### 2024-11-28
 
 ## 版本说明
 
@@ -82,6 +82,9 @@ annotation class Api(
     
     // 接口作用域 
     val apiScope: KClass<out ApiScope> = DefaultApiScope::class
+    
+    // 多个接口作用域
+    val apiScopes: Array<KClass<out ApiScope>> = [],
 )
 ```
 
