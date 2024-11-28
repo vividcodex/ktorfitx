@@ -43,6 +43,9 @@ internal class ApiVisitor(
 		private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 		
 		private val apiClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.annotation", "Api")
+		private val apiScopeClassName by lazy {
+			ClassName("cn.vividcode.multiplatform.ktorfitx.api.scope", "ApiScope")
+		}
 		private val defaultApiScopeClassName by lazy {
 			ClassName("cn.vividcode.multiplatform.ktorfitx.api.scope", "DefaultApiScope")
 		}
@@ -65,6 +68,10 @@ internal class ApiVisitor(
 			apiScopeClassName == defaultApiScopeClassName && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames
 			apiScopeClassName != defaultApiScopeClassName && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames + apiScopeClassName
 			else -> setOf(apiScopeClassName)
+		}.also {
+			if (ApiVisitor.apiScopeClassName in it) {
+				error("${packageName.asString()}.${simpleName.asString()}，不允许使用 ApiScope 当作接口作用域，请使用 DefaultApiScope 或自定义 object 对象并实现 ApiScope")
+			}
 		}
 		val apiUrl = apiKSAnnotation.getValue<String>("url") ?: ""
 		val apiStructure = ApiStructure(formatApiUrl(apiUrl, simpleName.asString()), mergeApiScopeClassNames)

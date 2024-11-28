@@ -3,7 +3,6 @@ package cn.vividcode.multiplatform.ktorfitx.sample.http.api
 import cn.vividcode.multiplatform.ktorfitx.annotation.*
 import cn.vividcode.multiplatform.ktorfitx.api.mock.MockStatus
 import cn.vividcode.multiplatform.ktorfitx.api.model.ResultBody
-import cn.vividcode.multiplatform.ktorfitx.api.scope.ApiScope
 import cn.vividcode.multiplatform.ktorfitx.sample.http.TestApiScope
 import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestResultBodyExceptionListener
 import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestUnitExceptionListener
@@ -20,7 +19,7 @@ import kotlinx.serialization.Serializable
  *
  * 文件介绍：TestApi
  */
-@Api(url = "/test", apiScope = TestApiScope::class, apiScopes = [ApiScope::class])
+@Api(url = "/test", apiScope = TestApiScope::class)
 interface TestApi {
 	
 	@GET(url = "/test01")
