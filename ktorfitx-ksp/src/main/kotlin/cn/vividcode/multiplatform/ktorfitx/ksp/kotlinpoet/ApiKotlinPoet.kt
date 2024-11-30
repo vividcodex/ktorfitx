@@ -54,8 +54,12 @@ internal class ApiKotlinPoet {
 	
 	private fun initFunStructuresStatus(funStructures: Sequence<FunStructure>) {
 		this.hasApiFunction = funStructures.iterator().hasNext()
-		this.hasMockClient = hasApiFunction && funStructures.any { it.functionModels.any { it is MockModel } }
-		this.hasHttpClient = hasApiFunction && funStructures.any { it.functionModels.all { it !is MockModel } }
+		this.hasMockClient = hasApiFunction && funStructures.any { funStructure ->
+			funStructure.functionModels.any { it is MockModel }
+		}
+		this.hasHttpClient = hasApiFunction && funStructures.any { funStructure ->
+			funStructure.functionModels.all { it !is MockModel }
+		}
 	}
 	
 	/**

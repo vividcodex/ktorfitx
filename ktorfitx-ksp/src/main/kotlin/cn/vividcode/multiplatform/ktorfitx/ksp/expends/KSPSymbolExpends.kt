@@ -112,7 +112,7 @@ internal fun KSAnnotation.getClassNames(propertyName: String): Array<ClassName>?
 	} else null
 }
 
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "unused")
 internal fun <T> Any.safeAs(): T = this as T
 
 /**

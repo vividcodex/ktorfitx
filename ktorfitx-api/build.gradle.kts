@@ -1,5 +1,4 @@
 import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
@@ -21,21 +20,19 @@ version = ktorfitxVersion
 
 kotlin {
 	jvmToolchain(21)
-	
+
 	androidTarget {
-		@OptIn(ExperimentalKotlinGradlePluginApi::class)
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
-	
+
 	jvm("desktop") {
-		@OptIn(ExperimentalKotlinGradlePluginApi::class)
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
-	
+
 	listOf(
 		iosX64(),
 		iosArm64(),
@@ -46,7 +43,7 @@ kotlin {
 			isStatic = true
 		}
 	}
-	
+
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
 		moduleName = "ktorfitxApi"
@@ -65,27 +62,34 @@ kotlin {
 		}
 		binaries.executable()
 	}
-	
+
 	sourceSets {
-		commonMain.dependencies {
-			implementation(compose.runtime)
-			implementation(libs.kotlin.reflect)
-			api(projects.ktorfitxAnnotation)
-			api(libs.ktor.client.serialization)
-			api(libs.ktor.client.content.negotiation)
-			api(libs.ktor.serialization.kotlinx.json)
-			api(libs.ktor.client.logging)
-			api(libs.ktor.client.core)
+		commonMain {
+			dependencies {
+				implementation(compose.runtime)
+				implementation(libs.kotlin.reflect)
+				api(projects.ktorfitxAnnotation)
+				api(libs.ktor.client.serialization)
+				api(libs.ktor.client.content.negotiation)
+				api(libs.ktor.serialization.kotlinx.json)
+				api(libs.ktor.client.logging)
+				api(libs.ktor.client.core)
+			}
 		}
-		androidMain.dependencies {
-			api(libs.ktor.client.okhttp)
+		androidMain {
+			dependencies {
+				api(libs.ktor.client.okhttp)
+			}
 		}
-		val desktopMain by getting
-		desktopMain.dependencies {
-			api(libs.ktor.client.okhttp)
+		getting {
+			dependencies {
+				api(libs.ktor.client.okhttp)
+			}
 		}
-		iosMain.dependencies {
-			api(libs.ktor.client.darwin)
+		iosMain {
+			dependencies {
+				api(libs.ktor.client.darwin)
+			}
 		}
 	}
 }
@@ -93,13 +97,13 @@ kotlin {
 android {
 	namespace = "cn.vividcode.multiplatform.ktorfitx.api"
 	compileSdk = libs.versions.android.compileSdk.get().toInt()
-	
+
 	sourceSets["main"].apply {
 		manifest.srcFile("src/androidMain/AndroidManifest.xml")
 		res.srcDirs("src/androidMain/res")
 		resources.srcDirs("src/commonMain/resources")
 	}
-	
+
 	defaultConfig {
 		minSdk = libs.versions.android.minSdk.get().toInt()
 	}
@@ -131,9 +135,9 @@ mavenPublishing {
 	checkVersion()
 	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, ktorfitxAutomaticRelease)
 	signAllPublications()
-	
+
 	coordinates("cn.vividcode.multiplatform", "ktorfitx-api", ktorfitxVersion)
-	
+
 	pom {
 		name.set("ktorfitx-api")
 		description.set("Ktorfitx 基于 Ktor 的 RESTful API 框架")
@@ -153,7 +157,7 @@ mavenPublishing {
 				url.set("https://github.com/vividcodex/ktorfitx")
 			}
 		}
-		
+
 		scm {
 			url.set("https://github.com/vividcodex/ktorfitx")
 			connection.set("scm:git:git://github.com/vividcodex/ktorfitx.git")

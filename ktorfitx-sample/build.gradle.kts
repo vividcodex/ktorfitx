@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
@@ -18,14 +17,12 @@ val ktorfitxSampleVersion = property("ktorfitx.sample.version").toString()
 
 kotlin {
 	androidTarget {
-		@OptIn(ExperimentalKotlinGradlePluginApi::class)
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
 
 	jvm("desktop") {
-		@OptIn(ExperimentalKotlinGradlePluginApi::class)
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
@@ -62,27 +59,29 @@ kotlin {
 	}
 
 	sourceSets {
-		val desktopMain by getting
-
-		androidMain.dependencies {
-			implementation(compose.preview)
-			implementation(libs.androidx.activity.compose)
-		}
-		commonMain.dependencies {
-			implementation(projects.ktorfitxApi)
-			implementation(compose.runtime)
-			implementation(compose.foundation)
-			implementation(compose.material3)
-			implementation(compose.ui)
-			implementation(compose.components.resources)
-			implementation(compose.components.uiToolingPreview)
-		}
-		desktopMain.dependencies {
-			implementation(compose.desktop.currentOs)
-		}
-
 		commonMain {
+			dependencies {
+				implementation(projects.ktorfitxApi)
+				implementation(projects.ktorfitxAnnotation)
+				implementation(compose.runtime)
+				implementation(compose.foundation)
+				implementation(compose.material3)
+				implementation(compose.ui)
+				implementation(compose.components.resources)
+				implementation(compose.components.uiToolingPreview)
+			}
 			kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+		}
+		androidMain {
+			dependencies {
+				implementation(compose.preview)
+				implementation(libs.androidx.activity.compose)
+			}
+		}
+		getting {
+			dependencies {
+				implementation(compose.desktop.currentOs)
+			}
 		}
 	}
 }
@@ -92,8 +91,8 @@ dependencies {
 }
 
 tasks.withType<KotlinCompilationTask<*>>().all {
-	if (name != "kspCommonMainKotlinMetadata") {
-		dependsOn("kspCommonMainKotlinMetadata")
+	"kspCommonMainKotlinMetadata".also {
+		if (name != it) dependsOn(it)
 	}
 }
 

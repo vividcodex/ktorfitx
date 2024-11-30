@@ -32,7 +32,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  *
  * 创建日期：2024/7/1 16:17
  *
- * 文件介绍：ApiVisitor2
+ * 文件介绍：ApiVisitor
  */
 internal class ApiVisitor(
 	private val resolver: Resolver,
@@ -124,8 +124,9 @@ internal class ApiVisitor(
 	 * 获取 ReturnStructure
 	 */
 	private fun KSFunctionDeclaration.getReturnStructure(): ReturnStructure {
-		val typeName = this.returnType!!.toTypeName()
-		return when (typeName) {
+		return when (
+			val typeName = this.returnType!!.toTypeName()
+		) {
 			is ClassName -> ReturnStructure(typeName)
 			is ParameterizedTypeName -> {
 				check(typeName.typeArguments.size == 1) {

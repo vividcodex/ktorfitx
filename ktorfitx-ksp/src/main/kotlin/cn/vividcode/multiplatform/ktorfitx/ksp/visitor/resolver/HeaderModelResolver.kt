@@ -17,9 +17,9 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 internal object HeaderModelResolver {
 	
 	fun KSFunctionDeclaration.resolves(): List<HeaderModel> {
-		return this.parameters.mapNotNull {
-			val header = it.getAnnotationByType(Header::class) ?: return@mapNotNull null
-			val varName = it.name!!.asString()
+		return this.parameters.mapNotNull { valueParameter ->
+			val header = valueParameter.getAnnotationByType(Header::class) ?: return@mapNotNull null
+			val varName = valueParameter.name!!.asString()
 			val name = header.name.ifBlank {
 				varName.replace("([a-z])([A-Z])".toRegex()) {
 					"${it.groupValues[1]}-${it.groupValues[2]}"

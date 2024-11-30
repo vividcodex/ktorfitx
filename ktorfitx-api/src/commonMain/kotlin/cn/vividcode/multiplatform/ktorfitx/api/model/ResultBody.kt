@@ -31,14 +31,14 @@ data class ResultBody<T : Any>(
 		 * 失败
 		 */
 		fun <T : Any> failure(code: Int, msg: String): ResultBody<T> {
-			return ResultBody(code, msg, null)
+			return ResultBody(code, msg)
 		}
 		
 		/**
 		 * 异常
 		 */
 		fun <T : Any> exception(e: Exception): ResultBody<T> {
-			return ResultBody(-1, e.message ?: e.toString(), null)
+			return ResultBody(-1, e.message ?: e.toString())
 		}
 	}
 }
