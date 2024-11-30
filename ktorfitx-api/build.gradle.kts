@@ -81,10 +81,9 @@ kotlin {
 				api(libs.ktor.client.okhttp)
 			}
 		}
-		getting {
-			dependencies {
-				api(libs.ktor.client.okhttp)
-			}
+		val desktopMain by getting
+		desktopMain.dependencies {
+			api(libs.ktor.client.okhttp)
 		}
 		iosMain {
 			dependencies {

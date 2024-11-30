@@ -200,9 +200,8 @@ private fun TypeDropdown(
 		OutlinedTextField(
 			value = options[value]!!,
 			onValueChange = { },
-			modifier = Modifier
-				.menuAnchor(MenuAnchorType.SecondaryEditable)
-				.fillMaxWidth(),
+			modifier = modifier
+				.menuAnchor(MenuAnchorType.SecondaryEditable),
 			readOnly = true,
 			label = { Text("类型") },
 			colors = ExposedDropdownMenuDefaults.textFieldColors(),
@@ -215,7 +214,7 @@ private fun TypeDropdown(
 		ExposedDropdownMenu(
 			expanded = typeExpanded,
 			onDismissRequest = { typeExpanded = false },
-			modifier = Modifier.width(380.dp)
+			modifier = modifier
 		) {
 			options.forEach { (key, value) ->
 				DropdownMenuItem(
@@ -247,11 +246,10 @@ private fun FilterDetail(
 		OutlinedTextField(
 			value = options[value],
 			onValueChange = { },
-			modifier = Modifier
-				.menuAnchor(MenuAnchorType.SecondaryEditable)
-				.fillMaxWidth(),
+			modifier = modifier
+				.menuAnchor(MenuAnchorType.SecondaryEditable),
 			readOnly = true,
-			label = { Text("类型") },
+			label = { Text("必须包含详情信息") },
 			colors = ExposedDropdownMenuDefaults.textFieldColors(),
 			trailingIcon = {
 				ExposedDropdownMenuDefaults.TrailingIcon(
@@ -262,7 +260,7 @@ private fun FilterDetail(
 		ExposedDropdownMenu(
 			expanded = typeExpanded,
 			onDismissRequest = { typeExpanded = false },
-			modifier = Modifier.fillMaxWidth()
+			modifier = modifier
 		) {
 			options.forEachIndexed { index, s ->
 				DropdownMenuItem(

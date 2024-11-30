@@ -78,10 +78,9 @@ kotlin {
 				implementation(libs.androidx.activity.compose)
 			}
 		}
-		getting {
-			dependencies {
-				implementation(compose.desktop.currentOs)
-			}
+		val desktopMain by getting
+		desktopMain.dependencies {
+			implementation(compose.desktop.currentOs)
 		}
 	}
 }
