@@ -34,8 +34,6 @@ internal class CodeBlockBuilder(
 			ClassName.bestGuess("kotlin.Exception"),
 			ClassName.bestGuess("java.lang.Exception"),
 		)
-		
-		private val EmptyByteArrayClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.api.expends", "EmptyByteArray")
 	}
 	
 	fun CodeBlock.Builder.buildCodeBlock() = with(getClientCodeBlock()) {
@@ -117,8 +115,7 @@ internal class CodeBlockBuilder(
 			}
 			
 			ReturnTypes.byteArrayClassName -> {
-				UseImports += EmptyByteArrayClassName
-				addStatement("EmptyByteArray")
+				addStatement("ByteArray(0)")
 			}
 			
 			ReturnTypes.stringClassName -> {
