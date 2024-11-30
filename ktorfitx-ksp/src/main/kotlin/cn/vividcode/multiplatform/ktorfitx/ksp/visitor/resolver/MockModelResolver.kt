@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassName
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValues
@@ -21,11 +22,11 @@ import com.squareup.kotlinpoet.ClassName
  */
 internal object MockModelResolver {
 	
-	private val mockClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.annotation", "Mock")
+	private val mockClassName = ClassName.bestGuess(KtorfitxQualifiers.MOCK)
 	private val statusSuccessClassName by lazy {
-		ClassName("cn.vividcode.multiplatform.ktorfitx.api.mock", "MockStatus", "SUCCESS")
+		ClassName(KtorfitxQualifiers.PACKAGE_API_MOCK, "MockStatus", "SUCCESS")
 	}
-	private val mockProviderClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.api.mock", "MockProvider")
+	private val mockProviderClassName = ClassName.bestGuess(KtorfitxQualifiers.MOCK_PROVIDER)
 	
 	fun KSFunctionDeclaration.resolve(resolver: Resolver): MockModel? {
 		val annotation = getKSAnnotationByType(mockClassName) ?: return null

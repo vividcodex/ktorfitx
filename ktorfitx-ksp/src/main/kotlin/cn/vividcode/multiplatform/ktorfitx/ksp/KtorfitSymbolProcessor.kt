@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.generate
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ApiKotlinPoet
 import cn.vividcode.multiplatform.ktorfitx.ksp.visitor.ApiVisitor
@@ -21,17 +22,14 @@ import com.google.devtools.ksp.validate
  * 文件介绍：KtorfitSymbolProcessor
  */
 internal class KtorfitSymbolProcessor(
-	private val codeGenerator: CodeGenerator
+	private val codeGenerator: CodeGenerator,
 ) : SymbolProcessor {
 	
-	private companion object {
-		private const val API_QUALIFIED_NAME = "cn.vividcode.multiplatform.ktorfitx.annotation.Api"
-	}
 	private val apiKotlinPoet by lazy { ApiKotlinPoet() }
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
 		val rets = mutableListOf<KSAnnotated>()
-		val annotatedList = resolver.getSymbolsWithAnnotation(API_QUALIFIED_NAME)
+		val annotatedList = resolver.getSymbolsWithAnnotation(KtorfitxQualifiers.API)
 		val apiVisitor = ApiVisitor(resolver)
 		annotatedList.forEach {
 			if (it.validate()) {

@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 
@@ -18,7 +19,7 @@ internal object ReturnTypes {
 	
 	val byteArrayClassName = ByteArray::class.asClassName()
 	
-	val resultBodyClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.api.model", "ResultBody")
+	val resultBodyClassName = ClassName.bestGuess(KtorfitxQualifiers.RESULT_BODY)
 	
 	val stringClassName = String::class.asClassName()
 	

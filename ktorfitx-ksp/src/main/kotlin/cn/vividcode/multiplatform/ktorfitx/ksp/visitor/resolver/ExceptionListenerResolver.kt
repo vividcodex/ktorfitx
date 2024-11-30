@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassName
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassNames
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
@@ -24,9 +25,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  */
 internal object ExceptionListenerResolver {
 	
-	private val exceptionListenersClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.annotation", "ExceptionListeners")
-	
-	private const val EXCEPTION_LISTENER_QUALIFIED_NAME = "cn.vividcode.multiplatform.ktorfitx.api.exception.ExceptionListener"
+	private val exceptionListenersClassName = ClassName.bestGuess(KtorfitxQualifiers.EXCEPTION_LISTENERS)
 	
 	fun KSFunctionDeclaration.resolves(resolver: Resolver): List<ExceptionListenerModel> {
 		val annotation = getKSAnnotationByType(exceptionListenersClassName) ?: return emptyList()
@@ -40,7 +39,7 @@ internal object ExceptionListenerResolver {
 	}
 	
 	private fun KSFunctionDeclaration.getExceptionListenerModel(resolver: Resolver, listenerClassName: ClassName): ExceptionListenerModel {
-		check(listenerClassName.canonicalName != EXCEPTION_LISTENER_QUALIFIED_NAME) {
+		check(listenerClassName.canonicalName != KtorfitxQualifiers.EXCEPTION_LISTENER) {
 			"${this.simpleName.asString()} 的 @ExceptionListeners 注解的参数 listener 不能使用 ExceptionListener::class"
 		}
 		val classDeclaration = resolver.getClassDeclarationByName(listenerClassName.canonicalName)!!

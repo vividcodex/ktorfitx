@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isLowerCamelCase
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.lowerCamelCase
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ParameterModel
@@ -19,11 +20,11 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 internal object ParameterModelResolver {
 	
 	private val annotationQualifiedNames = arrayOf(
-		"cn.vividcode.multiplatform.ktorfitx.annotation.Body",
-		"cn.vividcode.multiplatform.ktorfitx.annotation.Form",
-		"cn.vividcode.multiplatform.ktorfitx.annotation.Header",
-		"cn.vividcode.multiplatform.ktorfitx.annotation.Path",
-		"cn.vividcode.multiplatform.ktorfitx.annotation.Query",
+		KtorfitxQualifiers.BODY,
+		KtorfitxQualifiers.FORM,
+		KtorfitxQualifiers.HEADER,
+		KtorfitxQualifiers.PATH,
+		KtorfitxQualifiers.QUERY
 	)
 	
 	fun KSFunctionDeclaration.resolves(): List<ParameterModel> {

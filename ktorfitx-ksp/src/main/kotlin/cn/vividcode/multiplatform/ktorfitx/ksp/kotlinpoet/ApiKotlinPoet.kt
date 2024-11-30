@@ -1,5 +1,7 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorQualifiers
+import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.*
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.CodeBlockBuilder
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.HttpClientCodeBlock
@@ -29,13 +31,13 @@ internal class ApiKotlinPoet {
 	
 	private companion object {
 		
-		private val ktorfitConfigClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.api.config", "KtorfitConfig")
+		private val ktorfitConfigClassName = ClassName.bestGuess(KtorfitxQualifiers.KTORFIT_CONFIG)
 		
-		private val ktorfitClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.api", "Ktorfit")
+		private val ktorfitClassName = ClassName.bestGuess(KtorfitxQualifiers.KTORFIT)
 		
-		private val httpClientClassName = ClassName("io.ktor.client", "HttpClient")
+		private val httpClientClassName = ClassName.bestGuess(KtorQualifiers.HTTP_CLIENT)
 		
-		private val mockClientClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.api.mock", "MockClient")
+		private val mockClientClassName = ClassName.bestGuess(KtorfitxQualifiers.MOCK_CLIENT)
 	}
 	
 	/**

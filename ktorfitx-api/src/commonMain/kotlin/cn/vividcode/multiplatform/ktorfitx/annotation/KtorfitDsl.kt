@@ -7,7 +7,7 @@ package cn.vividcode.multiplatform.ktorfitx.annotation
  *
  * 创建日期：2024/8/5 12:52
  *
- * 文件介绍：BuilderDsl
+ * 文件介绍：KtorfitDsl
  */
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)

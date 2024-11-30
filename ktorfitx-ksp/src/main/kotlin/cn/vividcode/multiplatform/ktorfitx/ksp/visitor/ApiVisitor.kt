@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassName
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassNames
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
@@ -42,12 +43,12 @@ internal class ApiVisitor(
 		
 		private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 		
-		private val apiClassName = ClassName("cn.vividcode.multiplatform.ktorfitx.annotation", "Api")
+		private val apiClassName = ClassName.bestGuess(KtorfitxQualifiers.API)
 		private val apiScopeClassName by lazy {
-			ClassName("cn.vividcode.multiplatform.ktorfitx.api.scope", "ApiScope")
+			ClassName.bestGuess(KtorfitxQualifiers.API_SCOPE)
 		}
 		private val defaultApiScopeClassName by lazy {
-			ClassName("cn.vividcode.multiplatform.ktorfitx.api.scope", "DefaultApiScope")
+			ClassName.bestGuess(KtorfitxQualifiers.DEFAULT_API_SCOPE)
 		}
 	}
 	

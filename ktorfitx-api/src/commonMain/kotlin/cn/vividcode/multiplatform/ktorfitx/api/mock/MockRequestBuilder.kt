@@ -12,7 +12,7 @@ import kotlinx.serialization.json.Json
  *
  * 创建日期：2024/8/11 03:52
  *
- * 文件介绍：MockClientConfig
+ * 文件介绍：MockRequestBuilder
  */
 @MockDsl
 class MockRequestBuilder(
