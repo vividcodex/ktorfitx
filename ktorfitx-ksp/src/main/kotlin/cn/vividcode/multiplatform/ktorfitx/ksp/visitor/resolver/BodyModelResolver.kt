@@ -1,6 +1,7 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.Body
+import cn.vividcode.multiplatform.ktorfitx.ksp.messages.CompileErrorMessages
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.BodyModel
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.isAnnotationPresent
@@ -19,11 +20,18 @@ internal object BodyModelResolver {
 	
 	@OptIn(KspExperimental::class)
 	fun KSFunctionDeclaration.resolve(): BodyModel? {
-		return this.parameters.filter { it.isAnnotationPresent(Body::class) }
-			.also {
-				check(it.size <= 1) { "@Body 不允许在同一个方法参数列表上多次使用" }
-			}.firstOrNull()?.let {
-				BodyModel(it.name!!.asString())
+		val valueParameters = this.parameters.filter { it.isAnnotationPresent(Body::class) }
+		if (valueParameters.isEmpty()) return null
+		check(valueParameters.size == 1) {
+			CompileErrorMessages.bodySizeMessage(this.qualifiedName!!.asString())
+		}
+		return valueParameters.first().let {
+			val varName = it.name!!.asString()
+			val qualifiedName = it.type.resolve().declaration.qualifiedName?.asString()
+			check(qualifiedName != null) {
+				CompileErrorMessages.bodyTypeMessage(this.qualifiedName!!.asString())
 			}
+			BodyModel(varName, qualifiedName)
+		}
 	}
 }

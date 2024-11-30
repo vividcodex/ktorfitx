@@ -50,7 +50,6 @@ internal class ApiKotlinPoet {
 			addType(getTypeSpec(classStructure))
 			addProperties(getExpendPropertySpecs(classStructure))
 			UseImports.get().forEach(::addImport)
-			UseImports.clear()
 		}
 	}
 	
@@ -165,6 +164,7 @@ internal class ApiKotlinPoet {
 	private fun getExpendPropertySpecs(classStructure: ClassStructure): List<PropertySpec> {
 		val expendPropertyName = classStructure.superinterface.simpleName.replaceFirstChar { it.lowercase() }
 		return classStructure.apiStructure.apiScopeClassNames.map { apiScopeClassName ->
+			UseImports += apiScopeClassName
 			val jvmNameAnnotationSpec = buildAnnotationSpec(JvmName::class) {
 				addMember("%S", "${expendPropertyName}By${apiScopeClassName.simpleName}")
 			}

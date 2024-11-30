@@ -51,7 +51,7 @@ fun App() {
 					onValueChange = { key = it },
 					placeholder = {
 						Text(
-							text ="f28b487e8ed22222fcfb7cf38df2d611",
+							text = "f28b487e8ed22222fcfb7cf38df2d611",
 							color = MaterialTheme.colorScheme.outline
 						)
 					},

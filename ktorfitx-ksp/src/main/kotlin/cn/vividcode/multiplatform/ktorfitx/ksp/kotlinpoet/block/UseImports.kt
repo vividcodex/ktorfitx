@@ -24,7 +24,7 @@ internal object UseImports {
 	}
 	
 	fun clear() {
-		this.threadLocalImports.remove()
+		this.threadLocalImports.get()?.clear()
 	}
 	
 	fun addImports(packageName: String, vararg simpleNames: String) {
@@ -54,5 +54,9 @@ internal object UseImports {
 	
 	operator fun plusAssign(classNames: List<ClassName>) {
 		this.addImportsByClassNames(classNames)
+	}
+	
+	operator fun plusAssign(qualifiedName: String) {
+		this += ClassName.bestGuess(qualifiedName)
 	}
 }

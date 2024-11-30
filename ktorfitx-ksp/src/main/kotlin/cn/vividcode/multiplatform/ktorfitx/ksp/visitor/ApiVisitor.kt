@@ -37,23 +37,20 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  */
 internal class ApiVisitor(
 	private val resolver: Resolver,
-) : KSEmptyVisitor<Unit, ClassStructure?>() {
+) : KSEmptyVisitor<Unit, VisitorResult?>() {
 	
 	private companion object {
 		
 		private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 		
 		private val apiClassName = ClassName.bestGuess(KtorfitxQualifiers.API)
-		private val apiScopeClassName by lazy {
-			ClassName.bestGuess(KtorfitxQualifiers.API_SCOPE)
-		}
-		private val defaultApiScopeClassName by lazy {
-			ClassName.bestGuess(KtorfitxQualifiers.DEFAULT_API_SCOPE)
-		}
+		private val apiScopeClassName by lazy { ClassName.bestGuess(KtorfitxQualifiers.API_SCOPE) }
+		private val defaultApiScopeClassName by lazy { ClassName.bestGuess(KtorfitxQualifiers.DEFAULT_API_SCOPE) }
 	}
 	
-	override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit): ClassStructure? {
-		return classDeclaration.getClassStructure()
+	override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit): VisitorResult? {
+		val classStructure = classDeclaration.getClassStructure() ?: return null
+		return VisitorResult(classStructure)
 	}
 	
 	/**
@@ -154,5 +151,5 @@ internal class ApiVisitor(
 		return this
 	}
 	
-	override fun defaultHandler(node: KSNode, data: Unit): ClassStructure? = null
+	override fun defaultHandler(node: KSNode, data: Unit): VisitorResult? = null
 }

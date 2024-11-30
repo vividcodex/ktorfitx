@@ -68,6 +68,7 @@ internal class CodeBlockBuilder(
 				}
 				val bodyModel = valueParameterModels.find { it is BodyModel } as? BodyModel
 				if (bodyModel != null) {
+					UseImports += bodyModel.typeQualifiedName
 					buildBodyCodeBlock(bodyModel)
 				}
 			}

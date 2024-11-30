@@ -4,6 +4,7 @@ import cn.vividcode.multiplatform.ktorfitx.annotation.*
 import cn.vividcode.multiplatform.ktorfitx.api.mock.MockStatus
 import cn.vividcode.multiplatform.ktorfitx.api.model.ResultBody
 import cn.vividcode.multiplatform.ktorfitx.sample.http.TestApiScope
+import cn.vividcode.multiplatform.ktorfitx.sample.http.TestRequest2
 import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestResultBodyExceptionListener
 import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestUnitExceptionListener
 import cn.vividcode.multiplatform.ktorfitx.sample.http.mock.ResultBodyMockProvider
@@ -30,7 +31,7 @@ interface TestApi {
 	@Headers("Content-Type: application/json")
 	@ExceptionListeners(TestUnitExceptionListener::class)
 	suspend fun test02(
-		@Body testRequest: TestRequest,
+		@Body testRequest: TestRequest2,
 		@Header testHeader: String,
 	): ResultBody<TestResponse>
 	
@@ -82,7 +83,7 @@ interface TestApi {
 	@ExceptionListeners(TestUnitExceptionListener::class)
 	@POST(url = "/testMock02")
 	suspend fun testMock02(
-		@Body request: TestResponse,
+		@Body request: TestRequest,
 	): ResultBody<TestResponse>
 	
 	@Mock(ResultBodyMockProvider::class)
@@ -113,6 +114,9 @@ interface TestApi {
 		@Query("page_size") pageSize: String,
 		@Query("is_filter") isFilter: Int,
 	): String?
+	
+	@GET(url = "/test")
+	suspend fun test(): ResultBody<Test>
 }
 
 @Serializable
