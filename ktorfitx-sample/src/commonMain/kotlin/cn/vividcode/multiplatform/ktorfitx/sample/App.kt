@@ -150,6 +150,7 @@ fun App() {
 				Text(
 					text = text ?: "",
 					modifier = Modifier
+						.padding(8.dp)
 						.fillMaxWidth()
 						.weight(1f)
 						.background(

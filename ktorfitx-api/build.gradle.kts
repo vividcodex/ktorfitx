@@ -20,19 +20,19 @@ version = ktorfitxVersion
 
 kotlin {
 	jvmToolchain(21)
-
+	
 	androidTarget {
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
-
+	
 	jvm("desktop") {
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
-
+	
 	listOf(
 		iosX64(),
 		iosArm64(),
@@ -43,7 +43,7 @@ kotlin {
 			isStatic = true
 		}
 	}
-
+	
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
 		moduleName = "ktorfitxApi"
@@ -62,7 +62,7 @@ kotlin {
 		}
 		binaries.executable()
 	}
-
+	
 	sourceSets {
 		commonMain {
 			dependencies {
@@ -97,13 +97,13 @@ kotlin {
 android {
 	namespace = "cn.vividcode.multiplatform.ktorfitx.api"
 	compileSdk = libs.versions.android.compileSdk.get().toInt()
-
+	
 	sourceSets["main"].apply {
 		manifest.srcFile("src/androidMain/AndroidManifest.xml")
 		res.srcDirs("src/androidMain/res")
 		resources.srcDirs("src/commonMain/resources")
 	}
-
+	
 	defaultConfig {
 		minSdk = libs.versions.android.minSdk.get().toInt()
 	}
@@ -135,9 +135,9 @@ mavenPublishing {
 	checkVersion()
 	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, ktorfitxAutomaticRelease)
 	signAllPublications()
-
+	
 	coordinates("cn.vividcode.multiplatform", "ktorfitx-api", ktorfitxVersion)
-
+	
 	pom {
 		name.set("ktorfitx-api")
 		description.set("Ktorfitx 基于 Ktor 的 RESTful API 框架")
@@ -157,7 +157,7 @@ mavenPublishing {
 				url.set("https://github.com/vividcodex/ktorfitx")
 			}
 		}
-
+		
 		scm {
 			url.set("https://github.com/vividcodex/ktorfitx")
 			connection.set("scm:git:git://github.com/vividcodex/ktorfitx.git")

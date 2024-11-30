@@ -14,8 +14,7 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
  * 文件介绍：KtorfitSymbolProcessorProvider
  */
 internal class KtorfitSymbolProcessorProvider : SymbolProcessorProvider {
-
-	override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-		return KtorfitSymbolProcessor(environment.codeGenerator)
-	}
+	
+	override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor =
+		KtorfitSymbolProcessor(environment.codeGenerator, environment.logger)
 }

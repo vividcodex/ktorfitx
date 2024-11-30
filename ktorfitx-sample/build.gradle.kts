@@ -21,13 +21,13 @@ kotlin {
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
-
+	
 	jvm("desktop") {
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
-
+	
 	listOf(
 		iosX64(),
 		iosArm64(),
@@ -38,7 +38,7 @@ kotlin {
 			isStatic = true
 		}
 	}
-
+	
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
 		moduleName = "sampleApp"
@@ -57,7 +57,7 @@ kotlin {
 		}
 		binaries.executable()
 	}
-
+	
 	sourceSets {
 		commonMain {
 			dependencies {
@@ -99,11 +99,11 @@ tasks.withType<KotlinCompilationTask<*>>().all {
 android {
 	namespace = "cn.vividcode.multiplatform.config.sample"
 	compileSdk = libs.versions.android.compileSdk.get().toInt()
-
+	
 	sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 	sourceSets["main"].res.srcDirs("src/androidMain/res")
 	sourceSets["main"].resources.srcDirs("src/commonMain/resources")
-
+	
 	defaultConfig {
 		applicationId = "cn.vividcode.multiplatform.config.sample"
 		minSdk = libs.versions.android.minSdk.get().toInt()
@@ -136,7 +136,7 @@ android {
 compose.desktop {
 	application {
 		mainClass = "cn.vividcode.multiplatform.ktorfitx.sample.MainKt"
-
+		
 		nativeDistributions {
 			targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
 			packageName = "cn.vividcode.multiplatform.ktorfitx.sample"
