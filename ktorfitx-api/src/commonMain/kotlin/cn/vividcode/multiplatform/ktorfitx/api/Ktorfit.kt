@@ -14,7 +14,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
 /**
- * 项目名称：vividcode-multiplatform-ktorfit
+ * 项目名称：ktorfitx
  *
  * 作者昵称：li-jia-wei
  *

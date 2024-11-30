@@ -5,7 +5,7 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 
 /**
- * 项目名称：vividcode-multiplatform-ktorfit
+ * 项目名称：ktorfitx
  *
  * 作者昵称：li-jia-wei
  *

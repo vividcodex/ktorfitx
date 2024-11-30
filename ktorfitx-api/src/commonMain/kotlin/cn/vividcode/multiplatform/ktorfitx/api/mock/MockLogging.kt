@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * 项目名称：vividcode-multiplatform-ktorfit
+ * 项目名称：ktorfitx
  *
  * 作者昵称：li-jia-wei
  *

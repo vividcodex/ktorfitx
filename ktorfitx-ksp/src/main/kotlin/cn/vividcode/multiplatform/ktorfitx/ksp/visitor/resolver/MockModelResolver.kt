@@ -11,7 +11,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.ClassName
 
 /**
- * 项目名称：vividcode-multiplatform-ktorfit
+ * 项目名称：ktorfitx
  *
  * 作者昵称：li-jia-wei
  *

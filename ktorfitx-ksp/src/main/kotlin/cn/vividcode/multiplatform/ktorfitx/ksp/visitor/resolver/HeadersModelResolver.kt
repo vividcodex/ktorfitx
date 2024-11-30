@@ -6,7 +6,7 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.HeadersModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 /**
- * 项目名称：vividcode-multiplatform-ktorfit
+ * 项目名称：ktorfitx
  *
  * 作者昵称：li-jia-wei
  *

@@ -3,7 +3,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.model.model
 import com.squareup.kotlinpoet.ClassName
 
 /**
- * 项目名称：vividcode-multiplatform-ktorfit
+ * 项目名称：ktorfitx
  *
  * 作者昵称：li-jia-wei
  *

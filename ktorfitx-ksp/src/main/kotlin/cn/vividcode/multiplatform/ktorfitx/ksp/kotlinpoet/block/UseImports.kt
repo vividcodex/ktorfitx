@@ -7,7 +7,7 @@ import com.squareup.kotlinpoet.TypeName
 import kotlin.concurrent.getOrSet
 
 /**
- * 项目名称：vividcode-multiplatform-ktorfit
+ * 项目名称：ktorfitx
  *
  * 作者昵称：li-jia-wei
  *

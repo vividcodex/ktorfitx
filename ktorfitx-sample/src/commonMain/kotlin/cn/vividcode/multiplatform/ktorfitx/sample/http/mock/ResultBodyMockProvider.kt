@@ -8,7 +8,7 @@ import cn.vividcode.multiplatform.ktorfitx.sample.http.api.TestResponse
 import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestException
 
 /**
- * 项目名称：vividcode-multiplatform-ktorfit
+ * 项目名称：ktorfitx
  *
  * 作者昵称：li-jia-wei
  *

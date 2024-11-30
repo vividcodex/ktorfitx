@@ -5,7 +5,7 @@ import cn.vividcode.multiplatform.ktorfitx.api.Ktorfit
 import cn.vividcode.multiplatform.ktorfitx.api.scope.ApiScope
 
 /**
- * 项目名称：vividcode-multiplatform-ktorfit
+ * 项目名称：ktorfitx
  *
  * 作者昵称：li-jia-wei
  *
