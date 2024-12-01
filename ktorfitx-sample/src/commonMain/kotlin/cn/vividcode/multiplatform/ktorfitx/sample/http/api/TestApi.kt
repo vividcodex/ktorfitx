@@ -24,6 +24,7 @@ import kotlinx.serialization.Serializable
 interface TestApi {
 	
 	@GET(url = "/test01")
+	@POST(url = "/test02")
 	@ExceptionListeners(TestResultBodyExceptionListener::class)
 	suspend fun test01(): String
 	

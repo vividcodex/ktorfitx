@@ -5,7 +5,10 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ApiKotlinPoet
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.UseImports
 import cn.vividcode.multiplatform.ktorfitx.ksp.visitor.ApiVisitor
 import com.google.devtools.ksp.getClassDeclarationByName
-import com.google.devtools.ksp.processing.*
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -23,7 +26,6 @@ import com.google.devtools.ksp.validate
  */
 internal class KtorfitSymbolProcessor(
 	private val codeGenerator: CodeGenerator,
-	private val logger: KSPLogger,
 ) : SymbolProcessor {
 	
 	private val apiKotlinPoet by lazy { ApiKotlinPoet() }
@@ -81,7 +83,7 @@ internal class KtorfitSymbolProcessor(
 			simpleNames.map {
 				val ksFile = this.getClassDeclarationByName("$packageName.$it")?.containingFile
 				if (ksFile == null) {
-					logger.warn("$packageName.$it 未能获取它的源文件")
+					kspLogger?.warn("$packageName.$it 未能获取它的源文件")
 				}
 				ksFile
 			}

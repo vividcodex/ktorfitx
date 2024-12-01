@@ -23,12 +23,11 @@ internal object BodyModelResolver {
 	fun KSFunctionDeclaration.resolve(): BodyModel? {
 		val valueParameters = this.parameters.filter { it.isAnnotationPresent(Body::class) }
 		if (valueParameters.isEmpty()) return null
-		this.checkWithBodySize(valueParameters.size == 1)
-		return valueParameters.first().let {
-			val varName = it.name!!.asString()
-			val qualifiedName = it.type.resolve().declaration.qualifiedName?.asString()
-			this.checkWithBodyType(qualifiedName != null)
-			BodyModel(varName, qualifiedName)
-		}
+		checkWithBodySize(valueParameters.size == 1)
+		val valueParameter = valueParameters.first()
+		val varName = valueParameter.name!!.asString()
+		val qualifiedName = valueParameter.type.resolve().declaration.qualifiedName?.asString()
+		this.checkWithBodyType(qualifiedName != null)
+		return BodyModel(varName, qualifiedName)
 	}
 }

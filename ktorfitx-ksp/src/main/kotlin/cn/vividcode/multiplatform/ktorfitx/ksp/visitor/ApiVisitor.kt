@@ -11,6 +11,7 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ClassStructure
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.FunStructure
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ReturnStructure
 import cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver.ModelResolvers
+import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -104,8 +105,8 @@ internal class ApiVisitor(
 	/**
 	 * 获取 FunStructures
 	 */
-	private fun KSClassDeclaration.getFunStructures(): Sequence<FunStructure> {
-		return this.getAllFunctions()
+	private fun KSClassDeclaration.getFunStructures(): List<FunStructure> {
+		return this.getDeclaredFunctions().toList()
 			.filter { it.isAbstract }
 			.map {
 				check(Modifier.SUSPEND in it.modifiers) { "${it.qualifiedName!!.asString()} 方法缺少 suspend 修饰" }

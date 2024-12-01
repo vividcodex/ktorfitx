@@ -5,6 +5,7 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isHttpOrHttps
 import cn.vividcode.multiplatform.ktorfitx.ksp.messages.checkWithMultipleRequestMethod
 import cn.vividcode.multiplatform.ktorfitx.ksp.messages.checkWithNotFoundRequestMethod
+import cn.vividcode.multiplatform.ktorfitx.ksp.messages.checkWithUrlRegex
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.RequestMethod
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ApiModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -26,20 +27,17 @@ internal object ApiModelResolver {
 		val annotations = RequestMethod.entries.mapNotNull {
 			getKSAnnotationByType(it.annotation)
 		}
-		this.checkWithNotFoundRequestMethod(annotations.isNotEmpty())
-		this.checkWithMultipleRequestMethod(annotations.size == 1, annotations)
+		checkWithNotFoundRequestMethod(annotations.isNotEmpty())
+		checkWithMultipleRequestMethod(annotations.size == 1, annotations)
 		val annotation = annotations.first()
-		val funName = this.simpleName.asString()
 		val requestFunName = annotation.shortName.asString().lowercase()
 		val url = annotation.getValue<String>("url")!!
-		return ApiModel(requestFunName, formatUrl(url, funName))
+		return ApiModel(requestFunName, formatUrl(url))
 	}
 	
-	private fun formatUrl(url: String, funName: String): String {
+	private fun KSFunctionDeclaration.formatUrl(url: String): String {
 		if (url.isHttpOrHttps()) return url
-		check(urlRegex.matches(url)) {
-			"$funName 的 url 参数格式数据"
-		}
+		checkWithUrlRegex(urlRegex.matches(url))
 		return if (url.startsWith('/')) url else "/$url"
 	}
 }

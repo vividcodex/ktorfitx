@@ -17,5 +17,5 @@ internal class ClassStructure(
 	val superinterface: ClassName,
 	val kModifier: KModifier,
 	val apiStructure: ApiStructure,
-	val funStructures: Sequence<FunStructure>,
+	val funStructures: List<FunStructure>,
 )

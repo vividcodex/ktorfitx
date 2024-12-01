@@ -1,24 +1,23 @@
+@file:OptIn(ExperimentalContracts::class)
+
 package cn.vividcode.multiplatform.ktorfitx.ksp.messages
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.kspLogger
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.RequestMethod
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSNode
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-/**
- * 错误信息配置
- */
 private const val BODY_SIZE_MESSAGE = "%s 方法的参数列表中不允许使用多个 @Body 注解"
 
 /**
  * `@Body` 数量错误提示
  */
-@OptIn(ExperimentalContracts::class)
 internal fun KSFunctionDeclaration.checkWithBodySize(
 	value: Boolean,
 ) {
-	contract { returns() implies value }
 	check(value) {
 		BODY_SIZE_MESSAGE.format(qualifiedName!!.asString())
 	}
@@ -29,7 +28,6 @@ private const val BODY_TYPE_MESSAGE = "%s 方法的参数列表中标记了 @Bod
 /**
  * `@Body` 类型错误提示
  */
-@OptIn(ExperimentalContracts::class)
 internal fun KSFunctionDeclaration.checkWithBodyType(
 	value: Boolean,
 ) {
@@ -44,30 +42,26 @@ private const val NOT_FOUND_REQUEST_METHOD_MESSAGE = "%s 方法缺少请求类�
 /**
  * 没有找到请求类型错误提示
  */
-@OptIn(ExperimentalContracts::class)
 internal fun KSFunctionDeclaration.checkWithNotFoundRequestMethod(
 	value: Boolean,
 ) {
-	contract { returns() implies value }
 	check(value) {
 		val requestMethods = RequestMethod.entries.joinToString { "@${it.annotation.simpleName!!}" }
 		NOT_FOUND_REQUEST_METHOD_MESSAGE.format(qualifiedName!!.asString(), requestMethods)
 	}
 }
 
-private const val MULTIPLE_REQUEST_METHOD = "%s 方法只允许使用一种请求方法，而你使用了 %s %d 个"
+private const val MULTIPLE_REQUEST_METHOD_MESSAGE = "%s 方法只允许使用一种请求方法，而你使用了 %s %d 个"
 
 /**
- *
+ * 找到多个请求类型错误提示
  */
-@OptIn(ExperimentalContracts::class)
 internal fun KSFunctionDeclaration.checkWithMultipleRequestMethod(
 	value: Boolean,
 	annotations: List<KSAnnotation>,
 ) {
-	contract { returns() implies value }
 	check(value) {
-		MULTIPLE_REQUEST_METHOD.format(
+		MULTIPLE_REQUEST_METHOD_MESSAGE.format(
 			qualifiedName!!.asString(),
 			annotations.joinToString { "@${it.shortName.asString()}" },
 			annotations.size
@@ -75,8 +69,26 @@ internal fun KSFunctionDeclaration.checkWithMultipleRequestMethod(
 	}
 }
 
-private inline fun check(value: Boolean, lazyMessage: () -> String) {
-	if (!value) {
-		error(lazyMessage())
+private const val URL_REGEX_MESSAGE = "%s 方法中注解上标记的 url 参数格式错误"
+
+/**
+ * 检查 url 的格式
+ */
+internal fun KSFunctionDeclaration.checkWithUrlRegex(
+	value: Boolean,
+) {
+	check(value) {
+		URL_REGEX_MESSAGE.format(this.qualifiedName!!.asString())
 	}
 }
+
+private inline fun KSNode.check(value: Boolean, lazyMessage: () -> String) {
+	if (!value) {
+		kspLogger?.error(lazyMessage(), this)
+	}
+}
+
+/**
+ * Ktorfitx 编译异常
+ */
+class KtorfitxCompileException(message: String) : Exception(message)

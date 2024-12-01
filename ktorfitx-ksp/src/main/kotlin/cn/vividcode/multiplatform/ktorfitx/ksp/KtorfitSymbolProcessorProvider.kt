@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp
 
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
@@ -15,6 +16,13 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
  */
 internal class KtorfitSymbolProcessorProvider : SymbolProcessorProvider {
 	
-	override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor =
-		KtorfitSymbolProcessor(environment.codeGenerator, environment.logger)
+	override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+		kspLoggers.set(environment.logger)
+		return KtorfitSymbolProcessor(environment.codeGenerator)
+	}
 }
+
+private val kspLoggers = ThreadLocal<KSPLogger>()
+
+val kspLogger: KSPLogger?
+	get() = kspLoggers.get()
