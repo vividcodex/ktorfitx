@@ -1,7 +1,8 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.Body
-import cn.vividcode.multiplatform.ktorfitx.ksp.messages.CompileErrorMessages
+import cn.vividcode.multiplatform.ktorfitx.ksp.messages.checkWithBodySize
+import cn.vividcode.multiplatform.ktorfitx.ksp.messages.checkWithBodyType
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.BodyModel
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.isAnnotationPresent
@@ -22,15 +23,11 @@ internal object BodyModelResolver {
 	fun KSFunctionDeclaration.resolve(): BodyModel? {
 		val valueParameters = this.parameters.filter { it.isAnnotationPresent(Body::class) }
 		if (valueParameters.isEmpty()) return null
-		check(valueParameters.size == 1) {
-			CompileErrorMessages.bodySizeMessage(this.qualifiedName!!.asString())
-		}
+		this.checkWithBodySize(valueParameters.size == 1)
 		return valueParameters.first().let {
 			val varName = it.name!!.asString()
 			val qualifiedName = it.type.resolve().declaration.qualifiedName?.asString()
-			check(qualifiedName != null) {
-				CompileErrorMessages.bodyTypeMessage(this.qualifiedName!!.asString())
-			}
+			this.checkWithBodyType(qualifiedName != null)
 			BodyModel(varName, qualifiedName)
 		}
 	}

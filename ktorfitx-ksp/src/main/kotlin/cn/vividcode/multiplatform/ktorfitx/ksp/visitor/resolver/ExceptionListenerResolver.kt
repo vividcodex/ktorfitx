@@ -21,7 +21,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  *
  * 创建日期：2024/8/13 15:43
  *
- * 文件介绍：ExceptionHandlerResolver
+ * 文件介绍：ExceptionListenerResolver
  */
 internal object ExceptionListenerResolver {
 	

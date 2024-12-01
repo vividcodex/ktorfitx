@@ -9,7 +9,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.model.model
  *
  * 文件介绍：FormModel
  */
-internal data class FormModel(
+internal class FormModel(
 	val name: String,
 	override val varName: String,
 ) : ValueParameterModel

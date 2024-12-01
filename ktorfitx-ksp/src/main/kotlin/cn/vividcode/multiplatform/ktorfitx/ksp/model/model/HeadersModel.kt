@@ -9,6 +9,6 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.model.model
  *
  * 文件介绍：HeadersModel
  */
-internal data class HeadersModel(
+internal class HeadersModel(
 	val headerMap: Map<String, String>,
 ) : FunctionModel

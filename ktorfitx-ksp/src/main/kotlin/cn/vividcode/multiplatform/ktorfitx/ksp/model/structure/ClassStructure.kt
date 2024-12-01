@@ -12,10 +12,10 @@ import com.squareup.kotlinpoet.KModifier
  *
  * 文件介绍：ClassStructure
  */
-internal data class ClassStructure(
+internal class ClassStructure(
 	val className: ClassName,
 	val superinterface: ClassName,
 	val kModifier: KModifier,
 	val apiStructure: ApiStructure,
-	val funStructures: Sequence<FunStructure>
+	val funStructures: Sequence<FunStructure>,
 )

@@ -9,7 +9,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.model.model
  *
  * 文件介绍：PathModel
  */
-internal data class PathModel(
+internal class PathModel(
 	val name: String,
 	override val varName: String,
 ) : ValueParameterModel

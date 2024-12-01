@@ -9,7 +9,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.model.model
  *
  * 文件介绍：BodyModel
  */
-internal data class BodyModel(
+internal class BodyModel(
 	override val varName: String,
 	val typeQualifiedName: String
 ) : ValueParameterModel

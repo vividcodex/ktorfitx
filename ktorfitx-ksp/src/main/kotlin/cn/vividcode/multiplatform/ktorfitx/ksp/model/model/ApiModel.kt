@@ -9,7 +9,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.model.model
  *
  * 文件介绍：ApiModel
  */
-internal data class ApiModel(
+internal class ApiModel(
 	val requestFunName: String,
 	val url: String
 ) : FunctionModel

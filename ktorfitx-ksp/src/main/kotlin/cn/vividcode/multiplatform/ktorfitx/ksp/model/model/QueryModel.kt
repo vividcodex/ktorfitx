@@ -9,7 +9,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.model.model
  *
  * 文件介绍：QueryModel
  */
-internal data class QueryModel(
+internal class QueryModel(
 	val name: String,
 	override val varName: String,
 ) : ValueParameterModel

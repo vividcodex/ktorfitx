@@ -12,7 +12,7 @@ import com.squareup.kotlinpoet.TypeName
  *
  * 文件介绍：ExceptionListenerModel
  */
-internal data class ExceptionListenerModel(
+internal class ExceptionListenerModel(
 	val listenerClassName: ClassName,
 	val exceptionTypeName: TypeName,
 	val returnTypeName: TypeName,

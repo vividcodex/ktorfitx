@@ -13,10 +13,10 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ValueParameterModel
  *
  * 文件介绍：FunStructure
  */
-internal data class FunStructure(
+internal class FunStructure(
 	val funName: String,
 	val returnStructure: ReturnStructure,
 	val parameterModels: List<ParameterModel>,
 	val functionModels: List<FunctionModel>,
-	val valueParameterModels: List<ValueParameterModel>
+	val valueParameterModels: List<ValueParameterModel>,
 )

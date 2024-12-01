@@ -9,7 +9,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.model.model
  *
  * 文件介绍：HeaderModel
  */
-internal data class HeaderModel(
+internal class HeaderModel(
 	val name: String,
 	override val varName: String,
 ) : ValueParameterModel

@@ -3,6 +3,8 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isHttpOrHttps
+import cn.vividcode.multiplatform.ktorfitx.ksp.messages.checkWithMultipleRequestMethod
+import cn.vividcode.multiplatform.ktorfitx.ksp.messages.checkWithNotFoundRequestMethod
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.RequestMethod
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ApiModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -21,20 +23,12 @@ internal object ApiModelResolver {
 	private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 	
 	fun KSFunctionDeclaration.resolve(): ApiModel {
-		val annotation = RequestMethod.entries.mapNotNull {
+		val annotations = RequestMethod.entries.mapNotNull {
 			getKSAnnotationByType(it.annotation)
-		}.also { annotations ->
-			check(annotations.size <= 1) {
-				val requestMethods = annotations.joinToString {
-					"@${it.shortName.asString()}"
-				}
-				"${qualifiedName!!.asString()} 方法只允许使用一种请求方法，而你使用了 $requestMethods ${annotations.size} 种"
-			}
-			check(annotations.isNotEmpty()) {
-				val requestMethods = RequestMethod.entries.joinToString { "@${it.annotation.simpleName!!}" }
-				"缺少请求类型，${qualifiedName!!.asString()} 方法需要使用 $requestMethods 中的一种"
-			}
-		}.first()
+		}
+		this.checkWithNotFoundRequestMethod(annotations.isNotEmpty())
+		this.checkWithMultipleRequestMethod(annotations.size == 1, annotations)
+		val annotation = annotations.first()
 		val funName = this.simpleName.asString()
 		val requestFunName = annotation.shortName.asString().lowercase()
 		val url = annotation.getValue<String>("url")!!

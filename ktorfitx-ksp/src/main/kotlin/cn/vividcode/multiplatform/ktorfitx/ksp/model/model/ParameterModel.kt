@@ -11,7 +11,7 @@ import com.squareup.kotlinpoet.TypeName
  *
  * 文件介绍：ParameterModel
  */
-internal data class ParameterModel(
+internal class ParameterModel(
 	val varName: String,
-	val typeName: TypeName
+	val typeName: TypeName,
 )

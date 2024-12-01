@@ -15,8 +15,8 @@ import com.squareup.kotlinpoet.TypeName
  *
  * 文件介绍：ReturnStructure
  */
-internal data class ReturnStructure(
-	val typeName: TypeName
+internal class ReturnStructure(
+	val typeName: TypeName,
 ) {
 	
 	val classNames: List<ClassName> by lazy {
