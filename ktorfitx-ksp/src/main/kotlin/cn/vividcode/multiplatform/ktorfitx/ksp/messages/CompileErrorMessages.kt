@@ -19,7 +19,7 @@ internal fun KSFunctionDeclaration.checkWithBodySize(
 	value: Boolean,
 ) {
 	check(value) {
-		BODY_SIZE_MESSAGE.format(qualifiedName!!.asString())
+		BODY_SIZE_MESSAGE.format(this.simpleName.asString())
 	}
 }
 
@@ -33,7 +33,7 @@ internal fun KSFunctionDeclaration.checkWithBodyType(
 ) {
 	contract { returns() implies value }
 	check(value) {
-		BODY_TYPE_MESSAGE.format(qualifiedName!!.asString())
+		BODY_TYPE_MESSAGE.format(this.simpleName.asString())
 	}
 }
 
@@ -47,7 +47,7 @@ internal fun KSFunctionDeclaration.checkWithNotFoundRequestMethod(
 ) {
 	check(value) {
 		val requestMethods = RequestMethod.entries.joinToString { "@${it.annotation.simpleName!!}" }
-		NOT_FOUND_REQUEST_METHOD_MESSAGE.format(qualifiedName!!.asString(), requestMethods)
+		NOT_FOUND_REQUEST_METHOD_MESSAGE.format(this.simpleName.asString(), requestMethods)
 	}
 }
 
@@ -62,7 +62,7 @@ internal fun KSFunctionDeclaration.checkWithMultipleRequestMethod(
 ) {
 	check(value) {
 		MULTIPLE_REQUEST_METHOD_MESSAGE.format(
-			qualifiedName!!.asString(),
+			this.simpleName.asString(),
 			annotations.joinToString { "@${it.shortName.asString()}" },
 			annotations.size
 		)
@@ -78,17 +78,17 @@ internal fun KSFunctionDeclaration.checkWithUrlRegex(
 	value: Boolean,
 ) {
 	check(value) {
-		URL_REGEX_MESSAGE.format(this.qualifiedName!!.asString())
+		URL_REGEX_MESSAGE.format(this.simpleName.asString())
 	}
 }
 
-private inline fun KSNode.check(value: Boolean, lazyMessage: () -> String) {
-	if (!value) {
-		kspLogger?.error(lazyMessage(), this)
-	}
-}
+private const val KTORFITX_MESSAGE = "Ktorfitx 编译期错误检查：%s"
 
 /**
- * Ktorfitx 编译异常
+ * 检查，如果发生错误，使用 kspLogger 告诉用户错误点
  */
-class KtorfitxCompileException(message: String) : Exception(message)
+private inline fun KSNode.check(value: Boolean, lazyMessage: () -> String) {
+	if (!value) {
+		kspLogger?.error(KTORFITX_MESSAGE.format(lazyMessage()), this)
+	}
+}
