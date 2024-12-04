@@ -54,16 +54,10 @@ internal fun <V> KSAnnotation.getValue(property: KProperty1<*, V>): V? {
 @Suppress("UNCHECKED_CAST")
 internal fun <V> KSAnnotation.getValue(propertyName: String): V? {
 	val value = this.arguments.find { it.name?.asString() == propertyName }?.value
-	check(value !is KSType) { "$value 是 KSType 类型的！" }
-	check(value !is ArrayList<*>) { "$value 是 ArrayList<*> 类型的" }
+	check(value !is KSType && value !is ArrayList<*>) {
+		"此方法不支持此类型"
+	}
 	return value as? V
-}
-
-/**
- * 获取注解上的数组数据
- */
-internal inline fun <reified T : Any> KSAnnotation.getValues(property: KProperty1<*, *>): Array<T>? {
-	return this.getValues(property.name)
 }
 
 /**
@@ -79,24 +73,10 @@ internal inline fun <reified T : Any> KSAnnotation.getValues(propertyName: Strin
 /**
  * 获取注解上的 KClass 的 ClassName
  */
-internal fun KSAnnotation.getClassName(property: KProperty1<*, KClass<*>>): ClassName? {
-	return this.getClassName(property.name)
-}
-
-/**
- * 获取注解上的 KClass 的 ClassName
- */
 internal fun KSAnnotation.getClassName(propertyName: String): ClassName? {
 	val value = this.arguments.find { it.name?.asString() == propertyName }?.value ?: return null
 	check(value is KSType) { "$value is not KSType!" }
 	return (value.declaration as KSClassDeclaration).toClassName()
-}
-
-/**
- * 获取注解上的 KClass 的 ClassName
- */
-internal fun KSAnnotation.getClassNames(property: KProperty1<*, Array<out KClass<*>>>): Array<ClassName>? {
-	return this.getClassNames(property.name)
 }
 
 /**
@@ -172,6 +152,7 @@ internal val TypeName.rawType: ClassName
 		is ParameterizedTypeName -> {
 			this.rawType.copy(this.isNullable, emptyList(), emptyMap())
 		}
+		
 		is ClassName -> this
 		else -> error("不允许使用 rawType 属性")
 	}

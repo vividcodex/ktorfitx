@@ -1,7 +1,7 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.expends
 
 private val LowerCamelCaseRegex by lazy {
-	"^[a-z][a-zA-z0-9]*$".toRegex()
+	"^[a-z][a-zA-Z0-9]*$".toRegex()
 }
 
 private val UpperCamelCaseRegex by lazy {
@@ -28,7 +28,7 @@ internal fun String.isUpperCamelCase(): Boolean {
 internal fun String.lowerCamelCase(): String {
 	return when {
 		'_' in this -> {
-			this.split('_').joinToString {
+			this.split('_').joinToString("") {
 				it.replaceFirstToUppercase()
 			}.replaceFirstToLowercase()
 		}

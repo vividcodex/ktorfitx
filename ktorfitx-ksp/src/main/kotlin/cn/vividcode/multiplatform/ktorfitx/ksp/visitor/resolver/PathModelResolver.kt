@@ -21,7 +21,7 @@ internal object PathModelResolver {
 			val annotation = valueParameter.getAnnotationByType(Path::class) ?: return@mapNotNull null
 			val varName = valueParameter.name!!.asString()
 			val name = annotation.name.ifBlank { varName }
-			PathModel(name, varName)
+			PathModel(name, varName, valueParameter)
 		}
 	}
 }

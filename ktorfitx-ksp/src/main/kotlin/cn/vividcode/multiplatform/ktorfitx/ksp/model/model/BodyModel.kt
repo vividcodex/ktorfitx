@@ -11,5 +11,5 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.model.model
  */
 internal class BodyModel(
 	override val varName: String,
-	val typeQualifiedName: String
+	val typeQualifiedName: String,
 ) : ValueParameterModel

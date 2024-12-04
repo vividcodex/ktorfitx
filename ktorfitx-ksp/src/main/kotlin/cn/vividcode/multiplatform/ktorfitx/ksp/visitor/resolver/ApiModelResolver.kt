@@ -1,13 +1,13 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.check.checkWithRequestMethodCount
+import cn.vividcode.multiplatform.ktorfitx.ksp.check.checkWithUrlRegex
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isHttpOrHttps
-import cn.vividcode.multiplatform.ktorfitx.ksp.messages.checkWithMultipleRequestMethod
-import cn.vividcode.multiplatform.ktorfitx.ksp.messages.checkWithNotFoundRequestMethod
-import cn.vividcode.multiplatform.ktorfitx.ksp.messages.checkWithUrlRegex
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.RequestMethod
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ApiModel
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 /**
@@ -21,23 +21,20 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  */
 internal object ApiModelResolver {
 	
-	private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
-	
 	fun KSFunctionDeclaration.resolve(): ApiModel {
 		val annotations = RequestMethod.entries.mapNotNull {
 			getKSAnnotationByType(it.annotation)
 		}
-		checkWithNotFoundRequestMethod(annotations.isNotEmpty())
-		checkWithMultipleRequestMethod(annotations.size == 1, annotations)
+		this.checkWithRequestMethodCount(annotations)
 		val annotation = annotations.first()
 		val requestFunName = annotation.shortName.asString().lowercase()
-		val url = annotation.getValue<String>("url")!!
-		return ApiModel(requestFunName, formatUrl(url))
+		return ApiModel(requestFunName, getUrl(annotation))
 	}
 	
-	private fun KSFunctionDeclaration.formatUrl(url: String): String {
+	private fun KSFunctionDeclaration.getUrl(annotation: KSAnnotation): String {
+		val url = annotation.getValue<String>("url")!!
 		if (url.isHttpOrHttps()) return url
-		checkWithUrlRegex(urlRegex.matches(url))
+		this.checkWithUrlRegex(url, annotation)
 		return if (url.startsWith('/')) url else "/$url"
 	}
 }

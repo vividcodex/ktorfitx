@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.check.checkWithPathNotFound
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isHttpOrHttps
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.simpleName
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
@@ -144,28 +145,12 @@ internal class CodeBlockBuilder(
 		val pathModels = valueParameterModels.filterIsInstance<PathModel>()
 		val initialUrl = if (url.isHttpOrHttps()) url else classStructure.apiStructure.url + url
 		val fullUrl = pathModels.fold(initialUrl) { acc, it ->
-			check(it.name.isNotBlank()) {
-				"${funStructure.funName} 方法的 ${it.varName} 参数上的 @Path 注解的 name 不能为空"
-			}
-			check(acc.contains("{${it.name}}")) {
-				"${funStructure.funName} 方法的 ${it.varName} 参数上的 @Path 注解的 name 没有在 url 上找到"
+			with(it.valueParameter) {
+				this.checkWithPathNotFound(acc, it.name, funStructure.funName, it.varName)
 			}
 			acc.replace("{${it.name}}", "\${${it.varName}}")
 		}
-		getNotFoundPath(fullUrl)?.let {
-			error("${funStructure.funName} 方法的 url 上名称为 $it 的 path 没有匹配到")
-		}
 		return fullUrl
-	}
-	
-	private fun getNotFoundPath(fullUrl: String): String? {
-		for (startIndex in 1 ..< fullUrl.length) {
-			if (fullUrl[startIndex] == '{' && fullUrl[startIndex - 1] != '$') {
-				val endIndex = fullUrl.indexOf('}', startIndex)
-				return fullUrl.substring(startIndex + 1, endIndex)
-			}
-		}
-		return null
 	}
 	
 	private fun isNeedClientBuilder(): Boolean {
