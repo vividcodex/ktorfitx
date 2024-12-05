@@ -61,22 +61,25 @@ internal fun KSFunctionDeclaration.checkWithRequestMethodCount(
 	}
 }
 
-/**
- * 检查参数注解数量以及格式
- */
-internal fun KSValueParameter.checkWithParameterAnnotationCountAndFormat(
-	funName: String,
-) {
-	val qualifiedNames = arrayOf(
+private val annotationQualifiedNames by lazy {
+	arrayOf(
 		KtorfitxQualifiers.BODY,
 		KtorfitxQualifiers.FORM,
 		KtorfitxQualifiers.HEADER,
 		KtorfitxQualifiers.PATH,
 		KtorfitxQualifiers.QUERY
 	)
+}
+
+/**
+ * 检查参数注解数量以及格式
+ */
+internal fun KSValueParameter.checkWithParameterAnnotationCountAndFormat(
+	funName: String,
+) {
 	val annotation = this.annotations.toList()
 		.map { it.annotationType.resolve().declaration.qualifiedName?.asString() }
-		.filter { it in qualifiedNames }
+		.filter { it in annotationQualifiedNames }
 	val varName = this.name!!.asString()
 	compileErrorCheck(annotation.isNotEmpty()) {
 		COMPILE_MESSAGE_PARAMETER_NOT_FOUND_ANNOTATION.format(funName, varName)
