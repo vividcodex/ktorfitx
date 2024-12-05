@@ -3,6 +3,8 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.check
 
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.code
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getArgumentKSClassDeclaration
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isLowerCamelCase
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.lowerCamelCase
 import cn.vividcode.multiplatform.ktorfitx.ksp.kspLogger
@@ -10,10 +12,8 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.model.RequestMethod
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.BodyModel
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.FormModel
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ValueParameterModel
-import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSNode
-import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.*
+import com.squareup.kotlinpoet.ClassName
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -23,8 +23,8 @@ import kotlin.contracts.contract
 internal fun KSFunctionDeclaration.checkWithBodySize(
 	valueParameters: List<KSValueParameter>,
 ) {
-	kspErrorCheck(valueParameters.size == 1) {
-		COMPILE_ERROR_BODY_SIZE.format(this.simpleName.asString())
+	compileErrorCheck(valueParameters.size == 1) {
+		COMPILE_MESSAGE_BODY_SIZE.format(this.simpleName.asString())
 	}
 }
 
@@ -37,8 +37,8 @@ internal fun KSFunctionDeclaration.checkWithBodyType(
 	contract {
 		returns() implies (qualifiedName != null)
 	}
-	kspErrorCheck(qualifiedName != null) {
-		COMPILE_ERROR_BODY_TYPE.format(this.simpleName.asString())
+	compileErrorCheck(qualifiedName != null) {
+		COMPILE_MESSAGE_BODY_TYPE.format(this.simpleName.asString())
 	}
 }
 
@@ -48,12 +48,12 @@ internal fun KSFunctionDeclaration.checkWithBodyType(
 internal fun KSFunctionDeclaration.checkWithRequestMethodCount(
 	annotations: List<KSAnnotation>,
 ) {
-	kspErrorCheck(annotations.isNotEmpty()) {
+	compileErrorCheck(annotations.isNotEmpty()) {
 		val requestMethods = RequestMethod.entries.joinToString { "@${it.annotation.simpleName!!}" }
-		COMPILE_ERROR_NOT_FOUND_REQUEST_METHOD.format(this.simpleName.asString(), requestMethods)
+		COMPILE_MESSAGE_NOT_FOUND_REQUEST_METHOD.format(this.simpleName.asString(), requestMethods)
 	}
-	kspErrorCheck(annotations.size == 1) {
-		COMPILE_ERROR_MULTIPLE_REQUEST_METHOD.format(
+	compileErrorCheck(annotations.size == 1) {
+		COMPILE_MESSAGE_MULTIPLE_REQUEST_METHOD.format(
 			this.simpleName.asString(),
 			annotations.joinToString { "@${it.shortName.asString()}" },
 			annotations.size
@@ -78,19 +78,21 @@ internal fun KSValueParameter.checkWithParameterAnnotationCountAndFormat(
 		.map { it.annotationType.resolve().declaration.qualifiedName?.asString() }
 		.filter { it in qualifiedNames }
 	val varName = this.name!!.asString()
-	kspErrorCheck(annotation.isNotEmpty()) {
-		COMPILE_ERROR_PARAMETER_NOT_FOUND_ANNOTATION.format(funName, varName)
+	compileErrorCheck(annotation.isNotEmpty()) {
+		COMPILE_MESSAGE_PARAMETER_NOT_FOUND_ANNOTATION.format(funName, varName)
 	}
-	kspErrorCheck(annotation.size == 1) {
+	compileErrorCheck(annotation.size == 1) {
 		val useAnnotations = annotations.joinToString()
-		COMPILE_ERROR_PARAMETER_MULTIPLE_ANNOTATIONS.format(funName, varName, useAnnotations)
+		COMPILE_MESSAGE_PARAMETER_MULTIPLE_ANNOTATIONS.format(funName, varName, useAnnotations)
 	}
-	kspErrorCheck(varName.isLowerCamelCase()) {
-		COMPILE_ERROR_PARAMETER_VAR_NAME_FORMAT.format(funName, varName, varName.lowerCamelCase())
+	compileErrorCheck(varName.isLowerCamelCase()) {
+		COMPILE_MESSAGE_PARAMETER_VAR_NAME_FORMAT.format(funName, varName, varName.lowerCamelCase())
 	}
 }
 
-private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
+private val urlRegex by lazy {
+	"^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
+}
 
 /**
  * 检查 url 的格式
@@ -99,8 +101,8 @@ internal fun KSFunctionDeclaration.checkWithUrlRegex(
 	url: String,
 	annotation: KSAnnotation,
 ) {
-	kspErrorCheck(urlRegex.matches(url)) {
-		COMPILE_ERROR_URL_REGEX_MESSAGE.format(this.simpleName.asString(), annotation)
+	compileErrorCheck(urlRegex.matches(url)) {
+		COMPILE_MESSAGE_URL_REGEX_MESSAGE.format(this.simpleName.asString(), annotation)
 	}
 }
 
@@ -111,8 +113,8 @@ internal fun KSFunctionDeclaration.checkWithUseBothBodyAndForm(
 	models: List<ValueParameterModel?>,
 ) {
 	val value = arrayOf(BodyModel::class, FormModel::class).all { kClass -> models.any { kClass.isInstance(it) } }
-	kspErrorCheck(!value) {
-		COMPILE_USE_BOTH_BODY_AND_FORM.format(this.simpleName.asString())
+	compileErrorCheck(!value) {
+		COMPILE_MESSAGE_USE_BOTH_BODY_AND_FORM.format(this.simpleName.asString())
 	}
 }
 
@@ -125,21 +127,53 @@ internal fun KSValueParameter.checkWithPathNotFound(
 	funName: String,
 	varName: String,
 ) {
-	kspErrorCheck(url.contains("{$name}")) {
-		COMPILE_ERROR_PATH_NOT_FOUND.format(funName, varName)
+	compileErrorCheck(url.contains("{$name}")) {
+		COMPILE_MESSAGE_PATH_NOT_FOUND.format(funName, varName)
 	}
 }
 
-//internal fun KSValueParameter.checkWith
+private val mockProviderClassName by lazy {
+	ClassName.bestGuess(KtorfitxQualifiers.MOCK_PROVIDER)
+}
+
+/**
+ * 检查 `@Mock` 注解的 provider 参数类型
+ */
+internal fun KSAnnotation.checkWithMockProviderType(
+	mockProvider: ClassName,
+	funName: String,
+) {
+	compileErrorCheck(mockProvider != mockProviderClassName) {
+		COMPILE_MESSAGE_UNUSABLE_MOCK_PROVIDER.format(funName)
+	}
+	val classDeclaration = this.getArgumentKSClassDeclaration("provider")!!
+	val classKind = classDeclaration.classKind
+	classDeclaration.compileErrorCheck(classKind == ClassKind.OBJECT) {
+		val className = classDeclaration.simpleName.asString()
+		COMPILE_MESSAGE_REALIZE_MOCK_PROVIDER_TYPE.format(className, classKind.code)
+	}
+}
+
+/**
+ * 检查 `@Mock` 注解的 delayRange 参数
+ */
+internal fun KSAnnotation.checkWithMockProviderDelayRange(
+	delayRange: Array<Long>,
+	funName: String,
+) {
+	compileErrorCheck(delayRange.size == 1 || (delayRange.size == 2 && delayRange[0] <= delayRange[1])) {
+		COMPILE_MESSAGE_MOCK_PROVIDER_DELAY_RANGE.format(funName)
+	}
+}
 
 /**
  * 检查错误，如果错误给用户提供错误点以及错误信息
  */
-private inline fun KSNode.kspErrorCheck(
+private inline fun KSNode.compileErrorCheck(
 	value: Boolean,
 	lazyMessage: () -> String,
 ) {
 	if (!value) {
-		kspLogger?.error(COMPILE_ERROR_KTORFITX.format(lazyMessage()), this)
+		kspLogger?.error(COMPILE_MESSAGE_KTORFITX.format(lazyMessage()), this)
 	}
 }

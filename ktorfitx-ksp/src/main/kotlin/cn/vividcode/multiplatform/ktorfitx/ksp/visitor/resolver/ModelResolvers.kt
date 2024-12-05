@@ -46,7 +46,7 @@ internal object ModelResolvers {
 		val models = mutableListOf<FunctionModel?>()
 		models += with(ApiModelResolver) { resolve() }
 		models += with(HeadersModelResolver) { resolve() }
-		models += with(MockModelResolver) { resolve(resolver) }
+		models += with(MockModelResolver) { resolve() }
 		models += with(BearerAuthModelResolver) { resolve() }
 		models += with(ExceptionListenerResolver) { resolves(resolver) }
 		return models.filterNotNull()
