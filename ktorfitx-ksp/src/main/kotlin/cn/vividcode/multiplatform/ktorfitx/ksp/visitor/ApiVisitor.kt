@@ -114,11 +114,11 @@ internal class ApiVisitor(
 					"$funName 方法缺少 suspend 修饰符"
 				}
 				val funName = it.simpleName.asString()
-				val returnType = it.getReturnStructure().checkLegal()
+				val returnStructure = it.getReturnStructure()
 				val parameterModels = with(ModelResolvers) { it.getAllParameterModel() }
 				val valueParameterModels = with(ModelResolvers) { it.getAllValueParameterModels() }
 				val functionModels = with(ModelResolvers) { it.getAllFunctionModels(resolver) }
-				FunStructure(funName, returnType, parameterModels, functionModels, valueParameterModels)
+				FunStructure(funName, returnStructure, parameterModels, functionModels, valueParameterModels)
 			}
 	}
 	
@@ -126,33 +126,31 @@ internal class ApiVisitor(
 	 * 获取 ReturnStructure
 	 */
 	private fun KSFunctionDeclaration.getReturnStructure(): ReturnStructure {
-		return when (
-			val typeName = this.returnType!!.toTypeName()
-		) {
-			is ClassName -> ReturnStructure(typeName)
-			is ParameterizedTypeName -> {
-				check(typeName.typeArguments.size == 1) {
-					"不支持的返回数据类型 $typeName"
-				}
-				val typeArgument = typeName.typeArguments.first()
-				check(typeArgument is ClassName || typeArgument is ParameterizedTypeName) {
-					"不支持的返回数据类型 $typeName"
-				}
-				ReturnStructure(typeName)
-			}
-			
-			else -> error("不支持的返回数据类型 $typeName")
+		val returnType = this.returnType!!
+		val typeName = returnType.toTypeName()
+		val lazyErrorMessage = {
+			val funName = this.simpleName.asString()
+			val returnTypes = ReturnTypes.returnTypes.joinToString()
+			"$funName 方法的返回类型 $typeName 不支持，请使用 $returnTypes"
 		}
-	}
-	
-	/**
-	 * 检查 ReturnStructure 合法
-	 */
-	private fun ReturnStructure.checkLegal(): ReturnStructure {
-		check(this.notNullRawType in ReturnTypes.returnTypes) {
-			"$typeName 不支持的类型"
+		returnType.compileCheck(
+			value = typeName is ClassName || typeName is ParameterizedTypeName,
+			lazyErrorMessage = lazyErrorMessage
+		)
+		
+		if (typeName is ParameterizedTypeName) {
+			val arguments = typeName.typeArguments
+			returnType.compileCheck(
+				value = arguments.size == 1 && (arguments[0] is ClassName || arguments[0] is ParameterizedTypeName),
+				lazyErrorMessage = lazyErrorMessage
+			)
 		}
-		return this
+		val returnStructure = ReturnStructure(typeName)
+		returnType.compileCheck(
+			value = returnStructure.notNullRawType in ReturnTypes.returnTypes,
+			lazyErrorMessage = lazyErrorMessage
+		)
+		return returnStructure
 	}
 	
 	override fun defaultHandler(node: KSNode, data: Unit): VisitorResult? = null

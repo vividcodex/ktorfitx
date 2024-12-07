@@ -9,7 +9,7 @@ import kotlin.contracts.contract
  * 编译器检查
  */
 @OptIn(ExperimentalContracts::class)
-internal fun <T : KSNode> T.compileCheck(
+internal inline fun <T : KSNode> T.compileCheck(
 	value: Boolean,
 	lazyErrorMessage: () -> String,
 ) {
