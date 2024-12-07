@@ -1,8 +1,7 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.Body
-import cn.vividcode.multiplatform.ktorfitx.ksp.check.checkWithBodySize
-import cn.vividcode.multiplatform.ktorfitx.ksp.check.checkWithBodyType
+import cn.vividcode.multiplatform.ktorfitx.ksp.check.compileCheck
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.BodyModel
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.isAnnotationPresent
@@ -23,11 +22,15 @@ internal object BodyModelResolver {
 	fun KSFunctionDeclaration.resolve(): BodyModel? {
 		val valueParameters = this.parameters.filter { it.isAnnotationPresent(Body::class) }
 		if (valueParameters.isEmpty()) return null
-		this.checkWithBodySize(valueParameters)
+		this.compileCheck(valueParameters.size == 1) {
+			"${this.simpleName.asString()} 方法不允许使用多个 @Body 注解"
+		}
 		val valueParameter = valueParameters.first()
 		val varName = valueParameter.name!!.asString()
 		val qualifiedName = valueParameter.type.resolve().declaration.qualifiedName?.asString()
-		this.checkWithBodyType(qualifiedName)
+		this.compileCheck(qualifiedName != null) {
+			"${this.simpleName.asString()} 方法的参数列表中标记了 @Body 注解，但是未找到参数类型"
+		}
 		return BodyModel(varName, qualifiedName)
 	}
 }

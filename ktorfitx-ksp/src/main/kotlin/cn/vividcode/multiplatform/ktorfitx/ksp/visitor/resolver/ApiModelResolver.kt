@@ -1,7 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktorfitx.ksp.check.checkWithRequestMethodCount
-import cn.vividcode.multiplatform.ktorfitx.ksp.check.checkWithUrlRegex
+import cn.vividcode.multiplatform.ktorfitx.ksp.check.compileCheck
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isHttpOrHttps
@@ -21,20 +20,33 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  */
 internal object ApiModelResolver {
 	
+	private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
+	
 	fun KSFunctionDeclaration.resolve(): ApiModel {
 		val annotations = RequestMethod.entries.mapNotNull {
 			getKSAnnotationByType(it.annotation)
 		}
-		this.checkWithRequestMethodCount(annotations)
+		val funName = this.simpleName.asString()
+		this.compileCheck(annotations.isNotEmpty()) {
+			val requestMethods = RequestMethod.entries.joinToString { "@${it.annotation.simpleName!!}" }
+			"$funName 方法缺少请求类型，请使用以下请求类型类型：$requestMethods"
+		}
+		this.compileCheck(annotations.size == 1) {
+			val useAnnotations = annotations.joinToString()
+			val useSize = annotations.size
+			"$funName 方法只允许使用一种请求方法，而你使用了 $useAnnotations $useSize 个"
+		}
 		val annotation = annotations.first()
 		val requestFunName = annotation.shortName.asString().lowercase()
-		return ApiModel(requestFunName, getUrl(annotation))
+		return ApiModel(requestFunName, annotation.getUrl(funName))
 	}
 	
-	private fun KSFunctionDeclaration.getUrl(annotation: KSAnnotation): String {
-		val url = annotation.getValue<String>("url")!!
+	private fun KSAnnotation.getUrl(funName: String): String {
+		val url = this.getValue<String>("url")!!
 		if (url.isHttpOrHttps()) return url
-		this.checkWithUrlRegex(url, annotation)
+		this.compileCheck(urlRegex.matches(url)) {
+			"$funName 方法上 $this 注解的 url 参数格式错误"
+		}
 		return if (url.startsWith('/')) url else "/$url"
 	}
 }

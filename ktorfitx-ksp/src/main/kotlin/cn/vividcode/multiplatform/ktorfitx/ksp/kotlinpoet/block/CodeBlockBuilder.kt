@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
 
-import cn.vividcode.multiplatform.ktorfitx.ksp.check.checkWithPathNotFound
+import cn.vividcode.multiplatform.ktorfitx.ksp.check.compileCheck
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isHttpOrHttps
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.simpleName
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
@@ -145,8 +145,9 @@ internal class CodeBlockBuilder(
 		val pathModels = valueParameterModels.filterIsInstance<PathModel>()
 		val initialUrl = if (url.isHttpOrHttps()) url else classStructure.apiStructure.url + url
 		val fullUrl = pathModels.fold(initialUrl) { acc, it ->
-			with(it.valueParameter) {
-				this.checkWithPathNotFound(acc, it.name, funStructure.funName, it.varName)
+			it.valueParameter.compileCheck(url.contains("{${it.name}}")) {
+				val funName = funStructure.funName
+				"$funName 方法上 ${it.varName} 参数上的 @Path 注解的 name 参数没有在 url 上找到"
 			}
 			acc.replace("{${it.name}}", "\${${it.varName}}")
 		}

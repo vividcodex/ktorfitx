@@ -1,9 +1,7 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
-import cn.vividcode.multiplatform.ktorfitx.ksp.check.checkWithUseBothBodyAndForm
-import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.FunctionModel
-import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ParameterModel
-import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ValueParameterModel
+import cn.vividcode.multiplatform.ktorfitx.ksp.check.compileCheck
+import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.*
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
@@ -35,7 +33,12 @@ internal object ModelResolvers {
 		models += with(FormModelResolver) { resolves() }
 		models += with(PathModelResolver) { resolves() }
 		models += with(HeaderModelResolver) { resolves() }
-		this.checkWithUseBothBodyAndForm(models)
+		val useBodyAndForm = arrayOf(BodyModel::class, FormModel::class)
+			.all { kClass -> models.any { kClass.isInstance(it) } }
+		this.compileCheck(!useBodyAndForm) {
+			val funName = this.simpleName.asString()
+			"$funName 方法不能同时使用 @Body 和 @Form 注解"
+		}
 		return models.filterNotNull()
 	}
 	
