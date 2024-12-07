@@ -6,7 +6,7 @@ import kotlin.reflect.KFunction
 /**
  * TestUnitExceptionListener
  */
-object TestUnitExceptionListener : ExceptionListener<TestException, Unit> {
+data object TestUnitExceptionListener : ExceptionListener<TestException, Unit> {
 	
 	override fun KFunction<*>.onExceptionListener(e: TestException) {
 	
@@ -16,10 +16,10 @@ object TestUnitExceptionListener : ExceptionListener<TestException, Unit> {
 /**
  * TestResultBodyExceptionListener
  */
-object TestResultBodyExceptionListener : ExceptionListener<Exception, String> {
+object TestResultBodyExceptionListener : ExceptionListener<Exception, Int> {
 	
-	override fun KFunction<*>.onExceptionListener(e: Exception): String {
-		return e.toString()
+	override fun KFunction<*>.onExceptionListener(e: Exception): Int {
+		return 1
 	}
 }
 

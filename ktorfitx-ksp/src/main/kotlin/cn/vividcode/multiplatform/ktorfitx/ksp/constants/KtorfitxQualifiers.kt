@@ -5,7 +5,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.constants
  */
 internal object KtorfitxQualifiers {
 	
-	const val PACKAGE_ANNOTATION = "cn.vividcode.multiplatform.ktorfitx.annotation"
+	private const val PACKAGE_ANNOTATION = "cn.vividcode.multiplatform.ktorfitx.annotation"
 	
 	const val PACKAGE_API = "cn.vividcode.multiplatform.ktorfitx.api"
 	

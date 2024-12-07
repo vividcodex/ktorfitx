@@ -1,16 +1,15 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.check.compileCheck
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassName
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassNames
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.simpleName
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.*
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ExceptionListenerModel
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
@@ -32,45 +31,48 @@ internal object ExceptionListenerResolver {
 		
 		val listenerClassNames = mutableListOf<ClassName>()
 		listenerClassNames += annotation.getClassName("listener")!!
-		listenerClassNames += annotation.getClassNames("listeners") ?: emptyArray()
-		return listenerClassNames.map {
-			getExceptionListenerModel(resolver, it)
-		}.check(this)
-	}
-	
-	private fun KSFunctionDeclaration.getExceptionListenerModel(resolver: Resolver, listenerClassName: ClassName): ExceptionListenerModel {
-		check(listenerClassName.canonicalName != KtorfitxQualifiers.EXCEPTION_LISTENER) {
-			"${this.simpleName.asString()} 的 @ExceptionListeners 注解的参数 listener 不能使用 ExceptionListener::class"
+		annotation.getClassNames("listeners")?.let { listenerClassNames += it }
+		val exceptionListenerModels = listenerClassNames.map {
+			annotation.compileCheck(it.canonicalName != KtorfitxQualifiers.EXCEPTION_LISTENER) {
+				val funName = this.simpleName.asString()
+				"$funName 方法上的 @ExceptionListeners 注解中不能使用 ExceptionListener::class，请实现它并且必须是非 private 权限修饰的 object 类型的"
+			}
+			val classDeclaration = resolver.getClassDeclarationByName(it.canonicalName)!!
+			val classKind = classDeclaration.classKind
+			classDeclaration.compileCheck(classKind == ClassKind.OBJECT) {
+				"${it.simpleName} 类不允许使用 ${classKind.code} 类型，请使用 object 类型"
+			}
+			classDeclaration.compileCheck(!classDeclaration.modifiers.contains(Modifier.PRIVATE)) {
+				"${it.simpleName} 类不允许使用 private 访问权限"
+			}
+			val typeArguments = classDeclaration.superTypes.first().element!!.typeArguments
+			val exceptionTypeName = typeArguments[0].toTypeName()
+			val returnTypeName = typeArguments[1].toTypeName()
+			val funReturnTypeName = this.returnType!!.toTypeName().copy(nullable = false)
+			this.compileCheck(returnTypeName == ReturnTypes.unitClassName || returnTypeName == funReturnTypeName) {
+				val funName = this.simpleName.asString()
+				val returnSimpleNames = if (returnTypeName.simpleName != funReturnTypeName.simpleName) {
+					returnTypeName.simpleName to funReturnTypeName.simpleName
+				} else {
+					returnTypeName.rawType.canonicalName to funReturnTypeName.rawType.canonicalName
+				}
+				"$funName 方法上的 @ExceptionListeners 注解中的 ${it.simpleName} 监听器的返回类型 ${returnSimpleNames.first} 与方法中的返回类型 ${returnSimpleNames.second} 不一致"
+			}
+			ExceptionListenerModel(it, exceptionTypeName, returnTypeName)
 		}
-		val classDeclaration = resolver.getClassDeclarationByName(listenerClassName.canonicalName)!!
-		check(classDeclaration.classKind == ClassKind.OBJECT) {
-			"${classDeclaration.simpleName.asString()} 的 ClassKind 只允许是 ${ClassKind.OBJECT} 类型的"
-		}
-		val typeArguments = classDeclaration.superTypes.first().element!!.typeArguments
-		val exceptionTypeName = typeArguments.first().toTypeName()
-		val returnTypeName = typeArguments[1].toTypeName()
-		return ExceptionListenerModel(listenerClassName, exceptionTypeName, returnTypeName)
-	}
-	
-	private fun List<ExceptionListenerModel>.check(functionDeclaration: KSFunctionDeclaration): List<ExceptionListenerModel> {
-		val funName = functionDeclaration.simpleName.asString()
-		this.groupBy { it.listenerClassName }.forEach { (listener, it) ->
-			check(it.size == 1) {
-				"$funName 方法的 @ExceptionListeners 中存在相同的异常监听器: ${listener.simpleName}"
+		exceptionListenerModels.groupBy { it.listenerClassName }.forEach { (className, models) ->
+			annotation.compileCheck(models.size == 1) {
+				val funName = this.simpleName.asString()
+				"$funName 方法上的 @ExceptionListeners 中存在相同的监听器 ${className.simpleName}"
 			}
 		}
-		this.groupBy { it.exceptionTypeName }.forEach { (exception, it) ->
-			check(it.size == 1) {
-				val listeners = it.joinToString { it.listenerClassName.simpleName }
-				"$funName 方法的 @ExceptionListeners 中的异常监听器 $listeners 有相同的异常: ${exception.simpleName}"
+		exceptionListenerModels.groupBy { it.exceptionTypeName }.forEach { (className, models) ->
+			annotation.compileCheck(models.size == 1) {
+				val funName = this.simpleName.asString()
+				val listeners = models.joinToString { it.listenerClassName.simpleName }
+				"$funName 方法上的 @ExceptionListeners 中的监听器 $listeners 中同时处理了相同的异常 ${className.simpleName}"
 			}
 		}
-		val returnType = functionDeclaration.returnType!!.toTypeName().copy(nullable = false)
-		this.forEach {
-			check(it.returnTypeName == returnType || it.returnTypeName == ReturnTypes.unitClassName) {
-				"$funName 方法的 @ExceptionListeners 中的异常监听器 ${it.listenerClassName.simpleName} 的返回类型 ${it.returnTypeName.simpleName} 与方法的返回类型 ${returnType.simpleName} 不一致"
-			}
-		}
-		return this
+		return exceptionListenerModels
 	}
 }

@@ -18,7 +18,7 @@ interface Test2Api {
 	suspend fun mockTest()
 }
 
-private object TestMockProvider : MockProvider<String> {
+object TestMockProvider : MockProvider<String> {
 	override fun provide(status: MockStatus): String {
 		return ""
 	}
