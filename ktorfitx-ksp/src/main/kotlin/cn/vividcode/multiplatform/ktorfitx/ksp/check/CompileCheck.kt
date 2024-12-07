@@ -9,7 +9,7 @@ import kotlin.contracts.contract
  * 编译器检查
  */
 @OptIn(ExperimentalContracts::class)
-internal inline fun <T : KSNode> T.compileCheck(
+internal fun <T : KSNode> T.compileCheck(
 	value: Boolean,
 	lazyErrorMessage: () -> String,
 ) {
@@ -18,7 +18,9 @@ internal inline fun <T : KSNode> T.compileCheck(
 	}
 	if (!value) {
 		val message = lazyErrorMessage()
-		kspLogger?.error("\nKtorfitx编译期错误检查: $message", this)
+		kspLogger?.error("\nKtorfitx 编译期错误检查: $message\n详情请查看官方文档: $KTORFITX_DOCUMENT_URL", this)
 		compileCheckError(message, this)
 	}
 }
+
+private const val KTORFITX_DOCUMENT_URL = "https://vividcodex.github.io/ktorfitx-document/index_md.html"

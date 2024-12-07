@@ -35,7 +35,7 @@ internal object ExceptionListenerResolver {
 		val exceptionListenerModels = listenerClassNames.map {
 			annotation.compileCheck(it.canonicalName != KtorfitxQualifiers.EXCEPTION_LISTENER) {
 				val funName = this.simpleName.asString()
-				"$funName 方法上的 @ExceptionListeners 注解中不能使用 ExceptionListener::class，请实现它并且必须是非 private 权限修饰的 object 类型的"
+				"$funName 方法上的 @ExceptionListeners 注解中不能使用 ExceptionListener::class，请实现它并且必须是非 private 访问权限的 object 类型的"
 			}
 			val classDeclaration = resolver.getClassDeclarationByName(it.canonicalName)!!
 			val classKind = classDeclaration.classKind
@@ -49,7 +49,7 @@ internal object ExceptionListenerResolver {
 			val exceptionTypeName = typeArguments[0].toTypeName()
 			val returnTypeName = typeArguments[1].toTypeName()
 			val funReturnTypeName = this.returnType!!.toTypeName().copy(nullable = false)
-			this.compileCheck(returnTypeName == ReturnTypes.unitClassName || returnTypeName == funReturnTypeName) {
+			annotation.compileCheck(returnTypeName == ReturnTypes.unitClassName || returnTypeName == funReturnTypeName) {
 				val funName = this.simpleName.asString()
 				val returnSimpleNames = if (returnTypeName.simpleName != funReturnTypeName.simpleName) {
 					returnTypeName.simpleName to funReturnTypeName.simpleName

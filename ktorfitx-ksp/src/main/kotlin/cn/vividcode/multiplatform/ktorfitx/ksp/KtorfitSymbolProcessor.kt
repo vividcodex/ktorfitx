@@ -1,6 +1,8 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.check.compileCheck
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.code
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ApiKotlinPoet
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.UseImports
 import cn.vividcode.multiplatform.ktorfitx.ksp.visitor.ApiVisitor
@@ -36,7 +38,18 @@ internal class KtorfitSymbolProcessor(
 		annotatedList.forEach { symbol ->
 			if (!symbol.validate()) return@forEach
 			val classDeclaration = symbol as? KSClassDeclaration ?: return@forEach
-			if (classDeclaration.disallowedProcessing) return@forEach
+			
+			val classKind = classDeclaration.classKind
+			classDeclaration.compileCheck(classKind == ClassKind.INTERFACE) {
+				val className = classDeclaration.simpleName.asString()
+				"$className 必须是 interface 类型的，而你使用了 ${classKind.code}"
+			}
+			classDeclaration.compileCheck(Modifier.SEALED !in classDeclaration.modifiers) {
+				val className = classDeclaration.simpleName.asString()
+				"$className 接口在当前版本中不支持 sealed interface，请使用 interface"
+			}
+			
+			if (classDeclaration.isRepeatProcessing) return@forEach
 			resolver.processing(classDeclaration)
 		}
 		return emptyList()
@@ -45,12 +58,10 @@ internal class KtorfitSymbolProcessor(
 	/**
 	 * 不允许处理
 	 */
-	private val KSClassDeclaration.disallowedProcessing: Boolean
+	private val KSClassDeclaration.isRepeatProcessing: Boolean
 		get() {
 			val qualifiedName = this.qualifiedName?.asString() ?: return true
-			return !processedSymbols.add(qualifiedName) ||      // 不允许重复执行
-				this.classKind != ClassKind.INTERFACE ||        // 必须是 interface
-				Modifier.SEALED in this.modifiers               // 不允许 sealed interface
+			return !processedSymbols.add(qualifiedName)
 		}
 	
 	/**

@@ -16,10 +16,10 @@ data object TestUnitExceptionListener : ExceptionListener<TestException, Unit> {
 /**
  * TestResultBodyExceptionListener
  */
-object TestResultBodyExceptionListener : ExceptionListener<Exception, Int> {
+object TestResultBodyExceptionListener : ExceptionListener<Exception, String> {
 	
-	override fun KFunction<*>.onExceptionListener(e: Exception): Int {
-		return 1
+	override fun KFunction<*>.onExceptionListener(e: Exception): String {
+		return e.toString()
 	}
 }
 

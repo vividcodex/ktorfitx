@@ -20,7 +20,7 @@ import kotlinx.serialization.Serializable
  *
  * 文件介绍：TestApi
  */
-@Api(url = "/test", apiScope = TestApiScope::class)
+@Api(url = "/", apiScope = TestApiScope::class)
 interface TestApi {
 	
 	@GET(url = "/test01")

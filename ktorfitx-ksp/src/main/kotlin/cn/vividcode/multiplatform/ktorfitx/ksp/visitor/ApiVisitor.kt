@@ -1,5 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.check.compileCheck
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassName
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassNames
@@ -14,10 +15,7 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver.ModelResolvers
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.processing.Resolver
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSNode
-import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.symbol.Visibility.INTERNAL
 import com.google.devtools.ksp.symbol.Visibility.PUBLIC
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
@@ -67,39 +65,41 @@ internal class ApiVisitor(
 			apiScopeClassName == defaultApiScopeClassName && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames
 			apiScopeClassName != defaultApiScopeClassName && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames + apiScopeClassName
 			else -> setOf(apiScopeClassName)
-		}.also {
-			if (ApiVisitor.apiScopeClassName in it) {
-				error("${packageName.asString()}.${simpleName.asString()}，不允许使用 ApiScope 当作接口作用域，请使用 DefaultApiScope 或自定义 object 对象并实现 ApiScope")
-			}
 		}
-		val apiUrl = apiKSAnnotation.getValue<String>("url") ?: ""
-		val apiStructure = ApiStructure(formatApiUrl(apiUrl, simpleName.asString()), mergeApiScopeClassNames)
+		apiKSAnnotation.compileCheck(ApiVisitor.apiScopeClassName !in mergeApiScopeClassNames) {
+			val simpleName = this.simpleName.asString()
+			"$simpleName 接口上的 @Api 注解的 apiScope 不允许使用 ApiScope::class，请使用默认的 DefaultApiScope::class 或者自定义 object 对象并实现 ApiScope::class"
+		}
+		val apiUrl = getApiUrl(apiKSAnnotation)
+		val apiStructure = ApiStructure(apiUrl, mergeApiScopeClassNames)
 		val funStructure = getFunStructures()
-		return ClassStructure(className, superinterface, getKModifier(), apiStructure, funStructure)
+		return ClassStructure(className, superinterface, this.getVisibilityKModifier(), apiStructure, funStructure)
 	}
 	
 	/**
-	 * 获取接口访问级别
+	 * 获取访问权限的 KModifier
 	 */
-	private fun KSClassDeclaration.getKModifier(): KModifier {
-		return this.getVisibility().let {
-			when (it) {
-				PUBLIC -> KModifier.PUBLIC
-				INTERNAL -> KModifier.INTERNAL
-				else -> error("被 @Api 标记的接口访问权限只允许 public 和 internal")
-			}
+	private fun KSClassDeclaration.getVisibilityKModifier(): KModifier {
+		val visibility = this.getVisibility()
+		this.compileCheck(visibility == PUBLIC || visibility == INTERNAL) {
+			val className = this.simpleName.asString()
+			"$className 接口标记了 @Api，所以必须是 public 或 internal 访问权限的"
 		}
+		return KModifier.entries.first { it.name == visibility.name }
 	}
 	
 	/**
-	 * 格式话 apiUrl
+	 * 获取 `@Api` 注解上的 url 参数
 	 */
-	private fun formatApiUrl(apiUrl: String, className: String): String {
+	private fun KSClassDeclaration.getApiUrl(annotation: KSAnnotation): String {
+		val apiUrl = annotation.getValue<String>("url")
+			?: return ""
 		if (apiUrl.isBlank() || apiUrl == "/") return ""
-		check(urlRegex.matches(apiUrl)) {
-			"$className 的 url 参数格式错误"
+		annotation.compileCheck(urlRegex.matches(apiUrl)) {
+			val className = this.simpleName.asString()
+			"$className 接口上的 @Api 注解的 url 参数格式错误"
 		}
-		return if (apiUrl.startsWith('/')) apiUrl else "/$apiUrl"
+		return if (apiUrl.startsWith("/")) apiUrl else "/$apiUrl"
 	}
 	
 	/**
@@ -109,7 +109,10 @@ internal class ApiVisitor(
 		return this.getDeclaredFunctions().toList()
 			.filter { it.isAbstract }
 			.map {
-				check(Modifier.SUSPEND in it.modifiers) { "${it.qualifiedName!!.asString()} 方法缺少 suspend 修饰" }
+				it.compileCheck(Modifier.SUSPEND in it.modifiers) {
+					val funName = it.simpleName.asString()
+					"$funName 方法缺少 suspend 修饰符"
+				}
 				val funName = it.simpleName.asString()
 				val returnType = it.getReturnStructure().checkLegal()
 				val parameterModels = with(ModelResolvers) { it.getAllParameterModel() }

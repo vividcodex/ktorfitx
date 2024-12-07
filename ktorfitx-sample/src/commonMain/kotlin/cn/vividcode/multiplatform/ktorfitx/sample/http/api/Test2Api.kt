@@ -9,13 +9,13 @@ import cn.vividcode.multiplatform.ktorfitx.sample.http.TestApiScope
 interface Test2Api {
 	
 	@POST(url = "/{path}")
-	suspend fun test(
+	abstract suspend fun test(
 		@Path path: String,
 	): String
 	
 	@GET(url = "/mockTest")
 	@Mock(provider = TestMockProvider::class)
-	suspend fun mockTest()
+	abstract suspend fun mockTest()
 }
 
 object TestMockProvider : MockProvider<String> {
