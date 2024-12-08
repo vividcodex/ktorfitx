@@ -1,14 +1,14 @@
-# Ktorfitx 3.0.1-2.0.4
+# Ktorfitx 3.0.2-2.1.0
 
 ## 更新时间
 
-### 2024-12-01
+### 2024-12-08
 
 ## 版本说明
 
 Kotlin `2.1.0`
 
-Ktor `3.0.1`
+Ktor `3.0.2`
 
 KSP `2.1.0-1.0.29`
 
@@ -44,7 +44,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val ktorfitxVersion = "3.0.1-2.0.4"
+val ktorfitxVersion = "3.0.2-2.1.0"
 
 kotlin {
     sourceSets {
@@ -284,3 +284,8 @@ annotation class Header(
     val name: String = ""
 )
 ```
+
+## 编译期错误检查
+
+支持编译期错误检查，当您使用的方式不正确时，Ktorfitx 将会在编译期提供错误检查，
+以帮助用户更快的定位错误
