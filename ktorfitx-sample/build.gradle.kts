@@ -38,7 +38,18 @@ kotlin {
 			isStatic = true
 		}
 	}
-	
+
+	js {
+        moduleName = "sampleApp"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "sampleApp.js"
+            }
+        }
+        binaries.executable()
+        useEsModules()
+    }
+
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
 		moduleName = "sampleApp"

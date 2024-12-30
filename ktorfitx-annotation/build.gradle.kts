@@ -41,6 +41,18 @@ kotlin {
 		}
 	}
 	
+	js {
+        moduleName = "ktorfitxAnnotation"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "ktorfitxAnnotation.js"
+            }
+        }
+        binaries.executable()
+        useEsModules()
+    }
+
+
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
 		moduleName = "ktorfitxAnnotation"

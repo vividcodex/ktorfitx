@@ -1,16 +1,16 @@
 package cn.vividcode.multiplatform.ktorfitx.sample
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.window.CanvasBasedWindow
 import androidx.compose.ui.window.ComposeViewport
 import kotlinx.browser.document
-import org.jetbrains.compose.resources.configureWebResources
+import org.jetbrains.skiko.wasm.onWasmReady
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-	configureWebResources {
-		resourcePathMapping { path -> "./$path" }
-	}
-	ComposeViewport(document.body!!) {
-		App()
-	}
+    onWasmReady {
+        CanvasBasedWindow("KtorfitxSample") {
+            App()
+        }
+    }
 }

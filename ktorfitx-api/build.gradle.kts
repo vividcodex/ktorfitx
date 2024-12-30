@@ -44,6 +44,17 @@ kotlin {
 		}
 	}
 	
+	js {
+        moduleName = "ktorfitxApi"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "ktorfitxApi.js"
+            }
+        }
+        binaries.executable()
+        useEsModules()
+    }
+
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
 		moduleName = "ktorfitxApi"
