@@ -1,4 +1,4 @@
-# Ktorfitx 3.0.3-2.1.1
+# Ktorfitx 3.0.3-2.2.0
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=ktorfitx)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -22,7 +22,7 @@ KSP `2.1.0-1.0.29`
 
 ## 支持平台
 
-Android, IOS, Desktop (JVM), WasmJs
+Android, IOS, Desktop (JVM), WasmJs, Js
 
 ## 依赖说明
 
@@ -48,7 +48,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val ktorfitxVersion = "3.0.3-2.1.1"
+val ktorfitxVersion = "3.0.3-2.2.0"
 
 kotlin {
     sourceSets {
