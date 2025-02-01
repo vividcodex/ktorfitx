@@ -2,14 +2,14 @@
 android-compileSdk = "35"
 android-minSdk = "24"
 android-targetSdk = "35"
-kotlin = "2.1.0"
+kotlin = "2.1.10"
 agp = "8.7.3"
 ktor = "3.0.3"
-ksp = "2.1.0-1.0.29"
+ksp = "2.1.10-1.0.29"
 kotlinpoet-ksp = "2.0.0"
 maven-publish = "0.30.0"
 compose-plugin = "1.7.3"
-androidx-activity-compose = "1.9.3"
+androidx-activity-compose = "1.10.0"
 
 [libraries]
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
