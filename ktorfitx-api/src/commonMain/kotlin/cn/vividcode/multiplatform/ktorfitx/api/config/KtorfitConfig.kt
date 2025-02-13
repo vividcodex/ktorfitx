@@ -5,6 +5,7 @@ import cn.vividcode.multiplatform.ktorfitx.api.Ktorfit
 import cn.vividcode.multiplatform.ktorfitx.api.scope.ApiScope
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonBuilder
 
@@ -27,7 +28,7 @@ class KtorfitConfig internal constructor() {
 	var token: (() -> String)? = null
 		private set
 	
-	internal var timeout: TimeoutConfig? = null
+	internal var timeout: (HttpTimeoutConfig.() -> Unit)? = null
 		private set
 	
 	internal var log: LogConfig? = null
@@ -43,8 +44,8 @@ class KtorfitConfig internal constructor() {
 		this.token = token
 	}
 	
-	fun timeout(config: TimeoutConfig.() -> Unit) {
-		this.timeout = TimeoutConfig().apply(config)
+	fun timeout(config: HttpTimeoutConfig.() -> Unit) {
+		this.timeout = config
 	}
 	
 	fun log(config: LogConfig.() -> Unit) {
@@ -63,7 +64,6 @@ class KtorfitConfig internal constructor() {
 		check(baseUrl.isNotBlank()) { "请设置 baseUrl" }
 		this.engineFactory = this.engineFactory ?: CIO
 		this.token = this.token ?: { "" }
-		this.timeout = this.timeout ?: TimeoutConfig()
 		this.log = this.log ?: LogConfig()
 		this.json = this.json ?: Json
 		this.apiScope = this.apiScope ?: ApiScopeConfig()

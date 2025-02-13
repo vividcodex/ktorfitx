@@ -40,11 +40,7 @@ class Ktorfit<AS : ApiScope> internal constructor(
 			}
 			install(HttpCookies)
 			install(HttpTimeout) {
-				ktorfit.timeout?.let {
-					connectTimeoutMillis = it.connectTimeoutMillis
-					requestTimeoutMillis = it.requestTimeoutMillis
-					socketTimeoutMillis = it.socketTimeoutMillis
-				}
+				ktorfit.timeout?.invoke(this)
 			}
 		}
 	}
