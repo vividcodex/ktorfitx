@@ -10,8 +10,6 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
 
 /**
  * 项目名称：ktorfitx
@@ -28,24 +26,17 @@ class Ktorfit<AS : ApiScope> internal constructor(
 	private val apiScope: AS,
 ) {
 	
-	@OptIn(ExperimentalSerializationApi::class)
-	private val globalJson = Json {
-		this.prettyPrint = ktorfit.json!!.prettyPrint
-		this.prettyPrintIndent = ktorfit.json!!.prettyPrintIndent
-		this.ignoreUnknownKeys = ktorfit.json!!.ignoreUnknownKeys
-	}
-	
 	/**
 	 * HttpClient
 	 */
 	val httpClient: HttpClient by lazy {
-		HttpClient(HttpClientEngineFactory) {
+		HttpClient(this.ktorfit.engineFactory!!) {
 			install(Logging) {
 				this.logger = KtorfitLogger()
 				this.level = ktorfit.log!!.level
 			}
 			install(ContentNegotiation) {
-				json(globalJson)
+				json(ktorfit.json!!)
 			}
 			install(HttpCookies)
 			install(HttpTimeout) {
@@ -73,7 +64,7 @@ class Ktorfit<AS : ApiScope> internal constructor(
 	 * MockClient
 	 */
 	val mockClient: MockClient by lazy {
-		MockClient(ktorfit.log!!, globalJson)
+		MockClient(ktorfit.log!!, this.ktorfit.json!!)
 	}
 }
 

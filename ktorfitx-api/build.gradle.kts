@@ -45,16 +45,16 @@ kotlin {
 	}
 	
 	js {
-        moduleName = "ktorfitxApi"
-        browser {
-            commonWebpackConfig {
-                outputFileName = "ktorfitxApi.js"
-            }
-        }
-        binaries.executable()
-        useEsModules()
-    }
-
+		moduleName = "ktorfitxApi"
+		browser {
+			commonWebpackConfig {
+				outputFileName = "ktorfitxApi.js"
+			}
+		}
+		binaries.executable()
+		useEsModules()
+	}
+	
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
 		moduleName = "ktorfitxApi"
@@ -85,20 +85,7 @@ kotlin {
 				api(libs.ktor.serialization.kotlinx.json)
 				api(libs.ktor.client.logging)
 				api(libs.ktor.client.core)
-			}
-		}
-		androidMain {
-			dependencies {
-				api(libs.ktor.client.okhttp)
-			}
-		}
-		val desktopMain by getting
-		desktopMain.dependencies {
-			api(libs.ktor.client.okhttp)
-		}
-		iosMain {
-			dependencies {
-				api(libs.ktor.client.darwin)
+				api(libs.ktor.client.cio)
 			}
 		}
 	}

@@ -16,7 +16,7 @@
 
 Kotlin `2.1.10`
 
-Ktor `3.0.3`
+Ktor `3.1.0`
 
 KSP `2.1.10-1.0.29`
 
@@ -31,8 +31,7 @@ Android, IOS, Desktop (JVM), WasmJs, Js
 ``` kotlin
 io.ktor:ktor-client-core:$ktorVersion
 io.ktor:ktor-client-logging:$ktorVersion
-io.ktor:ktor-client-okhttp:$ktorVersion
-io.ktor:ktor-client-darwin:$ktorVersion
+io.ktor:ktor-client-cio:$ktorVersion
 io.ktor:ktor-client-serialization:$ktorVersion
 io.ktor:ktor-client-content-negotiation:$ktorVersion
 io.ktor:ktor-serialization-kotlinx-json:$ktorVersion
@@ -48,7 +47,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val ktorfitxVersion = "3.0.3-2.2.1"
+val ktorfitxVersion = "3.1.0-2.3.0"
 
 kotlin {
     sourceSets {

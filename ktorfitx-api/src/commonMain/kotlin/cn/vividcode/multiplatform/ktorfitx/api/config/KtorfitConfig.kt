@@ -3,6 +3,10 @@ package cn.vividcode.multiplatform.ktorfitx.api.config
 import cn.vividcode.multiplatform.ktorfitx.annotation.KtorfitDsl
 import cn.vividcode.multiplatform.ktorfitx.api.Ktorfit
 import cn.vividcode.multiplatform.ktorfitx.api.scope.ApiScope
+import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonBuilder
 
 /**
  * 项目名称：ktorfitx
@@ -18,6 +22,8 @@ class KtorfitConfig internal constructor() {
 	
 	var baseUrl: String = ""
 	
+	var engineFactory: HttpClientEngineFactory<*>? = null
+	
 	var token: (() -> String)? = null
 		private set
 	
@@ -27,7 +33,7 @@ class KtorfitConfig internal constructor() {
 	internal var log: LogConfig? = null
 		private set
 	
-	internal var json: JsonConfig? = null
+	internal var json: Json? = null
 		private set
 	
 	internal var apiScope: ApiScopeConfig? = null
@@ -45,8 +51,8 @@ class KtorfitConfig internal constructor() {
 		this.log = LogConfig().apply(config)
 	}
 	
-	fun json(config: JsonConfig.() -> Unit) {
-		this.json = JsonConfig().apply(config)
+	fun json(config: JsonBuilder.() -> Unit) {
+		this.json = Json { this.config() }
 	}
 	
 	fun apiScope(config: ApiScopeConfig.() -> Unit) {
@@ -55,10 +61,11 @@ class KtorfitConfig internal constructor() {
 	
 	fun <AS : ApiScope> build(apiScope: AS): Ktorfit<AS> {
 		check(baseUrl.isNotBlank()) { "请设置 baseUrl" }
+		this.engineFactory = this.engineFactory ?: CIO
 		this.token = this.token ?: { "" }
 		this.timeout = this.timeout ?: TimeoutConfig()
 		this.log = this.log ?: LogConfig()
-		this.json = this.json ?: JsonConfig()
+		this.json = this.json ?: Json
 		this.apiScope = this.apiScope ?: ApiScopeConfig()
 		return Ktorfit(this, apiScope)
 	}
