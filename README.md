@@ -14,11 +14,11 @@
 
 ## 版本说明
 
-Kotlin `2.1.10`
+Kotlin `2.1.20`
 
-Ktor `3.1.0`
+Ktor `3.1.2`
 
-KSP `2.1.10-1.0.29`
+KSP `2.1.20-1.0.32`
 
 ## 支持平台
 
@@ -47,7 +47,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val ktorfitxVersion = "3.1.0-2.3.0"
+val ktorfitxVersion = "3.1.2-2.3.2"
 
 kotlin {
     sourceSets {
