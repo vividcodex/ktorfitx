@@ -42,7 +42,7 @@ kotlin {
 	}
 	
 	js {
-        moduleName = "ktorfitxAnnotation"
+        outputModuleName = "ktorfitxAnnotation"
         browser {
             commonWebpackConfig {
                 outputFileName = "ktorfitxAnnotation.js"
@@ -55,7 +55,7 @@ kotlin {
 
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
-		moduleName = "ktorfitxAnnotation"
+		outputModuleName = "ktorfitxAnnotation"
 		browser {
 			val rootDirPath = project.rootDir.path
 			val projectDirPath = project.projectDir.path
