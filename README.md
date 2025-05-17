@@ -26,16 +26,7 @@ Android, IOS, Desktop (JVM), WasmJs, Js
 
 ## 依赖说明
 
-模块中已经包含了以下依赖，不需要额外重新添加
-
-``` kotlin
-io.ktor:ktor-client-core:$ktorVersion
-io.ktor:ktor-client-logging:$ktorVersion
-io.ktor:ktor-client-cio:$ktorVersion
-io.ktor:ktor-client-serialization:$ktorVersion
-io.ktor:ktor-client-content-negotiation:$ktorVersion
-io.ktor:ktor-serialization-kotlinx-json:$ktorVersion
-```
+请使用和 ktorfitx 相同版本的 ktor 版本，以保证兼容性
 
 ## 使用方法
 
@@ -52,7 +43,6 @@ val ktorfitxVersion = "3.1.3-2.4.0"
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktorfitx-annotation:ktorfitxVersion") 
             implementation("cn.vividcode.multiplatform:ktorfitx-api:ktorfitxVersion")
         }
         commonMain {
