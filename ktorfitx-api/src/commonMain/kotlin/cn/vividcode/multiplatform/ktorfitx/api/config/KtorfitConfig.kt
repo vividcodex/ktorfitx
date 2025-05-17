@@ -6,6 +6,7 @@ import cn.vividcode.multiplatform.ktorfitx.api.mock.MockClient
 import cn.vividcode.multiplatform.ktorfitx.api.scope.ApiScope
 import io.ktor.client.*
 import io.ktor.client.engine.*
+import io.ktor.client.plugins.*
 
 /**
  * 项目名称：ktorfitx
@@ -19,7 +20,9 @@ import io.ktor.client.engine.*
 @KtorfitDsl
 class KtorfitConfig internal constructor() {
 	
-	var token: (() -> String)? = null
+	var baseUrl: String? = null
+	
+	var token: (() -> String?)? = null
 		private set
 	
 	var httpClient: HttpClient? = null
@@ -28,11 +31,14 @@ class KtorfitConfig internal constructor() {
 	var mockClient: MockClient? = null
 		private set
 	
+	private var httpClientBlock: HttpClientBlock? = null
+	
 	fun <T : HttpClientEngineConfig> httpClient(
 		engineFactory: HttpClientEngineFactory<T>,
 		block: HttpClientConfig<T>.() -> Unit = {}
 	) {
-		this.httpClient = HttpClient(engineFactory, block)
+		@Suppress("UNCHECKED_CAST")
+		this.httpClientBlock = HttpClientBlock(engineFactory, block as (HttpClientConfig<*>.() -> Unit))
 	}
 	
 	fun mockClient(builder: MockClientConfig.() -> Unit) {
@@ -43,7 +49,7 @@ class KtorfitConfig internal constructor() {
 	internal var apiScope: ApiScopeConfig? = null
 		private set
 	
-	fun token(token: () -> String) {
+	fun token(token: () -> String?) {
 		this.token = token
 	}
 	
@@ -52,10 +58,24 @@ class KtorfitConfig internal constructor() {
 	}
 	
 	fun <AS : ApiScope> build(apiScope: AS): Ktorfit<AS> {
-		this.token = this.token ?: { "" }
+		this.token = this.token ?: { null }
 		this.apiScope = this.apiScope ?: ApiScopeConfig()
-		this.httpClient = this.httpClient ?: HttpClient()
+		this.httpClient = if (httpClientBlock == null) HttpClient() else with(httpClientBlock!!) {
+			HttpClient(engine) {
+				defaultRequest {
+					if (baseUrl != null) {
+						url(baseUrl!!)
+					}
+				}
+				block()
+			}
+		}
 		this.mockClient = this.mockClient ?: MockClient()
 		return Ktorfit(this, apiScope)
 	}
+	
+	private class HttpClientBlock(
+		val engine: HttpClientEngineFactory<*>,
+		val block: HttpClientConfig<*>.() -> Unit
+	)
 }

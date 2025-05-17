@@ -62,7 +62,7 @@ internal class HttpClientCodeBlock(
 	
 	override fun CodeBlock.Builder.buildBearerAuthCodeBlock() {
 		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, "bearerAuth")
-		addStatement("this@${className.simpleName}.ktorfit.token?.let { bearerAuth(it()) }")
+		addStatement("this@${className.simpleName}.ktorfit.token?.invoke()?.let { bearerAuth(it) }")
 	}
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(

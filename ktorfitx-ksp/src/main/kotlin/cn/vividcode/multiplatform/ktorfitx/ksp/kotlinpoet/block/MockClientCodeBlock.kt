@@ -42,7 +42,7 @@ internal class MockClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildBearerAuthCodeBlock() {
-		addStatement("this@${className.simpleName}.ktorfit.token?.let { bearerAuth(it()) }")
+		addStatement("this@${className.simpleName}.ktorfit.token?.invoke()?.let { bearerAuth(it) }")
 	}
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(
