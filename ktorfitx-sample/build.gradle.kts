@@ -40,7 +40,7 @@ kotlin {
 	}
 
 	js {
-        moduleName = "sampleApp"
+        outputModuleName = "sampleApp"
         browser {
             commonWebpackConfig {
                 outputFileName = "sampleApp.js"
@@ -52,7 +52,7 @@ kotlin {
 
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
-		moduleName = "sampleApp"
+		outputModuleName = "sampleApp"
 		browser {
 			val rootDirPath = project.rootDir.path
 			val projectDirPath = project.projectDir.path
@@ -74,6 +74,12 @@ kotlin {
 			dependencies {
 				implementation(projects.ktorfitxApi)
 				implementation(projects.ktorfitxAnnotation)
+				implementation(libs.ktor.client.core)
+				implementation(libs.ktor.client.logging)
+				implementation(libs.ktor.client.cio)
+				implementation(libs.ktor.client.serialization)
+				implementation(libs.ktor.client.content.negotiation)
+				implementation(libs.ktor.serialization.kotlinx.json)
 				implementation(compose.runtime)
 				implementation(compose.foundation)
 				implementation(compose.material3)

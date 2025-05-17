@@ -122,13 +122,13 @@ internal class ApiKotlinPoet {
 			val simpleName = classStructure.className.simpleName
 			val parameters = mutableListOf<String>()
 			if (hasApiFunction) {
-				parameters += "ktorClient.ktorfit"
+				parameters += "ktorfit.config"
 			}
 			if (hasHttpClient) {
-				parameters += "ktorClient.httpClient"
+				parameters += "ktorfit.config.httpClient!!"
 			}
 			if (hasMockClient) {
-				parameters += "ktorClient.mockClient"
+				parameters += "ktorfit.config.mockClient!!"
 			}
 			beginControlFlow("return instance ?: $simpleName(${parameters.joinToString()}).also")
 			addStatement("instance = it")
@@ -144,7 +144,7 @@ internal class ApiKotlinPoet {
 				returns(classStructure.superinterface)
 				if (hasApiFunction) {
 					addParameter(
-						"ktorClient",
+						"ktorfit",
 						ktorfitClassName.parameterizedBy(apiScopeClassName)
 					)
 				}

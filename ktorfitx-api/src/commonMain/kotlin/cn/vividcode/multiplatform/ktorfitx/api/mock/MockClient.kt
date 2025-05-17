@@ -17,8 +17,8 @@ import kotlinx.serialization.json.Json
  */
 @MockDsl
 class MockClient internal constructor(
-	val log: LogConfig,
-	val json: Json
+	val log: LogConfig = LogConfig(),
+	val json: Json = Json
 ) {
 	
 	suspend inline fun <reified Mock : Any> get(

@@ -1,7 +1,8 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.Query
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getAnnotationByType
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.QueryModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
@@ -18,9 +19,12 @@ internal object QueryModelResolver {
 	
 	fun KSFunctionDeclaration.resolves(): List<QueryModel> {
 		return this.parameters.mapNotNull { valueParameter ->
-			val annotation = valueParameter.getAnnotationByType(Query::class) ?: return@mapNotNull null
+			val annotation = valueParameter.getKSAnnotationByType(Query::class) ?: return@mapNotNull null
+			var name = annotation.getValue(Query::name)
 			val varName = valueParameter.name!!.asString()
-			val name = annotation.name.ifBlank { varName }
+			if (name.isNullOrBlank()) {
+				name = varName
+			}
 			QueryModel(name, varName)
 		}
 	}

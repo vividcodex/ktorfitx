@@ -2,7 +2,6 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
 
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isHttpOrHttps
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.*
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ReturnStructure
@@ -25,13 +24,12 @@ internal class HttpClientCodeBlock(
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
 		funName: String,
-		fullUrl: String,
+		url: String,
 		hasBuilder: Boolean,
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
 		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, funName)
-		val buildUrl = if (fullUrl.isHttpOrHttps()) fullUrl else "\${this.ktorfit.baseUrl}$fullUrl"
-		val httpClientCode = "this.httpClient.$funName(\"$buildUrl\")"
+		val httpClientCode = "this.httpClient.$funName(\"$url\")"
 		if (hasBuilder) {
 			beginControlFlow(httpClientCode)
 			builder()

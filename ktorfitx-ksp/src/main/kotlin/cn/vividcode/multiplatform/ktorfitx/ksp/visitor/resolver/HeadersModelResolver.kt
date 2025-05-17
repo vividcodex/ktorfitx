@@ -1,7 +1,8 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.Headers
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getAnnotationByType
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValues
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.HeadersModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
@@ -19,9 +20,8 @@ internal object HeadersModelResolver {
 	private val headersRegex = "^([^:=]+)[:=]([^:=]+)$".toRegex()
 	
 	fun KSFunctionDeclaration.resolve(): HeadersModel? {
-		val headers = getAnnotationByType(Headers::class)?.let {
-			it.headers.toSet() + it.header
-		} ?: return null
+		val annotation  = getKSAnnotationByType(Headers::class) ?: return null
+		val headers = annotation.getValues(Headers::headers) ?: return null
 		return headers.associate {
 			val (name, value) = headersRegex.matchEntire(it)?.destructured
 				?: error("${qualifiedName!!.asString()} 方法的 @Headers 格式错误")

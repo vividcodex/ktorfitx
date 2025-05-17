@@ -2,12 +2,10 @@ package cn.vividcode.multiplatform.ktorfitx.api.config
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.KtorfitDsl
 import cn.vividcode.multiplatform.ktorfitx.api.Ktorfit
+import cn.vividcode.multiplatform.ktorfitx.api.mock.MockClient
 import cn.vividcode.multiplatform.ktorfitx.api.scope.ApiScope
+import io.ktor.client.*
 import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonBuilder
 
 /**
  * 项目名称：ktorfitx
@@ -21,21 +19,26 @@ import kotlinx.serialization.json.JsonBuilder
 @KtorfitDsl
 class KtorfitConfig internal constructor() {
 	
-	var baseUrl: String = ""
-	
-	var engineFactory: HttpClientEngineFactory<*>? = null
-	
 	var token: (() -> String)? = null
 		private set
 	
-	internal var timeout: (HttpTimeoutConfig.() -> Unit)? = null
+	var httpClient: HttpClient? = null
 		private set
 	
-	internal var log: LogConfig? = null
+	var mockClient: MockClient? = null
 		private set
 	
-	internal var json: Json? = null
-		private set
+	fun <T : HttpClientEngineConfig> httpClient(
+		engineFactory: HttpClientEngineFactory<T>,
+		block: HttpClientConfig<T>.() -> Unit = {}
+	) {
+		this.httpClient = HttpClient(engineFactory, block)
+	}
+	
+	fun mockClient(builder: MockClientConfig.() -> Unit) {
+		val config = MockClientConfig().apply(builder).build()
+		this.mockClient = MockClient(config.log!!, config.json!!)
+	}
 	
 	internal var apiScope: ApiScopeConfig? = null
 		private set
@@ -44,29 +47,15 @@ class KtorfitConfig internal constructor() {
 		this.token = token
 	}
 	
-	fun timeout(config: HttpTimeoutConfig.() -> Unit) {
-		this.timeout = config
-	}
-	
-	fun log(config: LogConfig.() -> Unit) {
-		this.log = LogConfig().apply(config)
-	}
-	
-	fun json(config: JsonBuilder.() -> Unit) {
-		this.json = Json { this.config() }
-	}
-	
 	fun apiScope(config: ApiScopeConfig.() -> Unit) {
 		this.apiScope = ApiScopeConfig().apply(config)
 	}
 	
 	fun <AS : ApiScope> build(apiScope: AS): Ktorfit<AS> {
-		check(baseUrl.isNotBlank()) { "请设置 baseUrl" }
-		this.engineFactory = this.engineFactory ?: CIO
 		this.token = this.token ?: { "" }
-		this.log = this.log ?: LogConfig()
-		this.json = this.json ?: Json
 		this.apiScope = this.apiScope ?: ApiScopeConfig()
+		this.httpClient = this.httpClient ?: HttpClient()
+		this.mockClient = this.mockClient ?: MockClient()
 		return Ktorfit(this, apiScope)
 	}
 }

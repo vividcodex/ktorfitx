@@ -20,10 +20,10 @@ import kotlinx.serialization.Serializable
  *
  * 文件介绍：TestApi
  */
-@Api(url = "/", apiScope = TestApiScope::class)
+@Api(url = "user", apiScope = TestApiScope::class)
 interface TestApi {
 	
-	@GET(url = "/test01")
+	@GET(url = "test01")
 	@ExceptionListeners(TestResultBodyExceptionListener::class)
 	suspend fun test01(): String
 	

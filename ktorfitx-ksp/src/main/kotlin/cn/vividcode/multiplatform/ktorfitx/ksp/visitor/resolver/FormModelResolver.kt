@@ -1,7 +1,8 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.Form
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getAnnotationByType
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.FormModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
@@ -18,9 +19,12 @@ internal object FormModelResolver {
 	
 	fun KSFunctionDeclaration.resolves(): List<FormModel> {
 		return this.parameters.mapNotNull { valueParameter ->
-			val annotation = valueParameter.getAnnotationByType(Form::class) ?: return@mapNotNull null
+			val annotation = valueParameter.getKSAnnotationByType(Form::class) ?: return@mapNotNull null
 			val varName = valueParameter.name!!.asString()
-			val name = annotation.name.ifBlank { varName }
+			var name = annotation.getValue(Form::name)
+			if (name.isNullOrBlank()) {
+				name = varName
+			}
 			FormModel(name, varName)
 		}
 	}

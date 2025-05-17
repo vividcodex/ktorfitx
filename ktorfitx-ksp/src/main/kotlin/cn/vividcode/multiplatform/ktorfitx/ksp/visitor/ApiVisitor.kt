@@ -94,12 +94,13 @@ internal class ApiVisitor(
 	private fun KSClassDeclaration.getApiUrl(annotation: KSAnnotation): String {
 		val apiUrl = annotation.getValue<String>("url")
 			?: return ""
-		if (apiUrl.isBlank() || apiUrl == "/") return ""
+		if (apiUrl.isBlank()) return ""
+		if (apiUrl == "/") return "/"
 		annotation.compileCheck(urlRegex.matches(apiUrl)) {
 			val className = this.simpleName.asString()
 			"$className 接口上的 @Api 注解的 url 参数格式错误"
 		}
-		return if (apiUrl.startsWith("/")) apiUrl else "/$apiUrl"
+		return apiUrl
 	}
 	
 	/**

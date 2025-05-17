@@ -70,6 +70,13 @@ internal fun <V> KSAnnotation.getValue(propertyName: String): V? {
 }
 
 /**
+ * 获取注解上的数据
+ */
+internal inline fun <reified T : Any> KSAnnotation.getValues(property: KProperty1<*, Array<out T>>): Array<T>? {
+	return this.getValues(property.name)
+}
+
+/**
  * 获取注解上的数组数据
  */
 internal inline fun <reified T : Any> KSAnnotation.getValues(propertyName: String): Array<T>? {
@@ -84,8 +91,13 @@ internal inline fun <reified T : Any> KSAnnotation.getValues(propertyName: Strin
  */
 internal fun KSAnnotation.getClassName(propertyName: String): ClassName? {
 	val value = this.arguments.find { it.name?.asString() == propertyName }?.value ?: return null
-	check(value is KSType) { "$value is not KSType!" }
-	return (value.declaration as KSClassDeclaration).toClassName()
+	if (value is KSClassDeclaration) {
+		return value.toClassName()
+	} else if (value is KSType) {
+		return (value.declaration as KSClassDeclaration).toClassName()
+	} else {
+		error("$value is not a KSClassDeclaration or KSType")
+	}
 }
 
 /**

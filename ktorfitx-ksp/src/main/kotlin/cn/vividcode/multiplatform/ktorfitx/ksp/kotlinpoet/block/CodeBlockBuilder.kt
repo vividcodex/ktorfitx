@@ -143,7 +143,12 @@ internal class CodeBlockBuilder(
 	
 	private fun parseToFullUrl(url: String): String {
 		val pathModels = valueParameterModels.filterIsInstance<PathModel>()
-		val initialUrl = if (url.isHttpOrHttps()) url else classStructure.apiStructure.url + url
+		val initialUrl = if (url.isHttpOrHttps()) url else {
+			val apiUrl = classStructure.apiStructure.url
+			if (apiUrl == "") return url
+			val url = url.removePrefix("/")
+			"$apiUrl/$url"
+		}
 		val fullUrl = pathModels.fold(initialUrl) { acc, it ->
 			it.valueParameter.compileCheck(url.contains("{${it.name}}")) {
 				val funName = funStructure.funName

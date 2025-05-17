@@ -1,7 +1,8 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.Header
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getAnnotationByType
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.HeaderModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
@@ -16,12 +17,15 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  */
 internal object HeaderModelResolver {
 	
+	private val regex = "([a-z])([A-Z])".toRegex()
+	
 	fun KSFunctionDeclaration.resolves(): List<HeaderModel> {
 		return this.parameters.mapNotNull { valueParameter ->
-			val header = valueParameter.getAnnotationByType(Header::class) ?: return@mapNotNull null
+			val annotation = valueParameter.getKSAnnotationByType(Header::class) ?: return@mapNotNull null
+			var name = annotation.getValue(Header::name)
 			val varName = valueParameter.name!!.asString()
-			val name = header.name.ifBlank {
-				varName.replace("([a-z])([A-Z])".toRegex()) {
+			if (name.isNullOrBlank()) {
+				name = varName.replace(regex) {
 					"${it.groupValues[1]}-${it.groupValues[2]}"
 				}.replaceFirstChar { it.uppercase() }
 			}

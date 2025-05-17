@@ -1,7 +1,8 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.Path
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getAnnotationByType
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.PathModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
@@ -18,9 +19,9 @@ internal object PathModelResolver {
 	
 	fun KSFunctionDeclaration.resolves(): List<PathModel> {
 		return this.parameters.mapNotNull { valueParameter ->
-			val annotation = valueParameter.getAnnotationByType(Path::class) ?: return@mapNotNull null
+			val annotation = valueParameter.getKSAnnotationByType(Path::class) ?: return@mapNotNull null
 			val varName = valueParameter.name!!.asString()
-			val name = annotation.name.ifBlank { varName }
+			val name = annotation.getValue(Path::name) ?: varName
 			PathModel(name, varName, valueParameter)
 		}
 	}

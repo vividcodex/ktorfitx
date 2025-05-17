@@ -45,7 +45,7 @@ kotlin {
 	}
 	
 	js {
-		moduleName = "ktorfitxApi"
+		outputModuleName = "ktorfitxApi"
 		browser {
 			commonWebpackConfig {
 				outputFileName = "ktorfitxApi.js"
@@ -57,7 +57,7 @@ kotlin {
 	
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
-		moduleName = "ktorfitxApi"
+		outputModuleName = "ktorfitxApi"
 		browser {
 			val rootDirPath = project.rootDir.path
 			val projectDirPath = project.projectDir.path
@@ -80,12 +80,9 @@ kotlin {
 				implementation(compose.runtime)
 				implementation(libs.kotlin.reflect)
 				api(projects.ktorfitxAnnotation)
-				api(libs.ktor.client.serialization)
-				api(libs.ktor.client.content.negotiation)
-				api(libs.ktor.serialization.kotlinx.json)
-				api(libs.ktor.client.logging)
-				api(libs.ktor.client.core)
-				api(libs.ktor.client.cio)
+				implementation(libs.ktor.client.core)
+				implementation(libs.ktor.client.serialization)
+				implementation(libs.ktor.client.logging)
 			}
 		}
 	}
