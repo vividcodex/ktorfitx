@@ -2,11 +2,12 @@
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.vividcode.multiplatform:ktorfitx-api)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
+[![stable](https://img.shields.io/github/v/release/kotlin-flex/ktorfitx?sort=semver&label=stable&color=brightgreen)](https://github.com/kotlin-flex/ktorfitx/releases/latest)
 [![License](https://img.shields.io/badge/Apache-2.0-brightgreen.svg)](https://github.com/vividcodex/ktorfitx/blob/master/LICENSE-2.0)
 
 ## 更新时间
 
-### 2025-05-16
+### 2025-06-07
 
 ## 文档
 
@@ -38,7 +39,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val ktorfitxVersion = "3.1.3-2.4.0"
+val ktorfitxVersion = "3.1.3-2.4.1"
 
 kotlin {
     sourceSets {
