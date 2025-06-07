@@ -3,7 +3,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.visitor.resolver
 import cn.vividcode.multiplatform.ktorfitx.ksp.check.compileCheck
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.*
-import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
+import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnClassNames
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ExceptionListenerModel
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.Resolver
@@ -49,7 +49,7 @@ internal object ExceptionListenerResolver {
 			val exceptionTypeName = typeArguments[0].toTypeName()
 			val returnTypeName = typeArguments[1].toTypeName()
 			val funReturnTypeName = this.returnType!!.toTypeName().copy(nullable = false)
-			annotation.compileCheck(returnTypeName == ReturnTypes.unitClassName || returnTypeName == funReturnTypeName) {
+			annotation.compileCheck(returnTypeName == ReturnClassNames.unit || returnTypeName == funReturnTypeName) {
 				val funName = this.simpleName.asString()
 				val returnSimpleNames = if (returnTypeName.simpleName != funReturnTypeName.simpleName) {
 					returnTypeName.simpleName to funReturnTypeName.simpleName

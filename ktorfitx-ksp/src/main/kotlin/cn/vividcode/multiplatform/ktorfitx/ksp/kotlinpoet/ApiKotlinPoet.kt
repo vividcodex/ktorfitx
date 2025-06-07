@@ -3,10 +3,10 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.*
+import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.UseImports
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.CodeBlockBuilder
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.HttpClientCodeBlock
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.MockClientCodeBlock
-import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.UseImports
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.MockModel
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ParameterModel
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ClassStructure

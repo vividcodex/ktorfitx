@@ -4,7 +4,7 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.check.compileCheck
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.code
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ApiKotlinPoet
-import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.UseImports
+import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.UseImports
 import cn.vividcode.multiplatform.ktorfitx.ksp.visitor.ApiVisitor
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.CodeGenerator

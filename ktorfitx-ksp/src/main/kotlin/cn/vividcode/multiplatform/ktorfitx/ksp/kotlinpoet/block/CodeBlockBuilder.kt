@@ -3,7 +3,8 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
 import cn.vividcode.multiplatform.ktorfitx.ksp.check.compileCheck
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.isHttpOrHttps
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.simpleName
-import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
+import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnClassNames
+import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.UseImports
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.*
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ClassStructure
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.FunStructure
@@ -79,7 +80,7 @@ internal class CodeBlockBuilder(
 	private fun CodeBlock.Builder.buildExceptionCodeBlock(
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
-		beginControlFlow(if (returnStructure.rawType != ReturnTypes.unitClassName) "return try" else "try")
+		beginControlFlow(if (returnStructure.rawType != ReturnClassNames.unit) "return try" else "try")
 		builder()
 		val exceptionListenerModels = functionModels.filterIsInstance<ExceptionListenerModel>()
 		exceptionListenerModels.forEach {
@@ -91,12 +92,12 @@ internal class CodeBlockBuilder(
 			val funName = funStructure.funName
 			addStatement("$superinterfaceName::$funName.onExceptionListener(e)")
 			endControlFlow()
-			if (it.returnTypeName == ReturnTypes.unitClassName) {
+			if (it.returnTypeName == ReturnClassNames.unit) {
 				buildExceptionReturnCodeBlock()
 			}
 		}
 		if (exceptionListenerModels.all { it.exceptionTypeName !in exceptionClassNames }) {
-			if (returnStructure.rawType == ReturnTypes.resultBodyClassName) {
+			if (returnStructure.rawType == ReturnClassNames.resultBody) {
 				nextControlFlow("catch (e: Exception)")
 			} else {
 				nextControlFlow("catch (_: Exception)")
@@ -112,15 +113,15 @@ internal class CodeBlockBuilder(
 			return
 		}
 		when (returnStructure.rawType) {
-			ReturnTypes.resultBodyClassName -> {
+			ReturnClassNames.resultBody -> {
 				addStatement("ResultBody.exception(e)")
 			}
 			
-			ReturnTypes.byteArrayClassName -> {
+			ReturnClassNames.byteArray -> {
 				addStatement("ByteArray(0)")
 			}
 			
-			ReturnTypes.stringClassName -> {
+			ReturnClassNames.string -> {
 				addStatement("\"\"")
 			}
 		}

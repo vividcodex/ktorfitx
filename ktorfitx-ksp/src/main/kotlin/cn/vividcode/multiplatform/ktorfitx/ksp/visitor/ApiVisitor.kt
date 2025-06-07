@@ -6,7 +6,7 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassName
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassNames
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
-import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
+import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnClassNames
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ApiStructure
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ClassStructure
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.FunStructure
@@ -131,7 +131,7 @@ internal class ApiVisitor(
 		val typeName = returnType.toTypeName()
 		val lazyErrorMessage = {
 			val funName = this.simpleName.asString()
-			val returnTypes = ReturnTypes.returnTypes.joinToString()
+			val returnTypes = ReturnClassNames.all.joinToString()
 			"$funName 方法的返回类型 $typeName 不支持，请使用 $returnTypes"
 		}
 		returnType.compileCheck(
@@ -148,7 +148,7 @@ internal class ApiVisitor(
 		}
 		val returnStructure = ReturnStructure(typeName)
 		returnType.compileCheck(
-			value = returnStructure.notNullRawType in ReturnTypes.returnTypes,
+			value = returnStructure.notNullRawType in ReturnClassNames.all,
 			lazyErrorMessage = lazyErrorMessage
 		)
 		return returnStructure

@@ -53,16 +53,6 @@ internal fun buildGetterFunSpec(
  */
 internal fun buildPropertySpec(
 	name: String,
-	type: KClass<*>,
-	vararg modifiers: KModifier,
-	block: PropertySpec.Builder.() -> Unit = {},
-): PropertySpec = PropertySpec.builder(name, type, *modifiers).apply(block).build()
-
-/**
- * buildPropertySpec
- */
-internal fun buildPropertySpec(
-	name: String,
 	type: TypeName,
 	vararg modifiers: KModifier,
 	block: PropertySpec.Builder.() -> Unit = {},

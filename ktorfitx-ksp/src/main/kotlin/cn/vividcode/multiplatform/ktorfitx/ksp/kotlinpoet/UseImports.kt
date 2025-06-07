@@ -1,4 +1,4 @@
-package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
+package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet
 
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.classNames
 import com.squareup.kotlinpoet.ClassName
@@ -61,6 +61,6 @@ internal object UseImports {
 	}
 	
 	operator fun plusAssign(qualifiedName: String) {
-		this += ClassName.bestGuess(qualifiedName)
+		this += ClassName.Companion.bestGuess(qualifiedName)
 	}
 }

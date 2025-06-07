@@ -1,7 +1,5 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.expends
 
-import com.google.devtools.ksp.KspExperimental
-import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -31,14 +29,6 @@ internal fun KSAnnotated.getKSAnnotationByType(annotationClassName: ClassName): 
 		it.shortName.getShortName() == annotationClassName.simpleName &&
 			it.annotationType.resolve().declaration.qualifiedName?.asString() == annotationClassName.canonicalName
 	}.firstOrNull()
-}
-
-/**
- * 直接获取注解的对象，不支持 KClass
- */
-@OptIn(KspExperimental::class)
-internal fun <T : Annotation> KSAnnotated.getAnnotationByType(annotationKClass: KClass<T>): T? {
-	return this.getAnnotationsByType(annotationKClass).firstOrNull()
 }
 
 /**

@@ -9,4 +9,4 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.model.model
  *
  * 文件介绍：BearerAuthModel
  */
-internal data object BearerAuthModel : FunctionModel
+internal object BearerAuthModel : FunctionModel

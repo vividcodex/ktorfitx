@@ -13,20 +13,20 @@ import com.squareup.kotlinpoet.asClassName
  *
  * 文件介绍：ReturnTypes
  */
-internal object ReturnTypes {
+internal object ReturnClassNames {
 	
-	val unitClassName = Unit::class.asClassName()
+	val unit = Unit::class.asClassName()
 	
-	val byteArrayClassName = ByteArray::class.asClassName()
+	val byteArray = ByteArray::class.asClassName()
 	
-	val resultBodyClassName = ClassName.bestGuess(KtorfitxQualifiers.RESULT_BODY)
+	val resultBody = ClassName.bestGuess(KtorfitxQualifiers.RESULT_BODY)
 	
-	val stringClassName = String::class.asClassName()
+	val string = String::class.asClassName()
 	
-	val returnTypes = arrayOf(
-		unitClassName,
-		byteArrayClassName,
-		resultBodyClassName,
-		stringClassName
+	val all = arrayOf(
+		unit,
+		byteArray,
+		resultBody,
+		string
 	)
 }

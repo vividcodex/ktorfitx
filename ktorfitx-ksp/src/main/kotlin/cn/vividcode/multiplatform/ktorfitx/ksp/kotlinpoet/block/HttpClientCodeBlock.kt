@@ -2,7 +2,8 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
 
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
-import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnTypes
+import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnClassNames
+import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.UseImports
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.*
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ReturnStructure
 import com.squareup.kotlinpoet.ClassName
@@ -34,7 +35,7 @@ internal class HttpClientCodeBlock(
 			beginControlFlow(httpClientCode)
 			builder()
 			endControlFlow()
-			if (returnStructure.rawType != ReturnTypes.unitClassName) {
+			if (returnStructure.rawType != ReturnClassNames.unit) {
 				addStatement(returnFunName)
 			}
 		} else {
@@ -45,10 +46,10 @@ internal class HttpClientCodeBlock(
 	private val returnFunName: String
 		get() {
 			var funName = when (returnStructure.notNullRawType) {
-				ReturnTypes.unitClassName -> null
-				ReturnTypes.resultBodyClassName -> "safeResultBody"
-				ReturnTypes.byteArrayClassName -> "safeByteArray"
-				ReturnTypes.stringClassName -> "safeText"
+				ReturnClassNames.unit -> null
+				ReturnClassNames.resultBody -> "safeResultBody"
+				ReturnClassNames.byteArray -> "safeByteArray"
+				ReturnClassNames.string -> "safeText"
 				else -> null
 			}
 			if (funName != null) {

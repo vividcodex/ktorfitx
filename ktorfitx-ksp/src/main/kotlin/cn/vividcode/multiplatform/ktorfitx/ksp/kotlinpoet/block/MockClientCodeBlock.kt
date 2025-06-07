@@ -1,17 +1,12 @@
 package cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block
 
+import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.UseImports
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 
 /**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/8/14 17:31
- *
- * 文件介绍：MockClientCodeBlock
+ * MockClient 代码块
  */
 internal class MockClientCodeBlock(
 	private val className: ClassName,
