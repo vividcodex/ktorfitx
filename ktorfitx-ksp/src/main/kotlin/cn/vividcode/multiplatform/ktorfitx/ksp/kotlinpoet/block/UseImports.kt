@@ -36,13 +36,17 @@ internal object UseImports {
 	
 	private fun addImportsByClassNames(classNames: List<ClassName>) {
 		classNames.forEach {
-			addImports(it.packageName, it.simpleName)
+			val className = it.topLevelClassName()
+			addImports(className.packageName, className.simpleName)
 		}
 	}
 	
 	private fun addImportByTypeName(typeName: TypeName) {
 		when (typeName) {
-			is ClassName -> addImports(typeName.packageName, typeName.simpleName)
+			is ClassName -> {
+				val className = typeName.topLevelClassName()
+				addImports(className.packageName, className.simpleName)
+			}
 			is ParameterizedTypeName -> addImportsByClassNames(typeName.classNames)
 			else -> {}
 		}

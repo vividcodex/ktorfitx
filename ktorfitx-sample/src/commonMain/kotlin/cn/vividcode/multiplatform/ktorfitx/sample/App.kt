@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import cn.vividcode.multiplatform.ktorfitx.sample.http.api.impl.testApi
 import cn.vividcode.multiplatform.ktorfitx.sample.http.testKtorfit
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 private val json = Json { prettyPrint = true }
@@ -94,7 +93,7 @@ fun App() {
 				}
 				var pageSize by remember {
 					mutableStateOf("10", object : SnapshotMutationPolicy<String> {
-						private val regex = "^(?:[1-9]|[1-2][0-9]|30)?\$".toRegex()
+						private val regex = "^(?:[1-9]|[1-2][0-9]|30)?$".toRegex()
 						override fun equivalent(a: String, b: String): Boolean {
 							return !regex.matches(b)
 						}

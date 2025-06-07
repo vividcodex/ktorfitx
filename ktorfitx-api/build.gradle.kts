@@ -1,6 +1,7 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -23,12 +24,16 @@ kotlin {
 	
 	androidTarget {
 		compilerOptions {
+			apiVersion = KotlinVersion.KOTLIN_2_1
+			languageVersion = KotlinVersion.KOTLIN_2_1
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
 	
 	jvm("desktop") {
 		compilerOptions {
+			apiVersion = KotlinVersion.KOTLIN_2_1
+			languageVersion = KotlinVersion.KOTLIN_2_1
 			jvmTarget.set(JvmTarget.JVM_21)
 		}
 	}
@@ -38,9 +43,15 @@ kotlin {
 		iosArm64(),
 		iosSimulatorArm64()
 	).forEach { iosTarget ->
-		iosTarget.binaries.framework {
-			baseName = "KtorfitxApi"
-			isStatic = true
+		iosTarget.apply {
+			binaries.framework {
+				baseName = "KtorfitxApi"
+				isStatic = true
+			}
+			compilerOptions {
+				apiVersion = KotlinVersion.KOTLIN_2_1
+				languageVersion = KotlinVersion.KOTLIN_2_1
+			}
 		}
 	}
 	
@@ -53,6 +64,10 @@ kotlin {
 		}
 		binaries.executable()
 		useEsModules()
+		compilerOptions {
+			languageVersion = KotlinVersion.KOTLIN_2_1
+			apiVersion = KotlinVersion.KOTLIN_2_1
+		}
 	}
 	
 	@OptIn(ExperimentalWasmDsl::class)
@@ -72,6 +87,16 @@ kotlin {
 			}
 		}
 		binaries.executable()
+		useEsModules()
+		compilerOptions {
+			languageVersion = KotlinVersion.KOTLIN_2_1
+			apiVersion = KotlinVersion.KOTLIN_2_1
+		}
+	}
+	
+	compilerOptions {
+		languageVersion = KotlinVersion.KOTLIN_2_1
+		apiVersion = KotlinVersion.KOTLIN_2_1
 	}
 	
 	sourceSets {

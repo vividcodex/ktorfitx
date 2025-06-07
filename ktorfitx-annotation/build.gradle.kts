@@ -1,6 +1,7 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -21,12 +22,16 @@ kotlin {
 	androidTarget {
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
+			languageVersion = KotlinVersion.KOTLIN_2_1
+			apiVersion = KotlinVersion.KOTLIN_2_1
 		}
 	}
 	
 	jvm("desktop") {
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
+			languageVersion = KotlinVersion.KOTLIN_2_1
+			apiVersion = KotlinVersion.KOTLIN_2_1
 		}
 	}
 	
@@ -35,24 +40,33 @@ kotlin {
 		iosArm64(),
 		iosSimulatorArm64()
 	).forEach { iosTarget ->
-		iosTarget.binaries.framework {
-			baseName = "KtorfitxAnnotation"
-			isStatic = true
+		iosTarget.apply {
+			binaries.framework {
+				baseName = "KtorfitxAnnotation"
+				isStatic = true
+			}
+			compilerOptions {
+				languageVersion = KotlinVersion.KOTLIN_2_1
+				apiVersion = KotlinVersion.KOTLIN_2_1
+			}
 		}
 	}
 	
 	js {
-        outputModuleName = "ktorfitxAnnotation"
-        browser {
-            commonWebpackConfig {
-                outputFileName = "ktorfitxAnnotation.js"
-            }
-        }
-        binaries.executable()
-        useEsModules()
-    }
-
-
+		outputModuleName = "ktorfitxAnnotation"
+		browser {
+			commonWebpackConfig {
+				outputFileName = "ktorfitxAnnotation.js"
+			}
+		}
+		binaries.executable()
+		useEsModules()
+		compilerOptions {
+			languageVersion = KotlinVersion.KOTLIN_2_1
+			apiVersion = KotlinVersion.KOTLIN_2_1
+		}
+	}
+	
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
 		outputModuleName = "ktorfitxAnnotation"
@@ -70,6 +84,16 @@ kotlin {
 			}
 		}
 		binaries.executable()
+		useEsModules()
+		compilerOptions {
+			languageVersion = KotlinVersion.KOTLIN_2_1
+			apiVersion = KotlinVersion.KOTLIN_2_1
+		}
+	}
+	
+	compilerOptions {
+		languageVersion = KotlinVersion.KOTLIN_2_1
+		apiVersion = KotlinVersion.KOTLIN_2_1
 	}
 }
 

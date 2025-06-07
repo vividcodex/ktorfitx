@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
  * 文件介绍：ResultBody
  */
 @Serializable
-data class ResultBody<T : Any>(
+data class ResultBody<out T : Any>(
 	val code: Int,
 	val msg: String,
 	val data: T? = null

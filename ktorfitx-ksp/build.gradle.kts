@@ -1,5 +1,6 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
 	alias(libs.plugins.org.jetbrains.kotlin.jvm)
@@ -14,6 +15,7 @@ version = ktorfitxVersion
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 kotlin {
@@ -21,6 +23,8 @@ kotlin {
 	
 	compilerOptions {
 		jvmTarget.set(JvmTarget.JVM_21)
+		apiVersion = KotlinVersion.KOTLIN_2_1
+		languageVersion = KotlinVersion.KOTLIN_2_1
 	}
 }
 

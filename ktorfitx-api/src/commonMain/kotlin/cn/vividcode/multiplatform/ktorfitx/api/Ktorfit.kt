@@ -33,7 +33,7 @@ fun ktorfit(
  */
 fun <AS : ApiScope> ktorfit(
 	apiScope: AS,
-	config: KtorfitConfig.() -> Unit,
+	config: KtorfitConfig.() -> Unit
 ): Ktorfit<AS> = KtorfitConfig()
 	.apply(config)
 	.build(apiScope)
