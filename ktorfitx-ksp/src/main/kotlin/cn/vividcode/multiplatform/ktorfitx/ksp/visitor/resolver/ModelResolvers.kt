@@ -52,6 +52,7 @@ internal object ModelResolvers {
 		models += with(MockModelResolver) { resolve() }
 		models += with(BearerAuthModelResolver) { resolve() }
 		models += with(ExceptionListenerResolver) { resolves(resolver) }
+		models += with(WebSocketResolver) { resolve() }
 		return models.filterNotNull()
 	}
 }

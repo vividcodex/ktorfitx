@@ -6,7 +6,6 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
-	alias(libs.plugins.kotlin.serialization)
 	alias(libs.plugins.android.library)
 	alias(libs.plugins.maven.publish)
 }
@@ -14,7 +13,7 @@ plugins {
 val ktorfitxVersion = property("ktorfitx.version").toString()
 val ktorfitxAutomaticRelease = property("ktorfitx.automaticRelease").toString().toBoolean()
 
-group = "cn.vividcode.multiplatform.ktorfitx.api"
+group = "cn.vividcode.multiplatform.ktorfitx.websockets"
 version = ktorfitxVersion
 
 kotlin {
@@ -43,7 +42,7 @@ kotlin {
 	).forEach { iosTarget ->
 		iosTarget.apply {
 			binaries.framework {
-				baseName = "KtorfitxApi"
+				baseName = "KtorfitxWebSockets"
 				isStatic = true
 			}
 			compilerOptions {
@@ -54,10 +53,10 @@ kotlin {
 	}
 	
 	js {
-		outputModuleName = "ktorfitxApi"
+		outputModuleName = "ktorfitxWebSockets"
 		browser {
 			commonWebpackConfig {
-				outputFileName = "ktorfitxApi.js"
+				outputFileName = "ktorfitxWebSockets.js"
 			}
 		}
 		binaries.executable()
@@ -70,12 +69,12 @@ kotlin {
 	
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
-		outputModuleName = "ktorfitxApi"
+		outputModuleName = "ktorfitxWebSockets"
 		browser {
 			val rootDirPath = project.rootDir.path
 			val projectDirPath = project.projectDir.path
 			commonWebpackConfig {
-				outputFileName = "ktorfitxApi.js"
+				outputFileName = "ktorfitxWebSockets.js"
 				devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
 					static = (static ?: mutableListOf()).apply {
 						add(rootDirPath)
@@ -100,18 +99,14 @@ kotlin {
 	sourceSets {
 		commonMain {
 			dependencies {
-				implementation(libs.kotlin.reflect)
-				api(projects.ktorfitxAnnotation)
-				implementation(libs.ktor.client.core)
-				implementation(libs.ktor.client.serialization)
-				implementation(libs.ktor.client.logging)
+				implementation(libs.ktor.client.websockets)
 			}
 		}
 	}
 }
 
 android {
-	namespace = "cn.vividcode.multiplatform.ktorfitx.api"
+	namespace = "cn.vividcode.multiplatform.ktorfitx.websockets"
 	compileSdk = libs.versions.android.compileSdk.get().toInt()
 	
 	sourceSets["main"].apply {
@@ -152,12 +147,12 @@ mavenPublishing {
 	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, ktorfitxAutomaticRelease)
 	signAllPublications()
 	
-	coordinates("cn.vividcode.multiplatform", "ktorfitx-api", ktorfitxVersion)
+	coordinates("cn.vividcode.multiplatform", "ktorfitx-websockets", ktorfitxVersion)
 	
 	pom {
-		name.set("ktorfitx-api")
+		name.set("ktorfitx-websockets")
 		description.set("Ktorfitx 基于 Ktor 的 RESTful API 框架")
-		inceptionYear.set("2024")
+		inceptionYear.set("2025")
 		url.set("https://github.com/vividcodex/ktorfitx")
 		licenses {
 			license {

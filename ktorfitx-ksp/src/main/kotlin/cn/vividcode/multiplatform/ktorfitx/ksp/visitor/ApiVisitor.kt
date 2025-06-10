@@ -40,7 +40,7 @@ internal class ApiVisitor(
 	
 	private companion object {
 		
-		private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
+		private val apiUrlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 		
 		private val apiClassName = ClassName.bestGuess(KtorfitxQualifiers.API)
 		private val apiScopeClassName by lazy { ClassName.bestGuess(KtorfitxQualifiers.API_SCOPE) }
@@ -96,7 +96,7 @@ internal class ApiVisitor(
 			?: return ""
 		if (apiUrl.isBlank()) return ""
 		if (apiUrl == "/") return "/"
-		annotation.compileCheck(urlRegex.matches(apiUrl)) {
+		annotation.compileCheck(apiUrlRegex.matches(apiUrl)) {
 			val className = this.simpleName.asString()
 			"$className 接口上的 @Api 注解的 url 参数格式错误"
 		}

@@ -74,9 +74,11 @@ kotlin {
 			dependencies {
 				implementation(projects.ktorfitxApi)
 				implementation(projects.ktorfitxAnnotation)
+				implementation(projects.ktorfitxWebsockets)
 				implementation(libs.ktor.client.core)
 				implementation(libs.ktor.client.logging)
 				implementation(libs.ktor.client.cio)
+				implementation(libs.ktor.client.websockets)
 				implementation(libs.ktor.client.serialization)
 				implementation(libs.ktor.client.content.negotiation)
 				implementation(libs.ktor.serialization.kotlinx.json)

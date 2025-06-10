@@ -13,6 +13,8 @@ internal object KtorfitxQualifiers {
 	
 	const val PACKAGE_API_MOCK = "cn.vividcode.multiplatform.ktorfitx.api.mock"
 	
+	private const val PACKAGE_WEB_SOCKETS = "cn.vividcode.multiplatform.ktorfitx.websockets"
+	
 	const val API = "$PACKAGE_ANNOTATION.Api"
 	
 	const val BODY = "$PACKAGE_ANNOTATION.Body"
@@ -24,6 +26,10 @@ internal object KtorfitxQualifiers {
 	const val PATH = "$PACKAGE_ANNOTATION.Path"
 	
 	const val QUERY = "$PACKAGE_ANNOTATION.Query"
+	
+	const val WEB_SOCKET = "$PACKAGE_WEB_SOCKETS.WebSocket"
+	
+	const val CLIENT_WEB_SOCKET_SESSION_HANDLER = "$PACKAGE_WEB_SOCKETS.ClientWebSocketSessionHandler"
 	
 	const val EXCEPTION_LISTENERS = "$PACKAGE_ANNOTATION.ExceptionListeners"
 	

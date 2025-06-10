@@ -22,6 +22,7 @@ dependencyResolutionManagement {
 	}
 }
 include("ktorfitx-api")
+include("ktorfitx-websockets")
 include("ktorfitx-ksp")
 include("ktorfitx-annotation")
 include("ktorfitx-sample")

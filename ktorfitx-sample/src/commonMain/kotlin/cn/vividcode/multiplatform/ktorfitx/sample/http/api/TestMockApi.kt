@@ -6,7 +6,7 @@ import cn.vividcode.multiplatform.ktorfitx.api.mock.MockStatus
 import cn.vividcode.multiplatform.ktorfitx.sample.http.TestApiScope
 
 @Api(url = "/test2", apiScope = TestApiScope::class)
-interface Test2Api {
+interface TestMockApi {
 	
 	@POST(url = "/{path}")
 	suspend fun test(

@@ -20,7 +20,7 @@ import kotlinx.serialization.Serializable
  *
  * 文件介绍：TestApi
  */
-@Api(url = "user", apiScope = TestApiScope::class)
+@Api(url = "test1", apiScope = TestApiScope::class)
 interface TestApi {
 	
 	@GET(url = "test01")
@@ -128,4 +128,9 @@ data class TestRequest(
 @Serializable
 data class TestResponse(
 	val param1: String,
+)
+
+@Serializable
+data class Test(
+	val test: String
 )
