@@ -81,12 +81,10 @@ internal inline fun <reified T : Any> KSAnnotation.getValues(propertyName: Strin
  */
 internal fun KSAnnotation.getClassName(propertyName: String): ClassName? {
 	val value = this.arguments.find { it.name?.asString() == propertyName }?.value ?: return null
-	if (value is KSClassDeclaration) {
-		return value.toClassName()
-	} else if (value is KSType) {
-		return (value.declaration as KSClassDeclaration).toClassName()
-	} else {
-		error("$value is not a KSClassDeclaration or KSType")
+	return when (value) {
+		is KSClassDeclaration -> value.toClassName()
+		is KSType -> (value.declaration as KSClassDeclaration).toClassName()
+		else -> error("$value is not a KSClassDeclaration or KSType")
 	}
 }
 

@@ -2,7 +2,6 @@ package cn.vividcode.multiplatform.ktorfitx.api.mock
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.MockDsl
 import io.ktor.http.*
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**

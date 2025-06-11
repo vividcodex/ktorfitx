@@ -3,7 +3,6 @@ package cn.vividcode.multiplatform.ktorfitx.api.mock
 import cn.vividcode.multiplatform.ktorfitx.api.config.LogConfig
 import io.ktor.client.plugins.logging.LogLevel.*
 import io.ktor.http.*
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.milliseconds
 

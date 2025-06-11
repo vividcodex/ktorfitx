@@ -13,7 +13,7 @@ import cn.vividcode.multiplatform.ktorfitx.api.scope.DefaultApiScope
  *
  * 文件介绍：Ktorfit
  */
-@Suppress("MemberVisibilityCanBePrivate", "unused")
+@Suppress("unused")
 class Ktorfit<AS : ApiScope> internal constructor(
 	val config: KtorfitConfig,
 	private val apiScope: AS,
