@@ -1,4 +1,4 @@
-# KtorfitX 3.1.3-2.4.1
+# KtorfitX 3.1.3-2.5.0
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.vividcode.multiplatform:ktorfitx-api)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,7 +6,7 @@
 
 ## 更新时间
 
-### 2025-06-09
+### 2025-06-11
 
 ## 版本说明
 
@@ -14,7 +14,7 @@ Kotlin `2.1.21`
 
 Ktor `3.1.3`
 
-KSP `2.1.21-2.0.1`
+KSP `2.1.21-2.0.2`
 
 ## 支持平台
 
@@ -34,12 +34,15 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val ktorfitxVersion = "3.1.3-2.4.1"
+val ktorfitxVersion = "3.1.3-2.5.0"
 
 kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation("cn.vividcode.multiplatform:ktorfitx-api:ktorfitxVersion")
+            
+            // 可选，如果你需要WebSocket支持
+            implementation("cn.vividcode.multiplatform:ktorfitx-websockets:ktorfitxVersion")
         }
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -197,6 +200,18 @@ annotation class ExceptionListeners(
     
     // 多个异常监听器
     vararg val listeners: KClass<out ExceptionListener<*, *>>
+)
+```
+
+### `@WebSocket` `方法` WebSocket连接
+
+``` kotlin
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.SOURCE)
+annotation class WebSocket(
+    
+    // 接口路径
+    val url: String
 )
 ```
 
