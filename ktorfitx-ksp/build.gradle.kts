@@ -37,6 +37,7 @@ sourceSets {
 
 dependencies {
 	implementation(projects.ktorfitxAnnotation)
+	implementation(projects.ktorfitxWebsockets)
 	implementation(libs.kotlin.reflect)
 	implementation(libs.symbol.processing.api)
 	implementation(libs.symbol.processing)

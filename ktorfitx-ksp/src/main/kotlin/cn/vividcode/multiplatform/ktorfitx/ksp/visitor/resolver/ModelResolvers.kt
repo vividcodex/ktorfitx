@@ -17,10 +17,24 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 internal object ModelResolvers {
 	
 	/**
+	 * 获取所有 FunctionModel
+	 */
+	fun KSFunctionDeclaration.getAllFunctionModels(resolver: Resolver): List<FunctionModel> {
+		val models = mutableListOf<FunctionModel?>()
+		models += with(WebSocketResolver) { resolve() }
+		models += with(ApiModelResolver) { resolve(models.any { it is WebSocketModel }) }
+		models += with(HeadersModelResolver) { resolve() }
+		models += with(MockModelResolver) { resolve() }
+		models += with(BearerAuthModelResolver) { resolve() }
+		models += with(ExceptionListenerResolver) { resolves(resolver) }
+		return models.filterNotNull()
+	}
+	
+	/**
 	 * 获取所有 ParameterModel
 	 */
-	fun KSFunctionDeclaration.getAllParameterModel(): List<ParameterModel> {
-		return with(ParameterModelResolver) { resolves() }
+	fun KSFunctionDeclaration.getAllParameterModel(isWebSocket: Boolean): List<ParameterModel> {
+		return with(ParameterModelResolver) { resolves(isWebSocket) }
 	}
 	
 	/**
@@ -39,20 +53,6 @@ internal object ModelResolvers {
 			val funName = this.simpleName.asString()
 			"$funName 方法不能同时使用 @Body 和 @Form 注解"
 		}
-		return models.filterNotNull()
-	}
-	
-	/**
-	 * 获取所有 FunctionModel
-	 */
-	fun KSFunctionDeclaration.getAllFunctionModels(resolver: Resolver): List<FunctionModel> {
-		val models = mutableListOf<FunctionModel?>()
-		models += with(ApiModelResolver) { resolve() }
-		models += with(HeadersModelResolver) { resolve() }
-		models += with(MockModelResolver) { resolve() }
-		models += with(BearerAuthModelResolver) { resolve() }
-		models += with(ExceptionListenerResolver) { resolves(resolver) }
-		models += with(WebSocketResolver) { resolve() }
 		return models.filterNotNull()
 	}
 }

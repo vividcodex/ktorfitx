@@ -6,10 +6,10 @@ import cn.vividcode.multiplatform.ktorfitx.api.model.ResultBody
 import kotlinx.serialization.Serializable
 
 @Api(url = "test3")
-interface Test3Api {
+interface TestInnerClassApi {
 	
 	@GET("v1/test1")
-	suspend fun getTest1(): ResultBody<Test>
+	suspend fun getTest1(): ResultBody<Test1>
 	
 	@GET("v1/test2")
 	suspend fun getTest2(): ResultBody<Test2>
@@ -21,7 +21,7 @@ interface Test3Api {
 	suspend fun getTest4(): ResultBody<Test4Class.Test4>
 	
 	@Serializable
-	data class Test(val data: String)
+	data class Test1(val data: String)
 	
 	class Test3Class {
 		

@@ -29,7 +29,7 @@ internal object KtorfitxQualifiers {
 	
 	const val WEB_SOCKET = "$PACKAGE_WEB_SOCKETS.WebSocket"
 	
-	const val CLIENT_WEB_SOCKET_SESSION_HANDLER = "$PACKAGE_WEB_SOCKETS.ClientWebSocketSessionHandler"
+	const val WEB_SOCKET_SESSION_HANDLER = "$PACKAGE_WEB_SOCKETS.WebSocketSessionHandler"
 	
 	const val EXCEPTION_LISTENERS = "$PACKAGE_ANNOTATION.ExceptionListeners"
 	

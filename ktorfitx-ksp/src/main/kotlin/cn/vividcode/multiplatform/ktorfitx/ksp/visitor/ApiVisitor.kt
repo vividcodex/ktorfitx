@@ -7,6 +7,7 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassNames
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnClassNames
+import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.WebSocketModel
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ApiStructure
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ClassStructure
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.FunStructure
@@ -115,43 +116,55 @@ internal class ApiVisitor(
 					"$funName 方法缺少 suspend 修饰符"
 				}
 				val funName = it.simpleName.asString()
-				val returnStructure = it.getReturnStructure()
-				val parameterModels = with(ModelResolvers) { it.getAllParameterModel() }
-				val valueParameterModels = with(ModelResolvers) { it.getAllValueParameterModels() }
 				val functionModels = with(ModelResolvers) { it.getAllFunctionModels(resolver) }
-				FunStructure(funName, returnStructure, parameterModels, functionModels, valueParameterModels)
+				val isWebSocket = functionModels.any { model -> model is WebSocketModel }
+				val parameterModels = with(ModelResolvers) { it.getAllParameterModel(isWebSocket) }
+				val returnStructure = it.getReturnStructure(isWebSocket)
+				if (isWebSocket) {
+					FunStructure(funName, returnStructure, parameterModels, functionModels, emptyList())
+				} else {
+					val valueParameterModels = with(ModelResolvers) { it.getAllValueParameterModels() }
+					FunStructure(funName, returnStructure, parameterModels, functionModels, valueParameterModels)
+				}
 			}
 	}
 	
 	/**
 	 * 获取 ReturnStructure
 	 */
-	private fun KSFunctionDeclaration.getReturnStructure(): ReturnStructure {
+	private fun KSFunctionDeclaration.getReturnStructure(isWebSocket: Boolean): ReturnStructure {
 		val returnType = this.returnType!!
 		val typeName = returnType.toTypeName()
-		val lazyErrorMessage = {
-			val funName = this.simpleName.asString()
-			val returnTypes = ReturnClassNames.all.joinToString()
-			"$funName 方法的返回类型 $typeName 不支持，请使用 $returnTypes"
-		}
-		returnType.compileCheck(
-			value = typeName is ClassName || typeName is ParameterizedTypeName,
-			lazyErrorMessage = lazyErrorMessage
-		)
-		
-		if (typeName is ParameterizedTypeName) {
-			val arguments = typeName.typeArguments
+		return if (isWebSocket) {
+			returnType.compileCheck(typeName == ReturnClassNames.unit) {
+				val funName = this.simpleName.asString()
+				"$funName 方法必须使用 Unit 作为返回类型，因为你已经标记了 @WebSocket 注解"
+			}
+			ReturnStructure(typeName)
+		} else {
+			val errorMessage = {
+				val funName = this.simpleName.asString()
+				val returnTypes = ReturnClassNames.all.joinToString()
+				"$funName 方法不允许使用 $typeName 作为返回类型，必须使用 $returnTypes 中的一个"
+			}
 			returnType.compileCheck(
-				value = arguments.size == 1 && (arguments[0] is ClassName || arguments[0] is ParameterizedTypeName),
-				lazyErrorMessage = lazyErrorMessage
+				value = typeName is ClassName || typeName is ParameterizedTypeName,
+				errorMessage = errorMessage
 			)
+			if (typeName is ParameterizedTypeName) {
+				val arguments = typeName.typeArguments
+				returnType.compileCheck(
+					value = arguments.size == 1 && (arguments[0] is ClassName || arguments[0] is ParameterizedTypeName),
+					errorMessage = errorMessage
+				)
+			}
+			ReturnStructure(typeName).also {
+				returnType.compileCheck(
+					value = it.notNullRawType in ReturnClassNames.all,
+					errorMessage = errorMessage
+				)
+			}
 		}
-		val returnStructure = ReturnStructure(typeName)
-		returnType.compileCheck(
-			value = returnStructure.notNullRawType in ReturnClassNames.all,
-			lazyErrorMessage = lazyErrorMessage
-		)
-		return returnStructure
 	}
 	
 	override fun defaultHandler(node: KSNode, data: Unit): VisitorResult? = null

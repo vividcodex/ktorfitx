@@ -11,13 +11,13 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T : KSNode> T.compileCheck(
 	value: Boolean,
-	lazyErrorMessage: () -> String,
+	errorMessage: () -> String,
 ) {
 	contract {
 		returns() implies value
 	}
 	if (!value) {
-		val message = lazyErrorMessage()
+		val message = errorMessage()
 		kspLogger?.error("\nKtorfitx 编译期错误检查: $message\n详情请查看官方文档: $KTORFITX_DOCUMENT_URL", this)
 		compileCheckError(message, this)
 	}

@@ -4,11 +4,13 @@ import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
 import cn.vividcode.multiplatform.ktorfitx.ksp.expends.*
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.UseImports
-import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.CodeBlockBuilder
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.HttpClientCodeBlock
+import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.HttpCodeBlockBuilder
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.MockClientCodeBlock
+import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.block.WebSocketBuilder
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.MockModel
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.ParameterModel
+import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.WebSocketModel
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ClassStructure
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.FunStructure
 import com.squareup.kotlinpoet.*
@@ -201,10 +203,17 @@ internal class ApiKotlinPoet {
 	
 	private fun getCodeBlock(classStructure: ClassStructure, funStructure: FunStructure): CodeBlock {
 		return buildCodeBlock {
-			val isMockClient = funStructure.functionModels.any { it is MockModel }
-			val codeBlockKClass = if (isMockClient) MockClientCodeBlock::class else HttpClientCodeBlock::class
-			with(CodeBlockBuilder(classStructure, funStructure, codeBlockKClass)) {
-				buildCodeBlock()
+			val isWebSocket = funStructure.functionModels.any { it is WebSocketModel }
+			if (isWebSocket) {
+				with(WebSocketBuilder(classStructure, funStructure)) {
+					buildCodeBlock()
+				}
+			} else {
+				val isMockClient = funStructure.functionModels.any { it is MockModel }
+				val codeBlockKClass = if (isMockClient) MockClientCodeBlock::class else HttpClientCodeBlock::class
+				with(HttpCodeBlockBuilder(classStructure, funStructure, codeBlockKClass)) {
+					buildCodeBlock()
+				}
 			}
 		}
 	}

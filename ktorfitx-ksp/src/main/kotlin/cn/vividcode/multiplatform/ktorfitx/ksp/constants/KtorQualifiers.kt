@@ -16,4 +16,6 @@ internal object KtorQualifiers {
 	const val PACKAGE_REQUEST_FORMS = "io.ktor.client.request.forms"
 	
 	const val HTTP_CLIENT = "$PACKAGE_CLIENT.HttpClient"
+	
+	const val PACKAGE_WEBSOCKET = "io.ktor.client.plugins.websocket"
 }

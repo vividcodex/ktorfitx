@@ -18,5 +18,5 @@ internal class FunStructure(
 	val returnStructure: ReturnStructure,
 	val parameterModels: List<ParameterModel>,
 	val functionModels: List<FunctionModel>,
-	val valueParameterModels: List<ValueParameterModel>,
+	val valueParameterModels: List<ValueParameterModel>
 )

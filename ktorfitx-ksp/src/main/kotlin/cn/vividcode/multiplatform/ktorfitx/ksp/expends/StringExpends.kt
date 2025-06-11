@@ -41,9 +41,21 @@ internal fun String.replaceFirstToUppercase(): String {
 	return this.replaceFirstChar { it.uppercaseChar() }
 }
 
+private const val HTTP = "http://"
+private const val HTTPS = "https://"
+private const val WS = "ws://"
+private const val WSS = "wss://"
+
 /**
- * 是否开头是http或https
+ * 是否是 http:// 或者 https://
  */
 internal fun String.isHttpOrHttps(): Boolean {
-	return this.startsWith("http://") || this.startsWith("https://")
+	return this.startsWith(HTTP) || this.startsWith(HTTPS)
+}
+
+/**
+ * 是否是 ws:// 或者 wss:// 开头
+ */
+internal fun String.isWSOrWSS(): Boolean {
+	return this.startsWith(WS) || this.startsWith(WSS)
 }

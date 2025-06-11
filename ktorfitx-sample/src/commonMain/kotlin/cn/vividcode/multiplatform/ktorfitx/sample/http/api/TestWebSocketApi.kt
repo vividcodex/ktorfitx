@@ -1,21 +1,22 @@
 package cn.vividcode.multiplatform.ktorfitx.sample.http.api
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.Api
-import io.ktor.client.plugins.websocket.*
+import cn.vividcode.multiplatform.ktorfitx.annotation.BearerAuth
+import cn.vividcode.multiplatform.ktorfitx.annotation.GET
+import cn.vividcode.multiplatform.ktorfitx.api.model.ResultBody
+import cn.vividcode.multiplatform.ktorfitx.websockets.WebSocket
+import cn.vividcode.multiplatform.ktorfitx.websockets.WebSocketSessionHandler
 
 @Api(url = "test4")
 interface TestWebSocketApi {
-
-//	@BearerAuth
-//	@WebSocket("test1")
-//	suspend fun test1(block: suspend DefaultClientWebSocketSession.() -> Unit)
-//
-//	@WebSocket("ws://localhost:8080/test4/test2")
-//	suspend fun test2(block: WebSocketSessionBlock) {
-//		test2 {
-//
-//		}
-//	}
+	
+	@BearerAuth
+	@WebSocket("test1")
+	suspend fun test1(block: WebSocketSessionHandler)
+	
+	@WebSocket("ws://localhost:8080/test4/test2")
+	suspend fun test2(handler: WebSocketSessionHandler)
+	
+	@GET("test3")
+	suspend fun test3(): ResultBody<String>
 }
-
-typealias WebSocketSessionBlock = suspend DefaultClientWebSocketSession.() -> Unit

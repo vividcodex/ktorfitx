@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import cn.vividcode.multiplatform.ktorfitx.sample.http.api.impl.testApi
+import cn.vividcode.multiplatform.ktorfitx.sample.http.api.impl.testMethodApi
 import cn.vividcode.multiplatform.ktorfitx.sample.http.testKtorfit
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -131,7 +131,7 @@ fun App() {
 					onClick = {
 						coroutineScope.launch {
 							val correctKey = key.ifBlank { "f28b487e8ed22222fcfb7cf38df2d611" }
-							val result = testKtorfit.testApi.headlineNews(correctKey, type, page, pageSize, isFilter)
+							val result = testKtorfit.testMethodApi.headlineNews(correctKey, type, page, pageSize, isFilter)
 							if (result == null) {
 								text = ""
 								return@launch

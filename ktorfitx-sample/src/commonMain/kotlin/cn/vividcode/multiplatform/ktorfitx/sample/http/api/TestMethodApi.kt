@@ -21,7 +21,7 @@ import kotlinx.serialization.Serializable
  * 文件介绍：TestApi
  */
 @Api(url = "test1", apiScope = TestApiScope::class)
-interface TestApi {
+interface TestMethodApi {
 	
 	@GET(url = "test01")
 	@ExceptionListeners(TestResultBodyExceptionListener::class)
