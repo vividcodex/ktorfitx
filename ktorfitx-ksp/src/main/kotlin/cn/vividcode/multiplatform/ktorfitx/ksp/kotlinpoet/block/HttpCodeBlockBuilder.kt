@@ -30,6 +30,7 @@ internal class HttpCodeBlockBuilder(
 	private val returnStructure = funStructure.returnStructure
 	private val valueParameterModels = funStructure.valueParameterModels
 	private val functionModels = funStructure.functionModels
+	private val apiStructure = classStructure.apiStructure
 	
 	private companion object Companion {
 		private val exceptionClassNames = arrayOf(
@@ -145,9 +146,9 @@ internal class HttpCodeBlockBuilder(
 	private fun parseToFullUrl(url: String): String {
 		val pathModels = valueParameterModels.filterIsInstance<PathModel>()
 		val initialUrl = if (url.isHttpOrHttps()) url else {
-			val apiUrl = classStructure.apiStructure.url
-			if (apiUrl == "") return url
-			val url = url.removePrefix("/")
+			val apiUrl = apiStructure.url
+			if (url.isHttpOrHttps()) return url
+			if (apiUrl == null) return url
 			"$apiUrl/$url"
 		}
 		val fullUrl = pathModels.fold(initialUrl) { acc, it ->

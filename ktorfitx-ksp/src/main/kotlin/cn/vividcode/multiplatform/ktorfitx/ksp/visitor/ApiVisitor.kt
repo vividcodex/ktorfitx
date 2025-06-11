@@ -2,10 +2,7 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.visitor
 
 import cn.vividcode.multiplatform.ktorfitx.ksp.check.compileCheck
 import cn.vividcode.multiplatform.ktorfitx.ksp.constants.KtorfitxQualifiers
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassName
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getClassNames
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getKSAnnotationByType
-import cn.vividcode.multiplatform.ktorfitx.ksp.expends.getValue
+import cn.vividcode.multiplatform.ktorfitx.ksp.expends.*
 import cn.vividcode.multiplatform.ktorfitx.ksp.kotlinpoet.ReturnClassNames
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.model.WebSocketModel
 import cn.vividcode.multiplatform.ktorfitx.ksp.model.structure.ApiStructure
@@ -92,16 +89,18 @@ internal class ApiVisitor(
 	/**
 	 * 获取 `@Api` 注解上的 url 参数
 	 */
-	private fun KSClassDeclaration.getApiUrl(annotation: KSAnnotation): String {
-		val apiUrl = annotation.getValue<String>("url")
-			?: return ""
-		if (apiUrl.isBlank()) return ""
-		if (apiUrl == "/") return "/"
-		annotation.compileCheck(apiUrlRegex.matches(apiUrl)) {
+	private fun KSClassDeclaration.getApiUrl(annotation: KSAnnotation): String? {
+		val url = annotation.getValue<String>("url")?.trim('/') ?: return null
+		if (url.isBlank()) return null
+		annotation.compileCheck(!url.isHttpOrHttps() && !url.isWSOrWSS()) {
+			val className = this.simpleName.asString()
+			"$className 接口上的 @Api 注解的 url 参数不允许开头是 http:// 或 https:// 或 ws:// 或 wss://"
+		}
+		annotation.compileCheck(apiUrlRegex.matches(url)) {
 			val className = this.simpleName.asString()
 			"$className 接口上的 @Api 注解的 url 参数格式错误"
 		}
-		return apiUrl
+		return url
 	}
 	
 	/**

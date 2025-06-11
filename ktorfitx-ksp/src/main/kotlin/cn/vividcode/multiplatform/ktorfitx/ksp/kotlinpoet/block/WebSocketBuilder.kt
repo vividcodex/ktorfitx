@@ -35,8 +35,9 @@ internal class WebSocketBuilder(
 	private fun parseToFullUrl(): String {
 		val url = functionModels.filterIsInstance<ApiModel>().first().url
 		if (url.isWSOrWSS()) return url
-		val apiUrl = apiStructure.url.removeSuffix("/")
-		return "$apiUrl/${url.removePrefix("/")}"
+		val apiUrl = apiStructure.url
+		if (apiUrl == null) return url
+		return "$apiUrl/$url"
 	}
 	
 	private fun CodeBlock.Builder.buildBearerAuth() {

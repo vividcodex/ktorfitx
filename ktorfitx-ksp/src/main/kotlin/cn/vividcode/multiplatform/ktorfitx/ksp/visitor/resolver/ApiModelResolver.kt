@@ -75,6 +75,6 @@ internal object ApiModelResolver {
 		this.compileCheck(urlRegex.matches(url)) {
 			"$funName 方法上的 $this 注解的 url 参数格式错误"
 		}
-		return url
+		return url.trim('/')
 	}
 }

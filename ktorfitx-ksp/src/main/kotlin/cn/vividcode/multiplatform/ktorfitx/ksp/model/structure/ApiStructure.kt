@@ -12,6 +12,6 @@ import com.squareup.kotlinpoet.ClassName
  * 文件介绍：ApiStructure
  */
 internal class ApiStructure(
-	val url: String,
+	val url: String?,
 	val apiScopeClassNames: Set<ClassName>,
 )
