@@ -39,9 +39,9 @@ class MockLogging(
 					}
 				}
 				if (log.level.body) {
-					if (mockRequest.forms.isNotEmpty()) {
-						appendLine("FORMS: COUNT=${mockRequest.forms.size}")
-						mockRequest.forms.forEach { (name, value) ->
+					if (mockRequest.parts.isNotEmpty()) {
+						appendLine("FORMS: COUNT=${mockRequest.parts.size}")
+						mockRequest.parts.forEach { (name, value) ->
 							appendLine("-> $name: $value")
 						}
 					}

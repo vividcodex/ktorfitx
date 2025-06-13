@@ -47,9 +47,15 @@ internal object ModelResolvers {
 		models += with(FormModelResolver) { resolves() }
 		models += with(PathModelResolver) { resolves() }
 		models += with(HeaderModelResolver) { resolves() }
-		val useBodyAndForm = arrayOf(BodyModel::class, FormModel::class)
-			.all { kClass -> models.any { kClass.isInstance(it) } }
-		this.compileCheck(!useBodyAndForm) {
+		
+		var count = 0
+		if (models.any { it is BodyModel }) {
+			count++
+		}
+		if (models.any { it is PartModel }) {
+			count++
+		}
+		this.compileCheck(count <= 1) {
 			val funName = this.simpleName.asString()
 			"$funName 方法不能同时使用 @Body 和 @Form 注解"
 		}

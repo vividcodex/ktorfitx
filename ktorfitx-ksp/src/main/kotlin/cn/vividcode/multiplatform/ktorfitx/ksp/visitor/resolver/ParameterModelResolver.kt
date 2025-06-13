@@ -26,7 +26,7 @@ internal object ParameterModelResolver {
 	
 	private val annotationQualifiedNames = arrayOf(
 		KtorfitxQualifiers.BODY,
-		KtorfitxQualifiers.FORM,
+		KtorfitxQualifiers.PART,
 		KtorfitxQualifiers.HEADER,
 		KtorfitxQualifiers.PATH,
 		KtorfitxQualifiers.QUERY

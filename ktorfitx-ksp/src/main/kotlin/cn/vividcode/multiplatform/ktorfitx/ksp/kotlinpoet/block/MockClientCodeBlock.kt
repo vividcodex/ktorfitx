@@ -65,10 +65,10 @@ internal class MockClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildFormsCodeBlock(
-		formModels: List<FormModel>,
+		partModels: List<PartModel>,
 	) {
-		beginControlFlow("forms")
-		formModels.forEach {
+		beginControlFlow("parts")
+		partModels.forEach {
 			addStatement("append(\"${it.name}\", ${it.varName})")
 		}
 		endControlFlow()

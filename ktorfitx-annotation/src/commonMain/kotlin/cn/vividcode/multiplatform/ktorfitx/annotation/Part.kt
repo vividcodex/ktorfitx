@@ -7,10 +7,10 @@ package cn.vividcode.multiplatform.ktorfitx.annotation
  *
  * 创建日期：2024/3/23 21:21
  *
- * 文件介绍：Form
+ * 文件介绍：PartForm
  */
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Form(
+annotation class Part(
 	val name: String = ""
 )

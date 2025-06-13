@@ -19,15 +19,13 @@ internal object KtorfitxQualifiers {
 	
 	const val BODY = "$PACKAGE_ANNOTATION.Body"
 	
-	const val FORM = "$PACKAGE_ANNOTATION.Form"
+	const val PART = "$PACKAGE_ANNOTATION.Part"
 	
 	const val HEADER = "$PACKAGE_ANNOTATION.Header"
 	
 	const val PATH = "$PACKAGE_ANNOTATION.Path"
 	
 	const val QUERY = "$PACKAGE_ANNOTATION.Query"
-	
-	const val WEB_SOCKET = "$PACKAGE_WEB_SOCKETS.WebSocket"
 	
 	const val WEB_SOCKET_SESSION_HANDLER = "$PACKAGE_WEB_SOCKETS.WebSocketSessionHandler"
 	

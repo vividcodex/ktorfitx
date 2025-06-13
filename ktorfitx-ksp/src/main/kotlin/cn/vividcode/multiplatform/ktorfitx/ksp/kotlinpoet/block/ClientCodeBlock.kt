@@ -45,7 +45,7 @@ internal sealed interface ClientCodeBlock {
 	/**
 	 * forms
 	 */
-	fun CodeBlock.Builder.buildFormsCodeBlock(formModels: List<FormModel>)
+	fun CodeBlock.Builder.buildFormsCodeBlock(partModels: List<PartModel>)
 	
 	/**
 	 * body

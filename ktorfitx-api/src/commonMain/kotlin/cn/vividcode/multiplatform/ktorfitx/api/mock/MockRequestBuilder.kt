@@ -22,7 +22,7 @@ class MockRequestBuilder(
 	
 	val queries = mutableMapOf<String, Any>()
 	
-	val forms = mutableMapOf<String, Any>()
+	val parts = mutableMapOf<String, Any>()
 	
 	val paths = mutableMapOf<String, Any>()
 	
@@ -40,8 +40,8 @@ class MockRequestBuilder(
 		this.queries += mutableMapOf<String, Any>().apply(block)
 	}
 	
-	fun forms(block: MutableMap<String, Any>.() -> Unit) {
-		this.forms += mutableMapOf<String, Any>().apply(block)
+	fun parts(block: MutableMap<String, Any>.() -> Unit) {
+		this.parts += mutableMapOf<String, Any>().apply(block)
 	}
 	
 	fun paths(block: MutableMap<String, Any>.() -> Unit) {

@@ -38,7 +38,7 @@ interface TestMethodApi {
 	@BearerAuth
 	@PUT(url = "/test03")
 	suspend fun test03(
-		@Form form1: String,
+		@Part part1: String,
 	): ResultBody<TestResponse>
 	
 	@BearerAuth
@@ -49,7 +49,7 @@ interface TestMethodApi {
 	
 	@PATCH(url = "/test05")
 	suspend fun test05(
-		@Form form1: String,
+		@Part part1: String,
 	): ByteArray
 	
 	@BearerAuth
@@ -89,7 +89,7 @@ interface TestMethodApi {
 	@Mock(ResultBodyMockProvider::class)
 	@PUT(url = "/testMock03")
 	suspend fun testMock03(
-		@Form form1: String,
+		@Part part1: String,
 	): ResultBody<TestResponse>
 	
 	@Mock(ResultBodyMockProvider::class)

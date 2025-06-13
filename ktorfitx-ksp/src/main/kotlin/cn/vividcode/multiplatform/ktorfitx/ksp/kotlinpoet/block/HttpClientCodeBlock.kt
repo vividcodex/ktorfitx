@@ -88,13 +88,13 @@ internal class HttpClientCodeBlock(
 		}
 	}
 	
-	override fun CodeBlock.Builder.buildFormsCodeBlock(formModels: List<FormModel>) {
+	override fun CodeBlock.Builder.buildFormsCodeBlock(partModels: List<PartModel>) {
 		UseImports.addImports(KtorQualifiers.PACKAGE_HTTP, "contentType", "ContentType")
 		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, "setBody")
 		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST_FORMS, "formData", "MultiPartFormDataContent")
 		addStatement("contentType(ContentType.MultiPart.FormData)")
 		beginControlFlow("formData {")
-		formModels.forEach {
+		partModels.forEach {
 			addStatement("append(\"${it.name}\", ${it.varName})")
 		}
 		nextControlFlow(".let")
