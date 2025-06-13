@@ -55,7 +55,7 @@ internal class ApiVisitor(
 	 */
 	private fun KSClassDeclaration.getClassStructure(): ClassStructure? {
 		val apiKSAnnotation = getKSAnnotationByType(apiClassName) ?: return null
-		val className = ClassName("${packageName.asString()}.impl", "${simpleName.asString()}Impl")
+		val className = ClassName("${packageName.asString()}.impls", "${simpleName.asString()}Impl")
 		val superinterface = this.toClassName()
 		val apiScopeClassName = apiKSAnnotation.getClassName("apiScope") ?: defaultApiScopeClassName
 		val apiScopeClassNames = apiKSAnnotation.getClassNames("apiScopes")?.toSet() ?: emptySet()

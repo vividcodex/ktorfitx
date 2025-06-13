@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import cn.vividcode.multiplatform.ktorfitx.sample.http.api.impl.testMethodApi
+import cn.vividcode.multiplatform.ktorfitx.sample.http.api.impls.testMethodApi
 import cn.vividcode.multiplatform.ktorfitx.sample.http.testKtorfit
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
