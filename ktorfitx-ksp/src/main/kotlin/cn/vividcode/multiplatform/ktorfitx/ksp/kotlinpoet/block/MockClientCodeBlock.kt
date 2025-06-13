@@ -54,9 +54,7 @@ internal class MockClientCodeBlock(
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildQueriesCodeBlock(
-		queryModels: List<QueryModel>,
-	) {
+	override fun CodeBlock.Builder.buildQueriesCodeBlock(queryModels: List<QueryModel>) {
 		beginControlFlow("queries")
 		queryModels.forEach {
 			addStatement("append(\"${it.name}\", ${it.varName})")
@@ -64,9 +62,7 @@ internal class MockClientCodeBlock(
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildFormsCodeBlock(
-		partModels: List<PartModel>,
-	) {
+	override fun CodeBlock.Builder.buildPartsCodeBlock(partModels: List<PartModel>) {
 		beginControlFlow("parts")
 		partModels.forEach {
 			addStatement("append(\"${it.name}\", ${it.varName})")
@@ -74,9 +70,15 @@ internal class MockClientCodeBlock(
 		endControlFlow()
 	}
 	
-	fun CodeBlock.Builder.buildPathsCodeBlock(
-		pathModels: List<PathModel>,
-	) {
+	override fun CodeBlock.Builder.buildFieldsCodeBlock(fieldModels: List<FieldModel>) {
+		beginControlFlow("fields")
+		fieldModels.forEach {
+			addStatement("append(\"${it.name}\", ${it.varName})")
+		}
+		endControlFlow()
+	}
+	
+	fun CodeBlock.Builder.buildPathsCodeBlock(pathModels: List<PathModel>) {
 		beginControlFlow("paths")
 		pathModels.forEach {
 			addStatement("append(\"${it.name}\", ${it.varName})")

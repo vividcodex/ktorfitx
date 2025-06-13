@@ -13,9 +13,9 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
  *
  * 创建日期：2024/8/17 18:53
  *
- * 文件介绍：FormModelResolver
+ * 文件介绍：PartModelResolver
  */
-internal object FormModelResolver {
+internal object PartModelResolver {
 	
 	fun KSFunctionDeclaration.resolves(): List<PartModel> {
 		return this.parameters.mapNotNull { valueParameter ->

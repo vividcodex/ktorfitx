@@ -24,6 +24,8 @@ class MockRequestBuilder(
 	
 	val parts = mutableMapOf<String, Any>()
 	
+	val fields = mutableMapOf<String, Any>()
+	
 	val paths = mutableMapOf<String, Any>()
 	
 	var body: String? = null
@@ -42,6 +44,10 @@ class MockRequestBuilder(
 	
 	fun parts(block: MutableMap<String, Any>.() -> Unit) {
 		this.parts += mutableMapOf<String, Any>().apply(block)
+	}
+	
+	fun fields(block: MutableMap<String, Any>.() -> Unit) {
+		this.fields += mutableMapOf<String, Any>().apply(block)
 	}
 	
 	fun paths(block: MutableMap<String, Any>.() -> Unit) {

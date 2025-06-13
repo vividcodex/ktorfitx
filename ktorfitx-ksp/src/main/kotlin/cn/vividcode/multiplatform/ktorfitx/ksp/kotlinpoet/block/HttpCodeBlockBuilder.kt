@@ -61,7 +61,11 @@ internal class HttpCodeBlockBuilder(
 				}
 				val partModels = valueParameterModels.filterIsInstance<PartModel>()
 				if (partModels.isNotEmpty()) {
-					buildFormsCodeBlock(partModels)
+					buildPartsCodeBlock(partModels)
+				}
+				val fieldModels = valueParameterModels.filterIsInstance<FieldModel>()
+				if (fieldModels.isNotEmpty()) {
+					buildFieldsCodeBlock(fieldModels)
 				}
 				if (this@with is MockClientCodeBlock) {
 					val pathModels = valueParameterModels.filterIsInstance<PathModel>()

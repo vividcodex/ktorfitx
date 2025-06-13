@@ -44,20 +44,22 @@ internal object ModelResolvers {
 		val models = mutableListOf<ValueParameterModel?>()
 		models += with(BodyModelResolver) { resolve() }
 		models += with(QueryModelResolver) { resolves() }
-		models += with(FormModelResolver) { resolves() }
+		models += with(PartModelResolver) { resolves() }
+		models += with(FieldModelResolver) { resolves() }
 		models += with(PathModelResolver) { resolves() }
 		models += with(HeaderModelResolver) { resolves() }
-		
-		var count = 0
-		if (models.any { it is BodyModel }) {
-			count++
-		}
-		if (models.any { it is PartModel }) {
-			count++
-		}
-		this.compileCheck(count <= 1) {
+		val filterModels = models.filterNotNull()
+		val incompatibleTypeCount = filterModels.mapNotNull {
+			when (it) {
+				is BodyModel -> BodyModel::class
+				is PartModel -> PartModel::class
+				is FieldModel -> FieldModel::class
+				else -> null
+			}
+		}.toSet().size
+		this.compileCheck(incompatibleTypeCount <= 1) {
 			val funName = this.simpleName.asString()
-			"$funName 方法不能同时使用 @Body 和 @Form 注解"
+			"$funName 方法不能同时使用 @Body, @Part 和 @Field 注解"
 		}
 		return models.filterNotNull()
 	}

@@ -45,6 +45,12 @@ class MockLogging(
 							appendLine("-> $name: $value")
 						}
 					}
+					if (mockRequest.fields.isNotEmpty()) {
+						appendLine("FIELDS: COUNT=${mockRequest.fields.size}")
+						mockRequest.fields.forEach { (name, value) ->
+							appendLine("-> $name: $value")
+						}
+					}
 					if (mockRequest.body != null) {
 						appendLine("BODY START: LENGTH=${mockRequest.body!!.length}")
 						appendLine(mockRequest.body!!)

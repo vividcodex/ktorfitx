@@ -5,12 +5,12 @@ package cn.vividcode.multiplatform.ktorfitx.annotation
  *
  * 作者昵称：li-jia-wei
  *
- * 创建日期：2024/3/23 21:21
+ * 创建日期：2025/06/13 17:43
  *
- * 文件介绍：Part
+ * 文件介绍：Field
  */
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Part(
+annotation class Field(
 	val name: String = ""
 )

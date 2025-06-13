@@ -21,6 +21,8 @@ internal object KtorfitxQualifiers {
 	
 	const val PART = "$PACKAGE_ANNOTATION.Part"
 	
+	const val FIELD = "$PACKAGE_ANNOTATION.Field"
+	
 	const val HEADER = "$PACKAGE_ANNOTATION.Header"
 	
 	const val PATH = "$PACKAGE_ANNOTATION.Path"

@@ -43,9 +43,14 @@ internal sealed interface ClientCodeBlock {
 	fun CodeBlock.Builder.buildQueriesCodeBlock(queryModels: List<QueryModel>)
 	
 	/**
-	 * forms
+	 * parts
 	 */
-	fun CodeBlock.Builder.buildFormsCodeBlock(partModels: List<PartModel>)
+	fun CodeBlock.Builder.buildPartsCodeBlock(partModels: List<PartModel>)
+	
+	/**
+	 * fields
+	 */
+	fun CodeBlock.Builder.buildFieldsCodeBlock(fieldModels: List<FieldModel>)
 	
 	/**
 	 * body

@@ -88,7 +88,7 @@ internal class HttpClientCodeBlock(
 		}
 	}
 	
-	override fun CodeBlock.Builder.buildFormsCodeBlock(partModels: List<PartModel>) {
+	override fun CodeBlock.Builder.buildPartsCodeBlock(partModels: List<PartModel>) {
 		UseImports.addImports(KtorQualifiers.PACKAGE_HTTP, "contentType", "ContentType")
 		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, "setBody")
 		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST_FORMS, "formData", "MultiPartFormDataContent")
@@ -100,6 +100,21 @@ internal class HttpClientCodeBlock(
 		nextControlFlow(".let")
 		addStatement("setBody(MultiPartFormDataContent(it))")
 		endControlFlow()
+	}
+	
+	override fun CodeBlock.Builder.buildFieldsCodeBlock(fieldModels: List<FieldModel>) {
+		UseImports.addImports(KtorQualifiers.PACKAGE_HTTP, "contentType", "ContentType")
+		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, "setBody")
+		UseImports.addImports(KtorQualifiers.PACKAGE_HTTP, "formUrlEncode")
+		addStatement("contentType(ContentType.Application.FormUrlEncoded)")
+		val code = fieldModels.joinToString {
+			if (it.isString) {
+				"\"${it.name}\" to ${it.varName}"
+			} else {
+				"\"${it.name}\" to ${it.varName}.toString()"
+			}
+		}
+		addStatement("setBody(listOf($code).formUrlEncode())")
 	}
 	
 	override fun CodeBlock.Builder.buildBodyCodeBlock(bodyModel: BodyModel) {
