@@ -1,4 +1,4 @@
-# KtorfitX 3.1.3-2.5.1
+# KtorfitX 3.2.0-2.6.0
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.vividcode.multiplatform:ktorfitx-api)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,13 +6,13 @@
 
 ## 更新时间
 
-### 2025-06-11
+### 2025-06-13
 
 ## 版本说明
 
 Kotlin `2.1.21`
 
-Ktor `3.1.3`
+Ktor `3.2.0`
 
 KSP `2.1.21-2.0.2`
 
@@ -34,7 +34,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val ktorfitxVersion = "3.1.3-2.5.1"
+val ktorfitxVersion = "3.2.0-2.6.0"
 
 kotlin {
     sourceSets {
@@ -241,14 +241,26 @@ annotation class Mock(
 annotation class Body
 ```
 
-### `@Form` `参数` 表单
+### `@Part` `参数` 表单
 
 ``` kotlin
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Form(
+annotation class Part(
 
     // 表单参数名称 默认：变量名
+    val name: String = ""
+)
+```
+
+### `@Field` `参数` 字段
+
+``` kotlin
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.SOURCE)
+annotation class Field(
+
+    // 字段参数名称 默认：变量名
     val name: String = ""
 )
 ```
