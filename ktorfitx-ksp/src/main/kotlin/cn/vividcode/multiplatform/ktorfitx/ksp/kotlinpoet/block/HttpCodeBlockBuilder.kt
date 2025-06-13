@@ -92,7 +92,8 @@ internal class HttpCodeBlockBuilder(
 			UseImports += it.exceptionTypeName
 			UseImports += it.listenerClassName
 			nextControlFlow("catch (e: ${it.exceptionTypeName.simpleName})")
-			beginControlFlow("with(${it.listenerClassName.simpleName})")
+			val simpleNames = it.listenerClassName.simpleNames.joinToString(".")
+			beginControlFlow("with($simpleNames)")
 			val superinterfaceName = classStructure.superinterface.simpleName
 			val funName = funStructure.funName
 			addStatement("$superinterfaceName::$funName.onExceptionListener(e)")
