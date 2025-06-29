@@ -1,4 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -22,16 +21,16 @@ kotlin {
 	androidTarget {
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
-			languageVersion = KotlinVersion.KOTLIN_2_1
-			apiVersion = KotlinVersion.KOTLIN_2_1
+			languageVersion = KotlinVersion.KOTLIN_2_2
+			apiVersion = KotlinVersion.KOTLIN_2_2
 		}
 	}
 	
 	jvm("desktop") {
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_21)
-			languageVersion = KotlinVersion.KOTLIN_2_1
-			apiVersion = KotlinVersion.KOTLIN_2_1
+			languageVersion = KotlinVersion.KOTLIN_2_2
+			apiVersion = KotlinVersion.KOTLIN_2_2
 		}
 	}
 	
@@ -46,8 +45,8 @@ kotlin {
 				isStatic = true
 			}
 			compilerOptions {
-				languageVersion = KotlinVersion.KOTLIN_2_1
-				apiVersion = KotlinVersion.KOTLIN_2_1
+				languageVersion = KotlinVersion.KOTLIN_2_2
+				apiVersion = KotlinVersion.KOTLIN_2_2
 			}
 		}
 	}
@@ -62,8 +61,8 @@ kotlin {
 		binaries.executable()
 		useEsModules()
 		compilerOptions {
-			languageVersion = KotlinVersion.KOTLIN_2_1
-			apiVersion = KotlinVersion.KOTLIN_2_1
+			languageVersion = KotlinVersion.KOTLIN_2_2
+			apiVersion = KotlinVersion.KOTLIN_2_2
 		}
 	}
 	
@@ -86,14 +85,14 @@ kotlin {
 		binaries.executable()
 		useEsModules()
 		compilerOptions {
-			languageVersion = KotlinVersion.KOTLIN_2_1
-			apiVersion = KotlinVersion.KOTLIN_2_1
+			languageVersion = KotlinVersion.KOTLIN_2_2
+			apiVersion = KotlinVersion.KOTLIN_2_2
 		}
 	}
 	
 	compilerOptions {
-		languageVersion = KotlinVersion.KOTLIN_2_1
-		apiVersion = KotlinVersion.KOTLIN_2_1
+		languageVersion = KotlinVersion.KOTLIN_2_2
+		apiVersion = KotlinVersion.KOTLIN_2_2
 	}
 }
 
@@ -136,7 +135,7 @@ fun checkVersion() {
 
 mavenPublishing {
 	checkVersion()
-	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, ktorfitxAutomaticRelease)
+	publishToMavenCentral(automaticRelease = ktorfitxAutomaticRelease)
 	signAllPublications()
 	
 	coordinates("cn.vividcode.multiplatform", "ktorfitx-annotation", ktorfitxVersion)

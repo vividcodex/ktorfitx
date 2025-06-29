@@ -1,4 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
@@ -23,8 +22,8 @@ kotlin {
 	
 	compilerOptions {
 		jvmTarget.set(JvmTarget.JVM_21)
-		apiVersion = KotlinVersion.KOTLIN_2_1
-		languageVersion = KotlinVersion.KOTLIN_2_1
+		apiVersion = KotlinVersion.KOTLIN_2_2
+		languageVersion = KotlinVersion.KOTLIN_2_2
 	}
 }
 
@@ -53,7 +52,7 @@ fun checkVersion() {
 
 mavenPublishing {
 	checkVersion()
-	publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, ktorfitxAutomaticRelease)
+	publishToMavenCentral(automaticRelease = ktorfitxAutomaticRelease)
 	signAllPublications()
 	
 	coordinates("cn.vividcode.multiplatform", "ktorfitx-ksp", ktorfitxVersion)
