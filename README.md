@@ -1,4 +1,4 @@
-# KtorfitX 3.2.0-2.6.0
+# KtorfitX 3.2.0-2.6.1
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.vividcode.multiplatform:ktorfitx-api)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,15 +6,15 @@
 
 ## 更新时间
 
-### 2025-06-13
+### 2025-06-29
 
 ## 版本说明
 
-Kotlin `2.1.21`
+Kotlin `2.2.0`
 
 Ktor `3.2.0`
 
-KSP `2.1.21-2.0.2`
+KSP `2.2.0-2.0.2`
 
 ## 支持平台
 
@@ -34,7 +34,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val ktorfitxVersion = "3.2.0-2.6.0"
+val ktorfitxVersion = "3.2.0-2.6.1"
 
 kotlin {
     sourceSets {
