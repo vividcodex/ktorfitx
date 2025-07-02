@@ -8,3 +8,15 @@ plugins {
 	alias(libs.plugins.jetbrains.compose) apply false
 	alias(libs.plugins.maven.publish) apply false
 }
+
+tasks.register("ktorfitxPublishAllPublicationsToMavenCentralRepository") {
+	group = "publishing"
+	
+	dependsOn(
+		":ktorfitx-annotation:publishAllPublicationsToMavenCentralRepository",
+		":ktorfitx-core:publishAllPublicationsToMavenCentralRepository",
+		":ktorfitx-mock:publishAllPublicationsToMavenCentralRepository",
+		":ktorfitx-websockets:publishAllPublicationsToMavenCentralRepository",
+		":ktorfitx-ksp:publishAllPublicationsToMavenCentralRepository"
+	)
+}

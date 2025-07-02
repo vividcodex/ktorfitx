@@ -22,9 +22,15 @@ dependencyResolutionManagement {
 	}
 }
 
-include("ktorfitx-annotation")
-include("ktorfitx-core")
-include("ktorfitx-mock")
-include("ktorfitx-websockets")
-include("ktorfitx-ksp")
-include("ktorfitx-sample")
+include("multiplatform-annotation")
+include("multiplatform-core")
+include("multiplatform-mock")
+include("multiplatform-websockets")
+include("multiplatform-ksp")
+include("multiplatform-sample")
+
+include("server-annotation")
+include("server-auth")
+include("server-websockets")
+include("server-ksp")
+include("server-sample")

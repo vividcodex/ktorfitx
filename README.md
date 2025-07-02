@@ -1,6 +1,6 @@
-# KtorfitX 3.2.0-2.6.1
+# KtorfitX 3.2.0-3.0.0-Beta1
 
-[![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.vividcode.multiplatform:ktorfitx-api)
+[![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
 [![License](https://img.shields.io/badge/Apache-2.0-brightgreen.svg)](https://github.com/vividcodex/ktorfitx/blob/master/LICENSE-2.0)
 
@@ -34,15 +34,18 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-val ktorfitxVersion = "3.2.0-2.6.1"
+val ktorfitxVersion = "3.2.0-3.0.0-Beta1"
 
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.vividcode.multiplatform:ktorfitx-api:ktorfitxVersion")
+            implementation("cn.ktorfitx:multiplatform-core:ktorfitxVersion")
             
-            // 可选，如果你需要WebSocket支持
-            implementation("cn.vividcode.multiplatform:ktorfitx-websockets:ktorfitxVersion")
+            // 可选，如果你需要 WebSocket 支持
+            implementation("cn.ktorfitx:multiplatform-websockets:ktorfitxVersion")
+            
+            // 可选，如果你需要 Mock 支持
+            implementation("cn.ktorfitx:multiplatform-mock:ktorfitxVersion")
         }
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 

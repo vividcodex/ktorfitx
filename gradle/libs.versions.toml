@@ -12,6 +12,7 @@ compose-plugin = "1.8.2"
 androidx-activity-compose = "1.10.1"
 
 [libraries]
+# Multiplatform
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
@@ -25,7 +26,14 @@ symbol-processing = { group = "com.google.devtools.ksp", name = "symbol-processi
 kotlinpoet-ksp = { group = "com.squareup", name = "kotlinpoet-ksp", version.ref = "kotlinpoet-ksp" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity-compose" }
 
+# Ktor Server
+ktor-server-core = { group = "io.ktor", name = "ktor-server-core-jvm", version.ref = "ktor" }
+ktor-server-websockets = { group = "io.ktor", name = "ktor-server-websockets-jvm", version.ref = "ktor" }
+ktor-server-auth = { group = "io.ktor", name = "ktor-server-auth-jvm", version.ref = "ktor" }
+ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty-jvm", version.ref = "ktor" }
+
 [plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
@@ -35,17 +43,57 @@ org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kot
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 
 [bundles]
-ktorfitx-core = [
+multiplatform-core = [
 	'kotlin-reflect',
 	'ktor-client-core',
 	'ktor-client-serialization'
 ]
 
-ktorfitx-mock = [
+multiplatform-mock = [
 	'kotlin-reflect',
 	'ktor-client-core',
 	'ktor-client-logging',
 	'ktor-client-serialization'
+]
+
+multiplatform-ksp = [
+	'kotlin-reflect',
+	'symbol-processing',
+	'symbol-processing-api',
+	'kotlinpoet-ksp'
+]
+
+multiplatform-websockets = [
+	'ktor-client-websockets'
+]
+
+multiplatform-sample = [
+	'ktor-client-core',
+	'ktor-client-logging',
+	'ktor-client-cio',
+	'ktor-client-websockets',
+	'ktor-client-serialization',
+	'ktor-client-content-negotiation',
+	'ktor-serialization-kotlinx-json'
+]
+
+server-ksp = [
+	'kotlin-reflect',
+	'symbol-processing',
+	'symbol-processing-api',
+	'kotlinpoet-ksp'
+]
+
+server-sample = [
+	'ktor-server-core',
+	'ktor-server-auth',
+	'ktor-server-websockets',
+	'ktor-server-netty'
+]
+
+server-auth = [
+	'ktor-server-auth'
 ]
