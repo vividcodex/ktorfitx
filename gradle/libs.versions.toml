@@ -35,3 +35,17 @@ org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kot
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+[bundles]
+ktorfitx-core = [
+	'kotlin-reflect',
+	'ktor-client-core',
+	'ktor-client-serialization'
+]
+
+ktorfitx-mock = [
+	'kotlin-reflect',
+	'ktor-client-core',
+	'ktor-client-logging',
+	'ktor-client-serialization'
+]

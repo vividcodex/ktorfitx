@@ -1,7 +1,7 @@
 package cn.vividcode.multiplatform.ktorfitx.sample.http.mock
 
-import cn.vividcode.multiplatform.ktorfitx.api.mock.MockProvider
-import cn.vividcode.multiplatform.ktorfitx.api.mock.MockStatus
+import cn.vividcode.multiplatform.ktorfitx.mock.MockProvider
+import cn.vividcode.multiplatform.ktorfitx.mock.MockStatus
 
 /**
  * 项目名称：ktorfitx

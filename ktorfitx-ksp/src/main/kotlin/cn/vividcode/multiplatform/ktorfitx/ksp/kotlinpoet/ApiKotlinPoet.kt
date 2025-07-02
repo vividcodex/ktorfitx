@@ -128,7 +128,8 @@ internal class ApiKotlinPoet {
 				parameters += "ktorfit.config.httpClient!!"
 			}
 			if (hasMockClient) {
-				parameters += "ktorfit.config.mockClient!!"
+				UseImports.addImports(KtorfitxQualifiers.PACKAGE_MOCK_CONFIG, "mockClient")
+				parameters += "ktorfit.config.mockClient"
 			}
 			beginControlFlow("return instance ?: $simpleName(${parameters.joinToString()}).also")
 			addStatement("instance = it")

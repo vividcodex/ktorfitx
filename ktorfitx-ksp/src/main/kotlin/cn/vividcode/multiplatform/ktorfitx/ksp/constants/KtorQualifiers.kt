@@ -5,8 +5,6 @@ package cn.vividcode.multiplatform.ktorfitx.ksp.constants
  */
 internal object KtorQualifiers {
 	
-	const val KTOR = "io.ktor"
-	
 	const val PACKAGE_HTTP = "io.ktor.http"
 	
 	private const val PACKAGE_CLIENT = "io.ktor.client"

@@ -17,15 +17,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.validate
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/3/23 22:13
- *
- * 文件介绍：KtorfitSymbolProcessor
- */
 internal class KtorfitSymbolProcessor(
 	private val codeGenerator: CodeGenerator,
 ) : SymbolProcessor {
@@ -87,7 +78,7 @@ internal class KtorfitSymbolProcessor(
 	private fun Resolver.getDependencies(classDeclaration: KSClassDeclaration): Dependencies {
 		val importMap = UseImports.get().filterNot {
 			it.key.startsWith("io.ktor") ||
-				it.key.startsWith(KtorfitxQualifiers.PACKAGE_API)
+				it.key.startsWith(KtorfitxQualifiers.PACKAGE_CORE)
 		}
 		UseImports.clear()
 		val ksFiles = importMap.flatMap { (packageName, simpleNames) ->

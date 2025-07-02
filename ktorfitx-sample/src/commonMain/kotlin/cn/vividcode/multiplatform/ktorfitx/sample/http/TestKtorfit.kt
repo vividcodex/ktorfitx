@@ -1,7 +1,8 @@
 package cn.vividcode.multiplatform.ktorfitx.sample.http
 
-import cn.vividcode.multiplatform.ktorfitx.api.ktorfit
-import cn.vividcode.multiplatform.ktorfitx.api.scope.ApiScope
+import cn.vividcode.multiplatform.ktorfitx.core.ktorfit
+import cn.vividcode.multiplatform.ktorfitx.core.scope.ApiScope
+import cn.vividcode.multiplatform.ktorfitx.mock.config.mockClient
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
@@ -23,6 +24,9 @@ val testKtorfit = ktorfit(TestApiScope) {
 				}
 			)
 		}
+	}
+	mockClient {
+	
 	}
 }
 

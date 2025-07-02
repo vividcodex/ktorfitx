@@ -1,8 +1,8 @@
 package cn.vividcode.multiplatform.ktorfitx.sample.http.api
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.*
-import cn.vividcode.multiplatform.ktorfitx.api.mock.MockProvider
-import cn.vividcode.multiplatform.ktorfitx.api.mock.MockStatus
+import cn.vividcode.multiplatform.ktorfitx.mock.MockProvider
+import cn.vividcode.multiplatform.ktorfitx.mock.MockStatus
 import cn.vividcode.multiplatform.ktorfitx.sample.http.TestApiScope
 
 @Api(url = "/test2", apiScope = TestApiScope::class)

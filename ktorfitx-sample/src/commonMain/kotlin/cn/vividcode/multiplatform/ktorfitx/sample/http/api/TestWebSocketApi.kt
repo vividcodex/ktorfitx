@@ -3,7 +3,7 @@ package cn.vividcode.multiplatform.ktorfitx.sample.http.api
 import cn.vividcode.multiplatform.ktorfitx.annotation.Api
 import cn.vividcode.multiplatform.ktorfitx.annotation.BearerAuth
 import cn.vividcode.multiplatform.ktorfitx.annotation.GET
-import cn.vividcode.multiplatform.ktorfitx.api.model.ResultBody
+import cn.vividcode.multiplatform.ktorfitx.core.model.ApiResult
 import cn.vividcode.multiplatform.ktorfitx.websockets.WebSocket
 import cn.vividcode.multiplatform.ktorfitx.websockets.WebSocketSessionHandler
 
@@ -18,5 +18,5 @@ interface TestWebSocketApi {
 	suspend fun test2(handler: WebSocketSessionHandler)
 	
 	@GET("test3")
-	suspend fun test3(): ResultBody<String>
+	suspend fun test3(): ApiResult<String>
 }

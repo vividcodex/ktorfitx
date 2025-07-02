@@ -103,7 +103,7 @@ internal class HttpCodeBlockBuilder(
 			}
 		}
 		if (exceptionListenerModels.all { it.exceptionTypeName !in exceptionClassNames }) {
-			if (returnStructure.rawType == ReturnClassNames.resultBody) {
+			if (returnStructure.rawType == ReturnClassNames.apiResult) {
 				nextControlFlow("catch (e: Exception)")
 			} else {
 				nextControlFlow("catch (_: Exception)")
@@ -119,8 +119,8 @@ internal class HttpCodeBlockBuilder(
 			return
 		}
 		when (returnStructure.rawType) {
-			ReturnClassNames.resultBody -> {
-				addStatement("ResultBody.exception(e)")
+			ReturnClassNames.apiResult -> {
+				addStatement("ApiResult.exception(e)")
 			}
 			
 			ReturnClassNames.byteArray -> {

@@ -19,14 +19,14 @@ internal object ReturnClassNames {
 	
 	val byteArray = ByteArray::class.asClassName()
 	
-	val resultBody = ClassName.bestGuess(KtorfitxQualifiers.RESULT_BODY)
+	val apiResult = ClassName.bestGuess(KtorfitxQualifiers.API_RESULT)
 	
 	val string = String::class.asClassName()
 	
 	val all = arrayOf(
 		unit,
 		byteArray,
-		resultBody,
+		apiResult,
 		string
 	)
 }

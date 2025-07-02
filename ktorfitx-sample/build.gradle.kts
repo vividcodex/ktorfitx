@@ -72,8 +72,9 @@ kotlin {
 	sourceSets {
 		commonMain {
 			dependencies {
-				implementation(projects.ktorfitxApi)
 				implementation(projects.ktorfitxAnnotation)
+				implementation(projects.ktorfitxCore)
+				implementation(projects.ktorfitxMock)
 				implementation(projects.ktorfitxWebsockets)
 				implementation(libs.ktor.client.core)
 				implementation(libs.ktor.client.logging)

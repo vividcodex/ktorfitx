@@ -47,7 +47,7 @@ internal class HttpClientCodeBlock(
 		get() {
 			var funName = when (returnStructure.notNullRawType) {
 				ReturnClassNames.unit -> null
-				ReturnClassNames.resultBody -> "safeResultBody"
+				ReturnClassNames.apiResult -> "safeApiResult"
 				ReturnClassNames.byteArray -> "safeByteArray"
 				ReturnClassNames.string -> "safeText"
 				else -> null
@@ -56,7 +56,7 @@ internal class HttpClientCodeBlock(
 				if (returnStructure.isNullable) {
 					funName += "OrNull"
 				}
-				UseImports.addImports(KtorfitxQualifiers.PACKAGE_API_EXPENDS, funName)
+				UseImports.addImports(KtorfitxQualifiers.PACKAGE_CORE_EXPENDS, funName)
 			}
 			return funName?.let { ".$funName()" } ?: ""
 		}

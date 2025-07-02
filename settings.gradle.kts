@@ -10,7 +10,7 @@ pluginManagement {
 	}
 }
 plugins {
-	id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
+	id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 dependencyResolutionManagement {
@@ -21,8 +21,10 @@ dependencyResolutionManagement {
 		maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 	}
 }
-include("ktorfitx-api")
+
+include("ktorfitx-annotation")
+include("ktorfitx-core")
+include("ktorfitx-mock")
 include("ktorfitx-websockets")
 include("ktorfitx-ksp")
-include("ktorfitx-annotation")
 include("ktorfitx-sample")

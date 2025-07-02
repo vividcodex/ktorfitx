@@ -7,11 +7,13 @@ internal object KtorfitxQualifiers {
 	
 	private const val PACKAGE_ANNOTATION = "cn.vividcode.multiplatform.ktorfitx.annotation"
 	
-	const val PACKAGE_API = "cn.vividcode.multiplatform.ktorfitx.api"
+	const val PACKAGE_CORE = "cn.vividcode.multiplatform.ktorfitx.core"
 	
-	const val PACKAGE_API_EXPENDS = "cn.vividcode.multiplatform.ktorfitx.api.expends"
+	const val PACKAGE_CORE_EXPENDS = "cn.vividcode.multiplatform.ktorfitx.core.expends"
 	
-	const val PACKAGE_API_MOCK = "cn.vividcode.multiplatform.ktorfitx.api.mock"
+	const val PACKAGE_MOCK = "cn.vividcode.multiplatform.ktorfitx.mock"
+	
+	const val PACKAGE_MOCK_CONFIG = "$PACKAGE_MOCK.config"
 	
 	private const val PACKAGE_WEB_SOCKETS = "cn.vividcode.multiplatform.ktorfitx.websockets"
 	
@@ -33,21 +35,21 @@ internal object KtorfitxQualifiers {
 	
 	const val EXCEPTION_LISTENERS = "$PACKAGE_ANNOTATION.ExceptionListeners"
 	
-	const val EXCEPTION_LISTENER = "$PACKAGE_API.exception.ExceptionListener"
+	const val EXCEPTION_LISTENER = "$PACKAGE_CORE.exception.ExceptionListener"
 	
-	const val RESULT_BODY = "$PACKAGE_API.model.ResultBody"
+	const val API_RESULT = "$PACKAGE_CORE.model.ApiResult"
 	
-	const val API_SCOPE = "$PACKAGE_API.scope.ApiScope"
+	const val API_SCOPE = "$PACKAGE_CORE.scope.ApiScope"
 	
-	const val DEFAULT_API_SCOPE = "$PACKAGE_API.scope.DefaultApiScope"
+	const val DEFAULT_API_SCOPE = "$PACKAGE_CORE.scope.DefaultApiScope"
 	
-	const val KTORFIT = "$PACKAGE_API.Ktorfit"
+	const val KTORFIT = "$PACKAGE_CORE.Ktorfit"
 	
-	const val KTORFIT_CONFIG = "$PACKAGE_API.config.KtorfitConfig"
+	const val KTORFIT_CONFIG = "$PACKAGE_CORE.config.KtorfitConfig"
 	
 	const val MOCK = "$PACKAGE_ANNOTATION.Mock"
 	
-	const val MOCK_CLIENT = "$PACKAGE_API_MOCK.MockClient"
+	const val MOCK_CLIENT = "$PACKAGE_MOCK.MockClient"
 	
-	const val MOCK_PROVIDER = "$PACKAGE_API_MOCK.MockProvider"
+	const val MOCK_PROVIDER = "$PACKAGE_MOCK.MockProvider"
 }

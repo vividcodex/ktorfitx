@@ -27,7 +27,7 @@ internal object MockModelResolver {
 		ClassName.bestGuess(KtorfitxQualifiers.MOCK_PROVIDER)
 	}
 	private val statusSuccessClassName by lazy {
-		ClassName(KtorfitxQualifiers.PACKAGE_API_MOCK, "MockStatus", "SUCCESS")
+		ClassName(KtorfitxQualifiers.PACKAGE_MOCK, "MockStatus", "SUCCESS")
 	}
 	
 	fun KSFunctionDeclaration.resolve(): MockModel? {

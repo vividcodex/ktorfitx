@@ -1,13 +1,13 @@
 package cn.vividcode.multiplatform.ktorfitx.sample.http.api
 
 import cn.vividcode.multiplatform.ktorfitx.annotation.*
-import cn.vividcode.multiplatform.ktorfitx.api.mock.MockStatus
-import cn.vividcode.multiplatform.ktorfitx.api.model.ResultBody
+import cn.vividcode.multiplatform.ktorfitx.core.model.ApiResult
+import cn.vividcode.multiplatform.ktorfitx.mock.MockStatus
 import cn.vividcode.multiplatform.ktorfitx.sample.http.TestApiScope
 import cn.vividcode.multiplatform.ktorfitx.sample.http.TestRequest2
-import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestResultBodyExceptionListener
+import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestStringExceptionListener
 import cn.vividcode.multiplatform.ktorfitx.sample.http.listener.TestUnitExceptionListener
-import cn.vividcode.multiplatform.ktorfitx.sample.http.mock.ResultBodyMockProvider
+import cn.vividcode.multiplatform.ktorfitx.sample.http.mock.ApiResultMockProvider
 import cn.vividcode.multiplatform.ktorfitx.sample.http.mock.StringMockProvider
 import kotlinx.serialization.Serializable
 
@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 interface TestMethodApi {
 	
 	@GET(url = "test01")
-	@ExceptionListeners(TestResultBodyExceptionListener::class)
+	@ExceptionListeners(TestStringExceptionListener::class)
 	suspend fun test01(): String
 	
 	@POST(url = "/test02")
@@ -33,19 +33,19 @@ interface TestMethodApi {
 	suspend fun test02(
 		@Body testRequest: TestRequest2,
 		@Header testHeader: String,
-	): ResultBody<TestResponse>
+	): ApiResult<TestResponse>
 	
 	@BearerAuth
 	@PUT(url = "/test03")
 	suspend fun test03(
 		@Part part1: String,
-	): ResultBody<TestResponse>
+	): ApiResult<TestResponse>
 	
 	@BearerAuth
 	@DELETE(url = "/test04/{deleteId}")
 	suspend fun test04(
 		@Path deleteId: Int,
-	): ResultBody<TestResponse>
+	): ApiResult<TestResponse>
 	
 	@PATCH(url = "/test05")
 	suspend fun test05(
@@ -72,31 +72,31 @@ interface TestMethodApi {
 	suspend fun test10(): String?
 	
 	@BearerAuth
-	@Mock(ResultBodyMockProvider::class, MockStatus.SUCCESS, delayRange = [1000, 2000])
+	@Mock(ApiResultMockProvider::class, MockStatus.SUCCESS, delayRange = [1000, 2000])
 	@GET(url = "/testMock01")
 	suspend fun testMock01(
 		@Query param1: String,
 		@Query param2: String,
-	): ResultBody<TestResponse>
+	): ApiResult<TestResponse>
 	
-	@Mock(ResultBodyMockProvider::class, MockStatus.EXCEPTION)
+	@Mock(ApiResultMockProvider::class, MockStatus.EXCEPTION)
 	@ExceptionListeners(TestUnitExceptionListener::class)
 	@POST(url = "/testMock02")
 	suspend fun testMock02(
 		@Body request: TestRequest,
-	): ResultBody<TestResponse>
+	): ApiResult<TestResponse>
 	
-	@Mock(ResultBodyMockProvider::class)
+	@Mock(ApiResultMockProvider::class)
 	@PUT(url = "/testMock03")
 	suspend fun testMock03(
 		@Part part1: String,
-	): ResultBody<TestResponse>
+	): ApiResult<TestResponse>
 	
-	@Mock(ResultBodyMockProvider::class)
+	@Mock(ApiResultMockProvider::class)
 	@DELETE(url = "/testMock04/{deleteId}")
 	suspend fun testMock04(
 		@Path deleteId: Int,
-	): ResultBody<TestResponse>
+	): ApiResult<TestResponse>
 	
 	@Mock(StringMockProvider::class)
 	@GET(url = "/testMock05")
@@ -116,7 +116,7 @@ interface TestMethodApi {
 	): String?
 	
 	@GET(url = "/test")
-	suspend fun test(): ResultBody<Test>
+	suspend fun test(): ApiResult<Test>
 }
 
 @Serializable

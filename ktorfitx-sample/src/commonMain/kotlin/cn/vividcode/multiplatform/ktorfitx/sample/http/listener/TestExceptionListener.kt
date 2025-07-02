@@ -1,6 +1,6 @@
 package cn.vividcode.multiplatform.ktorfitx.sample.http.listener
 
-import cn.vividcode.multiplatform.ktorfitx.api.exception.ExceptionListener
+import cn.vividcode.multiplatform.ktorfitx.core.exception.ExceptionListener
 import kotlin.reflect.KFunction
 
 /**
@@ -14,9 +14,9 @@ data object TestUnitExceptionListener : ExceptionListener<TestException, Unit> {
 }
 
 /**
- * TestResultBodyExceptionListener
+ * TestStringExceptionListener
  */
-object TestResultBodyExceptionListener : ExceptionListener<Exception, String> {
+object TestStringExceptionListener : ExceptionListener<Exception, String> {
 	
 	override fun KFunction<*>.onExceptionListener(e: Exception): String {
 		return e.toString()
