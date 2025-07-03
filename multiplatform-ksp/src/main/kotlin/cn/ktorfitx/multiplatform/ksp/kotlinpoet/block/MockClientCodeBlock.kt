@@ -1,6 +1,7 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.UseImports
+import cn.ktorfitx.common.ksp.util.imports.UseImports
+import cn.ktorfitx.multiplatform.ksp.constants.Packages
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -21,12 +22,13 @@ internal class MockClientCodeBlock(
 	) {
 		UseImports += mockModel.provider
 		UseImports.addImports(mockModel.status.packageName, mockModel.status.simpleNames.first())
+		UseImports.addImports(Packages.KTORFITX_MOCK_CONFIG, "mockClient")
 		val provider = mockModel.provider.simpleName
 		val status = "MockStatus.${mockModel.status.simpleName}"
 		val leftRound = mockModel.delayRange[0]
 		val rightRound = mockModel.delayRange.let { if (it.size == 1) it[0] else it[1] }
 		val delayRange = "${leftRound}L..${rightRound}L"
-		val mockClientCode = "this.mockClient.$funName(\"$url\", $provider, $status, $delayRange)"
+		val mockClientCode = "this.config.mockClient.$funName(\"$url\", $provider, $status, $delayRange)"
 		if (hasBuilder) {
 			beginControlFlow(mockClientCode)
 			builder()
@@ -37,7 +39,7 @@ internal class MockClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildBearerAuthCodeBlock() {
-		addStatement("this@${className.simpleName}.ktorfit.token?.invoke()?.let { bearerAuth(it) }")
+		addStatement("this@${className.simpleName}.config.token?.invoke()?.let { bearerAuth(it) }")
 	}
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(

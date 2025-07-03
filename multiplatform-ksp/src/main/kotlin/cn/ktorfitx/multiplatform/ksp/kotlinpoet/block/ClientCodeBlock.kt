@@ -3,15 +3,6 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import com.squareup.kotlinpoet.CodeBlock
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/8/14 17:30
- *
- * 文件介绍：ClientCodeBlock
- */
 internal sealed interface ClientCodeBlock {
 	
 	/**

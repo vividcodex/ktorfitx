@@ -34,3 +34,5 @@ include("server-auth")
 include("server-websockets")
 include("server-ksp")
 include("server-sample")
+
+include("common-ksp-util")

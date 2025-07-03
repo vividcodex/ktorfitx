@@ -1,19 +1,10 @@
 package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 
-import cn.ktorfitx.multiplatform.ksp.check.compileCheck
+import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/7/6 9:42
- *
- * 文件介绍：ModelResolvers
- */
 internal object ModelResolvers {
 	
 	/**

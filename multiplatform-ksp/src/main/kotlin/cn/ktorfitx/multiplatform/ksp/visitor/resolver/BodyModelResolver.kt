@@ -1,26 +1,19 @@
 package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 
-import cn.ktorfitx.multiplatform.annotation.Body
-import cn.ktorfitx.multiplatform.ksp.check.compileCheck
+import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.expends.hasAnnotation
+import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.BodyModel
 import com.google.devtools.ksp.KspExperimental
-import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/7/3 13:25
- *
- * 文件介绍：BodyModelResolver
- */
 internal object BodyModelResolver {
 	
 	@OptIn(KspExperimental::class)
 	fun KSFunctionDeclaration.resolve(): BodyModel? {
-		val valueParameters = this.parameters.filter { it.isAnnotationPresent(Body::class) }
+		val valueParameters = this.parameters.filter {
+			it.hasAnnotation(ClassNames.Body)
+		}
 		if (valueParameters.isEmpty()) return null
 		this.compileCheck(valueParameters.size == 1) {
 			"${this.simpleName.asString()} 方法不允许使用多个 @Body 注解"

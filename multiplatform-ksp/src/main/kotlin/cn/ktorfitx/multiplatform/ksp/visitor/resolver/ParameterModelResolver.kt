@@ -1,36 +1,22 @@
 package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 
-import cn.ktorfitx.multiplatform.ksp.check.compileCheck
-import cn.ktorfitx.multiplatform.ksp.constants.KtorfitxQualifiers
-import cn.ktorfitx.multiplatform.ksp.expends.isLowerCamelCase
-import cn.ktorfitx.multiplatform.ksp.expends.lowerCamelCase
+import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.expends.isLowerCamelCase
+import cn.ktorfitx.common.ksp.util.expends.toLowerCamelCase
+import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.ParameterModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/8/17 22:47
- *
- * 文件介绍：ParameterModelResolver
- */
 internal object ParameterModelResolver {
 	
-	private val webSocketSessionHandlerClassName by lazy {
-		ClassName.bestGuess(KtorfitxQualifiers.WEB_SOCKET_SESSION_HANDLER)
-	}
-	
 	private val annotationQualifiedNames = arrayOf(
-		KtorfitxQualifiers.BODY,
-		KtorfitxQualifiers.PART,
-		KtorfitxQualifiers.FIELD,
-		KtorfitxQualifiers.HEADER,
-		KtorfitxQualifiers.PATH,
-		KtorfitxQualifiers.QUERY
+		ClassNames.Body.canonicalName,
+		ClassNames.Part.canonicalName,
+		ClassNames.Field.canonicalName,
+		ClassNames.Header.canonicalName,
+		ClassNames.Path.canonicalName,
+		ClassNames.Query.canonicalName
 	)
 	
 	fun KSFunctionDeclaration.resolves(isWebSocket: Boolean): List<ParameterModel> {
@@ -46,7 +32,7 @@ internal object ParameterModelResolver {
 			val valueParameter = this.parameters.first()
 			val typeName = valueParameter.type.toTypeName()
 			this.compileCheck(
-				value = typeName == webSocketSessionHandlerClassName,
+				value = typeName == ClassNames.WebSocketSessionHandler,
 				errorMessage = errorMessage
 			)
 			val varName = valueParameter.name!!.asString()
@@ -68,7 +54,7 @@ internal object ParameterModelResolver {
 				}
 				this.compileCheck(varName.isLowerCamelCase()) {
 					val funName = this.simpleName.asString()
-					val varNameSuggestion = varName.lowerCamelCase()
+					val varNameSuggestion = varName.toLowerCamelCase()
 					"$funName 方法上的 $varName 参数不符合小驼峰命名规则，建议修改为 $varNameSuggestion"
 				}
 				val typeName = valueParameter.type.toTypeName()

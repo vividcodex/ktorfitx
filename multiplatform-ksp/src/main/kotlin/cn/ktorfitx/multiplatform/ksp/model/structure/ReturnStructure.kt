@@ -1,20 +1,11 @@
 package cn.ktorfitx.multiplatform.ksp.model.structure
 
-import cn.ktorfitx.multiplatform.ksp.expends.classNames
-import cn.ktorfitx.multiplatform.ksp.expends.rawType
+import cn.ktorfitx.common.ksp.util.expends.classNames
+import cn.ktorfitx.common.ksp.util.expends.rawType
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/7/3 23:04
- *
- * 文件介绍：ReturnStructure
- */
 internal class ReturnStructure(
 	val typeName: TypeName,
 ) {

@@ -1,9 +1,8 @@
 package cn.ktorfitx.multiplatform.ksp.visitor
 
-import cn.ktorfitx.multiplatform.ksp.check.compileCheck
-import cn.ktorfitx.multiplatform.ksp.constants.KtorfitxQualifiers
-import cn.ktorfitx.multiplatform.ksp.expends.*
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.ReturnClassNames
+import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.expends.*
+import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.WebSocketModel
 import cn.ktorfitx.multiplatform.ksp.model.structure.ApiStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
@@ -23,15 +22,6 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/7/1 16:17
- *
- * 文件介绍：ApiVisitor
- */
 internal class ApiVisitor(
 	private val resolver: Resolver,
 ) : KSEmptyVisitor<Unit, VisitorResult?>() {
@@ -40,9 +30,7 @@ internal class ApiVisitor(
 		
 		private val apiUrlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 		
-		private val apiClassName = ClassName.bestGuess(KtorfitxQualifiers.API)
-		private val apiScopeClassName by lazy { ClassName.bestGuess(KtorfitxQualifiers.API_SCOPE) }
-		private val defaultApiScopeClassName by lazy { ClassName.bestGuess(KtorfitxQualifiers.DEFAULT_API_SCOPE) }
+		private val returnClassNames = arrayOf(ClassNames.Unit, ClassNames.ByteArray, ClassNames.ApiResult, ClassNames.String)
 	}
 	
 	override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit): VisitorResult? {
@@ -54,17 +42,17 @@ internal class ApiVisitor(
 	 * 获取 ClassStructure
 	 */
 	private fun KSClassDeclaration.getClassStructure(): ClassStructure? {
-		val apiKSAnnotation = getKSAnnotationByType(apiClassName) ?: return null
+		val apiKSAnnotation = getKSAnnotationByType(ClassNames.Api) ?: return null
 		val className = ClassName("${packageName.asString()}.impls", "${simpleName.asString()}Impl")
 		val superinterface = this.toClassName()
-		val apiScopeClassName = apiKSAnnotation.getClassName("apiScope") ?: defaultApiScopeClassName
+		val apiScopeClassName = apiKSAnnotation.getClassName("apiScope") ?: ClassNames.DefaultApiScope
 		val apiScopeClassNames = apiKSAnnotation.getClassNames("apiScopes")?.toSet() ?: emptySet()
 		val mergeApiScopeClassNames = when {
-			apiScopeClassName == defaultApiScopeClassName && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames
-			apiScopeClassName != defaultApiScopeClassName && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames + apiScopeClassName
+			apiScopeClassName == ClassNames.DefaultApiScope && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames
+			apiScopeClassName != ClassNames.DefaultApiScope && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames + apiScopeClassName
 			else -> setOf(apiScopeClassName)
 		}
-		apiKSAnnotation.compileCheck(ApiVisitor.apiScopeClassName !in mergeApiScopeClassNames) {
+		apiKSAnnotation.compileCheck(ClassNames.ApiScope !in mergeApiScopeClassNames) {
 			val simpleName = this.simpleName.asString()
 			"$simpleName 接口上的 @Api 注解的 apiScope 不允许使用 ApiScope::class，请使用默认的 DefaultApiScope::class 或者自定义 object 对象并实现 ApiScope::class"
 		}
@@ -135,7 +123,7 @@ internal class ApiVisitor(
 		val returnType = this.returnType!!
 		val typeName = returnType.toTypeName()
 		return if (isWebSocket) {
-			returnType.compileCheck(typeName == ReturnClassNames.unit) {
+			returnType.compileCheck(typeName == ClassNames.Unit) {
 				val funName = this.simpleName.asString()
 				"$funName 方法必须使用 Unit 作为返回类型，因为你已经标记了 @WebSocket 注解"
 			}
@@ -143,7 +131,7 @@ internal class ApiVisitor(
 		} else {
 			val errorMessage = {
 				val funName = this.simpleName.asString()
-				val returnTypes = ReturnClassNames.all.joinToString()
+				val returnTypes = returnClassNames.joinToString()
 				"$funName 方法不允许使用 $typeName 作为返回类型，必须使用 $returnTypes 中的一个"
 			}
 			returnType.compileCheck(
@@ -159,7 +147,7 @@ internal class ApiVisitor(
 			}
 			ReturnStructure(typeName).also {
 				returnType.compileCheck(
-					value = it.notNullRawType in ReturnClassNames.all,
+					value = it.notNullRawType in returnClassNames,
 					errorMessage = errorMessage
 				)
 			}

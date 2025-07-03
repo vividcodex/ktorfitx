@@ -1,23 +1,13 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
-import cn.ktorfitx.multiplatform.ksp.constants.KtorQualifiers
-import cn.ktorfitx.multiplatform.ksp.constants.KtorfitxQualifiers
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.ReturnClassNames
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.UseImports
+import cn.ktorfitx.common.ksp.util.imports.UseImports
+import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.Packages
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnStructure
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/8/14 17:31
- *
- * 文件介绍：HttpClientCodeBlock
- */
 internal class HttpClientCodeBlock(
 	private val className: ClassName,
 	private val returnStructure: ReturnStructure,
@@ -29,13 +19,13 @@ internal class HttpClientCodeBlock(
 		hasBuilder: Boolean,
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
-		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, funName)
-		val httpClientCode = "this.httpClient.$funName(\"$url\")"
+		UseImports.addImports(Packages.KTOR_REQUEST, funName)
+		val httpClientCode = "this.config.httpClient!!.$funName(\"$url\")"
 		if (hasBuilder) {
 			beginControlFlow(httpClientCode)
 			builder()
 			endControlFlow()
-			if (returnStructure.rawType != ReturnClassNames.unit) {
+			if (returnStructure.rawType != ClassNames.Unit) {
 				addStatement(returnFunName)
 			}
 		} else {
@@ -46,31 +36,31 @@ internal class HttpClientCodeBlock(
 	private val returnFunName: String
 		get() {
 			var funName = when (returnStructure.notNullRawType) {
-				ReturnClassNames.unit -> null
-				ReturnClassNames.apiResult -> "safeApiResult"
-				ReturnClassNames.byteArray -> "safeByteArray"
-				ReturnClassNames.string -> "safeText"
+				ClassNames.Unit -> null
+				ClassNames.ApiResult -> "safeApiResult"
+				ClassNames.ByteArray -> "safeByteArray"
+				ClassNames.String -> "safeText"
 				else -> null
 			}
 			if (funName != null) {
 				if (returnStructure.isNullable) {
 					funName += "OrNull"
 				}
-				UseImports.addImports(KtorfitxQualifiers.PACKAGE_CORE_EXPENDS, funName)
+				UseImports.addImports(Packages.KTORFITX_CORE_EXPENDS, funName)
 			}
 			return funName?.let { ".$funName()" } ?: ""
 		}
 	
 	override fun CodeBlock.Builder.buildBearerAuthCodeBlock() {
-		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, "bearerAuth")
-		addStatement("this@${className.simpleName}.ktorfit.token?.invoke()?.let { bearerAuth(it) }")
+		UseImports.addImports(Packages.KTOR_REQUEST, "bearerAuth")
+		addStatement("this@${className.simpleName}.config.token?.invoke()?.let { bearerAuth(it) }")
 	}
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(
 		headersModel: HeadersModel?,
 		headerModels: List<HeaderModel>,
 	) {
-		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, "headers")
+		UseImports.addImports(Packages.KTOR_REQUEST, "headers")
 		beginControlFlow("headers")
 		headersModel?.headerMap?.forEach { (name, value) ->
 			addStatement("append(\"$name\", \"$value\")")
@@ -82,16 +72,16 @@ internal class HttpClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildQueriesCodeBlock(queryModels: List<QueryModel>) {
-		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, "parameter")
+		UseImports.addImports(Packages.KTOR_REQUEST, "parameter")
 		queryModels.forEach {
 			addStatement("parameter(\"${it.name}\", ${it.varName})")
 		}
 	}
 	
 	override fun CodeBlock.Builder.buildPartsCodeBlock(partModels: List<PartModel>) {
-		UseImports.addImports(KtorQualifiers.PACKAGE_HTTP, "contentType", "ContentType")
-		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, "setBody")
-		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST_FORMS, "formData", "MultiPartFormDataContent")
+		UseImports.addImports(Packages.KTOR_HTTP, "contentType", "ContentType")
+		UseImports.addImports(Packages.KTOR_REQUEST, "setBody")
+		UseImports.addImports(Packages.KTOR_REQUEST_FORMS, "formData", "MultiPartFormDataContent")
 		addStatement("contentType(ContentType.MultiPart.FormData)")
 		beginControlFlow("formData {")
 		partModels.forEach {
@@ -103,9 +93,9 @@ internal class HttpClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildFieldsCodeBlock(fieldModels: List<FieldModel>) {
-		UseImports.addImports(KtorQualifiers.PACKAGE_HTTP, "contentType", "ContentType")
-		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, "setBody")
-		UseImports.addImports(KtorQualifiers.PACKAGE_HTTP, "formUrlEncode")
+		UseImports.addImports(Packages.KTOR_HTTP, "contentType", "ContentType")
+		UseImports.addImports(Packages.KTOR_REQUEST, "setBody")
+		UseImports.addImports(Packages.KTOR_HTTP, "formUrlEncode")
 		addStatement("contentType(ContentType.Application.FormUrlEncoded)")
 		val code = fieldModels.joinToString {
 			if (it.isString) {
@@ -118,8 +108,8 @@ internal class HttpClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildBodyCodeBlock(bodyModel: BodyModel) {
-		UseImports.addImports(KtorQualifiers.PACKAGE_HTTP, "contentType", "ContentType")
-		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, "setBody")
+		UseImports.addImports(Packages.KTOR_HTTP, "contentType", "ContentType")
+		UseImports.addImports(Packages.KTOR_REQUEST, "setBody")
 		addStatement("contentType(ContentType.Application.Json)")
 		addStatement("setBody(${bodyModel.varName})")
 	}

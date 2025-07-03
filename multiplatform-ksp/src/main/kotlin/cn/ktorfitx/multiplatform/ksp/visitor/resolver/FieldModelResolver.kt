@@ -1,8 +1,8 @@
 package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 
-import cn.ktorfitx.multiplatform.annotation.Field
-import cn.ktorfitx.multiplatform.ksp.expends.getKSAnnotationByType
-import cn.ktorfitx.multiplatform.ksp.expends.getValue
+import cn.ktorfitx.common.ksp.util.expends.getKSAnnotationByType
+import cn.ktorfitx.common.ksp.util.expends.getValue
+import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.FieldModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.asTypeName
@@ -12,9 +12,9 @@ internal object FieldModelResolver {
 	
 	fun KSFunctionDeclaration.resolves(): List<FieldModel> {
 		return this.parameters.mapNotNull { valueParameter ->
-			val annotation = valueParameter.getKSAnnotationByType(Field::class) ?: return@mapNotNull null
+			val annotation = valueParameter.getKSAnnotationByType(ClassNames.Field) ?: return@mapNotNull null
 			val varName = valueParameter.name!!.asString()
-			var name = annotation.getValue(Field::name)
+			var name = annotation.getValue<String?>("name")
 			if (name.isNullOrBlank()) {
 				name = varName
 			}

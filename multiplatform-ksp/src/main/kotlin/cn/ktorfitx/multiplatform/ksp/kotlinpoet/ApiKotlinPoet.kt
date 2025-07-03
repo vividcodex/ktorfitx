@@ -1,9 +1,8 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet
 
-import cn.ktorfitx.multiplatform.ksp.constants.KtorQualifiers
-import cn.ktorfitx.multiplatform.ksp.constants.KtorfitxQualifiers
-import cn.ktorfitx.multiplatform.ksp.expends.*
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.UseImports
+import cn.ktorfitx.common.ksp.util.builders.*
+import cn.ktorfitx.common.ksp.util.imports.UseImports
+import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpClientCodeBlock
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpCodeBlockBuilder
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.MockClientCodeBlock
@@ -16,50 +15,19 @@ import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/7/1 21:20
- *
- * 文件介绍：ApiKotlinPoet
- */
 internal class ApiKotlinPoet {
 	
-	private var hasMockClient = false
-	private var hasHttpClient = false
-	
-	private companion object {
-		
-		private val ktorfitConfigClassName = ClassName.bestGuess(KtorfitxQualifiers.KTORFIT_CONFIG)
-		
-		private val ktorfitClassName = ClassName.bestGuess(KtorfitxQualifiers.KTORFIT)
-		
-		private val httpClientClassName = ClassName.bestGuess(KtorQualifiers.HTTP_CLIENT)
-		
-		private val mockClientClassName = ClassName.bestGuess(KtorfitxQualifiers.MOCK_CLIENT)
-	}
+	private var empty = false
 	
 	/**
 	 * 文件
 	 */
 	fun getFileSpec(classStructure: ClassStructure): FileSpec {
-		initFunStructuresStatus(classStructure.funStructures)
 		return buildFileSpec(classStructure.className) {
 			indent("\t")
 			addType(getTypeSpec(classStructure))
 			addProperties(getExpendPropertySpecs(classStructure))
 			UseImports.get().forEach(::addImport)
-		}
-	}
-	
-	private fun initFunStructuresStatus(funStructures: List<FunStructure>) {
-		this.hasMockClient = funStructures.any { funStructure ->
-			funStructure.functionModels.any { it is MockModel }
-		}
-		this.hasHttpClient = funStructures.any { funStructure ->
-			funStructure.functionModels.all { it !is MockModel }
 		}
 	}
 	
@@ -69,41 +37,17 @@ internal class ApiKotlinPoet {
 	private fun getTypeSpec(classStructure: ClassStructure): TypeSpec {
 		val primaryConstructorFunSpec = buildConstructorFunSpec {
 			addModifiers(KModifier.PRIVATE)
-			if (hasHttpClient || hasMockClient) {
-				addParameter("ktorfit", ktorfitConfigClassName)
-			}
-			if (hasHttpClient) {
-				addParameter("httpClient", httpClientClassName)
-			}
-			if (hasMockClient) {
-				addParameter("mockClient", mockClientClassName)
-			}
+			addParameter("config", ClassNames.KtorfitConfig)
 		}
 		return buildClassTypeSpec(classStructure.className) {
 			addModifiers(KModifier.PRIVATE)
 			addSuperinterface(classStructure.superinterface)
 			primaryConstructor(primaryConstructorFunSpec)
-			if (hasHttpClient || hasMockClient) {
-				val ktorfitConfigPropertySpec = buildPropertySpec("ktorfit", ktorfitConfigClassName, KModifier.PRIVATE) {
-					initializer("ktorfit")
-					mutable(false)
-				}
-				addProperty(ktorfitConfigPropertySpec)
+			val ktorfitConfigPropertySpec = buildPropertySpec("config", ClassNames.KtorfitConfig, KModifier.PRIVATE) {
+				initializer("config")
+				mutable(false)
 			}
-			if (hasHttpClient) {
-				val httpClientPropertySpec = buildPropertySpec("httpClient", httpClientClassName, KModifier.PRIVATE) {
-					initializer("httpClient")
-					mutable(false)
-				}
-				addProperty(httpClientPropertySpec)
-			}
-			if (hasMockClient) {
-				val mockClientPropertySpec = buildPropertySpec("mockClient", mockClientClassName, KModifier.PRIVATE) {
-					initializer("mockClient")
-					mutable(false)
-				}
-				addProperty(mockClientPropertySpec)
-			}
+			addProperty(ktorfitConfigPropertySpec)
 			addType(getCompanionObjectBuilder(classStructure))
 			addFunctions(getFunSpecs(classStructure))
 		}
@@ -119,19 +63,7 @@ internal class ApiKotlinPoet {
 			mutable(true)
 		}
 		val codeBlock = buildCodeBlock {
-			val simpleName = classStructure.className.simpleName
-			val parameters = mutableListOf<String>()
-			if (hasHttpClient || hasMockClient) {
-				parameters += "ktorfit.config"
-			}
-			if (hasHttpClient) {
-				parameters += "ktorfit.config.httpClient!!"
-			}
-			if (hasMockClient) {
-				UseImports.addImports(KtorfitxQualifiers.PACKAGE_MOCK_CONFIG, "mockClient")
-				parameters += "ktorfit.config.mockClient"
-			}
-			beginControlFlow("return instance ?: $simpleName(${parameters.joinToString()}).also")
+			beginControlFlow("return instance ?: %T(ktorfit.config).also", classStructure.className)
 			addStatement("instance = it")
 			endControlFlow()
 		}
@@ -143,12 +75,10 @@ internal class ApiKotlinPoet {
 				addAnnotation(jvmNameAnnotationSpec)
 				addModifiers(classStructure.kModifier)
 				returns(classStructure.superinterface)
-				if (hasHttpClient || hasMockClient) {
-					addParameter(
-						"ktorfit",
-						ktorfitClassName.parameterizedBy(apiScopeClassName)
-					)
-				}
+				addParameter(
+					"ktorfit",
+					ClassNames.Ktorfit.parameterizedBy(apiScopeClassName)
+				)
 				addCode(codeBlock)
 			}
 		}
@@ -171,12 +101,10 @@ internal class ApiKotlinPoet {
 			}
 			val getterFunSpec = buildGetterFunSpec {
 				addAnnotation(jvmNameAnnotationSpec)
-				val simpleName = classStructure.className.simpleName
-				val parameter = if (hasHttpClient || hasMockClient) "this" else ""
-				addStatement("return $simpleName.getInstance($parameter)")
+				addStatement("return %T.getInstance(this)", classStructure.className)
 			}
 			buildPropertySpec(expendPropertyName, classStructure.superinterface, classStructure.kModifier) {
-				receiver(ktorfitClassName.parameterizedBy(apiScopeClassName))
+				receiver(ClassNames.Ktorfit.parameterizedBy(apiScopeClassName))
 				getter(getterFunSpec)
 			}
 		}

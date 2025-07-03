@@ -97,3 +97,10 @@ server-sample = [
 server-auth = [
 	'ktor-server-auth'
 ]
+
+common-ksp-util = [
+	'kotlin-reflect',
+	'symbol-processing',
+	'symbol-processing-api',
+	'kotlinpoet-ksp'
+]

@@ -1,41 +1,27 @@
 package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 
-import cn.ktorfitx.multiplatform.ksp.check.compileCheck
-import cn.ktorfitx.multiplatform.ksp.constants.KtorfitxQualifiers
-import cn.ktorfitx.multiplatform.ksp.expends.*
+import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.expends.*
+import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.Packages
 import cn.ktorfitx.multiplatform.ksp.model.model.MockModel
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ClassName
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/7/2 22:50
- *
- * 文件介绍：MockModelResolver
- */
 internal object MockModelResolver {
 	
-	private val mockClassName by lazy {
-		ClassName.bestGuess(KtorfitxQualifiers.MOCK)
-	}
-	private val mockProviderClassName by lazy {
-		ClassName.bestGuess(KtorfitxQualifiers.MOCK_PROVIDER)
-	}
 	private val statusSuccessClassName by lazy {
-		ClassName(KtorfitxQualifiers.PACKAGE_MOCK, "MockStatus", "SUCCESS")
+		ClassName(Packages.KTORFITX_MOCK, "MockStatus", "SUCCESS")
 	}
 	
 	fun KSFunctionDeclaration.resolve(): MockModel? {
-		val annotation = getKSAnnotationByType(mockClassName) ?: return null
+		val annotation = getKSAnnotationByType(ClassNames.Mock) ?: return null
 		val className = annotation.getClassName("provider")!!
 		val delayRange = annotation.getValues("delayRange") ?: arrayOf(200L)
 		
-		annotation.compileCheck(className != mockProviderClassName) {
+		annotation.compileCheck(className != ClassNames.MockProvider) {
 			val funName = this.simpleName.asString()
 			"$funName 方法上的 @Mock 注解的 provider 参数不允许使用 MockProvider::class"
 		}

@@ -1,9 +1,8 @@
 package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 
-import cn.ktorfitx.multiplatform.ksp.check.compileCheck
-import cn.ktorfitx.multiplatform.ksp.constants.KtorfitxQualifiers
-import cn.ktorfitx.multiplatform.ksp.expends.*
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.ReturnClassNames
+import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.expends.*
+import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.ExceptionListenerModel
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.Resolver
@@ -13,27 +12,16 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/8/13 15:43
- *
- * 文件介绍：ExceptionListenerResolver
- */
 internal object ExceptionListenerResolver {
 	
-	private val exceptionListenersClassName = ClassName.bestGuess(KtorfitxQualifiers.EXCEPTION_LISTENERS)
-	
 	fun KSFunctionDeclaration.resolves(resolver: Resolver): List<ExceptionListenerModel> {
-		val annotation = getKSAnnotationByType(exceptionListenersClassName) ?: return emptyList()
+		val annotation = getKSAnnotationByType(ClassNames.ExceptionListeners) ?: return emptyList()
 		
 		val listenerClassNames = mutableListOf<ClassName>()
 		listenerClassNames += annotation.getClassName("listener")!!
 		annotation.getClassNames("listeners")?.let { listenerClassNames += it }
 		val exceptionListenerModels = listenerClassNames.map {
-			annotation.compileCheck(it.canonicalName != KtorfitxQualifiers.EXCEPTION_LISTENER) {
+			annotation.compileCheck(it != ClassNames.ExceptionListener) {
 				val funName = this.simpleName.asString()
 				"$funName 方法上的 @ExceptionListeners 注解中不能使用 ExceptionListener::class，请实现它并且必须是非 private 访问权限的 object 类型的"
 			}
@@ -49,7 +37,7 @@ internal object ExceptionListenerResolver {
 			val exceptionTypeName = typeArguments[0].toTypeName()
 			val returnTypeName = typeArguments[1].toTypeName()
 			val funReturnTypeName = this.returnType!!.toTypeName().copy(nullable = false)
-			annotation.compileCheck(returnTypeName == ReturnClassNames.unit || returnTypeName == funReturnTypeName) {
+			annotation.compileCheck(returnTypeName == ClassNames.Unit || returnTypeName == funReturnTypeName) {
 				val funName = this.simpleName.asString()
 				val returnSimpleNames = if (returnTypeName.simpleName != funReturnTypeName.simpleName) {
 					returnTypeName.simpleName to funReturnTypeName.simpleName

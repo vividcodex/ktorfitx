@@ -1,22 +1,22 @@
 package cn.ktorfitx.multiplatform.ksp.model
 
-import cn.ktorfitx.multiplatform.annotation.*
-import kotlin.reflect.KClass
+import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import com.squareup.kotlinpoet.ClassName
 
 internal enum class RequestMethod(
-	val annotation: KClass<out Annotation>,
+	val className: ClassName
 ) {
-	Get(GET::class),
+	Get(ClassNames.GET),
 	
-	Post(POST::class),
+	Post(ClassNames.POST),
 	
-	Put(PUT::class),
+	Put(ClassNames.PUT),
 	
-	Delete(DELETE::class),
+	Delete(ClassNames.DELETE),
 	
-	Patch(PATCH::class),
+	Patch(ClassNames.PATCH),
 	
-	Options(OPTIONS::class),
+	Options(ClassNames.OPTIONS),
 	
-	Head(HEAD::class),
+	Head(ClassNames.HEAD),
 }

@@ -1,21 +1,12 @@
-package cn.ktorfitx.multiplatform.ksp.kotlinpoet
+package cn.ktorfitx.common.ksp.util.imports
 
-import cn.ktorfitx.multiplatform.ksp.expends.classNames
+import cn.ktorfitx.common.ksp.util.expends.classNames
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import kotlin.concurrent.getOrSet
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/8/14 23:27
- *
- * 文件介绍：UseImports
- */
-internal object UseImports {
+object UseImports {
 	
 	private val threadLocalImports = ThreadLocal<MutableMap<String, MutableSet<String>>>()
 	
@@ -47,6 +38,7 @@ internal object UseImports {
 				val className = typeName.topLevelClassName()
 				addImports(className.packageName, className.simpleName)
 			}
+			
 			is ParameterizedTypeName -> addImportsByClassNames(typeName.classNames)
 			else -> {}
 		}

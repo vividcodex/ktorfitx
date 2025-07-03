@@ -1,26 +1,16 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
-import cn.ktorfitx.multiplatform.ksp.check.compileCheck
-import cn.ktorfitx.multiplatform.ksp.expends.isHttpOrHttps
-import cn.ktorfitx.multiplatform.ksp.expends.simpleName
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.ReturnClassNames
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.UseImports
+import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.expends.isHttpOrHttps
+import cn.ktorfitx.common.ksp.util.expends.simpleName
+import cn.ktorfitx.common.ksp.util.imports.UseImports
+import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import kotlin.reflect.KClass
 
-/**
- * 项目名称：ktorfitx
- *
- * 作者昵称：li-jia-wei
- *
- * 创建日期：2024/8/14 17:24
- *
- * 文件介绍：CodeBlockBuilder
- */
 internal class HttpCodeBlockBuilder(
 	private val classStructure: ClassStructure,
 	private val funStructure: FunStructure,
@@ -32,10 +22,11 @@ internal class HttpCodeBlockBuilder(
 	private val functionModels = funStructure.functionModels
 	private val apiStructure = classStructure.apiStructure
 	
-	private companion object Companion {
+	private companion object {
+		
 		private val exceptionClassNames = arrayOf(
-			ClassName.bestGuess("kotlin.Exception"),
-			ClassName.bestGuess("java.lang.Exception"),
+			ClassNames.KotlinException,
+			ClassNames.JavaException,
 		)
 	}
 	
@@ -85,7 +76,7 @@ internal class HttpCodeBlockBuilder(
 	private fun CodeBlock.Builder.buildExceptionCodeBlock(
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
-		beginControlFlow(if (returnStructure.rawType != ReturnClassNames.unit) "return try" else "try")
+		beginControlFlow(if (returnStructure.rawType != ClassNames.Unit) "return try" else "try")
 		builder()
 		val exceptionListenerModels = functionModels.filterIsInstance<ExceptionListenerModel>()
 		exceptionListenerModels.forEach {
@@ -98,12 +89,12 @@ internal class HttpCodeBlockBuilder(
 			val funName = funStructure.funName
 			addStatement("$superinterfaceName::$funName.onExceptionListener(e)")
 			endControlFlow()
-			if (it.returnTypeName == ReturnClassNames.unit) {
+			if (it.returnTypeName == ClassNames.Unit) {
 				buildExceptionReturnCodeBlock()
 			}
 		}
 		if (exceptionListenerModels.all { it.exceptionTypeName !in exceptionClassNames }) {
-			if (returnStructure.rawType == ReturnClassNames.apiResult) {
+			if (returnStructure.rawType == ClassNames.ApiResult) {
 				nextControlFlow("catch (e: Exception)")
 			} else {
 				nextControlFlow("catch (_: Exception)")
@@ -119,15 +110,15 @@ internal class HttpCodeBlockBuilder(
 			return
 		}
 		when (returnStructure.rawType) {
-			ReturnClassNames.apiResult -> {
+			ClassNames.ApiResult -> {
 				addStatement("ApiResult.exception(e)")
 			}
 			
-			ReturnClassNames.byteArray -> {
+			ClassNames.ByteArray -> {
 				addStatement("ByteArray(0)")
 			}
 			
-			ReturnClassNames.string -> {
+			ClassNames.String -> {
 				addStatement("\"\"")
 			}
 		}
@@ -161,7 +152,7 @@ internal class HttpCodeBlockBuilder(
 				val funName = funStructure.funName
 				"$funName 方法上的 ${it.varName} 参数上的 @Path 注解的 name 参数没有在 url 上找到"
 			}
-			acc.replace("{${it.name}}", "\${${it.varName}}")
+			acc.replace("{${it.name}}", $$"${$${it.varName}}")
 		}
 		return fullUrl
 	}

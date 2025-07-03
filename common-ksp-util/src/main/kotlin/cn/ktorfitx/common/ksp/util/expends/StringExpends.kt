@@ -1,20 +1,20 @@
-package cn.ktorfitx.multiplatform.ksp.expends
+package cn.ktorfitx.common.ksp.util.expends
 
-private val LowerCamelCaseRegex by lazy {
+private val lowerCamelCaseRegex by lazy {
 	"^[a-z][a-zA-Z0-9]*$".toRegex()
 }
 
 /**
  * 判断是否是小驼峰命名
  */
-internal fun String.isLowerCamelCase(): Boolean {
-	return LowerCamelCaseRegex.matches(this)
+fun String.isLowerCamelCase(): Boolean {
+	return lowerCamelCaseRegex.matches(this)
 }
 
 /**
  * 改为小驼峰命名
  */
-internal fun String.lowerCamelCase(): String {
+fun String.toLowerCamelCase(): String {
 	return when {
 		'_' in this -> {
 			this.split('_').joinToString("") {
@@ -30,14 +30,14 @@ internal fun String.lowerCamelCase(): String {
 /**
  * 替换首字母为小写
  */
-internal fun String.replaceFirstToLowercase(): String {
+fun String.replaceFirstToLowercase(): String {
 	return this.replaceFirstChar { it.lowercaseChar() }
 }
 
 /**
  * 替换首字母为大写
  */
-internal fun String.replaceFirstToUppercase(): String {
+fun String.replaceFirstToUppercase(): String {
 	return this.replaceFirstChar { it.uppercaseChar() }
 }
 
@@ -47,15 +47,15 @@ private const val WS = "ws://"
 private const val WSS = "wss://"
 
 /**
- * 是否是 http:// 或者 https://
+ * http or https
  */
-internal fun String.isHttpOrHttps(): Boolean {
+fun String.isHttpOrHttps(): Boolean {
 	return this.startsWith(HTTP) || this.startsWith(HTTPS)
 }
 
 /**
- * 是否是 ws:// 或者 wss:// 开头
+ * ws or wss
  */
-internal fun String.isWSOrWSS(): Boolean {
+fun String.isWSOrWSS(): Boolean {
 	return this.startsWith(WS) || this.startsWith(WSS)
 }

@@ -9,7 +9,7 @@ data class ApiResult<out T : Any>(
 	val data: T? = null
 ) {
 	
-	companion object Companion {
+	companion object {
 		
 		/**
 		 * 成功

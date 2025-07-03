@@ -1,8 +1,5 @@
 package cn.ktorfitx.server.sample.plugins
 
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
-
 //// 自动生成
 //fun Routing.generateRoutes() {
 //	authenticate(
@@ -18,8 +15,3 @@ import io.ktor.server.routing.*
 //		}
 //	}
 //}
-fun Application.routes() {
-	routing {
-	
-	}
-}

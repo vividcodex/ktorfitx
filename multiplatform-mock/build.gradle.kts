@@ -153,8 +153,8 @@ mavenPublishing {
 	
 	pom {
 		name.set("multiplatform-mock")
-		description.set("Ktorfitx 基于 Ktor 的 RESTful API 框架")
-		inceptionYear.set("2024")
+		description.set("Ktorfitx 基于 KSP2 的代码生成框架，在 Kotlin Multiplatform 中是 RESTful API 框架，在 Ktor Server 中是 路由生成框架")
+		inceptionYear.set("2025")
 		url.set("https://github.com/vividcodex/ktorfitx")
 		licenses {
 			license {

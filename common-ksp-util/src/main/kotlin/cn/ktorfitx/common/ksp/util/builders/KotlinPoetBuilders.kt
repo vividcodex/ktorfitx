@@ -1,4 +1,4 @@
-package cn.ktorfitx.multiplatform.ksp.expends
+package cn.ktorfitx.common.ksp.util.builders
 
 import com.squareup.kotlinpoet.*
 import kotlin.reflect.KClass
@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
 /**
  * buildFileSpec
  */
-internal fun buildFileSpec(
+fun buildFileSpec(
 	className: ClassName,
 	block: FileSpec.Builder.() -> Unit = {},
 ): FileSpec = FileSpec.builder(className).apply(block).build()
@@ -14,7 +14,7 @@ internal fun buildFileSpec(
 /**
  * buildClassTypeSpec
  */
-internal fun buildClassTypeSpec(
+fun buildClassTypeSpec(
 	className: ClassName,
 	block: TypeSpec.Builder.() -> Unit = {},
 ): TypeSpec = TypeSpec.classBuilder(className).apply(block).build()
@@ -22,14 +22,14 @@ internal fun buildClassTypeSpec(
 /**
  * buildCompanionObjectTypeSpec
  */
-internal fun buildCompanionObjectTypeSpec(
+fun buildCompanionObjectTypeSpec(
 	block: TypeSpec.Builder.() -> Unit = {},
 ): TypeSpec = TypeSpec.companionObjectBuilder().apply(block).build()
 
 /**
  * buildFunSpec
  */
-internal fun buildFunSpec(
+fun buildFunSpec(
 	name: String,
 	block: FunSpec.Builder.() -> Unit = {},
 ): FunSpec = FunSpec.builder(name).apply(block).build()
@@ -37,21 +37,21 @@ internal fun buildFunSpec(
 /**
  * buildConstructorFunSpec
  */
-internal fun buildConstructorFunSpec(
+fun buildConstructorFunSpec(
 	block: FunSpec.Builder.() -> Unit = {},
 ): FunSpec = FunSpec.constructorBuilder().apply(block).build()
 
 /**
  * buildGetterFunSpec
  */
-internal fun buildGetterFunSpec(
+fun buildGetterFunSpec(
 	block: FunSpec.Builder.() -> Unit = {},
 ): FunSpec = FunSpec.getterBuilder().apply(block).build()
 
 /**
  * buildPropertySpec
  */
-internal fun buildPropertySpec(
+fun buildPropertySpec(
 	name: String,
 	type: TypeName,
 	vararg modifiers: KModifier,
@@ -61,7 +61,7 @@ internal fun buildPropertySpec(
 /**
  * buildParameterSpec
  */
-internal fun buildParameterSpec(
+fun buildParameterSpec(
 	name: String,
 	type: TypeName,
 	block: ParameterSpec.Builder.() -> Unit = {},
@@ -70,7 +70,7 @@ internal fun buildParameterSpec(
 /**
  * buildAnnotationSpec
  */
-internal fun buildAnnotationSpec(
+fun buildAnnotationSpec(
 	type: KClass<out Annotation>,
 	block: AnnotationSpec.Builder.() -> Unit = {},
 ): AnnotationSpec = AnnotationSpec.builder(type).apply(block).build()

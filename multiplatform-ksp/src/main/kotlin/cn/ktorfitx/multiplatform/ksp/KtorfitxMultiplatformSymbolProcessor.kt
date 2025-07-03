@@ -1,10 +1,11 @@
 package cn.ktorfitx.multiplatform.ksp
 
-import cn.ktorfitx.multiplatform.ksp.check.compileCheck
-import cn.ktorfitx.multiplatform.ksp.constants.KtorfitxQualifiers
-import cn.ktorfitx.multiplatform.ksp.expends.code
+import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.expends.code
+import cn.ktorfitx.common.ksp.util.imports.UseImports
+import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.Packages
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.ApiKotlinPoet
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.UseImports
 import cn.ktorfitx.multiplatform.ksp.visitor.ApiVisitor
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -17,7 +18,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.validate
 
-internal class KtorfitSymbolProcessor(
+internal class KtorfitxMultiplatformSymbolProcessor(
 	private val codeGenerator: CodeGenerator,
 ) : SymbolProcessor {
 	
@@ -25,7 +26,7 @@ internal class KtorfitSymbolProcessor(
 	private val processedSymbols = mutableSetOf<String>()
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
-		val annotatedList = resolver.getSymbolsWithAnnotation(KtorfitxQualifiers.API)
+		val annotatedList = resolver.getSymbolsWithAnnotation(ClassNames.Api.canonicalName)
 		annotatedList.forEach { symbol ->
 			if (!symbol.validate()) return@forEach
 			val classDeclaration = symbol as? KSClassDeclaration ?: return@forEach
@@ -76,19 +77,12 @@ internal class KtorfitSymbolProcessor(
 	 * 获取源文件
 	 */
 	private fun Resolver.getDependencies(classDeclaration: KSClassDeclaration): Dependencies {
-		val importMap = UseImports.get().filterNot {
-			it.key.startsWith("io.ktor") ||
-				it.key.startsWith(KtorfitxQualifiers.PACKAGE_CORE)
+		val importMap = UseImports.get().filter {
+			!it.key.startsWith("io.ktor") && !it.key.startsWith(Packages.KTORFITX) && !it.key.startsWith("kotlin")
 		}
 		UseImports.clear()
 		val ksFiles = importMap.flatMap { (packageName, simpleNames) ->
-			simpleNames.map {
-				val ksFile = this.getClassDeclarationByName("$packageName.$it")?.containingFile
-				if (ksFile == null) {
-					kspLogger?.warn("$packageName.$it 未能获取它的源文件")
-				}
-				ksFile
-			}
+			simpleNames.map { this.getClassDeclarationByName("$packageName.$it")?.containingFile }
 		} + classDeclaration.containingFile
 		val ksFileArray = ksFiles.filterNotNull()
 			.groupBy { it.filePath }

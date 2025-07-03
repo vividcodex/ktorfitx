@@ -1,8 +1,8 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
-import cn.ktorfitx.multiplatform.ksp.constants.KtorQualifiers
-import cn.ktorfitx.multiplatform.ksp.expends.isWSOrWSS
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.UseImports
+import cn.ktorfitx.common.ksp.util.expends.isWSOrWSS
+import cn.ktorfitx.common.ksp.util.imports.UseImports
+import cn.ktorfitx.multiplatform.ksp.constants.Packages
 import cn.ktorfitx.multiplatform.ksp.model.model.ApiModel
 import cn.ktorfitx.multiplatform.ksp.model.model.BearerAuthModel
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
@@ -20,8 +20,8 @@ internal class WebSocketBuilder(
 	private val functionModels = funStructure.functionModels
 	
 	fun CodeBlock.Builder.buildCodeBlock() {
-		UseImports.addImports(KtorQualifiers.PACKAGE_WEBSOCKET, "webSocket")
-		addStatement("this.httpClient.webSocket(")
+		UseImports.addImports(Packages.KTOR_WEBSOCKET, "webSocket")
+		addStatement("this.config.httpClient!!.webSocket(")
 		indent()
 		addStatement("urlString = %S,", parseToFullUrl())
 		val hasBearerAuth = functionModels.any { it is BearerAuthModel }
@@ -41,10 +41,10 @@ internal class WebSocketBuilder(
 	}
 	
 	private fun CodeBlock.Builder.buildBearerAuth() {
-		UseImports.addImports(KtorQualifiers.PACKAGE_REQUEST, "bearerAuth")
+		UseImports.addImports(Packages.KTOR_REQUEST, "bearerAuth")
 		addStatement("request = {")
 		indent()
-		addStatement("this@${className.simpleName}.ktorfit.token?.invoke()?.let { bearerAuth(it) }")
+		addStatement("this@${className.simpleName}.config.token?.invoke()?.let { bearerAuth(it) }")
 		unindent()
 		addStatement("}")
 	}
