@@ -1,14 +1,17 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
+import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.expends.classNames
 import cn.ktorfitx.common.ksp.util.expends.isHttpOrHttps
 import cn.ktorfitx.common.ksp.util.expends.simpleName
-import cn.ktorfitx.common.ksp.util.imports.UseImports
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import kotlin.reflect.KClass
 
 internal class HttpCodeBlockBuilder(
@@ -66,7 +69,21 @@ internal class HttpCodeBlockBuilder(
 				}
 				val bodyModel = valueParameterModels.filterIsInstance<BodyModel>().firstOrNull()
 				if (bodyModel != null) {
-					UseImports += bodyModel.typeQualifiedName
+					val typeName = bodyModel.typeName
+					when (typeName) {
+						is ClassName -> {
+							val topLevelClassName = typeName.topLevelClassName()
+							fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
+						}
+						
+						is ParameterizedTypeName -> {
+							typeName.classNames.forEach { className ->
+								fileSpecBuilder.addImport(className.packageName, className.simpleName)
+							}
+						}
+						
+						else -> null
+					}
 					buildBodyCodeBlock(bodyModel)
 				}
 			}
@@ -80,8 +97,22 @@ internal class HttpCodeBlockBuilder(
 		builder()
 		val exceptionListenerModels = functionModels.filterIsInstance<ExceptionListenerModel>()
 		exceptionListenerModels.forEach {
-			UseImports += it.exceptionTypeName
-			UseImports += it.listenerClassName
+			val exceptionTypeName = it.exceptionTypeName
+			when (exceptionTypeName) {
+				is ClassName -> {
+					val topLevelClassName = exceptionTypeName.topLevelClassName()
+					fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
+				}
+				
+				is ParameterizedTypeName -> exceptionTypeName.classNames.forEach { className ->
+					val topLevelClassName = className.topLevelClassName()
+					fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
+				}
+				
+				else -> {}
+			}
+			val topLevelClassName = it.listenerClassName.topLevelClassName()
+			fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
 			nextControlFlow("catch (e: ${it.exceptionTypeName.simpleName})")
 			val simpleNames = it.listenerClassName.simpleNames.joinToString(".")
 			beginControlFlow("with($simpleNames)")

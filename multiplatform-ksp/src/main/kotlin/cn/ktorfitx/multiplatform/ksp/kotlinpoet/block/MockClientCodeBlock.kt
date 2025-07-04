@@ -1,7 +1,7 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
-import cn.ktorfitx.common.ksp.util.imports.UseImports
-import cn.ktorfitx.multiplatform.ksp.constants.Packages
+import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
+import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -20,9 +20,9 @@ internal class MockClientCodeBlock(
 		hasBuilder: Boolean,
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
-		UseImports += mockModel.provider
-		UseImports.addImports(mockModel.status.packageName, mockModel.status.simpleNames.first())
-		UseImports.addImports(Packages.KTORFITX_MOCK_CONFIG, "mockClient")
+		fileSpecBuilder.addImport(mockModel.provider.packageName, mockModel.provider.simpleName)
+		fileSpecBuilder.addImport(mockModel.status.packageName, mockModel.status.simpleNames.first())
+		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK_CONFIG, "mockClient")
 		val provider = mockModel.provider.simpleName
 		val status = "MockStatus.${mockModel.status.simpleName}"
 		val leftRound = mockModel.delayRange[0]

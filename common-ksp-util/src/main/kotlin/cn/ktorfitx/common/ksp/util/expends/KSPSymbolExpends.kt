@@ -1,23 +1,8 @@
 package cn.ktorfitx.common.ksp.util.expends
 
-import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.toClassName
-import kotlin.reflect.KClass
-import kotlin.reflect.KProperty1
-
-/**
- * 获取 KSAnnotation
- */
-fun <T : Annotation> KSAnnotated.getKSAnnotationByType(annotationKClass: KClass<T>): KSAnnotation? {
-	return this.annotations.filter {
-		it.shortName.getShortName() == annotationKClass.simpleName &&
-			it.annotationType.resolve().declaration.qualifiedName?.asString() == annotationKClass.qualifiedName
-	}.firstOrNull()
-}
 
 /**
  * 是否包含注解
@@ -46,13 +31,6 @@ fun KSAnnotation.getArgumentKSClassDeclaration(propertyName: String): KSClassDec
 	val value = this.arguments.find { it.name?.asString() == propertyName }?.value
 	check(value is KSType) { "$value is not KSType!" }
 	return value.declaration as KSClassDeclaration
-}
-
-/**
- * 获取注解上的数据
- */
-fun <V> KSAnnotation.getValue(property: KProperty1<*, V>): V? {
-	return this.getValue(property.name)
 }
 
 /**
@@ -104,3 +82,7 @@ fun KSAnnotation.getClassNames(propertyName: String): Array<ClassName>? {
 
 @Suppress("UNCHECKED_CAST", "unused")
 fun <T> Any.safeAs(): T = this as T
+
+fun KSFunctionDeclaration.isExtension(className: ClassName): Boolean {
+	return this.extensionReceiver?.resolve()?.declaration?.qualifiedName?.asString() == className.canonicalName
+}

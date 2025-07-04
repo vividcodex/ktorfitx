@@ -10,10 +10,13 @@ kotlinpoet-ksp = "2.2.0"
 maven-publish = "0.33.0"
 compose-plugin = "1.8.2"
 androidx-activity-compose = "1.10.1"
+logback-classic = "1.5.18"
 
 [libraries]
-# Multiplatform
+# Common
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+
+# Kotlin Multiplatform
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
@@ -30,7 +33,10 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 ktor-server-core = { group = "io.ktor", name = "ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-websockets = { group = "io.ktor", name = "ktor-server-websockets-jvm", version.ref = "ktor" }
 ktor-server-auth = { group = "io.ktor", name = "ktor-server-auth-jvm", version.ref = "ktor" }
+ktor-server-auth-jwt = { group = "io.ktor", name = "ktor-server-auth-jwt-jvm", version.ref = "ktor" }
 ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty-jvm", version.ref = "ktor" }
+ktor-server-config-yaml = { group = "io.ktor", name = "ktor-server-config-yaml-jvm", version.ref = "ktor" }
+logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback-classic" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -90,8 +96,12 @@ server-ksp = [
 server-sample = [
 	'ktor-server-core',
 	'ktor-server-auth',
+	'ktor-server-auth-jwt',
 	'ktor-server-websockets',
-	'ktor-server-netty'
+	'ktor-server-netty',
+	'logback-classic',
+	'ktor-server-config-yaml',
+	'ktor-serialization-kotlinx-json',
 ]
 
 server-auth = [

@@ -1,11 +1,6 @@
 package cn.ktorfitx.multiplatform.ksp.constants
 
-/**
- * Ktorfitx 相关全类名
- */
-internal object Packages {
-	
-	const val KTORFITX = "cn.ktorfitx"
+internal object PackageNames {
 	
 	const val KTORFITX_CORE_EXPENDS = "cn.ktorfitx.multiplatform.core.expends"
 	

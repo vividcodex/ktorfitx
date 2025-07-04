@@ -1,6 +1,6 @@
 package cn.ktorfitx.common.ksp.util.check
 
-import com.google.devtools.ksp.processing.KSPLogger
+import cn.ktorfitx.common.ksp.util.log.kspLogger
 import com.google.devtools.ksp.symbol.FileLocation
 import com.google.devtools.ksp.symbol.KSNode
 
@@ -24,8 +24,3 @@ fun <T : KSNode> compileCheckError(
 		?: ""
 	throw KtorfitxCompileCheckException("$message$errorLocation")
 }
-
-val kspLoggerLocal = ThreadLocal<KSPLogger>()
-
-private val kspLogger: KSPLogger?
-	get() = kspLoggerLocal.get()

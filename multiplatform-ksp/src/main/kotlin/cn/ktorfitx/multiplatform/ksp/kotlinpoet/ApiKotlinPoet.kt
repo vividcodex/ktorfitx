@@ -1,7 +1,6 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet
 
 import cn.ktorfitx.common.ksp.util.builders.*
-import cn.ktorfitx.common.ksp.util.imports.UseImports
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpClientCodeBlock
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpCodeBlockBuilder
@@ -17,17 +16,16 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 internal class ApiKotlinPoet {
 	
-	private var empty = false
-	
 	/**
 	 * 文件
 	 */
 	fun getFileSpec(classStructure: ClassStructure): FileSpec {
 		return buildFileSpec(classStructure.className) {
+			fileSpecBuilderLocal.set(this)
 			indent("\t")
 			addType(getTypeSpec(classStructure))
 			addProperties(getExpendPropertySpecs(classStructure))
-			UseImports.get().forEach(::addImport)
+			fileSpecBuilderLocal.remove()
 		}
 	}
 	
@@ -95,7 +93,7 @@ internal class ApiKotlinPoet {
 	private fun getExpendPropertySpecs(classStructure: ClassStructure): List<PropertySpec> {
 		val expendPropertyName = classStructure.superinterface.simpleName.replaceFirstChar { it.lowercase() }
 		return classStructure.apiStructure.apiScopeClassNames.map { apiScopeClassName ->
-			UseImports += apiScopeClassName
+			fileSpecBuilder.addImport(apiScopeClassName.packageName, apiScopeClassName.simpleName)
 			val jvmNameAnnotationSpec = buildAnnotationSpec(JvmName::class) {
 				addMember("%S", "${expendPropertyName}By${apiScopeClassName.simpleName}")
 			}
@@ -120,7 +118,10 @@ internal class ApiKotlinPoet {
 				addParameters(getParameterSpecs(it.parameterModels))
 				addCode(getCodeBlock(classStructure, it))
 				val returnStructure = it.returnStructure
-				UseImports += returnStructure.classNames
+				returnStructure.classNames.forEach { className ->
+					val topLevelClassName = className.topLevelClassName()
+					fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
+				}
 				returns(returnStructure.typeName)
 			}
 		}.toList()

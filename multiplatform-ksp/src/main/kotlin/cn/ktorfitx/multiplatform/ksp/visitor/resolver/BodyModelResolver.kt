@@ -6,6 +6,9 @@ import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.BodyModel
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
 internal object BodyModelResolver {
 	
@@ -20,10 +23,10 @@ internal object BodyModelResolver {
 		}
 		val valueParameter = valueParameters.first()
 		val varName = valueParameter.name!!.asString()
-		val qualifiedName = valueParameter.type.resolve().declaration.qualifiedName?.asString()
-		this.compileCheck(qualifiedName != null) {
+		val typeName = valueParameter.type.resolve().toTypeName()
+		this.compileCheck(typeName is ClassName || typeName is ParameterizedTypeName) {
 			"${this.simpleName.asString()} 方法的参数列表中标记了 @Body 注解，但是未找到参数类型"
 		}
-		return BodyModel(varName, qualifiedName)
+		return BodyModel(varName, typeName)
 	}
 }

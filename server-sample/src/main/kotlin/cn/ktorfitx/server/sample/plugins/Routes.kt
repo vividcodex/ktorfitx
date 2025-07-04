@@ -1,17 +1,14 @@
+@file:RouteGenerator
+
 package cn.ktorfitx.server.sample.plugins
 
-//// 自动生成
-//fun Routing.generateRoutes() {
-//	authenticate(
-//		configurations = arrayOf(null),
-//		strategy = AuthenticationStrategy.FirstSuccessful
-//	) {
-//		post(
-//			path = "/auth/verifyToken"
-//		) {
-//			val principal = call.principal<NoPrincipal>()!!
-//			val result = verifyToken(principal)
-//			call.respond(result)
-//		}
-//	}
-//}
+import cn.ktorfitx.server.annotation.RouteGenerator
+import cn.ktorfitx.server.sample.plugins.generators.generateRoutes
+import io.ktor.server.application.*
+import io.ktor.server.routing.*
+
+fun Application.configureRoutes() {
+	routing {
+		generateRoutes()
+	}
+}

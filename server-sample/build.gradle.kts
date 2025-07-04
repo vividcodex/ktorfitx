@@ -5,6 +5,7 @@ plugins {
 	alias(libs.plugins.kotlin.jvm)
 	alias(libs.plugins.kotlin.serialization)
 	alias(libs.plugins.ktor)
+	alias(libs.plugins.ksp)
 }
 
 group = "cn.ktorfitx.server.sample"
@@ -23,11 +24,14 @@ kotlin {
 		languageVersion = KotlinVersion.KOTLIN_2_2
 		apiVersion = KotlinVersion.KOTLIN_2_2
 		jvmTarget = JvmTarget.JVM_21
-		freeCompilerArgs.addAll("-Xexpect-actual-classes", "-Xcontext-parameters")
 	}
 }
 
 dependencies {
 	implementation(projects.serverAnnotation)
+	implementation(projects.serverAuth)
+	implementation(projects.serverWebsockets)
 	implementation(libs.bundles.server.sample)
+	
+	ksp(projects.serverKsp)
 }

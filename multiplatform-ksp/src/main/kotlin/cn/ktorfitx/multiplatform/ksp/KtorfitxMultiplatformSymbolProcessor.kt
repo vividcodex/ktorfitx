@@ -2,12 +2,9 @@ package cn.ktorfitx.multiplatform.ksp
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.code
-import cn.ktorfitx.common.ksp.util.imports.UseImports
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
-import cn.ktorfitx.multiplatform.ksp.constants.Packages
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.ApiKotlinPoet
 import cn.ktorfitx.multiplatform.ksp.visitor.ApiVisitor
-import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
@@ -65,29 +62,11 @@ internal class KtorfitxMultiplatformSymbolProcessor(
 		val fileSpec = apiKotlinPoet.getFileSpec(visitorResult.classStructure)
 		val className = visitorResult.classStructure.className
 		codeGenerator.createNewFile(
-			dependencies = getDependencies(classDeclaration),
+			dependencies = Dependencies.ALL_FILES,
 			packageName = className.packageName,
 			fileName = className.simpleName
 		).bufferedWriter().use {
 			fileSpec.writeTo(it)
 		}
-	}
-	
-	/**
-	 * 获取源文件
-	 */
-	private fun Resolver.getDependencies(classDeclaration: KSClassDeclaration): Dependencies {
-		val importMap = UseImports.get().filter {
-			!it.key.startsWith("io.ktor") && !it.key.startsWith(Packages.KTORFITX) && !it.key.startsWith("kotlin")
-		}
-		UseImports.clear()
-		val ksFiles = importMap.flatMap { (packageName, simpleNames) ->
-			simpleNames.map { this.getClassDeclarationByName("$packageName.$it")?.containingFile }
-		} + classDeclaration.containingFile
-		val ksFileArray = ksFiles.filterNotNull()
-			.groupBy { it.filePath }
-			.map { it.value.first() }
-			.toTypedArray()
-		return Dependencies(false, *ksFileArray)
 	}
 }

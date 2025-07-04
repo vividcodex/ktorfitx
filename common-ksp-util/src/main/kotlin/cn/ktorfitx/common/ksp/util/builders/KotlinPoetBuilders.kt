@@ -12,6 +12,15 @@ fun buildFileSpec(
 ): FileSpec = FileSpec.builder(className).apply(block).build()
 
 /**
+ * buildFileSpec
+ */
+fun buildFileSpec(
+	packageName: String,
+	fileName: String,
+	block: FileSpec.Builder.() -> Unit = {},
+): FileSpec = FileSpec.builder(packageName, fileName).apply(block).build()
+
+/**
  * buildClassTypeSpec
  */
 fun buildClassTypeSpec(

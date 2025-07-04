@@ -1,8 +1,8 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
-import cn.ktorfitx.common.ksp.util.imports.UseImports
+import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
-import cn.ktorfitx.multiplatform.ksp.constants.Packages
+import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnStructure
 import com.squareup.kotlinpoet.ClassName
@@ -19,7 +19,7 @@ internal class HttpClientCodeBlock(
 		hasBuilder: Boolean,
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
-		UseImports.addImports(Packages.KTOR_REQUEST, funName)
+		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, funName)
 		val httpClientCode = "this.config.httpClient!!.$funName(\"$url\")"
 		if (hasBuilder) {
 			beginControlFlow(httpClientCode)
@@ -46,13 +46,13 @@ internal class HttpClientCodeBlock(
 				if (returnStructure.isNullable) {
 					funName += "OrNull"
 				}
-				UseImports.addImports(Packages.KTORFITX_CORE_EXPENDS, funName)
+				fileSpecBuilder.addImport(PackageNames.KTORFITX_CORE_EXPENDS, funName)
 			}
 			return funName?.let { ".$funName()" } ?: ""
 		}
 	
 	override fun CodeBlock.Builder.buildBearerAuthCodeBlock() {
-		UseImports.addImports(Packages.KTOR_REQUEST, "bearerAuth")
+		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "bearerAuth")
 		addStatement("this@${className.simpleName}.config.token?.invoke()?.let { bearerAuth(it) }")
 	}
 	
@@ -60,7 +60,7 @@ internal class HttpClientCodeBlock(
 		headersModel: HeadersModel?,
 		headerModels: List<HeaderModel>,
 	) {
-		UseImports.addImports(Packages.KTOR_REQUEST, "headers")
+		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "headers")
 		beginControlFlow("headers")
 		headersModel?.headerMap?.forEach { (name, value) ->
 			addStatement("append(\"$name\", \"$value\")")
@@ -72,16 +72,16 @@ internal class HttpClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildQueriesCodeBlock(queryModels: List<QueryModel>) {
-		UseImports.addImports(Packages.KTOR_REQUEST, "parameter")
+		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "parameter")
 		queryModels.forEach {
 			addStatement("parameter(\"${it.name}\", ${it.varName})")
 		}
 	}
 	
 	override fun CodeBlock.Builder.buildPartsCodeBlock(partModels: List<PartModel>) {
-		UseImports.addImports(Packages.KTOR_HTTP, "contentType", "ContentType")
-		UseImports.addImports(Packages.KTOR_REQUEST, "setBody")
-		UseImports.addImports(Packages.KTOR_REQUEST_FORMS, "formData", "MultiPartFormDataContent")
+		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType")
+		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
+		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST_FORMS, "formData", "MultiPartFormDataContent")
 		addStatement("contentType(ContentType.MultiPart.FormData)")
 		beginControlFlow("formData {")
 		partModels.forEach {
@@ -93,9 +93,9 @@ internal class HttpClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildFieldsCodeBlock(fieldModels: List<FieldModel>) {
-		UseImports.addImports(Packages.KTOR_HTTP, "contentType", "ContentType")
-		UseImports.addImports(Packages.KTOR_REQUEST, "setBody")
-		UseImports.addImports(Packages.KTOR_HTTP, "formUrlEncode")
+		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType")
+		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "formUrlEncode")
+		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
 		addStatement("contentType(ContentType.Application.FormUrlEncoded)")
 		val code = fieldModels.joinToString {
 			if (it.isString) {
@@ -108,8 +108,8 @@ internal class HttpClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildBodyCodeBlock(bodyModel: BodyModel) {
-		UseImports.addImports(Packages.KTOR_HTTP, "contentType", "ContentType")
-		UseImports.addImports(Packages.KTOR_REQUEST, "setBody")
+		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType")
+		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
 		addStatement("contentType(ContentType.Application.Json)")
 		addStatement("setBody(${bodyModel.varName})")
 	}

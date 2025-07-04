@@ -3,7 +3,7 @@ package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.*
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
-import cn.ktorfitx.multiplatform.ksp.constants.Packages
+import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.model.model.MockModel
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -13,7 +13,7 @@ import com.squareup.kotlinpoet.ClassName
 internal object MockModelResolver {
 	
 	private val statusSuccessClassName by lazy {
-		ClassName(Packages.KTORFITX_MOCK, "MockStatus", "SUCCESS")
+		ClassName(PackageNames.KTORFITX_MOCK, "MockStatus", "SUCCESS")
 	}
 	
 	fun KSFunctionDeclaration.resolve(): MockModel? {
