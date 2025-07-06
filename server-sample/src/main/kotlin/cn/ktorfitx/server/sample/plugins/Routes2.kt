@@ -1,5 +1,5 @@
 @file:RouteGenerator(
-	groupNames = ["test02"],
+	includeGroups = ["test02"],
 	funName = "generateRoutes2",
 )
 

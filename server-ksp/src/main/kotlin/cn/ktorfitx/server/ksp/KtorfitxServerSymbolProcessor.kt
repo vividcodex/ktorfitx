@@ -40,9 +40,18 @@ internal class KtorfitxServerSymbolProcessor(
 			it.accept(visitor, Unit)
 		}
 		routeGeneratorModels.forEach {
-			val filterRouteModels = if (it.groupNames.isEmpty()) routeModels else {
-				routeModels.filter { model ->
-					model.group in it.groupNames
+			val filterRouteModels = when {
+				it.includeGroups.isEmpty() && it.excludeGroups.isEmpty() -> routeModels
+				it.includeGroups.isNotEmpty() -> {
+					routeModels.filter { model ->
+						model.group in it.includeGroups
+					}
+				}
+				
+				else -> {
+					routeModels.filter { model ->
+						model.group !in it.excludeGroups
+					}
 				}
 			}
 			val fileSpec = RouteKotlinPoet.getFileSpec(it, filterRouteModels)
