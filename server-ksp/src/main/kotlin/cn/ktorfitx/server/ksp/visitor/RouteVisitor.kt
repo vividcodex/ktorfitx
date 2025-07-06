@@ -3,60 +3,44 @@ package cn.ktorfitx.server.ksp.visitor
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.*
 import cn.ktorfitx.server.ksp.constants.ClassNames
-import cn.ktorfitx.server.ksp.model.AuthenticationModel
-import cn.ktorfitx.server.ksp.model.RouteModel
-import cn.ktorfitx.server.ksp.model.toRequestMethod
-import com.google.devtools.ksp.symbol.KSAnnotation
+import cn.ktorfitx.server.ksp.model.*
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
-internal class RouteVisitor : KSEmptyVisitor<Unit, RouteModel?>() {
+internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
 	
-	override fun visitFunctionDeclaration(function: KSFunctionDeclaration, data: Unit): RouteModel? {
-		val isRoutingContextExtension = function.isExtension(ClassNames.RoutingContext)
-		function.compileCheck(isRoutingContextExtension) {
-			"${function.simpleName} 方法必须是 RoutingContext 的扩展类"
-		}
-		val routeModel = function.getRouteModel()
-		val authentication = function.getKSAnnotationByType(ClassNames.Authentication)
-		if (authentication == null) {
-			return routeModel
-		}
-		return getAuthenticationModel(authentication, routeModel)
+	override fun visitFunctionDeclaration(function: KSFunctionDeclaration, data: Unit): FunctionModel {
+		return FunctionModel(
+			function.simpleName.asString(),
+			function.getCanonicalName(),
+			function.getGroupName(),
+			function.getReturnType(),
+			function.getAuthenticationModel(),
+			function.getRouteModel(),
+		)
 	}
 	
-	private fun KSFunctionDeclaration.getRouteModel(): RouteModel {
-		val dataList = ClassNames.requestMethodClassNames.mapNotNull { className ->
-			this.getKSAnnotationByType(className)?.let {
-				className to it
-			}
-		}
-		this.compileCheck(dataList.size == 1) {
-			"${this.simpleName} 不允许同时添加多个请求类型"
-		}
-		val data = dataList.first()
-		val requestMethod = data.first.toRequestMethod()
-		val path = data.second.getValue<String>("path")!!
-			.trim().removePrefix("/").removeSuffix("/")
+	private fun KSFunctionDeclaration.getCanonicalName(): String {
 		val parent = this.parentDeclaration
-		val functionClassName = when (parent) {
-			is KSClassDeclaration -> {
-				val parent = parent.toClassName()
-				ClassName(parent.canonicalName, this.simpleName.asString())
-			}
-			
-			else -> {
-				val packageName = this.packageName.asString()
-				val simpleName = this.simpleName.asString()
-				ClassName(packageName, simpleName)
-			}
+		return when (parent) {
+			is KSClassDeclaration -> parent.toClassName().canonicalName
+			else -> this.packageName.asString()
 		}
+	}
+	
+	private fun KSFunctionDeclaration.getGroupName(): String? {
+		val annotation = this.getKSAnnotationByType(ClassNames.Group) ?: return null
+		return annotation.getValue<String>("name")!!
+	}
+	
+	private fun KSFunctionDeclaration.getReturnType(): TypeName {
 		val returnType = this.returnType!!.resolve()
 		returnType.declaration.compileCheck(!returnType.isMarkedNullable) {
 			"${this.simpleName} 方法返回类型不允许为可空类型"
@@ -66,24 +50,57 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, RouteModel?>() {
 		returnType.declaration.compileCheck(validTypeName) {
 			"${this.simpleName} 方法返回类型必须是明确的类"
 		}
-		return RouteModel(functionClassName, requestMethod, path, typeName)
+		return typeName
 	}
 	
-	private fun getAuthenticationModel(
-		authentication: KSAnnotation,
-		routeModel: RouteModel
-	): AuthenticationModel {
-		val configurations = authentication.getValues<String>("configurations")!!
-		val strategy = authentication.getClassName("strategy")!!
-		return AuthenticationModel(
-			functionClassName = routeModel.functionClassName,
-			requestMethod = routeModel.requestMethod,
-			path = routeModel.path,
-			returnTypeName = routeModel.returnTypeName,
-			configurations = configurations,
-			strategy = strategy
-		)
+	private fun KSFunctionDeclaration.getRouteModel(): RouteModel {
+		val dataList = ClassNames.routes.mapNotNull {
+			this.getKSAnnotationByType(it)?.let(it::to)
+		}
+		this.compileCheck(dataList.size == 1) {
+			"${this.simpleName} 不允许同时添加多个请求类型"
+		}
+		val data = dataList.first()
+		val className = data.first
+		val annotation = data.second
+		val path = annotation.getValue<String>("path")!!.removePrefix("/").removeSuffix("/")
+		return when (className) {
+			ClassNames.WebSocket -> {
+				val protocol = annotation.getValue<String>("protocol")!!
+				val valid = this.isExtension(ClassNames.DefaultWebSocketServerSession)
+				this.compileCheck(valid) {
+					"${this.simpleName} 方法必须是 DefaultWebSocketServerSession 的扩展方法"
+				}
+				WebSocketModel(path, protocol, null)
+			}
+			
+			ClassNames.WebSocketRaw -> {
+				val protocol = annotation.getValue<String>("protocol")!!
+				val negotiateExtensions = annotation.getValue<Boolean>("negotiateExtensions")!!
+				val valid = this.isExtension(ClassNames.WebSocketServerSession)
+				this.compileCheck(valid) {
+					"${this.simpleName} 方法必须是 WebSocketServerSession 的扩展方法"
+				}
+				WebSocketModel(path, protocol, negotiateExtensions)
+			}
+			
+			else -> {
+				val valid = this.isExtension(ClassNames.RoutingContext)
+				this.compileCheck(valid) {
+					"${this.simpleName} 方法必须是 RoutingContext 的扩展方法"
+				}
+				val method = className.simpleName.lowercase()
+				HttpRequestModel(path, method)
+			}
+		}
 	}
 	
-	override fun defaultHandler(node: KSNode, data: Unit): RouteModel? = null
+	private fun KSFunctionDeclaration.getAuthenticationModel(): AuthenticationModel? {
+		val annotation = this.getKSAnnotationByType(ClassNames.Authentication) ?: return null
+		val configurations = annotation.getValues<String>("configurations")!!
+		val strategy = annotation.getClassName("strategy")!!
+		return AuthenticationModel(configurations, strategy)
+	}
+	
+	override fun defaultHandler(node: KSNode, data: Unit): FunctionModel = error("Not Implemented")
 }

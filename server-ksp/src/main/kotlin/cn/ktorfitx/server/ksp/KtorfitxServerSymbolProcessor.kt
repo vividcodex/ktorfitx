@@ -24,7 +24,7 @@ internal class KtorfitxServerSymbolProcessor(
 				it.accept(visitor, Unit)
 			}
 		
-		val symbols = ClassNames.requestMethodClassNames
+		val routes = ClassNames.routes
 			.flatMap { resolver.getSymbolsWithAnnotation(it.canonicalName) }
 			.filterIsInstance<KSFunctionDeclaration>()
 			.onEach {
@@ -35,16 +35,16 @@ internal class KtorfitxServerSymbolProcessor(
 				}
 			}
 		
-		val routeModels = symbols.mapNotNull {
+		val routeModels = routes.map {
 			val visitor = RouteVisitor()
 			it.accept(visitor, Unit)
 		}
 		routeGeneratorModels.forEach {
-			val filterRouteModels = if (it.pathParent.isNotEmpty()) {
+			val filterRouteModels = if (it.groupNames.isEmpty()) routeModels else {
 				routeModels.filter { model ->
-					model.path.startsWith("${it.pathParent}/")
+					model.group in it.groupNames
 				}
-			} else routeModels
+			}
 			val fileSpec = RouteKotlinPoet.getFileSpec(it, filterRouteModels)
 			codeGenerate(it.packageName, it.fileName, fileSpec)
 		}
