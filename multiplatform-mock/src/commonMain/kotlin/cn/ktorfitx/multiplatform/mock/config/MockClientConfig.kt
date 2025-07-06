@@ -10,24 +10,23 @@ class MockClientConfig internal constructor() {
 	var json: Json? = null
 		private set
 	
-	fun json(builder: JsonBuilder.() -> Unit) {
-		this.json = Json(builderAction = builder)
-	}
-	
 	var log: LogConfig? = null
 		private set
+	
+	fun json(
+		from: Json = Json.Default,
+		builderAction: JsonBuilder.() -> Unit
+	) {
+		this.json = Json(from, builderAction)
+	}
 	
 	fun log(builder: LogConfig.() -> Unit) {
 		this.log = LogConfig().apply(builder)
 	}
 	
 	fun build(): MockClientConfig {
-		if (json == null) {
-			json = Json
-		}
-		if (log == null) {
-			log = LogConfig()
-		}
+		this.json = this.json ?: Json.Default
+		this.log = this.log ?: LogConfig()
 		return this
 	}
 }

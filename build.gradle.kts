@@ -9,14 +9,23 @@ plugins {
 	alias(libs.plugins.maven.publish) apply false
 }
 
-tasks.register("ktorfitxPublishAllPublicationsToMavenCentralRepository") {
+tasks.register("publishKtorfitxToMavenCentralRepository") {
 	group = "publishing"
 	
-	dependsOn(
-		":ktorfitx-annotation:publishAllPublicationsToMavenCentralRepository",
-		":ktorfitx-core:publishAllPublicationsToMavenCentralRepository",
-		":ktorfitx-mock:publishAllPublicationsToMavenCentralRepository",
-		":ktorfitx-websockets:publishAllPublicationsToMavenCentralRepository",
-		":ktorfitx-ksp:publishAllPublicationsToMavenCentralRepository"
-	)
+	val projects = arrayOf(
+		"common-ksp-util",
+		"multiplatform-annotation",
+		"multiplatform-core",
+		"multiplatform-mock",
+		"multiplatform-websockets",
+		"multiplatform-ksp",
+		"server-annotation",
+		"server-auth",
+		"server-websockets",
+		"server-ksp"
+	).map {
+		":$it:publishAllPublicationsToMavenCentralRepository"
+	}.toTypedArray()
+	
+	dependsOn(*projects)
 }
