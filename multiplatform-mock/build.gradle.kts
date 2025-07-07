@@ -99,8 +99,8 @@ kotlin {
 	sourceSets {
 		commonMain {
 			dependencies {
-				api(projects.multiplatformAnnotation)
-				api(projects.multiplatformCore)
+				implementation(projects.multiplatformAnnotation)
+				implementation(projects.multiplatformCore)
 				implementation(libs.bundles.multiplatform.mock)
 			}
 		}

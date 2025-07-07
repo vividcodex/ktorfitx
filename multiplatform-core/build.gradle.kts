@@ -99,7 +99,7 @@ kotlin {
 	sourceSets {
 		commonMain {
 			dependencies {
-				api(projects.multiplatformAnnotation)
+				implementation(projects.multiplatformAnnotation)
 				implementation(libs.bundles.multiplatform.core)
 			}
 		}
