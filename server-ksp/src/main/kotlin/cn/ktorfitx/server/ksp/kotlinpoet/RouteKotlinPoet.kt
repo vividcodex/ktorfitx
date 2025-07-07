@@ -9,7 +9,7 @@ import cn.ktorfitx.server.ksp.constants.PackageNames
 import cn.ktorfitx.server.ksp.model.*
 import com.squareup.kotlinpoet.*
 
-internal object RouteKotlinPoet {
+internal class RouteKotlinPoet {
 	
 	private var index = 0
 	
@@ -17,11 +17,11 @@ internal object RouteKotlinPoet {
 		generatorModel: RouteGeneratorModel,
 		functionModels: List<FunctionModel>
 	): FileSpec {
-		index = 0
 		return buildFileSpec(generatorModel.packageName, generatorModel.fileName) {
 			fileSpecBuilderLocal.set(this)
 			indent("\t")
-			addFunction(getFunctionSpec(generatorModel.funName, functionModels))
+			val funSpec = getFunctionSpec(generatorModel.funName, functionModels)
+			addFunction(funSpec)
 			fileSpecBuilderLocal.remove()
 		}
 	}
@@ -32,7 +32,8 @@ internal object RouteKotlinPoet {
 	): FunSpec {
 		return buildFunSpec(funName) {
 			receiver(ClassNames.Routing)
-			addCode(getCodeBlock(functionModels))
+			val codeBlock = getCodeBlock(functionModels)
+			addCode(codeBlock)
 		}
 	}
 	
@@ -41,59 +42,9 @@ internal object RouteKotlinPoet {
 			functionModels.forEach { functionModel ->
 				buildAuthenticationIfNeed(functionModel) { routeModel ->
 					when (routeModel) {
-						is HttpRequestModel -> {
-							fileSpecBuilder.addImport(PackageNames.KTOR_ROUTING, routeModel.method)
-							beginControlFlow(
-								"""
-								${routeModel.method}(
-									path = %S
-								)
-								""".trimIndent(),
-								routeModel.path
-							)
-							val alias = getLetterSequence(index++)
-							val memberName = MemberName(functionModel.canonicalName, functionModel.funName, true)
-							fileSpecBuilder.addAliasedImport(memberName, alias)
-							addStatement("val result = $alias()")
-							fileSpecBuilder.addImport(PackageNames.KTOR_RESPONSE, "respond")
-							addStatement("call.respond(result)")
-							endControlFlow()
-						}
-						
-						is WebSocketModel -> {
-							if (routeModel.negotiateExtensions != null) {
-								fileSpecBuilder.addImport(PackageNames.KTOR_WEB_SOCKET, "webSocketRaw")
-								beginControlFlow(
-									"""
-									webSocketRaw(
-										path = %S,
-										protocol = %S,
-										negotiateExtensions = %L
-									)
-									""".trimIndent(),
-									routeModel.path,
-									routeModel.protocol.ifBlank { null },
-									routeModel.negotiateExtensions
-								)
-							} else {
-								fileSpecBuilder.addImport(PackageNames.KTOR_WEB_SOCKET, "webSocket")
-								beginControlFlow(
-									"""
-									webSocket(
-										path = %S,
-										protocol = %S
-									)
-									""".trimIndent(),
-									routeModel.path,
-									routeModel.protocol.ifBlank { null }
-								)
-							}
-							val alias = getLetterSequence(index++)
-							val memberName = MemberName(functionModel.canonicalName, functionModel.funName, true)
-							fileSpecBuilder.addAliasedImport(memberName, alias)
-							addStatement("$alias()")
-							endControlFlow()
-						}
+						is HttpRequestModel -> buildHttpRequest(functionModel, routeModel)
+						is WebSocketRawModel -> buildWebRawSocket(functionModel, routeModel)
+						is WebSocketModel -> buildWebSocket(functionModel, routeModel)
 					}
 				}
 			}
@@ -122,6 +73,74 @@ internal object RouteKotlinPoet {
 		if (functionModel.authenticationModel != null) {
 			endControlFlow()
 		}
+	}
+	
+	private fun CodeBlock.Builder.buildHttpRequest(
+		functionModel: FunctionModel,
+		httpRequestModel: HttpRequestModel
+	) {
+		fileSpecBuilder.addImport(PackageNames.KTOR_ROUTING, httpRequestModel.method)
+		beginControlFlow(
+			"""
+			${httpRequestModel.method}(
+				path = %S
+			)
+			""".trimIndent(),
+			httpRequestModel.path
+		)
+		val alias = getLetterSequence(index++)
+		val memberName = MemberName(functionModel.canonicalName, functionModel.funName, true)
+		fileSpecBuilder.addAliasedImport(memberName, alias)
+		addStatement("val result = $alias()")
+		fileSpecBuilder.addImport(PackageNames.KTOR_RESPONSE, "respond")
+		addStatement("call.respond(result)")
+		endControlFlow()
+	}
+	
+	private fun CodeBlock.Builder.buildWebRawSocket(
+		functionModel: FunctionModel,
+		webSocketRawModel: WebSocketRawModel
+	) {
+		fileSpecBuilder.addImport(PackageNames.KTOR_WEB_SOCKET, "webSocketRaw")
+		beginControlFlow(
+			"""
+			webSocketRaw(
+				path = %S,
+				protocol = %S,
+				negotiateExtensions = %L
+			)
+			""".trimIndent(),
+			webSocketRawModel.path,
+			webSocketRawModel.protocol.ifBlank { null },
+			webSocketRawModel.negotiateExtensions
+		)
+		val alias = getLetterSequence(index++)
+		val memberName = MemberName(functionModel.canonicalName, functionModel.funName, true)
+		fileSpecBuilder.addAliasedImport(memberName, alias)
+		addStatement("$alias()")
+		endControlFlow()
+	}
+	
+	private fun CodeBlock.Builder.buildWebSocket(
+		functionModel: FunctionModel,
+		webSocketModel: WebSocketModel
+	) {
+		fileSpecBuilder.addImport(PackageNames.KTOR_WEB_SOCKET, "webSocket")
+		beginControlFlow(
+			"""
+			webSocket(
+				path = %S,
+				protocol = %S
+			)
+			""".trimIndent(),
+			webSocketModel.path,
+			webSocketModel.protocol.ifBlank { null }
+		)
+		val alias = getLetterSequence(index++)
+		val memberName = MemberName(functionModel.canonicalName, functionModel.funName, true)
+		fileSpecBuilder.addAliasedImport(memberName, alias)
+		addStatement("$alias()")
+		endControlFlow()
 	}
 	
 	private fun getLetterSequence(index: Int): String {

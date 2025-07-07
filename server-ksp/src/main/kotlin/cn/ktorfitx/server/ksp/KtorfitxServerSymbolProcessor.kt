@@ -54,7 +54,8 @@ internal class KtorfitxServerSymbolProcessor(
 					}
 				}
 			}
-			val fileSpec = RouteKotlinPoet.getFileSpec(it, filterRouteModels)
+			val fileSpec = RouteKotlinPoet()
+				.getFileSpec(it, filterRouteModels)
 			codeGenerate(it.packageName, it.fileName, fileSpec)
 		}
 		return emptyList()

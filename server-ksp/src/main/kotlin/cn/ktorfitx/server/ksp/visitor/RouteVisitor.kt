@@ -10,18 +10,17 @@ import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
-import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
 internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
 	
 	override fun visitFunctionDeclaration(function: KSFunctionDeclaration, data: Unit): FunctionModel {
+		function.checkReturnType()
 		return FunctionModel(
 			function.simpleName.asString(),
 			function.getCanonicalName(),
 			function.getGroupName(),
-			function.getReturnType(),
 			function.getAuthenticationModel(),
 			function.getRouteModel(),
 		)
@@ -40,7 +39,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
 		return annotation.getValue<String>("name")!!
 	}
 	
-	private fun KSFunctionDeclaration.getReturnType(): TypeName {
+	private fun KSFunctionDeclaration.checkReturnType() {
 		val returnType = this.returnType!!.resolve()
 		returnType.declaration.compileCheck(!returnType.isMarkedNullable) {
 			"${this.simpleName} 方法返回类型不允许为可空类型"
@@ -50,7 +49,6 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
 		returnType.declaration.compileCheck(validTypeName) {
 			"${this.simpleName} 方法返回类型必须是明确的类"
 		}
-		return typeName
 	}
 	
 	private fun KSFunctionDeclaration.getRouteModel(): RouteModel {
@@ -71,7 +69,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
 				this.compileCheck(valid) {
 					"${this.simpleName} 方法必须是 DefaultWebSocketServerSession 的扩展方法"
 				}
-				WebSocketModel(path, protocol, null)
+				WebSocketModel(path, protocol)
 			}
 			
 			ClassNames.WebSocketRaw -> {
@@ -81,7 +79,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
 				this.compileCheck(valid) {
 					"${this.simpleName} 方法必须是 WebSocketServerSession 的扩展方法"
 				}
-				WebSocketModel(path, protocol, negotiateExtensions)
+				WebSocketRawModel(path, protocol, negotiateExtensions)
 			}
 			
 			else -> {
