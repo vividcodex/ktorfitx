@@ -12,77 +12,60 @@ class MockClient internal constructor(
 	val json: Json = Json
 ) {
 	
-	suspend inline fun <reified Mock : Any> get(
-		urlString: String,
-		mockProvider: MockProvider<Mock>,
-		status: MockStatus,
-		delayRange: LongRange,
-		noinline builder: (MockRequestBuilder.() -> Unit)? = null
-	): Mock = request(HttpMethod.Get, urlString, mockProvider, status, delayRange, builder)
+	suspend inline fun <reified R> get(
+		mockProvider: MockProvider<R>,
+		delay: Long,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): R = request(HttpMethod.Get, mockProvider, delay, builder)
 	
-	suspend inline fun <reified Mock : Any> post(
-		urlString: String,
-		mockProvider: MockProvider<Mock>,
-		status: MockStatus,
-		delayRange: LongRange,
-		noinline builder: (MockRequestBuilder.() -> Unit)? = null
-	): Mock = request(HttpMethod.Post, urlString, mockProvider, status, delayRange, builder)
+	suspend inline fun <reified R> post(
+		mockProvider: MockProvider<R>,
+		delay: Long,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): R = request(HttpMethod.Post, mockProvider, delay, builder)
 	
-	suspend inline fun <reified Mock : Any> put(
-		urlString: String,
-		mockProvider: MockProvider<Mock>,
-		status: MockStatus,
-		delayRange: LongRange,
-		noinline builder: (MockRequestBuilder.() -> Unit)? = null
-	): Mock = request(HttpMethod.Put, urlString, mockProvider, status, delayRange, builder)
+	suspend inline fun <reified R> put(
+		mockProvider: MockProvider<R>,
+		delay: Long,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): R = request(HttpMethod.Put, mockProvider, delay, builder)
 	
-	suspend inline fun <reified Mock : Any> delete(
-		urlString: String,
-		mockProvider: MockProvider<Mock>,
-		status: MockStatus,
-		delayRange: LongRange,
-		noinline builder: (MockRequestBuilder.() -> Unit)? = null
-	): Mock = request(HttpMethod.Delete, urlString, mockProvider, status, delayRange, builder)
+	suspend inline fun <reified R> delete(
+		mockProvider: MockProvider<R>,
+		delay: Long,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): R = request(HttpMethod.Delete, mockProvider, delay, builder)
 	
-	suspend inline fun <reified Mock : Any> options(
-		urlString: String,
-		mockProvider: MockProvider<Mock>,
-		status: MockStatus,
-		delayRange: LongRange,
-		noinline builder: (MockRequestBuilder.() -> Unit)? = null
-	): Mock = request(HttpMethod.Options, urlString, mockProvider, status, delayRange, builder)
+	suspend inline fun <reified R> patch(
+		mockProvider: MockProvider<R>,
+		delay: Long,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): R = request(HttpMethod.Patch, mockProvider, delay, builder)
 	
-	suspend inline fun <reified Mock : Any> head(
-		urlString: String,
-		mockProvider: MockProvider<Mock>,
-		status: MockStatus,
-		delayRange: LongRange,
-		noinline builder: (MockRequestBuilder.() -> Unit)? = null
-	): Mock = request(HttpMethod.Head, urlString, mockProvider, status, delayRange, builder)
+	suspend inline fun <reified R> head(
+		mockProvider: MockProvider<R>,
+		delay: Long,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): R = request(HttpMethod.Head, mockProvider, delay, builder)
 	
-	suspend inline fun <reified Mock : Any> patch(
-		urlString: String,
-		mockProvider: MockProvider<Mock>,
-		status: MockStatus,
-		delayRange: LongRange,
-		noinline builder: (MockRequestBuilder.() -> Unit)? = null
-	): Mock = request(HttpMethod.Patch, urlString, mockProvider, status, delayRange, builder)
+	suspend inline fun <reified R> options(
+		mockProvider: MockProvider<R>,
+		delay: Long,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): R = request(HttpMethod.Options, mockProvider, delay, builder)
 	
-	suspend inline fun <reified Mock : Any> request(
+	suspend inline fun <reified R> request(
 		method: HttpMethod,
-		urlString: String,
-		mockProvider: MockProvider<Mock>,
-		status: MockStatus,
-		delayRange: LongRange,
-		noinline builder: (MockRequestBuilder.() -> Unit)?
-	): Mock {
-		val mockRequest = MockRequestBuilder(this.json).let { if (builder != null) it.apply(builder) else it }
-		val mockLogging = MockLogging(this.log, mockRequest, urlString)
+		mockProvider: MockProvider<R>,
+		delay: Long,
+		noinline builder: MockRequestBuilder.() -> Unit
+	): R {
+		val mockRequest = MockRequestBuilder(this.json).apply(builder)
+		val mockLogging = MockLogging(this.log, mockRequest, mockRequest.urlString!!)
 		mockLogging.request(method)
-		val delay = delayRange.random()
 		delay(delay)
-		val mock = mockProvider.provide(status)
-		mockLogging.response(mock, json, delay)
-		return mock
+		return mockProvider.provide().also {
+			mockLogging.response(it, json, delay)
+		}
 	}
 }

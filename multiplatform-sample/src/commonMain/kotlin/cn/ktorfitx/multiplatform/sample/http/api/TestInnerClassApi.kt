@@ -2,23 +2,22 @@ package cn.ktorfitx.multiplatform.sample.http.api
 
 import cn.ktorfitx.multiplatform.annotation.Api
 import cn.ktorfitx.multiplatform.annotation.GET
-import cn.ktorfitx.multiplatform.core.model.ApiResult
 import kotlinx.serialization.Serializable
 
 @Api(url = "test3")
 interface TestInnerClassApi {
 	
 	@GET("v1/test1")
-	suspend fun getTest1(): ApiResult<Test1>
+	suspend fun getTest1(): Result<Test1>
 	
 	@GET("v1/test2")
-	suspend fun getTest2(): ApiResult<Test2>
+	suspend fun getTest2(): Result<Test2>
 	
 	@GET("v1/test3")
-	suspend fun getTest3(): ApiResult<Test3Class.Test3>
+	suspend fun getTest3(): Result<Test3Class.Test3>
 	
 	@GET("v1/test4")
-	suspend fun getTest4(): ApiResult<Test4Class.Test4>
+	suspend fun getTest4(): Result<Test4Class.Test4>
 	
 	@Serializable
 	data class Test1(val data: String)

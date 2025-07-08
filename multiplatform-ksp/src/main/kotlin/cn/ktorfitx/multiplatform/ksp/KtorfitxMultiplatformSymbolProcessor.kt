@@ -58,9 +58,9 @@ internal class KtorfitxMultiplatformSymbolProcessor(
 	 */
 	private fun Resolver.processing(classDeclaration: KSClassDeclaration) {
 		val apiVisitor = ApiVisitor(this)
-		val visitorResult = classDeclaration.accept(apiVisitor, Unit) ?: return
-		val fileSpec = apiKotlinPoet.getFileSpec(visitorResult.classStructure)
-		val className = visitorResult.classStructure.className
+		val classStructure = classDeclaration.accept(apiVisitor, Unit) ?: return
+		val fileSpec = apiKotlinPoet.getFileSpec(classStructure)
+		val className = classStructure.className
 		codeGenerator.createNewFile(
 			dependencies = Dependencies.ALL_FILES,
 			packageName = className.packageName,

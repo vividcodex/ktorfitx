@@ -10,15 +10,20 @@ internal sealed interface ClientCodeBlock {
 	 */
 	fun CodeBlock.Builder.buildClientCodeBlock(
 		funName: String,
-		url: String,
-		hasBuilder: Boolean,
 		builder: CodeBlock.Builder.() -> Unit
+	)
+	
+	/**
+	 * urlString
+	 */
+	fun CodeBlock.Builder.buildUrlString(
+		urlString: String
 	)
 	
 	/**
 	 * bearerAuth
 	 */
-	fun CodeBlock.Builder.buildBearerAuthCodeBlock()
+	fun CodeBlock.Builder.buildBearerAuth()
 	
 	/**
 	 * headers
@@ -31,20 +36,20 @@ internal sealed interface ClientCodeBlock {
 	/**
 	 * queries
 	 */
-	fun CodeBlock.Builder.buildQueriesCodeBlock(queryModels: List<QueryModel>)
+	fun CodeBlock.Builder.buildQueries(queryModels: List<QueryModel>)
 	
 	/**
 	 * parts
 	 */
-	fun CodeBlock.Builder.buildPartsCodeBlock(partModels: List<PartModel>)
+	fun CodeBlock.Builder.buildParts(partModels: List<PartModel>)
 	
 	/**
 	 * fields
 	 */
-	fun CodeBlock.Builder.buildFieldsCodeBlock(fieldModels: List<FieldModel>)
+	fun CodeBlock.Builder.buildFields(fieldModels: List<FieldModel>)
 	
 	/**
 	 * body
 	 */
-	fun CodeBlock.Builder.buildBodyCodeBlock(bodyModel: BodyModel)
+	fun CodeBlock.Builder.buildBody(bodyModel: BodyModel)
 }

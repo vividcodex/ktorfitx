@@ -20,7 +20,7 @@ internal class RouteGeneratorVisitor : KSEmptyVisitor<Unit, RouteGeneratorModel?
 			"${file.fileName} 标记的 @RouteGenerator 不允许同时使用 includeGroups 和 excludeGroups 参数"
 		}
 		val packageName = file.packageName.asString() + ".generators"
-		val funName = annotation.getValue<String>("funName")!!
+		val funName = annotation.getValue<String>("funName")
 		val fileName = "${file.fileName.removeSuffix(".kt")}Generator"
 		return RouteGeneratorModel(includeGroups, excludeGroups, packageName, fileName, funName)
 	}

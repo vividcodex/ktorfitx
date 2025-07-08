@@ -52,8 +52,8 @@ class MockLogging(
 		}
 	}
 	
-	inline fun <reified T : Any> response(
-		mock: T,
+	inline fun <reified R> response(
+		result: R,
 		json: Json,
 		delay: Long
 	) {
@@ -64,7 +64,7 @@ class MockLogging(
 					appendLine("DELAY TIME: ${delay.milliseconds}")
 				}
 				if (log.level.body) {
-					val stringJson = json.encodeToString(mock)
+					val stringJson = result.let { json.encodeToString(it) }
 					val length = stringJson.filterNot { it == ' ' || it == '\n' }.length
 					appendLine("BODY START: LENGTH=$length")
 					appendLine(stringJson)

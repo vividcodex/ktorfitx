@@ -4,6 +4,5 @@ import com.squareup.kotlinpoet.ClassName
 
 internal class MockModel(
 	val provider: ClassName,
-	val status: ClassName,
-	val delayRange: Array<Long>
+	val delay: Long
 ) : FunctionModel

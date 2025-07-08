@@ -1,6 +1,7 @@
 package cn.ktorfitx.multiplatform.mock
 
-interface MockProvider<out Mock : Any?> {
+interface MockProvider<out R> {
 	
-	fun provide(status: MockStatus): Mock
+	@Throws(Throwable::class)
+	fun provide(): R
 }

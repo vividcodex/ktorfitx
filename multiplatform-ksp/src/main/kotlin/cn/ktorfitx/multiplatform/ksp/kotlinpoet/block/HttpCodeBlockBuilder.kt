@@ -4,7 +4,6 @@ import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.classNames
 import cn.ktorfitx.common.ksp.util.expends.isHttpOrHttps
-import cn.ktorfitx.common.ksp.util.expends.simpleName
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
@@ -25,134 +24,75 @@ internal class HttpCodeBlockBuilder(
 	private val functionModels = funStructure.functionModels
 	private val apiStructure = classStructure.apiStructure
 	
-	private companion object {
-		
-		private val exceptionClassNames = arrayOf(
-			ClassNames.KotlinException,
-			ClassNames.JavaException,
-		)
-	}
-	
-	fun CodeBlock.Builder.buildCodeBlock() = with(getClientCodeBlock()) {
-		buildExceptionCodeBlock {
-			val apiModel = functionModels.first { it is ApiModel } as ApiModel
-			val funName = apiModel.requestFunName
-			val fullUrl = parseToFullUrl(apiModel.url)
-			val isNeedClientBuilder = isNeedClientBuilder()
-			buildClientCodeBlock(funName, fullUrl, isNeedClientBuilder) {
-				val bearerAuth = functionModels.any { it is BearerAuthModel }
-				if (bearerAuth) {
-					buildBearerAuthCodeBlock()
-				}
-				val headersModel = functionModels.find { it is HeadersModel } as? HeadersModel
-				val headerModels = valueParameterModels.filterIsInstance<HeaderModel>()
-				if (headerModels.isNotEmpty() || headersModel != null) {
-					buildHeadersCodeBlock(headersModel, headerModels)
-				}
-				val queryModels = valueParameterModels.filterIsInstance<QueryModel>()
-				if (queryModels.isNotEmpty()) {
-					buildQueriesCodeBlock(queryModels)
-				}
-				val partModels = valueParameterModels.filterIsInstance<PartModel>()
-				if (partModels.isNotEmpty()) {
-					buildPartsCodeBlock(partModels)
-				}
-				val fieldModels = valueParameterModels.filterIsInstance<FieldModel>()
-				if (fieldModels.isNotEmpty()) {
-					buildFieldsCodeBlock(fieldModels)
-				}
-				if (this@with is MockClientCodeBlock) {
-					val pathModels = valueParameterModels.filterIsInstance<PathModel>()
-					if (pathModels.isNotEmpty()) {
-						buildPathsCodeBlock(pathModels)
+	fun CodeBlock.Builder.buildCodeBlock() {
+		buildTryCatch {
+			with(getClientCodeBlock()) {
+				val apiModel = functionModels.first { it is ApiModel } as ApiModel
+				val funName = apiModel.requestFunName
+				buildClientCodeBlock(funName) {
+					val fullUrl = parseToFullUrl(apiModel.url)
+					buildUrlString(fullUrl)
+					val bearerAuth = functionModels.any { it is BearerAuthModel }
+					if (bearerAuth) {
+						buildBearerAuth()
 					}
-				}
-				val bodyModel = valueParameterModels.filterIsInstance<BodyModel>().firstOrNull()
-				if (bodyModel != null) {
-					val typeName = bodyModel.typeName
-					when (typeName) {
-						is ClassName -> {
-							val topLevelClassName = typeName.topLevelClassName()
-							fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
+					val headersModel = functionModels.find { it is HeadersModel } as? HeadersModel
+					val headerModels = valueParameterModels.filterIsInstance<HeaderModel>()
+					if (headerModels.isNotEmpty() || headersModel != null) {
+						buildHeadersCodeBlock(headersModel, headerModels)
+					}
+					val queryModels = valueParameterModels.filterIsInstance<QueryModel>()
+					if (queryModels.isNotEmpty()) {
+						buildQueries(queryModels)
+					}
+					val partModels = valueParameterModels.filterIsInstance<PartModel>()
+					if (partModels.isNotEmpty()) {
+						buildParts(partModels)
+					}
+					val fieldModels = valueParameterModels.filterIsInstance<FieldModel>()
+					if (fieldModels.isNotEmpty()) {
+						buildFields(fieldModels)
+					}
+					if (this@with is MockClientCodeBlock) {
+						val pathModels = valueParameterModels.filterIsInstance<PathModel>()
+						if (pathModels.isNotEmpty()) {
+							buildPaths(pathModels)
 						}
-						
-						is ParameterizedTypeName -> {
-							typeName.classNames.forEach { className ->
-								fileSpecBuilder.addImport(className.packageName, className.simpleName)
+					}
+					val bodyModel = valueParameterModels.filterIsInstance<BodyModel>().firstOrNull()
+					if (bodyModel != null) {
+						val typeName = bodyModel.typeName
+						when (typeName) {
+							is ClassName -> {
+								val topLevelClassName = typeName.topLevelClassName()
+								fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
 							}
+							
+							is ParameterizedTypeName -> {
+								typeName.classNames.forEach { className ->
+									fileSpecBuilder.addImport(className.packageName, className.simpleName)
+								}
+							}
+							
+							else -> null
 						}
-						
-						else -> null
+						buildBody(bodyModel)
 					}
-					buildBodyCodeBlock(bodyModel)
 				}
 			}
 		}
 	}
 	
-	private fun CodeBlock.Builder.buildExceptionCodeBlock(
-		builder: CodeBlock.Builder.() -> Unit,
+	private fun CodeBlock.Builder.buildTryCatch(
+		builder: CodeBlock.Builder.() -> Unit
 	) {
-		beginControlFlow(if (returnStructure.rawType != ClassNames.Unit) "return try" else "try")
+		beginControlFlow("return try")
 		builder()
-		val exceptionListenerModels = functionModels.filterIsInstance<ExceptionListenerModel>()
-		exceptionListenerModels.forEach {
-			val exceptionTypeName = it.exceptionTypeName
-			when (exceptionTypeName) {
-				is ClassName -> {
-					val topLevelClassName = exceptionTypeName.topLevelClassName()
-					fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
-				}
-				
-				is ParameterizedTypeName -> exceptionTypeName.classNames.forEach { className ->
-					val topLevelClassName = className.topLevelClassName()
-					fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
-				}
-				
-				else -> {}
-			}
-			val topLevelClassName = it.listenerClassName.topLevelClassName()
-			fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
-			nextControlFlow("catch (e: ${it.exceptionTypeName.simpleName})")
-			val simpleNames = it.listenerClassName.simpleNames.joinToString(".")
-			beginControlFlow("with($simpleNames)")
-			val superinterfaceName = classStructure.superinterface.simpleName
-			val funName = funStructure.funName
-			addStatement("$superinterfaceName::$funName.onExceptionListener(e)")
-			endControlFlow()
-			if (it.returnTypeName == ClassNames.Unit) {
-				buildExceptionReturnCodeBlock()
-			}
-		}
-		if (exceptionListenerModels.all { it.exceptionTypeName !in exceptionClassNames }) {
-			if (returnStructure.rawType == ClassNames.ApiResult) {
-				nextControlFlow("catch (e: Exception)")
-			} else {
-				nextControlFlow("catch (_: Exception)")
-			}
-			buildExceptionReturnCodeBlock()
-		}
+		nextControlFlow("catch (e: %T)", ClassNames.CancellationException)
+		addStatement("throw e")
+		nextControlFlow("catch (e: Exception)")
+		addStatement("Result.failure(e)")
 		endControlFlow()
-	}
-	
-	private fun CodeBlock.Builder.buildExceptionReturnCodeBlock() {
-		if (returnStructure.isNullable) {
-			addStatement("null")
-			return
-		}
-		when (returnStructure.rawType) {
-			ClassNames.ApiResult -> {
-				addStatement("ApiResult.exception(e)")
-			}
-			
-			ClassNames.ByteArray -> {
-				addStatement("ByteArray(0)")
-			}
-			
-			ClassNames.String -> {
-				addStatement("\"\"")
-			}
-		}
 	}
 	
 	private fun getClientCodeBlock(): ClientCodeBlock {
@@ -186,9 +126,5 @@ internal class HttpCodeBlockBuilder(
 			acc.replace("{${it.name}}", $$"${$${it.varName}}")
 		}
 		return fullUrl
-	}
-	
-	private fun isNeedClientBuilder(): Boolean {
-		return valueParameterModels.any { it !is PathModel } || functionModels.any { it is BearerAuthModel || it is HeadersModel }
 	}
 }

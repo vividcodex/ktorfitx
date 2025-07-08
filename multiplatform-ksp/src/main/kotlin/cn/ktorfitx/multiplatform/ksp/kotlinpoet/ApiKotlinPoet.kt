@@ -55,8 +55,8 @@ internal class ApiKotlinPoet {
 	 * 伴生对象
 	 */
 	private fun getCompanionObjectBuilder(classStructure: ClassStructure): TypeSpec {
-		val type = classStructure.superinterface.copy(nullable = true)
-		val propertySpec = buildPropertySpec("instance", type, KModifier.PRIVATE) {
+		val typeName = classStructure.superinterface.copy(nullable = true)
+		val propertySpec = buildPropertySpec("instance", typeName, KModifier.PRIVATE) {
 			initializer("null")
 			mutable(true)
 		}
@@ -118,7 +118,7 @@ internal class ApiKotlinPoet {
 				addParameters(getParameterSpecs(it.parameterModels))
 				addCode(getCodeBlock(classStructure, it))
 				val returnStructure = it.returnStructure
-				returnStructure.classNames.forEach { className ->
+				returnStructure.allClassNames.forEach { className ->
 					val topLevelClassName = className.topLevelClassName()
 					fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
 				}

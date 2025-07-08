@@ -4,7 +4,6 @@ import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.hasAnnotation
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.BodyModel
-import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -12,7 +11,6 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 
 internal object BodyModelResolver {
 	
-	@OptIn(KspExperimental::class)
 	fun KSFunctionDeclaration.resolve(): BodyModel? {
 		val valueParameters = this.parameters.filter {
 			it.hasAnnotation(ClassNames.Body)

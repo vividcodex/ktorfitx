@@ -16,29 +16,32 @@ internal class MockClientCodeBlock(
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
 		funName: String,
-		url: String,
-		hasBuilder: Boolean,
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
-		fileSpecBuilder.addImport(mockModel.provider.packageName, mockModel.provider.simpleName)
-		fileSpecBuilder.addImport(mockModel.status.packageName, mockModel.status.simpleNames.first())
+		val topLevelClassName = mockModel.provider.topLevelClassName()
+		fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleName)
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK_CONFIG, "mockClient")
-		val provider = mockModel.provider.simpleName
-		val status = "MockStatus.${mockModel.status.simpleName}"
-		val leftRound = mockModel.delayRange[0]
-		val rightRound = mockModel.delayRange.let { if (it.size == 1) it[0] else it[1] }
-		val delayRange = "${leftRound}L..${rightRound}L"
-		val mockClientCode = "this.config.mockClient.$funName(\"$url\", $provider, $status, $delayRange)"
-		if (hasBuilder) {
-			beginControlFlow(mockClientCode)
-			builder()
-			endControlFlow()
-		} else {
-			addStatement(mockClientCode)
-		}
+		beginControlFlow(
+			"""
+			val value = this.config.mockClient.%N(
+				mockProvider = %N,
+				delay = %L
+			)
+			""".trimIndent(),
+			funName,
+			mockModel.provider.simpleNames.joinToString("."),
+			mockModel.delay
+		)
+		builder()
+		endControlFlow()
+		addStatement("Result.success(value)")
 	}
 	
-	override fun CodeBlock.Builder.buildBearerAuthCodeBlock() {
+	override fun CodeBlock.Builder.buildUrlString(urlString: String) {
+		addStatement("url(\"$urlString\")")
+	}
+	
+	override fun CodeBlock.Builder.buildBearerAuth() {
 		addStatement("this@${className.simpleName}.config.token?.invoke()?.let { bearerAuth(it) }")
 	}
 	
@@ -48,47 +51,47 @@ internal class MockClientCodeBlock(
 	) {
 		beginControlFlow("headers")
 		headersModel?.headerMap?.forEach { (name, value) ->
-			addStatement("append(\"$name\", \"$value\"")
+			addStatement("append(%S, %S)", name, value)
 		}
 		headerModels.forEach {
-			addStatement("append(\"${it.name}\", ${it.varName})")
+			addStatement("append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildQueriesCodeBlock(queryModels: List<QueryModel>) {
+	override fun CodeBlock.Builder.buildQueries(queryModels: List<QueryModel>) {
 		beginControlFlow("queries")
 		queryModels.forEach {
-			addStatement("append(\"${it.name}\", ${it.varName})")
+			addStatement("append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildPartsCodeBlock(partModels: List<PartModel>) {
+	override fun CodeBlock.Builder.buildParts(partModels: List<PartModel>) {
 		beginControlFlow("parts")
 		partModels.forEach {
-			addStatement("append(\"${it.name}\", ${it.varName})")
+			addStatement("append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildFieldsCodeBlock(fieldModels: List<FieldModel>) {
+	override fun CodeBlock.Builder.buildFields(fieldModels: List<FieldModel>) {
 		beginControlFlow("fields")
 		fieldModels.forEach {
-			addStatement("append(\"${it.name}\", ${it.varName})")
+			addStatement("append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
 	
-	fun CodeBlock.Builder.buildPathsCodeBlock(pathModels: List<PathModel>) {
+	fun CodeBlock.Builder.buildPaths(pathModels: List<PathModel>) {
 		beginControlFlow("paths")
 		pathModels.forEach {
-			addStatement("append(\"${it.name}\", ${it.varName})")
+			addStatement("append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildBodyCodeBlock(bodyModel: BodyModel) {
-		addStatement("body(${bodyModel.varName})")
+	override fun CodeBlock.Builder.buildBody(bodyModel: BodyModel) {
+		addStatement("body(%N)", bodyModel.varName)
 	}
 }

@@ -4,7 +4,5 @@ enum class MockStatus {
 	
 	SUCCESS,
 	
-	FAILURE,
-	
-	EXCEPTION
+	FAILURE
 }

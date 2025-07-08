@@ -6,13 +6,15 @@ internal object ClassNames {
 	
 	val Unit = ClassName.bestGuess("kotlin.Unit")
 	
+	val Result = ClassName.bestGuess("kotlin.Result")
+	
 	val ByteArray = ClassName.bestGuess("kotlin.ByteArray")
 	
+	val ByteReadChannel = ClassName.bestGuess("kotlinx.io.ByteReadChannel")
+	
+	val CancellationException = ClassName.bestGuess("io.ktor.utils.io.CancellationException")
+	
 	val String = ClassName.bestGuess("kotlin.String")
-	
-	val KotlinException = ClassName.bestGuess("kotlin.Exception")
-	
-	val JavaException = ClassName.bestGuess("java.lang.Exception")
 	
 	val Api = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Api")
 	

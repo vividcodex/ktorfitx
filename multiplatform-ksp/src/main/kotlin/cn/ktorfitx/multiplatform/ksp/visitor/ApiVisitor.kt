@@ -18,25 +18,22 @@ import com.google.devtools.ksp.symbol.Visibility.PUBLIC
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
 internal class ApiVisitor(
 	private val resolver: Resolver,
-) : KSEmptyVisitor<Unit, VisitorResult?>() {
+) : KSEmptyVisitor<Unit, ClassStructure?>() {
 	
 	private companion object {
 		
 		private val apiUrlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
-		
-		private val returnClassNames = arrayOf(ClassNames.Unit, ClassNames.ByteArray, ClassNames.ApiResult, ClassNames.String)
 	}
 	
-	override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit): VisitorResult? {
-		val classStructure = classDeclaration.getClassStructure() ?: return null
-		return VisitorResult(classStructure)
-	}
+	override fun visitClassDeclaration(
+		classDeclaration: KSClassDeclaration,
+		data: Unit
+	): ClassStructure? = classDeclaration.getClassStructure()
 	
 	/**
 	 * 获取 ClassStructure
@@ -78,7 +75,7 @@ internal class ApiVisitor(
 	 * 获取 `@Api` 注解上的 url 参数
 	 */
 	private fun KSClassDeclaration.getApiUrl(annotation: KSAnnotation): String? {
-		val url = annotation.getValue<String>("url")?.trim('/') ?: return null
+		val url = annotation.getValueOrNull<String>("url")?.trim('/') ?: return null
 		if (url.isBlank()) return null
 		annotation.compileCheck(!url.isHttpOrHttps() && !url.isWSOrWSS()) {
 			val className = this.simpleName.asString()
@@ -123,36 +120,20 @@ internal class ApiVisitor(
 		val returnType = this.returnType!!
 		val typeName = returnType.toTypeName()
 		return if (isWebSocket) {
-			returnType.compileCheck(typeName == ClassNames.Unit) {
+			returnType.compileCheck(!typeName.isNullable && typeName == ClassNames.Unit) {
 				val funName = this.simpleName.asString()
-				"$funName 方法必须使用 Unit 作为返回类型，因为你已经标记了 @WebSocket 注解"
+				"$funName 方法必须使用 ${ClassNames.Unit.canonicalName} 作为返回类型，因为你已经标记了 @WebSocket 注解"
 			}
 			ReturnStructure(typeName)
 		} else {
-			val errorMessage = {
+			val rawType = typeName.rawType
+			returnType.compileCheck(!rawType.isNullable && rawType == ClassNames.Result) {
 				val funName = this.simpleName.asString()
-				val returnTypes = returnClassNames.joinToString()
-				"$funName 方法不允许使用 $typeName 作为返回类型，必须使用 $returnTypes 中的一个"
+				"$funName 方法必须使用 ${ClassNames.Result.canonicalName} 作为返回类型"
 			}
-			returnType.compileCheck(
-				value = typeName is ClassName || typeName is ParameterizedTypeName,
-				errorMessage = errorMessage
-			)
-			if (typeName is ParameterizedTypeName) {
-				val arguments = typeName.typeArguments
-				returnType.compileCheck(
-					value = arguments.size == 1 && (arguments[0] is ClassName || arguments[0] is ParameterizedTypeName),
-					errorMessage = errorMessage
-				)
-			}
-			ReturnStructure(typeName).also {
-				returnType.compileCheck(
-					value = it.notNullRawType in returnClassNames,
-					errorMessage = errorMessage
-				)
-			}
+			ReturnStructure(typeName)
 		}
 	}
 	
-	override fun defaultHandler(node: KSNode, data: Unit): VisitorResult? = null
+	override fun defaultHandler(node: KSNode, data: Unit): ClassStructure? = null
 }

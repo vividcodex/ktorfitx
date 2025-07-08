@@ -36,7 +36,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
 	
 	private fun KSFunctionDeclaration.getGroupName(): String? {
 		val annotation = this.getKSAnnotationByType(ClassNames.Group) ?: return null
-		return annotation.getValue<String>("name")!!
+		return annotation.getValue("name")
 	}
 	
 	private fun KSFunctionDeclaration.checkReturnType() {
@@ -61,10 +61,10 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
 		val data = dataList.first()
 		val className = data.first
 		val annotation = data.second
-		val path = annotation.getValue<String>("path")!!.removePrefix("/").removeSuffix("/")
+		val path = annotation.getValue<String>("path").removePrefix("/").removeSuffix("/")
 		return when (className) {
 			ClassNames.WebSocket -> {
-				val protocol = annotation.getValue<String>("protocol")!!
+				val protocol = annotation.getValueOrNull("protocol") ?: ""
 				val valid = this.isExtension(ClassNames.DefaultWebSocketServerSession)
 				this.compileCheck(valid) {
 					"${this.simpleName} 方法必须是 DefaultWebSocketServerSession 的扩展方法"
@@ -73,8 +73,8 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
 			}
 			
 			ClassNames.WebSocketRaw -> {
-				val protocol = annotation.getValue<String>("protocol")!!
-				val negotiateExtensions = annotation.getValue<Boolean>("negotiateExtensions")!!
+				val protocol = annotation.getValueOrNull("protocol") ?: ""
+				val negotiateExtensions = annotation.getValueOrNull("negotiateExtensions") ?: false
 				val valid = this.isExtension(ClassNames.WebSocketServerSession)
 				this.compileCheck(valid) {
 					"${this.simpleName} 方法必须是 WebSocketServerSession 的扩展方法"

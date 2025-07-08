@@ -17,7 +17,6 @@ internal object ModelResolvers {
 		models += with(HeadersModelResolver) { resolve() }
 		models += with(MockModelResolver) { resolve() }
 		models += with(BearerAuthModelResolver) { resolve() }
-		models += with(ExceptionListenerResolver) { resolves(resolver) }
 		return models.filterNotNull()
 	}
 	

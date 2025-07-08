@@ -51,7 +51,7 @@ internal object ApiModelResolver {
 	}
 	
 	private fun KSAnnotation.getUrl(funName: String, isWebSocket: Boolean): String {
-		val url = this.getValue<String>("url")!!
+		val url = this.getValue<String>("url")
 		if (isWebSocket) {
 			if (url.isWSOrWSS()) return url
 			this.compileCheck(!url.isHttpOrHttps()) {

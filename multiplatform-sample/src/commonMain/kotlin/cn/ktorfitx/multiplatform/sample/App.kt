@@ -131,7 +131,7 @@ fun App() {
 					onClick = {
 						coroutineScope.launch {
 							val correctKey = key.ifBlank { "f28b487e8ed22222fcfb7cf38df2d611" }
-							val result = testKtorfit.testMethodApi.headlineNews(correctKey, type, page, pageSize, isFilter)
+							val result = testKtorfit.testMethodApi.headlineNews(correctKey, type, page, pageSize, isFilter).getOrNull()
 							if (result == null) {
 								text = ""
 								return@launch

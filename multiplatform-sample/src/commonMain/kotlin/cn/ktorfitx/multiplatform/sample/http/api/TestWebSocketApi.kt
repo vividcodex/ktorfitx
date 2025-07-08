@@ -4,7 +4,6 @@ import cn.ktorfitx.multiplatform.annotation.Api
 import cn.ktorfitx.multiplatform.annotation.BearerAuth
 import cn.ktorfitx.multiplatform.annotation.GET
 import cn.ktorfitx.multiplatform.annotation.WebSocket
-import cn.ktorfitx.multiplatform.core.model.ApiResult
 import cn.ktorfitx.multiplatform.websockets.WebSocketSessionHandler
 
 @Api(url = "test4")
@@ -18,5 +17,5 @@ interface TestWebSocketApi {
 	suspend fun test2(handler: WebSocketSessionHandler)
 	
 	@GET("test3")
-	suspend fun test3(): ApiResult<String>
+	suspend fun test3(): Result<String>
 }

@@ -37,12 +37,21 @@ fun KSAnnotation.getArgumentKSClassDeclaration(propertyName: String): KSClassDec
  * 获取注解上的数据
  */
 @Suppress("UNCHECKED_CAST")
-fun <V> KSAnnotation.getValue(propertyName: String): V? {
+fun <V : Any> KSAnnotation.getValueOrNull(propertyName: String): V? {
 	val value = this.arguments.find { it.name?.asString() == propertyName }?.value
 	check(value !is KSType && value !is ArrayList<*>) {
 		"此方法不支持此类型"
 	}
 	return value as? V
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <V : Any> KSAnnotation.getValue(propertyName: String): V {
+	val value = this.arguments.find { it.name?.asString() == propertyName }?.value
+	check(value !is KSType && value !is ArrayList<*>) {
+		"此方法不支持此类型"
+	}
+	return value as V
 }
 
 /**

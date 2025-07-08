@@ -4,8 +4,6 @@ internal object PackageNames {
 	
 	const val KTORFITX_CORE_EXPENDS = "cn.ktorfitx.multiplatform.core.expends"
 	
-	const val KTORFITX_MOCK = "cn.ktorfitx.multiplatform.mock"
-	
 	const val KTORFITX_MOCK_CONFIG = "cn.ktorfitx.multiplatform.mock.config"
 	
 	const val KTOR_HTTP = "io.ktor.http"
@@ -15,4 +13,8 @@ internal object PackageNames {
 	const val KTOR_REQUEST_FORMS = "io.ktor.client.request.forms"
 	
 	const val KTOR_WEBSOCKET = "io.ktor.client.plugins.websocket"
+	
+	const val KTOR_STATEMENT = "io.ktor.client.statement"
+	
+	const val KTOR_CALL = "io.ktor.client.call"
 }
