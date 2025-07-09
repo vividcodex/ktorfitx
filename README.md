@@ -1,4 +1,4 @@
-# KtorfitX 3.2.1-3.0.0-Beta2
+# KtorfitX 3.2.1-3.0.0-Beta3
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,7 +6,7 @@
 
 ## 更新时间
 
-### 2025-07-08
+### 2025-07-09
 
 ## 项目简介
 
@@ -50,16 +50,16 @@ Ktor Server, Ktor Auth, Ktor WebSocket
 
 ### 目前所有依赖项
 
-- cn.ktorfitx:multiplatform-core:3.2.1-3.0.0-Beta2
-- cn.ktorfitx:multiplatform-annotation:3.2.1-3.0.0-Beta2
-- cn.ktorfitx:multiplatform-websockets:3.2.1-3.0.0-Beta2
-- cn.ktorfitx:multiplatform-mock:3.2.1-3.0.0-Beta2
-- cn.ktorfitx:multiplatform-ksp:3.2.1-3.0.0-Beta2
-- cn.ktorfitx:server-annotation:3.2.1-3.0.0-Beta2
-- cn.ktorfitx:server-websockets:3.2.1-3.0.0-Beta2
-- cn.ktorfitx:server-auth:3.2.1-3.0.0-Beta2
-- cn.ktorfitx:server-ksp:3.2.1-3.0.0-Beta2
-- cn.ktorfitx:common-ksp-util:3.2.1-3.0.0-Beta2
+- cn.ktorfitx:multiplatform-core:3.2.1-3.0.0-Beta3
+- cn.ktorfitx:multiplatform-annotation:3.2.1-3.0.0-Beta3
+- cn.ktorfitx:multiplatform-websockets:3.2.1-3.0.0-Beta3
+- cn.ktorfitx:multiplatform-mock:3.2.1-3.0.0-Beta3
+- cn.ktorfitx:multiplatform-ksp:3.2.1-3.0.0-Beta3
+- cn.ktorfitx:server-annotation:3.2.1-3.0.0-Beta3
+- cn.ktorfitx:server-websockets:3.2.1-3.0.0-Beta3
+- cn.ktorfitx:server-auth:3.2.1-3.0.0-Beta3
+- cn.ktorfitx:server-ksp:3.2.1-3.0.0-Beta3
+- cn.ktorfitx:common-ksp-util:3.2.1-3.0.0-Beta3
 
 ## 使用方法
 
@@ -76,7 +76,7 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val ktorfitxVersion = "3.2.1-3.0.0-Beta2"
+val ktorfitxVersion = "3.2.1-3.0.0-Beta3"
 
 kotlin {
     sourceSets {
@@ -138,7 +138,7 @@ kotlin {
 }
 
 dependencies {
-    val ktorfitxVersion = "3.2.1-3.0.0-Beta2"
+    val ktorfitxVersion = "3.2.1-3.0.0-Beta3"
 
     // 常规注解（必选）
     implementation("cn.ktorfitx:server-annotation:$ktorfitxVersion")
@@ -162,6 +162,10 @@ dependencies {
 支持编译期错误检查，当您使用的方式不正确时，Ktorfitx 将会在编译期提供错误检查，
 以帮助用户更快的定位错误
 
+## 异常处理及返回值
+
+从 3.2.1-3.0.0-Beta3 开始，返回值统一改为 `kotlin.Result<T>` 使用 Result 提供的获取异常处理的方式处理
+
 ## 注解介绍
 
 ### Kotlin Multiplatform
@@ -182,7 +186,6 @@ dependencies {
 - `@BearerAuth` 启用授权
 - `@Headers` 多个请求头
 - `@Mock` Mock
-- `@ExceptionListeners` 自定义异常监听
 - `@WebSocket` WebSocket
 
 #### VALUE_PARAMETER
