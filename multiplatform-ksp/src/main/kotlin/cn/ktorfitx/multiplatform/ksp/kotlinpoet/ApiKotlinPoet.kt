@@ -14,7 +14,7 @@ import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
-internal class ApiKotlinPoet {
+internal object ApiKotlinPoet {
 	
 	/**
 	 * 文件

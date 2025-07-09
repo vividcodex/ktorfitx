@@ -2,7 +2,6 @@ package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.multiplatform.ksp.model.model.*
-import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 internal object ModelResolvers {
@@ -10,7 +9,7 @@ internal object ModelResolvers {
 	/**
 	 * 获取所有 FunctionModel
 	 */
-	fun KSFunctionDeclaration.getAllFunctionModels(resolver: Resolver): List<FunctionModel> {
+	fun KSFunctionDeclaration.getAllFunctionModels(): List<FunctionModel> {
 		val models = mutableListOf<FunctionModel?>()
 		models += with(WebSocketResolver) { resolve() }
 		models += with(ApiModelResolver) { resolve(models.any { it is WebSocketModel }) }

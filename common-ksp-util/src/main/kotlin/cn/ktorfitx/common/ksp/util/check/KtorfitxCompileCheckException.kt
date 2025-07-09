@@ -18,7 +18,7 @@ fun <T : KSNode> compileCheckError(
 	message: String,
 	ksNode: T,
 ): Nothing {
-	kspLogger?.error("\nKtorfitx 编译期错误检查: $message", ksNode)
+	kspLogger.error("\nKtorfitx 编译期错误检查: $message", ksNode)
 	val errorLocation = (ksNode.location as? FileLocation)
 		?.let { "\n错误位于：${it.filePath}:${it.lineNumber}" }
 		?: ""

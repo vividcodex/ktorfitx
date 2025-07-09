@@ -19,54 +19,34 @@ internal class KtorfitxMultiplatformSymbolProcessor(
 	private val codeGenerator: CodeGenerator,
 ) : SymbolProcessor {
 	
-	private val apiKotlinPoet by lazy { ApiKotlinPoet() }
-	private val processedSymbols = mutableSetOf<String>()
-	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
-		val annotatedList = resolver.getSymbolsWithAnnotation(ClassNames.Api.canonicalName)
-		annotatedList.forEach { symbol ->
-			if (!symbol.validate()) return@forEach
-			val classDeclaration = symbol as? KSClassDeclaration ?: return@forEach
-			
-			val classKind = classDeclaration.classKind
-			classDeclaration.compileCheck(classKind == ClassKind.INTERFACE) {
-				val className = classDeclaration.simpleName.asString()
-				"$className 必须是 interface 类型的，而你使用了 ${classKind.code}"
+		resolver.getSymbolsWithAnnotation(ClassNames.Api.canonicalName)
+			.filterIsInstance<KSClassDeclaration>()
+			.filter {
+				if (!it.validate()) return@filter false
+				val classKind = it.classKind
+				val className = { it.simpleName.asString() }
+				it.compileCheck(classKind == ClassKind.INTERFACE) {
+					"${className()} 必须是 interface 类型的，而你使用了 ${classKind.code}"
+				}
+				it.compileCheck(Modifier.SEALED !in it.modifiers) {
+					"${className()} 接口在当前版本中不支持 sealed interface，请使用 interface"
+				}
+				it.compileCheck(it.parentDeclaration !is KSClassDeclaration) {
+					"${className()} 接口必须是顶层接口，不允许嵌套"
+				}
+				true
 			}
-			classDeclaration.compileCheck(Modifier.SEALED !in classDeclaration.modifiers) {
-				val className = classDeclaration.simpleName.asString()
-				"$className 接口在当前版本中不支持 sealed interface，请使用 interface"
+			.forEach {
+				val classStructure = it.accept(ApiVisitor, Unit)
+				val fileSpec = ApiKotlinPoet.getFileSpec(classStructure)
+				val className = classStructure.className
+				codeGenerator.createNewFile(
+					dependencies = Dependencies.ALL_FILES,
+					packageName = className.packageName,
+					fileName = className.simpleName
+				).bufferedWriter().use(fileSpec::writeTo)
 			}
-			
-			if (classDeclaration.isRepeatProcessing) return@forEach
-			resolver.processing(classDeclaration)
-		}
 		return emptyList()
-	}
-	
-	/**
-	 * 不允许处理
-	 */
-	private val KSClassDeclaration.isRepeatProcessing: Boolean
-		get() {
-			val qualifiedName = this.qualifiedName?.asString() ?: return true
-			return !processedSymbols.add(qualifiedName)
-		}
-	
-	/**
-	 * 开始处理
-	 */
-	private fun Resolver.processing(classDeclaration: KSClassDeclaration) {
-		val apiVisitor = ApiVisitor(this)
-		val classStructure = classDeclaration.accept(apiVisitor, Unit) ?: return
-		val fileSpec = apiKotlinPoet.getFileSpec(classStructure)
-		val className = classStructure.className
-		codeGenerator.createNewFile(
-			dependencies = Dependencies.ALL_FILES,
-			packageName = className.packageName,
-			fileName = className.simpleName
-		).bufferedWriter().use {
-			fileSpec.writeTo(it)
-		}
 	}
 }

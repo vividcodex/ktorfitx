@@ -11,7 +11,6 @@ import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnStructure
 import cn.ktorfitx.multiplatform.ksp.visitor.resolver.ModelResolvers
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getVisibility
-import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.symbol.Visibility.INTERNAL
 import com.google.devtools.ksp.symbol.Visibility.PUBLIC
@@ -21,25 +20,20 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
-internal class ApiVisitor(
-	private val resolver: Resolver,
-) : KSEmptyVisitor<Unit, ClassStructure?>() {
+internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 	
-	private companion object {
-		
-		private val apiUrlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
-	}
+	private val apiUrlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 	
 	override fun visitClassDeclaration(
 		classDeclaration: KSClassDeclaration,
 		data: Unit
-	): ClassStructure? = classDeclaration.getClassStructure()
+	): ClassStructure = classDeclaration.getClassStructure()
 	
 	/**
 	 * 获取 ClassStructure
 	 */
-	private fun KSClassDeclaration.getClassStructure(): ClassStructure? {
-		val apiKSAnnotation = getKSAnnotationByType(ClassNames.Api) ?: return null
+	private fun KSClassDeclaration.getClassStructure(): ClassStructure {
+		val apiKSAnnotation = getKSAnnotationByType(ClassNames.Api)!!
 		val className = ClassName("${packageName.asString()}.impls", "${simpleName.asString()}Impl")
 		val superinterface = this.toClassName()
 		val apiScopeClassName = apiKSAnnotation.getClassName("apiScope") ?: ClassNames.DefaultApiScope
@@ -100,7 +94,7 @@ internal class ApiVisitor(
 					"$funName 方法缺少 suspend 修饰符"
 				}
 				val funName = it.simpleName.asString()
-				val functionModels = with(ModelResolvers) { it.getAllFunctionModels(resolver) }
+				val functionModels = with(ModelResolvers) { it.getAllFunctionModels() }
 				val isWebSocket = functionModels.any { model -> model is WebSocketModel }
 				val parameterModels = with(ModelResolvers) { it.getAllParameterModel(isWebSocket) }
 				val returnStructure = it.getReturnStructure(isWebSocket)
@@ -135,5 +129,5 @@ internal class ApiVisitor(
 		}
 	}
 	
-	override fun defaultHandler(node: KSNode, data: Unit): ClassStructure? = null
+	override fun defaultHandler(node: KSNode, data: Unit): ClassStructure = error("Not Implemented")
 }

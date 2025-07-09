@@ -1,6 +1,9 @@
 package cn.ktorfitx.multiplatform.sample.http.api
 
-import cn.ktorfitx.multiplatform.annotation.*
+import cn.ktorfitx.multiplatform.annotation.Api
+import cn.ktorfitx.multiplatform.annotation.Field
+import cn.ktorfitx.multiplatform.annotation.GET
+import cn.ktorfitx.multiplatform.annotation.POST
 
 @Api
 interface TestMethod2Api {
@@ -25,12 +28,4 @@ interface TestMethod2Api {
 	
 	@POST("/test5")
 	suspend fun test5(): Result<String>
-	
-	@Api("test")
-	interface TestApi {
-		
-		@BearerAuth
-		@GET("test01")
-		suspend fun test01(): Result<String>
-	}
 }
