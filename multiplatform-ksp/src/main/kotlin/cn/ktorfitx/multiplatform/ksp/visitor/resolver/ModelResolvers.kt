@@ -47,8 +47,7 @@ internal object ModelResolvers {
 			}
 		}.toSet().size
 		this.compileCheck(incompatibleTypeCount <= 1) {
-			val funName = this.simpleName.asString()
-			"$funName 方法不能同时使用 @Body, @Part 和 @Field 注解"
+			"${simpleName.asString()} 方法不能同时使用 @Body, @Part 和 @Field 注解"
 		}
 		return models.filterNotNull()
 	}

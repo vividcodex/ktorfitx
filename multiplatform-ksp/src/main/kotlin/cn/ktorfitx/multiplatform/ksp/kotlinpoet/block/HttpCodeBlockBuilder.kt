@@ -2,10 +2,11 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.common.ksp.util.check.compileCheck
-import cn.ktorfitx.common.ksp.util.expends.classNames
+import cn.ktorfitx.common.ksp.util.expends.allClassNames
 import cn.ktorfitx.common.ksp.util.expends.isHttpOrHttps
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
+import cn.ktorfitx.multiplatform.ksp.model.structure.AnyReturnStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
 import com.squareup.kotlinpoet.ClassName
@@ -19,13 +20,13 @@ internal class HttpCodeBlockBuilder(
 	private val codeBlockKClass: KClass<out ClientCodeBlock>,
 ) {
 	
-	private val returnStructure = funStructure.returnStructure
+	private val returnStructure = funStructure.returnStructure as AnyReturnStructure
 	private val valueParameterModels = funStructure.valueParameterModels
 	private val functionModels = funStructure.functionModels
 	private val apiStructure = classStructure.apiStructure
 	
 	fun CodeBlock.Builder.buildCodeBlock() {
-		buildTryCatch {
+		buildTryCatchIfNeed {
 			with(getClientCodeBlock()) {
 				val apiModel = functionModels.first { it is ApiModel } as ApiModel
 				val funName = apiModel.requestFunName
@@ -69,8 +70,8 @@ internal class HttpCodeBlockBuilder(
 							}
 							
 							is ParameterizedTypeName -> {
-								typeName.classNames.forEach { className ->
-									fileSpecBuilder.addImport(className.packageName, className.simpleName)
+								typeName.allClassNames.forEach {
+									fileSpecBuilder.addImport(it.packageName, it.simpleName)
 								}
 							}
 							
@@ -83,16 +84,20 @@ internal class HttpCodeBlockBuilder(
 		}
 	}
 	
-	private fun CodeBlock.Builder.buildTryCatch(
+	private fun CodeBlock.Builder.buildTryCatchIfNeed(
 		builder: CodeBlock.Builder.() -> Unit
 	) {
-		beginControlFlow("return try")
-		builder()
-		nextControlFlow("catch (e: %T)", ClassNames.CancellationException)
-		addStatement("throw e")
-		nextControlFlow("catch (e: Exception)")
-		addStatement("Result.failure(e)")
-		endControlFlow()
+		if (returnStructure.isResult) {
+			beginControlFlow("return try")
+			builder()
+			nextControlFlow("catch (e: %T)", ClassNames.CancellationException)
+			addStatement("throw e")
+			nextControlFlow("catch (e: Exception)")
+			addStatement("Result.failure(e)")
+			endControlFlow()
+		} else {
+			builder()
+		}
 	}
 	
 	private fun getClientCodeBlock(): ClientCodeBlock {

@@ -16,8 +16,7 @@ internal object MockModelResolver {
 		val delay = annotation.getValueOrNull("delay") ?: 0L
 		
 		annotation.compileCheck(className != ClassNames.MockProvider) {
-			val funName = this.simpleName.asString()
-			"$funName 方法上的 @Mock 注解的 provider 参数不允许使用 MockProvider::class"
+			"${simpleName.asString()} 方法上的 @Mock 注解的 provider 参数不允许使用 MockProvider::class"
 		}
 		val classDeclaration = annotation.getArgumentKSClassDeclaration("provider")!!
 		val classKind = classDeclaration.classKind

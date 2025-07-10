@@ -4,10 +4,7 @@ import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.*
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.WebSocketModel
-import cn.ktorfitx.multiplatform.ksp.model.structure.ApiStructure
-import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
-import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
-import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnStructure
+import cn.ktorfitx.multiplatform.ksp.model.structure.*
 import cn.ktorfitx.multiplatform.ksp.visitor.resolver.ModelResolvers
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getVisibility
@@ -17,6 +14,7 @@ import com.google.devtools.ksp.symbol.Visibility.PUBLIC
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
@@ -44,8 +42,7 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 			else -> setOf(apiScopeClassName)
 		}
 		apiKSAnnotation.compileCheck(ClassNames.ApiScope !in mergeApiScopeClassNames) {
-			val simpleName = this.simpleName.asString()
-			"$simpleName 接口上的 @Api 注解的 apiScope 不允许使用 ApiScope::class，请使用默认的 DefaultApiScope::class 或者自定义 object 对象并实现 ApiScope::class"
+			"${simpleName.asString()} 接口上的 @Api 注解的 apiScope 不允许使用 ApiScope::class，请使用默认的 DefaultApiScope::class 或者自定义 object 对象并实现 ApiScope::class"
 		}
 		val apiUrl = getApiUrl(apiKSAnnotation)
 		val apiStructure = ApiStructure(apiUrl, mergeApiScopeClassNames)
@@ -59,8 +56,7 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 	private fun KSClassDeclaration.getVisibilityKModifier(): KModifier {
 		val visibility = this.getVisibility()
 		this.compileCheck(visibility == PUBLIC || visibility == INTERNAL) {
-			val className = this.simpleName.asString()
-			"$className 接口标记了 @Api，所以必须是 public 或 internal 访问权限的"
+			"${simpleName.asString()} 接口标记了 @Api，所以必须是 public 或 internal 访问权限的"
 		}
 		return KModifier.entries.first { it.name == visibility.name }
 	}
@@ -72,12 +68,10 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 		val url = annotation.getValueOrNull<String>("url")?.trim('/') ?: return null
 		if (url.isBlank()) return null
 		annotation.compileCheck(!url.isHttpOrHttps() && !url.isWSOrWSS()) {
-			val className = this.simpleName.asString()
-			"$className 接口上的 @Api 注解的 url 参数不允许开头是 http:// 或 https:// 或 ws:// 或 wss://"
+			"${simpleName.asString()} 接口上的 @Api 注解的 url 参数不允许开头是 http:// 或 https:// 或 ws:// 或 wss://"
 		}
 		annotation.compileCheck(apiUrlRegex.matches(url)) {
-			val className = this.simpleName.asString()
-			"$className 接口上的 @Api 注解的 url 参数格式错误"
+			"${simpleName.asString()} 接口上的 @Api 注解的 url 参数格式错误"
 		}
 		return url
 	}
@@ -115,17 +109,29 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 		val typeName = returnType.toTypeName()
 		return if (isWebSocket) {
 			returnType.compileCheck(!typeName.isNullable && typeName == ClassNames.Unit) {
-				val funName = this.simpleName.asString()
-				"$funName 方法必须使用 ${ClassNames.Unit.canonicalName} 作为返回类型，因为你已经标记了 @WebSocket 注解"
+				"${simpleName.asString()} 方法必须使用 ${ClassNames.Unit.canonicalName} 作为返回类型，因为你已经标记了 @WebSocket 注解"
 			}
-			ReturnStructure(typeName)
+			UnitReturnStructure
 		} else {
 			val rawType = typeName.rawType
-			returnType.compileCheck(!rawType.isNullable && rawType == ClassNames.Result) {
-				val funName = this.simpleName.asString()
-				"$funName 方法必须使用 ${ClassNames.Result.canonicalName} 作为返回类型"
+			val isResult = rawType == ClassNames.Result
+			if (isResult) {
+				returnType.compileCheck(!rawType.isNullable && typeName is ParameterizedTypeName) {
+					"${simpleName.asString()} 方法不允许为 ${ClassNames.Result.canonicalName} 返回类型设置为可空"
+				}
+				AnyReturnStructure(typeName, isResult = true, isUnit = false)
+			} else {
+				returnType.compileCheck(rawType != ClassNames.Nothing) {
+					"${simpleName.asString()} 方法不允许使用 ${ClassNames.Nothing.canonicalName} 返回类型"
+				}
+				val isUnit = rawType == ClassNames.Unit
+				if (isUnit) {
+					returnType.compileCheck(!rawType.isNullable) {
+						"${simpleName.asString()} 方法不允许使用 ${ClassNames.Unit.canonicalName}? 返回类型"
+					}
+				}
+				AnyReturnStructure(typeName, isResult = false, isUnit = isUnit)
 			}
-			ReturnStructure(typeName)
 		}
 	}
 	

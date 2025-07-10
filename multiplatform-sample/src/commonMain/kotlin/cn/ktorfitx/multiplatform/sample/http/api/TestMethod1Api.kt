@@ -8,7 +8,7 @@ import cn.ktorfitx.multiplatform.sample.http.mock.StringMockProvider
 import kotlinx.serialization.Serializable
 
 @Api(url = "test1", apiScope = TestApiScope::class)
-interface TestMethodApi {
+interface TestMethod1Api {
 	
 	@GET(url = "test01")
 	suspend fun test01(): Result<String>

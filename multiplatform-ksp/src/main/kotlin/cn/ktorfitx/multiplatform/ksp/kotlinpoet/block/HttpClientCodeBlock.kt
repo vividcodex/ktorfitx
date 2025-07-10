@@ -5,14 +5,14 @@ import cn.ktorfitx.common.ksp.util.expends.rawType
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
-import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnStructure
+import cn.ktorfitx.multiplatform.ksp.model.structure.AnyReturnStructure
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName
 
 internal class HttpClientCodeBlock(
 	private val className: ClassName,
-	private val returnStructure: ReturnStructure,
+	private val returnStructure: AnyReturnStructure,
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
@@ -20,10 +20,17 @@ internal class HttpClientCodeBlock(
 		builder: CodeBlock.Builder.() -> Unit
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, funName)
-		beginControlFlow("val response = this.config.httpClient!!.%N", funName)
+		if (returnStructure.isUnit) {
+			beginControlFlow("this.config.httpClient!!.%N", funName)
+		} else {
+			beginControlFlow("val response = this.config.httpClient!!.%N", funName)
+		}
 		builder()
 		endControlFlow()
-		val typeName = (returnStructure.typeName as ParameterizedTypeName).typeArguments.first()
+		
+		val typeName = if (returnStructure.isResult) {
+			(returnStructure.typeName as ParameterizedTypeName).typeArguments.first()
+		} else returnStructure.typeName
 		val rawType = if (typeName.isNullable) typeName.rawType.copy(nullable = false) else typeName
 		val funName = when (rawType) {
 			ClassNames.String -> "bodyAsText"
@@ -36,7 +43,11 @@ internal class HttpClientCodeBlock(
 		} else {
 			fileSpecBuilder.addImport(PackageNames.KTOR_STATEMENT, funName)
 		}
-		addStatement("Result.success(response.%N())", funName)
+		if (returnStructure.isResult) {
+			addStatement("Result.success(response.%N())", funName)
+		} else if (returnStructure.typeName != ClassNames.Unit) {
+			addStatement("return response.%N()", funName)
+		}
 	}
 	
 	override fun CodeBlock.Builder.buildUrlString(

@@ -8,8 +8,8 @@ import cn.ktorfitx.multiplatform.annotation.POST
 @Api
 interface TestMethod2Api {
 	
-	@GET("test")
-	suspend fun test(): Result<String>
+	@GET("test1")
+	suspend fun test1(): Result<String>
 	
 	@GET("/test2")
 	suspend fun test2(): Result<String>

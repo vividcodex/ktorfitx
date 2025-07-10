@@ -19,6 +19,21 @@ val ParameterizedTypeName.classNames: List<ClassName>
 		}
 	}.toList()
 
+val TypeName.allClassNames: Set<ClassName>
+	get() = buildSet {
+		when (this@allClassNames) {
+			is ClassName -> this += this@allClassNames
+			is ParameterizedTypeName -> {
+				this += rawType
+				typeArguments.forEach {
+					this += it.allClassNames
+				}
+			}
+			
+			else -> {}
+		}
+	}
+
 /**
  * 获取 TypeName 上的 simpleName
  */

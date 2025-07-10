@@ -22,8 +22,7 @@ internal object ParameterModelResolver {
 	fun KSFunctionDeclaration.resolves(isWebSocket: Boolean): List<ParameterModel> {
 		return if (isWebSocket) {
 			val errorMessage = {
-				val funName = this.simpleName.asString()
-				"$funName 方法上必须只使用 WebSocketSessionHandler 类型"
+				"${simpleName.asString()} 方法上必须只使用 WebSocketSessionHandler 类型"
 			}
 			this.compileCheck(
 				value = this.parameters.size == 1,
@@ -44,18 +43,15 @@ internal object ParameterModelResolver {
 					.map { it.annotationType.resolve().declaration.qualifiedName?.asString() }
 					.count { it in annotationQualifiedNames }
 				this.compileCheck(annotationCount > 0) {
-					val funName = this.simpleName.asString()
-					"$funName 方法上的 $varName 参数未使用任何功能注解"
+					"${simpleName.asString()} 方法上的 $varName 参数未使用任何功能注解"
 				}
 				this.compileCheck(annotationCount == 1) {
-					val funName = this.simpleName.asString()
 					val useAnnotations = this.annotations.joinToString()
-					"$funName 方法上的 $varName 参数不允许同时使用 $useAnnotations 多个注解"
+					"${simpleName.asString()} 方法上的 $varName 参数不允许同时使用 $useAnnotations 多个注解"
 				}
 				this.compileCheck(varName.isLowerCamelCase()) {
-					val funName = this.simpleName.asString()
 					val varNameSuggestion = varName.toLowerCamelCase()
-					"$funName 方法上的 $varName 参数不符合小驼峰命名规则，建议修改为 $varNameSuggestion"
+					"${simpleName.asString()} 方法上的 $varName 参数不符合小驼峰命名规则，建议修改为 $varNameSuggestion"
 				}
 				val typeName = valueParameter.type.toTypeName()
 				ParameterModel(varName, typeName)

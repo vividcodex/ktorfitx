@@ -6,6 +6,8 @@ internal object ClassNames {
 	
 	val Unit = ClassName.bestGuess("kotlin.Unit")
 	
+	val Nothing = ClassName.bestGuess("kotlin.Nothing")
+	
 	val Result = ClassName.bestGuess("kotlin.Result")
 	
 	val ByteArray = ClassName.bestGuess("kotlin.ByteArray")

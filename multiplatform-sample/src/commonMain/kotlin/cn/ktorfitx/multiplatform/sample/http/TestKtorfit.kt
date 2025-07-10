@@ -30,4 +30,26 @@ val testKtorfit = ktorfit<TestApiScope> {
 	}
 }
 
-sealed interface TestApiScope : ApiScope
+object TestApiScope : ApiScope
+
+val testKtorfit2 = ktorfit {
+	token { "<token>" }
+	baseUrl = "http://localhost:8080/api/"
+	httpClient(CIO) {
+		engine {
+			requestTimeout = 10_000L
+			maxConnectionsCount = 200
+		}
+		install(ContentNegotiation) {
+			json(
+				Json {
+					prettyPrint = true
+					ignoreUnknownKeys = true
+				}
+			)
+		}
+	}
+	mockClient {
+	
+	}
+}

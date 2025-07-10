@@ -26,7 +26,7 @@ internal object ApiModelResolver {
 				getKSAnnotationByType(it)
 			}
 			this.compileCheck(annotations.isEmpty()) {
-				val requestMethods = requestMethodClassNames.joinToString { "@${it.simpleName!!}" }
+				val requestMethods = requestMethodClassNames.joinToString { "@${it.simpleName}" }
 				"$funName 方法不允许使用 $requestMethods 这些注解，因为你已经标记了 @WebSocket 注解"
 			}
 			val annotation = getKSAnnotationByType(ClassNames.WebSocket)!!
