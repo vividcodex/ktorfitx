@@ -20,6 +20,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		return FunModel(
 			function.simpleName.asString(),
 			function.getCanonicalName(),
+			function.extensionReceiver != null,
 			function.getGroupName(),
 			function.getAuthenticationModel(),
 			function.getRouteModel(),
@@ -44,12 +45,12 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	private fun KSFunctionDeclaration.checkReturnType() {
 		val returnType = this.returnType!!.resolve()
 		returnType.declaration.compileCheck(!returnType.isMarkedNullable) {
-			"${this.simpleName} 方法返回类型不允许为可空类型"
+			"${this.simpleName} 函数返回类型不允许为可空类型"
 		}
 		val typeName = returnType.toTypeName()
 		val validTypeName = typeName is ClassName || typeName is ParameterizedTypeName
 		returnType.declaration.compileCheck(validTypeName) {
-			"${this.simpleName} 方法返回类型必须是明确的类"
+			"${this.simpleName} 函数返回类型必须是明确的类"
 		}
 	}
 	
@@ -71,12 +72,15 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		val className = data.first
 		val annotation = data.second
 		val path = annotation.getValue<String>("path").removePrefix("/").removeSuffix("/")
+		val isExtension = this.extensionReceiver != null
 		return when (className) {
 			ClassNames.WebSocket -> {
 				val protocol = annotation.getValueOrNull("protocol") ?: ""
-				val valid = this.isExtension(ClassNames.DefaultWebSocketServerSession)
-				this.compileCheck(valid) {
-					"${this.simpleName} 方法必须是 DefaultWebSocketServerSession 的扩展方法"
+				if (isExtension) {
+					val valid = this.isExtension(ClassNames.DefaultWebSocketServerSession)
+					this.compileCheck(valid) {
+						"${this.simpleName} 是扩展函数，但仅允许扩展 DefaultWebSocketServerSession"
+					}
 				}
 				WebSocketModel(path, protocol)
 			}
@@ -84,17 +88,21 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			ClassNames.WebSocketRaw -> {
 				val protocol = annotation.getValueOrNull("protocol") ?: ""
 				val negotiateExtensions = annotation.getValueOrNull("negotiateExtensions") ?: false
-				val valid = this.isExtension(ClassNames.WebSocketServerSession)
-				this.compileCheck(valid) {
-					"${this.simpleName} 方法必须是 WebSocketServerSession 的扩展方法"
+				if (isExtension) {
+					val valid = this.isExtension(ClassNames.WebSocketServerSession)
+					this.compileCheck(valid) {
+						"${this.simpleName} 是扩展函数，但仅允许扩展 WebSocketServerSession"
+					}
 				}
 				WebSocketRawModel(path, protocol, negotiateExtensions)
 			}
 			
 			else -> {
-				val valid = this.isExtension(ClassNames.RoutingContext)
-				this.compileCheck(valid) {
-					"${this.simpleName} 方法必须是 RoutingContext 的扩展方法"
+				if (isExtension) {
+					val valid = this.isExtension(ClassNames.RoutingContext)
+					this.compileCheck(valid) {
+						"${this.simpleName} 是扩展函数，但仅允许扩展 RoutingContext"
+					}
 				}
 				val method = className.simpleName.lowercase()
 				HttpRequestModel(path, method)

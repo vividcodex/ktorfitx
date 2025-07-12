@@ -17,13 +17,13 @@ internal object BodyModelResolver {
 		}
 		if (valueParameters.isEmpty()) return null
 		this.compileCheck(valueParameters.size == 1) {
-			"${simpleName.asString()} 方法不允许使用多个 @Body 注解"
+			"${simpleName.asString()} 函数不允许使用多个 @Body 注解"
 		}
 		val valueParameter = valueParameters.first()
 		val varName = valueParameter.name!!.asString()
 		val typeName = valueParameter.type.resolve().toTypeName()
 		this.compileCheck(typeName is ClassName || typeName is ParameterizedTypeName) {
-			"${simpleName.asString()} 方法的参数列表中标记了 @Body 注解，但是未找到参数类型"
+			"${simpleName.asString()} 函数的参数列表中标记了 @Body 注解，但是未找到参数类型"
 		}
 		return BodyModel(varName, typeName)
 	}

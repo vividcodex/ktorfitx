@@ -31,7 +31,7 @@ internal class KtorfitxServerSymbolProcessor(
 				val parent = it.parent
 				it.compileCheck(parent != null && (parent is KSFile || (parent is KSClassDeclaration && parent.classKind == ClassKind.OBJECT))) {
 					val functionName = it.simpleName.asString()
-					"$functionName 方法只允许声明在 文件顶层 或 object 类中"
+					"$functionName 函数只允许声明在 文件顶层 或 object 类中"
 				}
 			}
 		
@@ -41,7 +41,12 @@ internal class KtorfitxServerSymbolProcessor(
 		}
 		routeGeneratorModels.forEach {
 			val filterRouteModels = when {
-				it.includeGroups.isEmpty() && it.excludeGroups.isEmpty() -> routeModels
+				it.includeGroups.isEmpty() && it.excludeGroups.isEmpty() -> {
+					routeModels.filter { model ->
+						model.group == null
+					}
+				}
+				
 				it.includeGroups.isNotEmpty() -> {
 					routeModels.filter { model ->
 						model.group in it.includeGroups

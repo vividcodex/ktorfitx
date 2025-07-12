@@ -7,32 +7,32 @@ import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 
 @Authentication
-@GET(path = "principal/test01")
-fun RoutingContext.testPrincipal01(
+@GET(path = "principal/test1")
+fun RoutingContext.testPrincipal1(
 	@Principal principal: UserIdPrincipal
 ): String = ""
 
 @Authentication
-@GET(path = "principal/test02")
-fun RoutingContext.testPrincipal02(
+@GET(path = "principal/test2")
+fun RoutingContext.testPrincipal2(
 	@Principal principal: UserIdPrincipal?
 ): String = ""
 
 @Authentication
-@GET(path = "principal/test03")
-fun RoutingContext.testPrincipal03(
+@GET(path = "principal/test3")
+fun RoutingContext.testPrincipal3(
 	@Principal("custom") principal: UserIdPrincipal
 ): String = ""
 
 @Authentication
-@GET(path = "principal/test03")
-fun RoutingContext.testPrincipal04(
+@GET(path = "principal/test4")
+fun RoutingContext.testPrincipal4(
 	@Principal("custom") principal: UserIdPrincipal?
 ): String = ""
 
 @Authentication
-@GET(path = "principal/test05")
-fun RoutingContext.testPrincipal05(
+@GET(path = "principal/test5")
+fun RoutingContext.testPrincipal5(
 	@Principal principal: UserIdPrincipal,
 	@Principal("custom") principal2: UserIdPrincipal,
 	@Principal principal3: UserIdPrincipal?,

@@ -27,7 +27,7 @@ internal object ApiModelResolver {
 			}
 			this.compileCheck(annotations.isEmpty()) {
 				val requestMethods = requestMethodClassNames.joinToString { "@${it.simpleName}" }
-				"$funName 方法不允许使用 $requestMethods 这些注解，因为你已经标记了 @WebSocket 注解"
+				"$funName 函数不允许使用 $requestMethods 这些注解，因为你已经标记了 @WebSocket 注解"
 			}
 			val annotation = getKSAnnotationByType(ClassNames.WebSocket)!!
 			ApiModel("", annotation.getUrl(funName, true))
@@ -37,12 +37,12 @@ internal object ApiModelResolver {
 			}
 			this.compileCheck(annotations.isNotEmpty()) {
 				val requestMethods = requestMethodClassNames.joinToString { "@${it.simpleName}" }
-				"$funName 方法缺少注解，请使用以下注解标记：$requestMethods"
+				"$funName 函数缺少注解，请使用以下注解标记：$requestMethods"
 			}
 			this.compileCheck(annotations.size == 1) {
 				val useAnnotations = annotations.joinToString()
 				val useSize = annotations.size
-				"$funName 方法只允许使用一种类型注解，而你使用了 $useAnnotations $useSize 个"
+				"$funName 函数只允许使用一种类型注解，而你使用了 $useAnnotations $useSize 个"
 			}
 			val annotation = annotations.first()
 			val requestFunName = annotation.shortName.asString().lowercase()
@@ -55,16 +55,16 @@ internal object ApiModelResolver {
 		if (isWebSocket) {
 			if (url.isWSOrWSS()) return url
 			this.compileCheck(!url.isHttpOrHttps()) {
-				"$funName 方法上的 $this 注解不允许使用 http:// 或 https:// 协议"
+				"$funName 函数上的 $this 注解不允许使用 http:// 或 https:// 协议"
 			}
 		} else {
 			if (url.isHttpOrHttps()) return url
 			this.compileCheck(!url.isWSOrWSS()) {
-				"$funName 方法上的 $this 注解不允许使用 ws:// 或 wss:// 协议"
+				"$funName 函数上的 $this 注解不允许使用 ws:// 或 wss:// 协议"
 			}
 		}
 		this.compileCheck(urlRegex.matches(url)) {
-			"$funName 方法上的 $this 注解的 url 参数格式错误"
+			"$funName 函数上的 $this 注解的 url 参数格式错误"
 		}
 		return url.trim('/')
 	}

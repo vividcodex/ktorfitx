@@ -15,7 +15,7 @@ internal object HeadersModelResolver {
 		val headers = annotation.getValues<String>("headers") ?: return null
 		return headers.associate {
 			val (name, value) = headersRegex.matchEntire(it)?.destructured
-				?: error("${qualifiedName!!.asString()} 方法的 @Headers 格式错误")
+				?: error("${qualifiedName!!.asString()} 函数的 @Headers 格式错误")
 			name.trim() to value.trim()
 		}.let { HeadersModel(it) }
 	}

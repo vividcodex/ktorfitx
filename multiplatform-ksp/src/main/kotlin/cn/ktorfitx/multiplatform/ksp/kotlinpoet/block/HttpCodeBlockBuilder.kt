@@ -127,7 +127,7 @@ internal class HttpCodeBlockBuilder(
 		val fullUrl = pathModels.fold(initialUrl) { acc, it ->
 			it.valueParameter.compileCheck(url.contains("{${it.name}}")) {
 				val funName = funStructure.funName
-				"$funName 方法上的 ${it.varName} 参数上的 @Path 注解的 name 参数没有在 url 上找到"
+				"$funName 函数上的 ${it.varName} 参数上的 @Path 注解的 name 参数没有在 url 上找到"
 			}
 			acc.replace("{${it.name}}", $$"${$${it.varName}}")
 		}

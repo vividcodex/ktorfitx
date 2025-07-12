@@ -166,7 +166,7 @@ internal class RouteKotlinPoet {
 		if (i == 0) {
 			fileSpecBuilder.addImport(funModel.canonicalName, funModel.funName)
 		} else {
-			val memberName = MemberName(funModel.canonicalName, funModel.funName, true)
+			val memberName = MemberName(funModel.canonicalName, funModel.funName, funModel.isExtension)
 			fileSpecBuilder.addAliasedImport(memberName, funName)
 		}
 		return funName

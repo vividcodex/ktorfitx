@@ -85,7 +85,7 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 			.map {
 				it.compileCheck(Modifier.SUSPEND in it.modifiers) {
 					val funName = it.simpleName.asString()
-					"$funName 方法缺少 suspend 修饰符"
+					"$funName 函数缺少 suspend 修饰符"
 				}
 				val funName = it.simpleName.asString()
 				val funModels = with(ModelResolvers) { it.getAllFunModels() }
@@ -109,7 +109,7 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 		val typeName = returnType.toTypeName()
 		return if (isWebSocket) {
 			returnType.compileCheck(!typeName.isNullable && typeName == ClassNames.Unit) {
-				"${simpleName.asString()} 方法必须使用 ${ClassNames.Unit.canonicalName} 作为返回类型，因为你已经标记了 @WebSocket 注解"
+				"${simpleName.asString()} 函数必须使用 ${ClassNames.Unit.canonicalName} 作为返回类型，因为你已经标记了 @WebSocket 注解"
 			}
 			UnitReturnStructure
 		} else {
@@ -117,17 +117,17 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 			val isResult = rawType == ClassNames.Result
 			if (isResult) {
 				returnType.compileCheck(!rawType.isNullable && typeName is ParameterizedTypeName) {
-					"${simpleName.asString()} 方法不允许为 ${ClassNames.Result.canonicalName} 返回类型设置为可空"
+					"${simpleName.asString()} 函数不允许为 ${ClassNames.Result.canonicalName} 返回类型设置为可空"
 				}
 				AnyReturnStructure(typeName, isResult = true, isUnit = false)
 			} else {
 				returnType.compileCheck(rawType != ClassNames.Nothing) {
-					"${simpleName.asString()} 方法不允许使用 ${ClassNames.Nothing.canonicalName} 返回类型"
+					"${simpleName.asString()} 函数不允许使用 ${ClassNames.Nothing.canonicalName} 返回类型"
 				}
 				val isUnit = rawType == ClassNames.Unit
 				if (isUnit) {
 					returnType.compileCheck(!rawType.isNullable) {
-						"${simpleName.asString()} 方法不允许使用 ${ClassNames.Unit.canonicalName}? 返回类型"
+						"${simpleName.asString()} 函数不允许使用 ${ClassNames.Unit.canonicalName}? 返回类型"
 					}
 				}
 				AnyReturnStructure(typeName, isResult = false, isUnit = isUnit)
