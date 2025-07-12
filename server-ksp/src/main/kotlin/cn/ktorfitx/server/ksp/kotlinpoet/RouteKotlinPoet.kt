@@ -11,94 +11,87 @@ import com.squareup.kotlinpoet.*
 
 internal class RouteKotlinPoet {
 	
-	private var index = 0
+	private val funNames = mutableListOf<String>()
 	
 	fun getFileSpec(
 		generatorModel: RouteGeneratorModel,
-		functionModels: List<FunctionModel>
-	): FileSpec {
-		return buildFileSpec(generatorModel.packageName, generatorModel.fileName) {
-			fileSpecBuilderLocal.set(this)
-			indent("\t")
-			val funSpec = getFunctionSpec(generatorModel.funName, functionModels)
-			addFunction(funSpec)
-			fileSpecBuilderLocal.remove()
-		}
+		funModels: List<FunModel>
+	): FileSpec = buildFileSpec(generatorModel.packageName, generatorModel.fileName) {
+		fileSpecBuilderLocal.set(this)
+		indent("\t")
+		val funSpec = getFunctionSpec(generatorModel.funName, funModels)
+		addFunction(funSpec)
+		fileSpecBuilderLocal.remove()
 	}
 	
 	private fun getFunctionSpec(
 		funName: String,
-		functionModels: List<FunctionModel>
-	): FunSpec {
-		return buildFunSpec(funName) {
-			receiver(ClassNames.Routing)
-			val codeBlock = getCodeBlock(functionModels)
-			addCode(codeBlock)
-		}
+		funModels: List<FunModel>
+	): FunSpec = buildFunSpec(funName) {
+		receiver(ClassNames.Routing)
+		val codeBlock = getCodeBlock(funModels)
+		addCode(codeBlock)
 	}
 	
-	private fun getCodeBlock(functionModels: List<FunctionModel>): CodeBlock {
-		return buildCodeBlock {
-			functionModels.forEach { functionModel ->
-				buildAuthenticationIfNeed(functionModel) { routeModel ->
-					when (routeModel) {
-						is HttpRequestModel -> buildHttpRequest(functionModel, routeModel)
-						is WebSocketRawModel -> buildWebRawSocket(functionModel, routeModel)
-						is WebSocketModel -> buildWebSocket(functionModel, routeModel)
-					}
+	private fun getCodeBlock(
+		funModels: List<FunModel>
+	): CodeBlock = buildCodeBlock {
+		funModels.forEach { funModel ->
+			buildAuthenticationIfNeed(funModel) { routeModel ->
+				when (routeModel) {
+					is HttpRequestModel -> buildHttpRequest(funModel, routeModel)
+					is WebSocketRawModel -> buildWebRawSocket(funModel, routeModel)
+					is WebSocketModel -> buildWebSocket(funModel, routeModel)
 				}
 			}
 		}
 	}
 	
 	private fun CodeBlock.Builder.buildAuthenticationIfNeed(
-		functionModel: FunctionModel,
+		funModel: FunModel,
 		block: (RouteModel) -> Unit
 	) {
-		if (functionModel.authenticationModel != null) {
-			val configurations = functionModel.authenticationModel.configurations
-			val strategy = functionModel.authenticationModel.strategy
+		if (funModel.authenticationModel != null) {
+			val configurations = funModel.authenticationModel.configurations
+			val strategy = funModel.authenticationModel.strategy
 			fileSpecBuilder.addImport(PackageNames.KTOR_AUTH, "authenticate")
 			beginControlFlow(
 				"""
 				authenticate(
-					configurations = ${if (configurations.isEmpty()) "arrayOf(null)," else "arrayOf($configurations.joinToString()}),"}
+					configurations = %L,
 					strategy = %T
 				)
 				""".trimIndent(),
+				if (configurations.isEmpty()) "arrayOf(null)" else "arrayOf(${configurations.joinToString()})",
 				strategy
 			)
 		}
-		block(functionModel.routeModel)
-		if (functionModel.authenticationModel != null) {
+		block(funModel.routeModel)
+		if (funModel.authenticationModel != null) {
 			endControlFlow()
 		}
 	}
 	
 	private fun CodeBlock.Builder.buildHttpRequest(
-		functionModel: FunctionModel,
+		funModel: FunModel,
 		httpRequestModel: HttpRequestModel
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_ROUTING, httpRequestModel.method)
 		beginControlFlow(
 			"""
-			${httpRequestModel.method}(
+			%N(
 				path = %S
 			)
 			""".trimIndent(),
+			httpRequestModel.method,
 			httpRequestModel.path
 		)
-		val alias = getLetterSequence(index++)
-		val memberName = MemberName(functionModel.canonicalName, functionModel.funName, true)
-		fileSpecBuilder.addAliasedImport(memberName, alias)
-		addStatement("val result = $alias()")
-		fileSpecBuilder.addImport(PackageNames.KTOR_RESPONSE, "respond")
-		addStatement("call.respond(result)")
+		buildCodeBlock(funModel)
 		endControlFlow()
 	}
 	
 	private fun CodeBlock.Builder.buildWebRawSocket(
-		functionModel: FunctionModel,
+		funModel: FunModel,
 		webSocketRawModel: WebSocketRawModel
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_WEB_SOCKET, "webSocketRaw")
@@ -114,15 +107,12 @@ internal class RouteKotlinPoet {
 			webSocketRawModel.protocol.ifBlank { null },
 			webSocketRawModel.negotiateExtensions
 		)
-		val alias = getLetterSequence(index++)
-		val memberName = MemberName(functionModel.canonicalName, functionModel.funName, true)
-		fileSpecBuilder.addAliasedImport(memberName, alias)
-		addStatement("$alias()")
+		buildCodeBlock(funModel)
 		endControlFlow()
 	}
 	
 	private fun CodeBlock.Builder.buildWebSocket(
-		functionModel: FunctionModel,
+		funModel: FunModel,
 		webSocketModel: WebSocketModel
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_WEB_SOCKET, "webSocket")
@@ -136,20 +126,49 @@ internal class RouteKotlinPoet {
 			webSocketModel.path,
 			webSocketModel.protocol.ifBlank { null }
 		)
-		val alias = getLetterSequence(index++)
-		val memberName = MemberName(functionModel.canonicalName, functionModel.funName, true)
-		fileSpecBuilder.addAliasedImport(memberName, alias)
-		addStatement("$alias()")
+		buildCodeBlock(funModel)
 		endControlFlow()
 	}
 	
-	private fun getLetterSequence(index: Int): String {
-		var num = index
-		val builder = StringBuilder()
-		do {
-			builder.append(('a' + (num % 26)))
-			num = num / 26 - 1
-		} while (num >= 0)
-		return builder.reverse().toString()
+	private fun CodeBlock.Builder.buildCodeBlock(
+		funModel: FunModel
+	) {
+		val principalModel = funModel.principalModel
+		if (principalModel != null) {
+			fileSpecBuilder.addImport(PackageNames.KTOR_AUTH, "principal")
+			val notNullStr = if (principalModel.isNullable) "" else "!!"
+			if (principalModel.provider != null) {
+				addStatement("val %N = this.call.principal<%T>(%S)$notNullStr", principalModel.varName, principalModel.typeName, principalModel.provider)
+			} else {
+				addStatement("val %N = this.call.principal<%T>()$notNullStr", principalModel.varName, principalModel.typeName)
+			}
+		}
+		
+		val funName = getFunNameAndImport(funModel)
+		if (funModel.routeModel is HttpRequestModel) {
+			val varNames = funModel.varNames.joinToString()
+			beginControlFlow("%N($varNames).let", funName)
+			fileSpecBuilder.addImport(PackageNames.KTOR_RESPONSE, "respond")
+			addStatement("this.call.respond(it)")
+			endControlFlow()
+		} else {
+			addStatement("%N()", funName)
+		}
+	}
+	
+	private fun getFunNameAndImport(funModel: FunModel): String {
+		var i = 0
+		var funName = funModel.funName
+		while (funName in funNames) {
+			funName = funModel.funName + i++
+		}
+		funNames += funName
+		if (i == 0) {
+			fileSpecBuilder.addImport(funModel.canonicalName, funModel.funName)
+		} else {
+			val memberName = MemberName(funModel.canonicalName, funModel.funName, true)
+			fileSpecBuilder.addAliasedImport(memberName, funName)
+		}
+		return funName
 	}
 }

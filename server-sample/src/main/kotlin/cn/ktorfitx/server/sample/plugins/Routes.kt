@@ -13,4 +13,5 @@ fun Application.configureRoutes() {
 	routing {
 		generateRoutes()
 	}
+	
 }

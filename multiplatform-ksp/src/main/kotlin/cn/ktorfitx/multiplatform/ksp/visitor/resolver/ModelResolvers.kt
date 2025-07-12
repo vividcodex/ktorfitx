@@ -7,10 +7,10 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 internal object ModelResolvers {
 	
 	/**
-	 * 获取所有 FunctionModel
+	 * 获取所有 FunModel
 	 */
-	fun KSFunctionDeclaration.getAllFunctionModels(): List<FunctionModel> {
-		val models = mutableListOf<FunctionModel?>()
+	fun KSFunctionDeclaration.getAllFunModels(): List<FunModel> {
+		val models = mutableListOf<FunModel?>()
 		models += with(WebSocketResolver) { resolve() }
 		models += with(ApiModelResolver) { resolve(models.any { it is WebSocketModel }) }
 		models += with(HeadersModelResolver) { resolve() }

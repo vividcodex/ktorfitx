@@ -32,6 +32,8 @@ internal object ClassNames {
 	
 	val RouteGenerator = ClassName.bestGuess("cn.ktorfitx.server.annotation.RouteGenerator")
 	
+	val Principal = ClassName.bestGuess("cn.ktorfitx.server.annotation.Principal")
+	
 	val RoutingContext = ClassName.bestGuess("io.ktor.server.routing.RoutingContext")
 	
 	val Routing = ClassName.bestGuess("io.ktor.server.routing.Routing")

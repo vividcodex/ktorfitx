@@ -15,29 +15,30 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import kotlin.reflect.KClass
 
 internal class HttpCodeBlockBuilder(
-	private val classStructure: ClassStructure,
+	classStructure: ClassStructure,
 	private val funStructure: FunStructure,
 	private val codeBlockKClass: KClass<out ClientCodeBlock>,
 ) {
 	
 	private val returnStructure = funStructure.returnStructure as AnyReturnStructure
 	private val valueParameterModels = funStructure.valueParameterModels
-	private val functionModels = funStructure.functionModels
+	private val funModels = funStructure.funModels
 	private val apiStructure = classStructure.apiStructure
 	
-	fun CodeBlock.Builder.buildCodeBlock() {
+	fun CodeBlock.Builder.buildCodeBlock(
+		tokenVarName: String?
+	) {
 		buildTryCatchIfNeed {
 			with(getClientCodeBlock()) {
-				val apiModel = functionModels.first { it is ApiModel } as ApiModel
+				val apiModel = funModels.first { it is ApiModel } as ApiModel
 				val funName = apiModel.requestFunName
 				buildClientCodeBlock(funName) {
 					val fullUrl = parseToFullUrl(apiModel.url)
 					buildUrlString(fullUrl)
-					val bearerAuth = functionModels.any { it is BearerAuthModel }
-					if (bearerAuth) {
-						buildBearerAuth()
+					if (tokenVarName != null) {
+						buildBearerAuth(tokenVarName)
 					}
-					val headersModel = functionModels.find { it is HeadersModel } as? HeadersModel
+					val headersModel = funModels.find { it is HeadersModel } as? HeadersModel
 					val headerModels = valueParameterModels.filterIsInstance<HeaderModel>()
 					if (headerModels.isNotEmpty() || headersModel != null) {
 						buildHeadersCodeBlock(headersModel, headerModels)
@@ -103,12 +104,12 @@ internal class HttpCodeBlockBuilder(
 	private fun getClientCodeBlock(): ClientCodeBlock {
 		return when (this.codeBlockKClass) {
 			HttpClientCodeBlock::class -> {
-				HttpClientCodeBlock(classStructure.className, returnStructure)
+				HttpClientCodeBlock(returnStructure)
 			}
 			
 			MockClientCodeBlock::class -> {
-				val mockModel = funStructure.functionModels.first { it is MockModel } as MockModel
-				MockClientCodeBlock(classStructure.className, mockModel)
+				val mockModel = funStructure.funModels.first { it is MockModel } as MockModel
+				MockClientCodeBlock(mockModel)
 			}
 			
 			else -> error("不支持的类型")

@@ -1,3 +1,3 @@
 package cn.ktorfitx.multiplatform.ksp.model.model
 
-internal object BearerAuthModel : FunctionModel
+internal object BearerAuthModel : FunModel

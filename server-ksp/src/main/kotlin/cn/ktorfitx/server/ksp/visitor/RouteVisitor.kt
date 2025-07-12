@@ -13,16 +13,18 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
-internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
+internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	
-	override fun visitFunctionDeclaration(function: KSFunctionDeclaration, data: Unit): FunctionModel {
+	override fun visitFunctionDeclaration(function: KSFunctionDeclaration, data: Unit): FunModel {
 		function.checkReturnType()
-		return FunctionModel(
+		return FunModel(
 			function.simpleName.asString(),
 			function.getCanonicalName(),
 			function.getGroupName(),
 			function.getAuthenticationModel(),
 			function.getRouteModel(),
+			function.getVarNames(),
+			function.getPrincipalModel()
 		)
 	}
 	
@@ -49,6 +51,13 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
 		returnType.declaration.compileCheck(validTypeName) {
 			"${this.simpleName} 方法返回类型必须是明确的类"
 		}
+	}
+	
+	private fun KSFunctionDeclaration.getAuthenticationModel(): AuthenticationModel? {
+		val annotation = this.getKSAnnotationByType(ClassNames.Authentication) ?: return null
+		val configurations = annotation.getValues<String>("configurations")!!
+		val strategy = annotation.getClassName("strategy")!!
+		return AuthenticationModel(configurations, strategy)
 	}
 	
 	private fun KSFunctionDeclaration.getRouteModel(): RouteModel {
@@ -93,12 +102,28 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunctionModel>() {
 		}
 	}
 	
-	private fun KSFunctionDeclaration.getAuthenticationModel(): AuthenticationModel? {
-		val annotation = this.getKSAnnotationByType(ClassNames.Authentication) ?: return null
-		val configurations = annotation.getValues<String>("configurations")!!
-		val strategy = annotation.getClassName("strategy")!!
-		return AuthenticationModel(configurations, strategy)
+	private fun KSFunctionDeclaration.getVarNames(): List<String> {
+		return this.parameters.mapNotNull { valueParameter ->
+			valueParameter.name?.asString()?.takeIf { it.isNotBlank() }
+		}
 	}
 	
-	override fun defaultHandler(node: KSNode, data: Unit): FunctionModel = error("Not Implemented")
+	private fun KSFunctionDeclaration.getPrincipalModel(): PrincipalModel? {
+		val valueParameters = this.parameters.filter { it.hasAnnotation(ClassNames.Principal) }
+		this.compileCheck(valueParameters.size <= 1) {
+			"${simpleName.asString()} 方法不允许使用多个 @Principal 注解"
+		}
+		val valueParameter = valueParameters.firstOrNull() ?: return null
+		val varName = valueParameter.name!!.asString()
+		var typeName = valueParameter.type.toTypeName()
+		val isNullable = typeName.isNullable
+		if (isNullable) {
+			typeName = typeName.copy(nullable = false)
+		}
+		val annotation = valueParameter.getKSAnnotationByType(ClassNames.Principal)!!
+		val provider = annotation.getValueOrNull<String>("provider")?.takeIf { it.isNotBlank() }
+		return PrincipalModel(varName, typeName, isNullable, provider)
+	}
+	
+	override fun defaultHandler(node: KSNode, data: Unit): FunModel = error("Not Implemented")
 }

@@ -88,15 +88,15 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 					"$funName 方法缺少 suspend 修饰符"
 				}
 				val funName = it.simpleName.asString()
-				val functionModels = with(ModelResolvers) { it.getAllFunctionModels() }
-				val isWebSocket = functionModels.any { model -> model is WebSocketModel }
+				val funModels = with(ModelResolvers) { it.getAllFunModels() }
+				val isWebSocket = funModels.any { model -> model is WebSocketModel }
 				val parameterModels = with(ModelResolvers) { it.getAllParameterModel(isWebSocket) }
 				val returnStructure = it.getReturnStructure(isWebSocket)
 				if (isWebSocket) {
-					FunStructure(funName, returnStructure, parameterModels, functionModels, emptyList())
+					FunStructure(funName, returnStructure, parameterModels, funModels, emptyList())
 				} else {
 					val valueParameterModels = with(ModelResolvers) { it.getAllValueParameterModels() }
-					FunStructure(funName, returnStructure, parameterModels, functionModels, valueParameterModels)
+					FunStructure(funName, returnStructure, parameterModels, funModels, valueParameterModels)
 				}
 			}
 	}

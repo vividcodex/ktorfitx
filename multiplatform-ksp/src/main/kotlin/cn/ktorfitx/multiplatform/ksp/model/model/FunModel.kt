@@ -1,3 +1,3 @@
 package cn.ktorfitx.multiplatform.ksp.model.model
 
-internal sealed interface FunctionModel
+internal sealed interface FunModel

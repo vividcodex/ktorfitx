@@ -1,6 +1,6 @@
 package cn.ktorfitx.server.ksp.model
 
-internal open class WebSocketModel(
+internal class WebSocketModel(
 	override val path: String,
-	open val protocol: String
+	val protocol: String
 ) : RouteModel

@@ -23,7 +23,9 @@ internal sealed interface ClientCodeBlock {
 	/**
 	 * bearerAuth
 	 */
-	fun CodeBlock.Builder.buildBearerAuth()
+	fun CodeBlock.Builder.buildBearerAuth(
+		varName: String
+	)
 	
 	/**
 	 * headers

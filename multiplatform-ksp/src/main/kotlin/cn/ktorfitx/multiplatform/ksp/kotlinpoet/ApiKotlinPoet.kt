@@ -7,9 +7,7 @@ import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpClientCodeBlock
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpCodeBlockBuilder
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.MockClientCodeBlock
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.WebSocketBuilder
-import cn.ktorfitx.multiplatform.ksp.model.model.MockModel
-import cn.ktorfitx.multiplatform.ksp.model.model.ParameterModel
-import cn.ktorfitx.multiplatform.ksp.model.model.WebSocketModel
+import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.AnyReturnStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
@@ -18,6 +16,8 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 internal object ApiKotlinPoet {
+	
+	private const val TOKEN_VAR_NAME = "token"
 	
 	/**
 	 * 文件
@@ -142,18 +142,38 @@ internal object ApiKotlinPoet {
 	
 	private fun getCodeBlock(classStructure: ClassStructure, funStructure: FunStructure): CodeBlock {
 		return buildCodeBlock {
-			val isWebSocket = funStructure.functionModels.any { it is WebSocketModel }
+			val tokenVarName = getTokenVarName(funStructure.funModels, funStructure.parameterModels)
+			if (tokenVarName != null) {
+				addStatement("val %N = this.config.token?.invoke()", tokenVarName)
+			}
+			val isWebSocket = funStructure.funModels.any { it is WebSocketModel }
 			if (isWebSocket) {
 				with(WebSocketBuilder(classStructure, funStructure)) {
-					buildCodeBlock()
+					buildCodeBlock(tokenVarName)
 				}
 			} else {
-				val isMockClient = funStructure.functionModels.any { it is MockModel }
+				val isMockClient = funStructure.funModels.any { it is MockModel }
 				val codeBlockKClass = if (isMockClient) MockClientCodeBlock::class else HttpClientCodeBlock::class
 				with(HttpCodeBlockBuilder(classStructure, funStructure, codeBlockKClass)) {
-					buildCodeBlock()
+					buildCodeBlock(tokenVarName)
 				}
 			}
 		}
+	}
+	
+	private fun getTokenVarName(
+		funModels: List<FunModel>,
+		parameterModels: List<ParameterModel>
+	): String? {
+		if (funModels.all { it !is BearerAuthModel }) {
+			return null
+		}
+		var i = 0
+		var varName = TOKEN_VAR_NAME
+		val varNames = parameterModels.map { it.varName }
+		while (varName in varNames) {
+			varName = TOKEN_VAR_NAME + i++
+		}
+		return varName
 	}
 }

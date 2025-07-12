@@ -12,7 +12,7 @@ class KtorfitConfig internal constructor() {
 	
 	var baseUrl: String? = null
 	
-	var token: (() -> String?)? = null
+	var token: (suspend () -> String?)? = null
 		private set
 	
 	var httpClient: HttpClient? = null
@@ -28,7 +28,7 @@ class KtorfitConfig internal constructor() {
 		this.httpClientBlock = HttpClientBlock(engineFactory, block as (HttpClientConfig<*>.() -> Unit))
 	}
 	
-	fun token(token: () -> String?) {
+	fun token(token: suspend () -> String?) {
 		this.token = token
 	}
 	

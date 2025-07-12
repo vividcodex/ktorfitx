@@ -3,15 +3,13 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 
 /**
  * MockClient 代码块
  */
 internal class MockClientCodeBlock(
-	private val className: ClassName,
-	private val mockModel: MockModel,
+	private val mockModel: MockModel
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
@@ -41,8 +39,10 @@ internal class MockClientCodeBlock(
 		addStatement("url(\"$urlString\")")
 	}
 	
-	override fun CodeBlock.Builder.buildBearerAuth() {
-		addStatement("this@${className.simpleName}.config.token?.invoke()?.let { bearerAuth(it) }")
+	override fun CodeBlock.Builder.buildBearerAuth(
+		varName: String
+	) {
+		addStatement("%N?.let { bearerAuth(it) }", varName)
 	}
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(

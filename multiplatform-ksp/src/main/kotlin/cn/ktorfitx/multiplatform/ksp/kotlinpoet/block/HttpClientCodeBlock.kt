@@ -6,13 +6,11 @@ import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.AnyReturnStructure
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName
 
 internal class HttpClientCodeBlock(
-	private val className: ClassName,
-	private val returnStructure: AnyReturnStructure,
+	private val returnStructure: AnyReturnStructure
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
@@ -57,9 +55,11 @@ internal class HttpClientCodeBlock(
 		addStatement("url(\"$urlString\")")
 	}
 	
-	override fun CodeBlock.Builder.buildBearerAuth() {
+	override fun CodeBlock.Builder.buildBearerAuth(
+		varName: String
+	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "bearerAuth")
-		addStatement("this@%N.config.token?.invoke()?.let { bearerAuth(it) }", className.simpleName)
+		addStatement("%N?.let { bearerAuth(it) }", varName)
 	}
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(

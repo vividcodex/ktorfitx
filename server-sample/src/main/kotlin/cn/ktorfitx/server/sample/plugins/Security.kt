@@ -12,7 +12,7 @@ fun Application.configureSecurity() {
 			realm = "your jwt realm"
 			verifier(jwtVerifier)
 			validate {
-			
+				UserIdPrincipal("xxx")
 			}
 		}
 	}
