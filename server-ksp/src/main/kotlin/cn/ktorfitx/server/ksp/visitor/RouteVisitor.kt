@@ -24,7 +24,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			function.getAuthenticationModel(),
 			function.getRouteModel(),
 			function.getVarNames(),
-			function.getPrincipalModel()
+			function.getPrincipalModels()
 		)
 	}
 	
@@ -108,21 +108,17 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		}
 	}
 	
-	private fun KSFunctionDeclaration.getPrincipalModel(): PrincipalModel? {
-		val valueParameters = this.parameters.filter { it.hasAnnotation(ClassNames.Principal) }
-		this.compileCheck(valueParameters.size <= 1) {
-			"${simpleName.asString()} 方法不允许使用多个 @Principal 注解"
+	private fun KSFunctionDeclaration.getPrincipalModels(): List<PrincipalModel> {
+		return this.parameters.mapNotNull {
+			val annotation = it.getKSAnnotationByType(ClassNames.Principal) ?: return@mapNotNull null
+			val varName = it.name!!.asString()
+			var typeName = it.type.toTypeName()
+			if (typeName.isNullable) {
+				typeName = typeName.copy(nullable = false)
+			}
+			val provider = annotation.getValueOrNull<String>("provider")?.takeIf { it.isNotBlank() }
+			PrincipalModel(varName, typeName, typeName.isNullable, provider)
 		}
-		val valueParameter = valueParameters.firstOrNull() ?: return null
-		val varName = valueParameter.name!!.asString()
-		var typeName = valueParameter.type.toTypeName()
-		val isNullable = typeName.isNullable
-		if (isNullable) {
-			typeName = typeName.copy(nullable = false)
-		}
-		val annotation = valueParameter.getKSAnnotationByType(ClassNames.Principal)!!
-		val provider = annotation.getValueOrNull<String>("provider")?.takeIf { it.isNotBlank() }
-		return PrincipalModel(varName, typeName, isNullable, provider)
 	}
 	
 	override fun defaultHandler(node: KSNode, data: Unit): FunModel = error("Not Implemented")

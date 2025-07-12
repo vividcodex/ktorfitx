@@ -133,26 +133,26 @@ internal class RouteKotlinPoet {
 	private fun CodeBlock.Builder.buildCodeBlock(
 		funModel: FunModel
 	) {
-		val principalModel = funModel.principalModel
-		if (principalModel != null) {
+		if (funModel.principalModels.isNotEmpty()) {
 			fileSpecBuilder.addImport(PackageNames.KTOR_AUTH, "principal")
-			val notNullStr = if (principalModel.isNullable) "" else "!!"
-			if (principalModel.provider != null) {
-				addStatement("val %N = this.call.principal<%T>(%S)$notNullStr", principalModel.varName, principalModel.typeName, principalModel.provider)
-			} else {
-				addStatement("val %N = this.call.principal<%T>()$notNullStr", principalModel.varName, principalModel.typeName)
+			funModel.principalModels.forEach {
+				val nullSafety = if (it.isNullable) "" else "!!"
+				if (it.provider != null) {
+					addStatement("val %N = this.call.principal<%T>(%S)%L", it.varName, it.typeName, it.provider, nullSafety)
+				} else {
+					addStatement("val %N = this.call.principal<%T>()%L", it.varName, it.typeName, nullSafety)
+				}
 			}
 		}
-		
 		val funName = getFunNameAndImport(funModel)
+		val varNames = funModel.varNames.joinToString()
 		if (funModel.routeModel is HttpRequestModel) {
-			val varNames = funModel.varNames.joinToString()
-			beginControlFlow("%N($varNames).let", funName)
+			beginControlFlow("%N(%L).also", funName, varNames)
 			fileSpecBuilder.addImport(PackageNames.KTOR_RESPONSE, "respond")
 			addStatement("this.call.respond(it)")
 			endControlFlow()
 		} else {
-			addStatement("%N()", funName)
+			addStatement("%N(%L)", funName, varNames)
 		}
 	}
 	

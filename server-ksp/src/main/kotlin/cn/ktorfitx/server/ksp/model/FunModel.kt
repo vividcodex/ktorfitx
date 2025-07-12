@@ -7,5 +7,5 @@ internal class FunModel(
 	val authenticationModel: AuthenticationModel?,
 	val routeModel: RouteModel,
 	val varNames: List<String>,
-	var principalModel: PrincipalModel?,
+	var principalModels: List<PrincipalModel>
 )

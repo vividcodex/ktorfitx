@@ -29,3 +29,12 @@ fun RoutingContext.testPrincipal03(
 fun RoutingContext.testPrincipal04(
 	@Principal("custom") principal: UserIdPrincipal?
 ): String = ""
+
+@Authentication
+@GET(path = "principal/test05")
+fun RoutingContext.testPrincipal05(
+	@Principal principal: UserIdPrincipal,
+	@Principal("custom") principal2: UserIdPrincipal,
+	@Principal principal3: UserIdPrincipal?,
+	@Principal("custom2") principal4: UserIdPrincipal?
+): String = ""
