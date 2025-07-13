@@ -5,5 +5,5 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 internal class PathModel(
 	val name: String,
 	override val varName: String,
-	val valueParameter: KSValueParameter
+	val parameter: KSValueParameter
 ) : ValueParameterModel

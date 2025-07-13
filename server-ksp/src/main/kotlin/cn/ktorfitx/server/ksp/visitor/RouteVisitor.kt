@@ -25,7 +25,8 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			function.getAuthenticationModel(),
 			function.getRouteModel(),
 			function.getVarNames(),
-			function.getPrincipalModels()
+			function.getPrincipalModels(),
+			function.getBodyModel(),
 		)
 	}
 	
@@ -111,22 +112,39 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	}
 	
 	private fun KSFunctionDeclaration.getVarNames(): List<String> {
-		return this.parameters.mapNotNull { valueParameter ->
-			valueParameter.name?.asString()?.takeIf { it.isNotBlank() }
+		return this.parameters.mapNotNull { parameter ->
+			parameter.name?.asString()?.takeIf { it.isNotBlank() }
 		}
 	}
 	
 	private fun KSFunctionDeclaration.getPrincipalModels(): List<PrincipalModel> {
-		return this.parameters.mapNotNull {
-			val annotation = it.getKSAnnotationByType(ClassNames.Principal) ?: return@mapNotNull null
-			val varName = it.name!!.asString()
-			var typeName = it.type.toTypeName()
-			if (typeName.isNullable) {
+		return this.parameters.mapNotNull { parameter ->
+			val annotation = parameter.getKSAnnotationByType(ClassNames.Principal) ?: return@mapNotNull null
+			val varName = parameter.name!!.asString()
+			var typeName = parameter.type.toTypeName()
+			val isNullable = typeName.isNullable
+			if (isNullable) {
 				typeName = typeName.copy(nullable = false)
 			}
 			val provider = annotation.getValueOrNull<String>("provider")?.takeIf { it.isNotBlank() }
-			PrincipalModel(varName, typeName, typeName.isNullable, provider)
+			PrincipalModel(varName, typeName, isNullable, provider)
 		}
+	}
+	
+	private fun KSFunctionDeclaration.getBodyModel(): BodyModel? {
+		val filters = this.parameters.filter { it.hasAnnotation(ClassNames.Body) }
+		if (filters.isEmpty()) return null
+		this.compileCheck(filters.size == 1) {
+			"${simpleName.asString()} 函数参数中不允许使用多个 @Body"
+		}
+		val parameter = filters.single()
+		val varName = parameter.name!!.asString()
+		var typeName = parameter.type.toTypeName()
+		val isNullable = typeName.isNullable
+		if (isNullable) {
+			typeName = typeName.copy(nullable = false)
+		}
+		return BodyModel(varName, typeName, isNullable)
 	}
 	
 	override fun defaultHandler(node: KSNode, data: Unit): FunModel = error("Not Implemented")
