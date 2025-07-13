@@ -11,4 +11,6 @@ internal object PackageNames {
 	const val KTOR_RESPONSE = "io.ktor.server.response"
 	
 	const val KTOR_WEB_SOCKET = "io.ktor.server.websocket"
+	
+	const val KTOR_UTIL = "io.ktor.server.util"
 }

@@ -15,7 +15,10 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 
 internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	
-	override fun visitFunctionDeclaration(function: KSFunctionDeclaration, data: Unit): FunModel {
+	override fun visitFunctionDeclaration(
+		function: KSFunctionDeclaration,
+		data: Unit
+	): FunModel {
 		function.checkReturnType()
 		return FunModel(
 			function.simpleName.asString(),
@@ -26,7 +29,8 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			function.getRouteModel(),
 			function.getVarNames(),
 			function.getPrincipalModels(),
-			function.getBodyModel(),
+			function.getQueryModels(),
+			function.getRequestBody()
 		)
 	}
 	
@@ -131,20 +135,51 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		}
 	}
 	
-	private fun KSFunctionDeclaration.getBodyModel(): BodyModel? {
+	private fun KSFunctionDeclaration.getRequestBody(): RequestBody? {
+		val classNames = arrayOf(ClassNames.Body).filter { className ->
+			this.parameters.any { it.hasAnnotation(className) }
+		}
+		if (classNames.isEmpty()) return null
+		this.compileCheck(classNames.size == 1) {
+			"${simpleName.asString()} 函数参数不允许同时使用 @Body, @Part, @Field 注解"
+		}
+		val className = classNames.single()
+		return when (className) {
+			ClassNames.Body -> this.getBodyModel()
+			else -> error("不支持的类型 ${className.simpleName}")
+		}
+	}
+	
+	private fun KSFunctionDeclaration.getBodyModel(): BodyModel {
 		val filters = this.parameters.filter { it.hasAnnotation(ClassNames.Body) }
-		if (filters.isEmpty()) return null
 		this.compileCheck(filters.size == 1) {
 			"${simpleName.asString()} 函数参数中不允许使用多个 @Body"
 		}
-		val parameter = filters.single()
-		val varName = parameter.name!!.asString()
-		var typeName = parameter.type.toTypeName()
+		val body = filters.single()
+		val varName = body.name!!.asString()
+		var typeName = body.type.toTypeName()
 		val isNullable = typeName.isNullable
 		if (isNullable) {
 			typeName = typeName.copy(nullable = false)
 		}
 		return BodyModel(varName, typeName, isNullable)
+	}
+	
+	private fun KSFunctionDeclaration.getQueryModels(): List<QueryModel> {
+		return this.parameters.mapNotNull { parameter ->
+			val annotation = parameter.getKSAnnotationByType(ClassNames.Query) ?: return@mapNotNull null
+			val varName = parameter.name!!.asString()
+			val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
+			var typeName = parameter.type.toTypeName()
+			val isNullable = typeName.isNullable
+			if (isNullable) {
+				typeName = typeName.copy(nullable = false)
+				parameter.compileCheck(typeName == ClassNames.String) {
+					"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数可空类型只允许 String?"
+				}
+			}
+			QueryModel(name, varName, typeName, isNullable)
+		}
 	}
 	
 	override fun defaultHandler(node: KSNode, data: Unit): FunModel = error("Not Implemented")

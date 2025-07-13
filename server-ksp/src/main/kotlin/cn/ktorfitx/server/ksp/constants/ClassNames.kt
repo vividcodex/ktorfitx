@@ -8,6 +8,8 @@ internal object ClassNames {
 		arrayOf(GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, WebSocket, WebSocketRaw)
 	}
 	
+	val String = ClassName.bestGuess("kotlin.String")
+	
 	val GET = ClassName.bestGuess("cn.ktorfitx.server.annotation.GET")
 	
 	val POST = ClassName.bestGuess("cn.ktorfitx.server.annotation.POST")
@@ -35,6 +37,8 @@ internal object ClassNames {
 	val Principal = ClassName.bestGuess("cn.ktorfitx.server.annotation.Principal")
 	
 	val Body = ClassName.bestGuess("cn.ktorfitx.server.annotation.Body")
+	
+	val Query = ClassName.bestGuess("cn.ktorfitx.server.annotation.Query")
 	
 	val RoutingContext = ClassName.bestGuess("io.ktor.server.routing.RoutingContext")
 	

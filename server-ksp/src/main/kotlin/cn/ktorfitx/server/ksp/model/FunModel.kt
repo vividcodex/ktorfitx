@@ -9,5 +9,6 @@ internal class FunModel(
 	val routeModel: RouteModel,
 	val varNames: List<String>,
 	val principalModels: List<PrincipalModel>,
-	val bodyModel: BodyModel?
+	val queryModels: List<QueryModel>,
+	val requestBody: RequestBody?
 )

@@ -133,49 +133,9 @@ internal class RouteKotlinPoet {
 	private fun CodeBlock.Builder.buildCodeBlock(
 		funModel: FunModel
 	) {
-		
-		if (funModel.principalModels.isNotEmpty()) {
-			addPrincipalsCodeBlock(funModel.principalModels)
-		}
-		if (funModel.bodyModel != null) {
-			addBodyCodeBlock(funModel.bodyModel)
-		}
-		
-		val funName = getFunNameAndImport(funModel)
-		val varNames = funModel.varNames.joinToString()
-		if (funModel.routeModel is HttpRequestModel) {
-			beginControlFlow("%N(%L).also", funName, varNames)
-			fileSpecBuilder.addImport(PackageNames.KTOR_RESPONSE, "respond")
-			addStatement("this.call.respond(it)")
-			endControlFlow()
-		} else {
-			addStatement("%N(%L)", funName, varNames)
-		}
-	}
-	
-	private fun CodeBlock.Builder.addPrincipalsCodeBlock(
-		principalModels: List<PrincipalModel>
-	) {
-		fileSpecBuilder.addImport(PackageNames.KTOR_AUTH, "principal")
-		principalModels.forEach {
-			val nullSafety = if (it.isNullable) "" else "!!"
-			if (it.provider != null) {
-				addStatement("val %N = this.call.principal<%T>(%S)%L", it.varName, it.typeName, it.provider, nullSafety)
-			} else {
-				addStatement("val %N = this.call.principal<%T>()%L", it.varName, it.typeName, nullSafety)
-			}
-		}
-	}
-	
-	private fun CodeBlock.Builder.addBodyCodeBlock(
-		bodyModel: BodyModel
-	) {
-		if (bodyModel.isNullable) {
-			fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "receiveNullable")
-			addStatement("val %N = this.call.receiveNullable<%T>()", bodyModel.varName, bodyModel.typeName)
-		} else {
-			fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "receive")
-			addStatement("val %N = this.call.receive<%T>()", bodyModel.varName, bodyModel.typeName)
+		RouteCodeBlock(funModel).apply {
+			val funName = getFunNameAndImport(funModel)
+			addCodeBlock(funName)
 		}
 	}
 	

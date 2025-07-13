@@ -7,7 +7,12 @@ import kotlinx.serialization.Serializable
 @POST("body/test1")
 fun bodyTest1(
 	@Body body: BodyTest1
-): BodyTest1 = body
+): String = ""
+
+@POST("body/test2")
+fun bodyTest2(
+	@Body body: BodyTest1?
+): String = ""
 
 @Serializable
 data class BodyTest1(
