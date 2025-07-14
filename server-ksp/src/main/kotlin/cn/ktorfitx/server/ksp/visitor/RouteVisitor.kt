@@ -188,7 +188,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			PathModel(name, varName, typeName)
 		}
 		this.compileCheck(residuePathParams.isEmpty()) {
-			"${simpleName.asString()} 函数的未解析全部 path 参数"
+			"${simpleName.asString()} 函数未解析 ${residuePathParams.joinToString { "\"$it\"" }} Path 参数"
 		}
 		return pathModels
 	}

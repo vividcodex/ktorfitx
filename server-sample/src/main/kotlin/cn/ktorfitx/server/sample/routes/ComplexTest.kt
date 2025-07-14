@@ -15,7 +15,7 @@ fun complexTest1(
 ): String = ""
 
 @Authentication
-@POST("complex/test2")
+@POST("complex/{name}")
 fun complexTest2(
 	@PartForm part: String,
 	@PartForm("custom1") part2: String,
@@ -24,5 +24,6 @@ fun complexTest2(
 	@PartBinaryChannel binaryChannel: PartData.BinaryChannelItem,
 	@Principal principal: UserIdPrincipal,
 	@Query query: String,
-	@Query("custom2") query2: Int
+	@Query("custom2") query2: Int,
+	@Path name: String
 ): String = ""
