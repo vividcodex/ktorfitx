@@ -28,6 +28,7 @@ kotlin {
 }
 
 dependencies {
+	implementation(projects.serverCore)
 	implementation(projects.serverAnnotation)
 	implementation(projects.serverAuth)
 	implementation(projects.serverWebsockets)

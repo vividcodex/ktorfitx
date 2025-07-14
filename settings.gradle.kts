@@ -29,6 +29,7 @@ include("multiplatform-websockets")
 include("multiplatform-ksp")
 include("multiplatform-sample")
 
+include("server-core")
 include("server-annotation")
 include("server-auth")
 include("server-websockets")

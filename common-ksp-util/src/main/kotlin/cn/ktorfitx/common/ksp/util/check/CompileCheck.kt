@@ -8,7 +8,7 @@ import kotlin.contracts.contract
  * 编译器检查
  */
 @OptIn(ExperimentalContracts::class)
-inline fun <T : KSNode> T.compileCheck(
+fun <T : KSNode> T.compileCheck(
 	value: Boolean,
 	errorMessage: () -> String,
 ) {
@@ -16,7 +16,6 @@ inline fun <T : KSNode> T.compileCheck(
 		returns() implies value
 	}
 	if (!value) {
-		val message = errorMessage()
-		compileCheckError(message, this)
+		compileError(errorMessage)
 	}
 }

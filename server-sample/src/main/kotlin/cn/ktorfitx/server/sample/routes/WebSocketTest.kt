@@ -1,25 +1,28 @@
 package cn.ktorfitx.server.sample.routes
 
 import cn.ktorfitx.server.annotation.Authentication
+import cn.ktorfitx.server.annotation.Query
 import cn.ktorfitx.server.annotation.WebSocket
 import cn.ktorfitx.server.annotation.WebSocketRaw
-import io.ktor.server.websocket.*
 
 @WebSocket("/websocket/test1")
-fun DefaultWebSocketServerSession.testWebSocket1() {
+fun testWebSocket1(
+	@Query name: String,
+	@Query("custom") name2: String
+) {
 
 }
 
 @Authentication
 @WebSocket("/websocket/test2")
-fun DefaultWebSocketServerSession.testWebSocket2() {
+fun testWebSocket2() {
 
 }
 
 object WebSocketTest1 {
 	
 	@WebSocketRaw("/websocket/test3")
-	fun WebSocketServerSession.testWebSocket3() {
+	fun testWebSocket3() {
 	
 	}
 	
@@ -27,7 +30,7 @@ object WebSocketTest1 {
 		
 		@Authentication
 		@WebSocketRaw("/websocket/test4")
-		fun WebSocketServerSession.testWebSocket4() {
+		fun testWebSocket4() {
 		
 		}
 	}

@@ -1,6 +1,5 @@
 package cn.ktorfitx.common.ksp.util.check
 
-import cn.ktorfitx.common.ksp.util.log.kspLogger
 import com.google.devtools.ksp.symbol.FileLocation
 import com.google.devtools.ksp.symbol.KSNode
 
@@ -14,13 +13,11 @@ private class KtorfitxCompileCheckException(
 /**
  * 编译检查错误
  */
-fun <T : KSNode> compileCheckError(
-	message: String,
-	ksNode: T,
+fun <T : KSNode> T.compileError(
+	message: () -> String
 ): Nothing {
-	kspLogger.error("\nKtorfitx 编译期错误检查: $message", ksNode)
-	val errorLocation = (ksNode.location as? FileLocation)
+	val errorLocation = (this.location as? FileLocation)
 		?.let { "\n错误位于：${it.filePath}:${it.lineNumber}" }
 		?: ""
-	throw KtorfitxCompileCheckException("$message$errorLocation")
+	throw KtorfitxCompileCheckException("${message()}$errorLocation")
 }

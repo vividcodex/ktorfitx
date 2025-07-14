@@ -8,7 +8,13 @@ internal object ClassNames {
 		arrayOf(GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, WebSocket, WebSocketRaw)
 	}
 	
+	val partSupports by lazy {
+		arrayOf(String, ByteArray, FormItem, FileItem, BinaryItem, BinaryChannelItem)
+	}
+	
 	val String = ClassName.bestGuess("kotlin.String")
+	
+	val ByteArray = ClassName.bestGuess("kotlin.ByteArray")
 	
 	val GET = ClassName.bestGuess("cn.ktorfitx.server.annotation.GET")
 	
@@ -39,6 +45,22 @@ internal object ClassNames {
 	val Body = ClassName.bestGuess("cn.ktorfitx.server.annotation.Body")
 	
 	val Field = ClassName.bestGuess("cn.ktorfitx.server.annotation.Field")
+	
+	val PartForm = ClassName.bestGuess("cn.ktorfitx.server.annotation.PartForm")
+	
+	val PartFile = ClassName.bestGuess("cn.ktorfitx.server.annotation.PartFile")
+	
+	val PartBinary = ClassName.bestGuess("cn.ktorfitx.server.annotation.PartBinary")
+	
+	val PartBinaryChannel = ClassName.bestGuess("cn.ktorfitx.server.annotation.PartBinaryChannel")
+	
+	val FormItem = ClassName.bestGuess("io.ktor.http.content.PartData.FormItem")
+	
+	val FileItem = ClassName.bestGuess("io.ktor.http.content.PartData.FileItem")
+	
+	val BinaryItem = ClassName.bestGuess("io.ktor.http.content.PartData.BinaryItem")
+	
+	val BinaryChannelItem = ClassName.bestGuess("io.ktor.http.content.PartData.BinaryChannelItem")
 	
 	val Query = ClassName.bestGuess("cn.ktorfitx.server.annotation.Query")
 	

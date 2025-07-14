@@ -13,4 +13,6 @@ internal object PackageNames {
 	const val KTOR_WEB_SOCKET = "io.ktor.server.websocket"
 	
 	const val KTOR_UTIL = "io.ktor.server.util"
+	
+	const val KTORFITX_CORE_UTIL = "cn.ktorfitx.server.core.util"
 }

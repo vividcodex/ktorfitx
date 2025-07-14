@@ -90,6 +90,10 @@ multiplatform-sample = [
 	'ktor-serialization-kotlinx-json'
 ]
 
+server-core = [
+	'ktor-server-core'
+]
+
 server-ksp = [
 	'kotlin-reflect',
 	'symbol-processing',

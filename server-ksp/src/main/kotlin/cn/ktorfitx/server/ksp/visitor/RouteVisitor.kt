@@ -1,6 +1,7 @@
 package cn.ktorfitx.server.ksp.visitor
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.check.compileError
 import cn.ktorfitx.common.ksp.util.expends.*
 import cn.ktorfitx.server.ksp.constants.ClassNames
 import cn.ktorfitx.server.ksp.model.*
@@ -136,17 +137,32 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	}
 	
 	private fun KSFunctionDeclaration.getRequestBody(): RequestBody? {
-		val classNames = arrayOf(ClassNames.Body, ClassNames.Field)
-			.filter { className -> this.parameters.any { it.hasAnnotation(className) } }
-		if (classNames.isEmpty()) return null
-		this.compileCheck(classNames.size == 1) {
-			"${simpleName.asString()} 函数参数不允许同时使用 @Body, @Part, @Field 注解"
+		val classNames = mapOf(
+			BodyModel::class to ClassNames.Body,
+			FieldModels::class to ClassNames.Field,
+			PartModels::class to arrayOf(ClassNames.PartForm, ClassNames.PartFile, ClassNames.PartBinary, ClassNames.PartBinaryChannel)
+		)
+		val modelKClasses = classNames.mapNotNull { entity ->
+			val exists = this.parameters.any { parameter ->
+				val value = entity.value
+				when (value) {
+					is ClassName -> parameter.hasAnnotation(value)
+					is Array<*> -> value.any { parameter.hasAnnotation(it as ClassName) }
+					else -> error("不支持的类型")
+				}
+			}
+			if (exists) entity.key else null
 		}
-		val className = classNames.single()
-		return when (className) {
-			ClassNames.Body -> this.getBodyModel()
-			ClassNames.Field -> this.getFieldModels()
-			else -> error("不支持的类型 ${className.simpleName}")
+		if (modelKClasses.isEmpty()) return null
+		this.compileCheck(modelKClasses.size == 1) {
+			"${simpleName.asString()} 函数参数不允许同时使用 @Body, @Field, (@PartForm, @PartFile, @PartBinary, @PartBinaryChannel) 注解"
+		}
+		val modelKClass = modelKClasses.single()
+		return when (modelKClass) {
+			BodyModel::class -> this.getBodyModel()
+			FieldModels::class -> this.getFieldModels()
+			PartModels::class -> this.getPartModels()
+			else -> error("不支持的类型 ${modelKClass.simpleName}")
 		}
 	}
 	
@@ -176,12 +192,70 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			if (isNullable) {
 				typeName = typeName.copy(nullable = false)
 				parameter.compileCheck(typeName == ClassNames.String) {
-					"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数可空类型只允许 String?"
+					"${simpleName.asString()} 函数的 $varName 参数可空类型只允许 String?"
 				}
 			}
 			FieldModel(name, varName, typeName, isNullable)
 		}
 		return FieldModels(fieldModels)
+	}
+	
+	private fun KSFunctionDeclaration.getPartModels(): PartModels {
+		val configs = listOf(
+			PartModelConfig(
+				annotation = ClassNames.PartForm,
+				typeMethodMap = mapOf(
+					ClassNames.FormItem to "getForm",
+					ClassNames.String to "getFormValue"
+				)
+			),
+			PartModelConfig(
+				annotation = ClassNames.PartFile,
+				typeMethodMap = mapOf(
+					ClassNames.FileItem to "getFile",
+					ClassNames.ByteArray to "getFileByteArray",
+				)
+			),
+			PartModelConfig(
+				annotation = ClassNames.PartBinary,
+				typeMethodMap = mapOf(
+					ClassNames.BinaryItem to "getBinary",
+					ClassNames.ByteArray to "getBinaryByteArray",
+				)
+			),
+			PartModelConfig(
+				annotation = ClassNames.PartBinaryChannel,
+				typeMethodMap = mapOf(
+					ClassNames.BinaryChannelItem to "getBinaryChannel"
+				)
+			),
+		)
+		val allPartModels = configs.flatMap { getPartModels(it) }
+		return PartModels(allPartModels)
+	}
+	
+	private fun KSFunctionDeclaration.getPartModels(
+		config: PartModelConfig
+	): List<PartModel> {
+		val partForms = this.parameters.filter { it.hasAnnotation(config.annotation) }
+		return partForms.map { parameter ->
+			val varName = parameter.name!!.asString()
+			var typeName = parameter.type.toTypeName()
+			val isNullable = typeName.isNullable
+			if (isNullable) {
+				typeName = typeName.copy(nullable = false)
+			}
+			val annotation = parameter.getKSAnnotationByType(config.annotation)!!
+			val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
+			config.typeMethodMap.forEach { (className, funName) ->
+				if (typeName == className) {
+					return@map PartModel(name, varName, "$funName${if (isNullable) "OrNull" else ""}")
+				}
+			}
+			parameter.compileError {
+				"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数只允许使用 String 和 PartForm 类型"
+			}
+		}
 	}
 	
 	private fun KSFunctionDeclaration.getQueryModels(): List<QueryModel> {
@@ -203,3 +277,8 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	
 	override fun defaultHandler(node: KSNode, data: Unit): FunModel = error("Not Implemented")
 }
+
+private data class PartModelConfig(
+	val annotation: ClassName,
+	val typeMethodMap: Map<ClassName, String>,
+)
