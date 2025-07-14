@@ -1,7 +1,7 @@
 package cn.ktorfitx.server.ksp.visitor
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
-import cn.ktorfitx.common.ksp.util.check.compileError
+import cn.ktorfitx.common.ksp.util.check.ktorfitxError
 import cn.ktorfitx.common.ksp.util.expends.*
 import cn.ktorfitx.server.ksp.constants.ClassNames
 import cn.ktorfitx.server.ksp.model.*
@@ -33,6 +33,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			function.getVarNames(),
 			function.getPrincipalModels(),
 			function.getQueryModels(),
+			function.getPathModels(routeModel.path),
 			function.getRequestBody(routeModel)
 		)
 	}
@@ -118,8 +119,17 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	}
 	
 	private fun KSFunctionDeclaration.getVarNames(): List<String> {
-		return this.parameters.mapNotNull { parameter ->
-			parameter.name?.asString()?.takeIf { it.isNotBlank() }
+		return this.parameters.map { parameter ->
+			val count = ClassNames.parameterAnnotations.count { parameter.hasAnnotation(it) }
+			parameter.compileCheck(count > 0) {
+				val annotations = ClassNames.parameterAnnotations.joinToString { "@${it.simpleName}" }
+				"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数必须使用 $annotations 注解中的一个"
+			}
+			parameter.compileCheck(count == 1) {
+				val annotations = ClassNames.parameterAnnotations.joinToString { "@${it.simpleName}" }
+				"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数只允许使用 $annotations 注解中的一个"
+			}
+			parameter.name!!.asString()
 		}
 	}
 	
@@ -135,6 +145,62 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			val provider = annotation.getValueOrNull<String>("provider")?.takeIf { it.isNotBlank() }
 			PrincipalModel(varName, typeName, isNullable, provider)
 		}
+	}
+	
+	private fun KSFunctionDeclaration.getQueryModels(): List<QueryModel> {
+		return this.parameters.mapNotNull { parameter ->
+			val annotation = parameter.getKSAnnotationByType(ClassNames.Query) ?: return@mapNotNull null
+			val varName = parameter.name!!.asString()
+			val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
+			var typeName = parameter.type.toTypeName()
+			val isNullable = typeName.isNullable
+			if (isNullable) {
+				typeName = typeName.copy(nullable = false)
+				parameter.compileCheck(typeName == ClassNames.String) {
+					"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数可空类型只允许 String?"
+				}
+			}
+			QueryModel(name, varName, typeName, isNullable)
+		}
+	}
+	
+	private fun KSFunctionDeclaration.getPathModels(
+		path: String
+	): List<PathModel> {
+		val pathParams = extractPathParams(path)
+		val residuePathParams = pathParams.toMutableSet()
+		val pathModels = this.parameters.mapNotNull { parameter ->
+			val annotation = parameter.getKSAnnotationByType(ClassNames.Path) ?: return@mapNotNull null
+			val varName = parameter.name!!.asString()
+			val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
+			parameter.compileCheck(name in pathParams) {
+				"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数未在 url 中找到"
+			}
+			parameter.compileCheck(name in residuePathParams) {
+				"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数重复解析 path 参数"
+			}
+			residuePathParams -= name
+			
+			val typeName = parameter.type.toTypeName()
+			parameter.compileCheck(!typeName.isNullable) {
+				"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数不允许可空"
+			}
+			PathModel(name, varName, typeName)
+		}
+		this.compileCheck(residuePathParams.isEmpty()) {
+			"${simpleName.asString()} 函数的未解析全部 path 参数"
+		}
+		return pathModels
+	}
+	
+	private fun extractPathParams(path: String): Set<String> {
+		val regex = "\\{([^}]+)}".toRegex()
+		val matches = regex.findAll(path)
+		val params = mutableSetOf<String>()
+		for (match in matches) {
+			params += match.groupValues[1]
+		}
+		return params
 	}
 	
 	private fun KSFunctionDeclaration.getRequestBody(
@@ -266,26 +332,9 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 					return@map PartModel(name, varName, config.annotation, className, isNullable, isPartData)
 				}
 			}
-			parameter.compileError {
+			parameter.ktorfitxError {
 				config.errorMessage(parameter)
 			}
-		}
-	}
-	
-	private fun KSFunctionDeclaration.getQueryModels(): List<QueryModel> {
-		return this.parameters.mapNotNull { parameter ->
-			val annotation = parameter.getKSAnnotationByType(ClassNames.Query) ?: return@mapNotNull null
-			val varName = parameter.name!!.asString()
-			val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
-			var typeName = parameter.type.toTypeName()
-			val isNullable = typeName.isNullable
-			if (isNullable) {
-				typeName = typeName.copy(nullable = false)
-				parameter.compileCheck(typeName == ClassNames.String) {
-					"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数可空类型只允许 String?"
-				}
-			}
-			QueryModel(name, varName, typeName, isNullable)
 		}
 	}
 	

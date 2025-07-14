@@ -12,6 +12,10 @@ internal object ClassNames {
 		arrayOf(FormItem, FileItem, BinaryItem, BinaryChannelItem)
 	}
 	
+	val parameterAnnotations by lazy {
+		arrayOf(Principal, Body, Field, Path, Query, PartForm, PartFile, PartBinary, PartBinaryChannel)
+	}
+	
 	val String = ClassName.bestGuess("kotlin.String")
 	
 	val ByteArray = ClassName.bestGuess("kotlin.ByteArray")
@@ -63,6 +67,8 @@ internal object ClassNames {
 	val BinaryChannelItem = ClassName.bestGuess("io.ktor.http.content.PartData.BinaryChannelItem")
 	
 	val Query = ClassName.bestGuess("cn.ktorfitx.server.annotation.Query")
+	
+	val Path = ClassName.bestGuess("cn.ktorfitx.server.annotation.Path")
 	
 	val RoutingContext = ClassName.bestGuess("io.ktor.server.routing.RoutingContext")
 	

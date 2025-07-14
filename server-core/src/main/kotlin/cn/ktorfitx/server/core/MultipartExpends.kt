@@ -1,4 +1,4 @@
-package cn.ktorfitx.server.core.util
+package cn.ktorfitx.server.core
 
 import io.ktor.http.content.*
 import io.ktor.utils.io.*

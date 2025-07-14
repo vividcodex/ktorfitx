@@ -17,6 +17,7 @@ internal class RouteCodeBlock(
 	fun CodeBlock.Builder.addCodeBlock(funName: String) {
 		addPrincipalsCodeBlock()
 		addQueriesCodeBlock()
+		addPathsCodeBlock()
 		addRequestBodyCodeBlock()
 		addFunCodeBlock(funName)
 	}
@@ -51,6 +52,26 @@ internal class RouteCodeBlock(
 						} else {
 							addStatement("val %N = %N.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
 						}
+					}
+				}
+			}
+		}
+	}
+	
+	private fun CodeBlock.Builder.addPathsCodeBlock() {
+		val pathModels = funModel.pathModels
+		if (pathModels.isNotEmpty()) {
+			val varName = getVarName("pathParameters")
+			addStatement("val %N = this.call.pathParameters", varName)
+			fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "getOrFail")
+			pathModels.forEach {
+				when (it.typeName) {
+					ClassNames.String -> {
+						addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
+					}
+					
+					else -> {
+						addStatement("val %N = %N.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
 					}
 				}
 			}
@@ -104,7 +125,7 @@ internal class RouteCodeBlock(
 	private fun CodeBlock.Builder.addPartsCodeBlock(
 		partModels: List<PartModel>
 	) {
-		fileSpecBuilder.addImport(PackageNames.KTORFITX_CORE_UTIL, "resolve")
+		fileSpecBuilder.addImport(PackageNames.KTORFITX_CORE, "resolve")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "receiveMultipart")
 		partVarName = getVarName("resolver")
 		addStatement("val %N = this.call.receiveMultipart().resolve()", partVarName)

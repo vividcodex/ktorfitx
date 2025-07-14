@@ -14,5 +14,5 @@ internal object PackageNames {
 	
 	const val KTOR_UTIL = "io.ktor.server.util"
 	
-	const val KTORFITX_CORE_UTIL = "cn.ktorfitx.server.core.util"
+	const val KTORFITX_CORE = "cn.ktorfitx.server.core"
 }

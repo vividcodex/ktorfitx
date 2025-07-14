@@ -7,15 +7,16 @@ import kotlin.contracts.contract
 /**
  * 编译器检查
  */
+@Suppress("NOTHING_TO_INLINE")
 @OptIn(ExperimentalContracts::class)
-fun <T : KSNode> T.compileCheck(
+inline fun <T : KSNode> T.compileCheck(
 	value: Boolean,
-	errorMessage: () -> String,
+	noinline errorMessage: () -> String,
 ) {
 	contract {
 		returns() implies value
 	}
 	if (!value) {
-		compileError(errorMessage)
+		this@compileCheck.ktorfitxError(errorMessage)
 	}
 }
