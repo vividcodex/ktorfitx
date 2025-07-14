@@ -3,9 +3,7 @@ package cn.ktorfitx.server.ksp.kotlinpoet
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.server.ksp.constants.ClassNames
 import cn.ktorfitx.server.ksp.constants.PackageNames
-import cn.ktorfitx.server.ksp.model.BodyModel
-import cn.ktorfitx.server.ksp.model.FunModel
-import cn.ktorfitx.server.ksp.model.HttpRequestModel
+import cn.ktorfitx.server.ksp.model.*
 import com.squareup.kotlinpoet.CodeBlock
 
 internal class RouteCodeBlock(
@@ -36,12 +34,6 @@ internal class RouteCodeBlock(
 		}
 	}
 	
-	private fun CodeBlock.Builder.addRequestBodyCodeBlock() {
-		when (funModel.requestBody) {
-			is BodyModel -> addBodyCodeBlock(funModel.requestBody)
-		}
-	}
-	
 	private fun CodeBlock.Builder.addQueriesCodeBlock() {
 		val queryModels = funModel.queryModels
 		if (queryModels.isNotEmpty()) {
@@ -55,11 +47,18 @@ internal class RouteCodeBlock(
 						if (it.typeName == ClassNames.String) {
 							addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
 						} else {
-							addStatement("val %N = %L.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
+							addStatement("val %N = %N.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
 						}
 					}
 				}
 			}
+		}
+	}
+	
+	private fun CodeBlock.Builder.addRequestBodyCodeBlock() {
+		when (funModel.requestBody) {
+			is BodyModel -> addBodyCodeBlock(funModel.requestBody)
+			is FieldModels -> addFieldsCodeBlock(funModel.requestBody.fieldModels)
 		}
 	}
 	
@@ -72,6 +71,29 @@ internal class RouteCodeBlock(
 		} else {
 			fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "receive")
 			addStatement("val %N = this.call.receive<%T>()", bodyModel.varName, bodyModel.typeName)
+		}
+	}
+	
+	private fun CodeBlock.Builder.addFieldsCodeBlock(
+		fieldModels: List<FieldModel>
+	) {
+		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "receiveParameters")
+		val varName = getVarName("parameters")
+		addStatement("val %N = this.call.receiveParameters()", varName)
+		fieldModels.forEach {
+			when {
+				it.isNullable -> {
+					addStatement("val %N = %N[%S]", it.varName, varName, it.name)
+				}
+				else -> {
+					fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "getOrFail")
+					if (it.typeName == ClassNames.String) {
+						addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
+					} else {
+						addStatement("val %N = %N.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
+					}
+				}
+			}
 		}
 	}
 	

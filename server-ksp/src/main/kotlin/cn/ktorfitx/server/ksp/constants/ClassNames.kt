@@ -38,6 +38,8 @@ internal object ClassNames {
 	
 	val Body = ClassName.bestGuess("cn.ktorfitx.server.annotation.Body")
 	
+	val Field = ClassName.bestGuess("cn.ktorfitx.server.annotation.Field")
+	
 	val Query = ClassName.bestGuess("cn.ktorfitx.server.annotation.Query")
 	
 	val RoutingContext = ClassName.bestGuess("io.ktor.server.routing.RoutingContext")
