@@ -8,6 +8,7 @@ import cn.ktorfitx.server.ksp.model.*
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
+import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -207,27 +208,31 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 				typeMethodMap = mapOf(
 					ClassNames.FormItem to "getForm",
 					ClassNames.String to "getFormValue"
-				)
+				),
+				errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 String 和 PartData.FormItem 类型" }
 			),
 			PartModelConfig(
 				annotation = ClassNames.PartFile,
 				typeMethodMap = mapOf(
 					ClassNames.FileItem to "getFile",
 					ClassNames.ByteArray to "getFileByteArray",
-				)
+				),
+				errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 ByteArray 和 PartData.FileItem 类型" }
 			),
 			PartModelConfig(
 				annotation = ClassNames.PartBinary,
 				typeMethodMap = mapOf(
 					ClassNames.BinaryItem to "getBinary",
 					ClassNames.ByteArray to "getBinaryByteArray",
-				)
+				),
+				errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 ByteArray 和 PartData.BinaryItem 类型" }
 			),
 			PartModelConfig(
 				annotation = ClassNames.PartBinaryChannel,
 				typeMethodMap = mapOf(
 					ClassNames.BinaryChannelItem to "getBinaryChannel"
-				)
+				),
+				errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 PartData.BinaryChannelItem 类型" }
 			),
 		)
 		val allPartModels = configs.flatMap { getPartModels(it) }
@@ -253,7 +258,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 				}
 			}
 			parameter.compileError {
-				"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数只允许使用 String 和 PartForm 类型"
+				config.errorMessage(parameter)
 			}
 		}
 	}
@@ -281,4 +286,5 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 private data class PartModelConfig(
 	val annotation: ClassName,
 	val typeMethodMap: Map<ClassName, String>,
+	val errorMessage: (KSValueParameter) -> String
 )
