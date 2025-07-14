@@ -8,8 +8,8 @@ internal object ClassNames {
 		arrayOf(GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, WebSocket, WebSocketRaw)
 	}
 	
-	val partSupports by lazy {
-		arrayOf(String, ByteArray, FormItem, FileItem, BinaryItem, BinaryChannelItem)
+	val partDatas by lazy {
+		arrayOf(FormItem, FileItem, BinaryItem, BinaryChannelItem)
 	}
 	
 	val String = ClassName.bestGuess("kotlin.String")

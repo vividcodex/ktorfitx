@@ -11,6 +11,8 @@ internal class RouteCodeBlock(
 ) {
 	
 	private val varNames = funModel.varNames.toMutableSet()
+	private var partVarName: String? = null
+	private var beforePartDispose = true
 	
 	fun CodeBlock.Builder.addCodeBlock(funName: String) {
 		addPrincipalsCodeBlock()
@@ -104,20 +106,72 @@ internal class RouteCodeBlock(
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_CORE_UTIL, "resolve")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "receiveMultipart")
-		val varName = getVarName("resolver")
-		addStatement("val %N = this.call.receiveMultipart().resolve()", varName)
+		partVarName = getVarName("resolver")
+		addStatement("val %N = this.call.receiveMultipart().resolve()", partVarName)
+		val funNameMap = mapOf(
+			ClassNames.PartForm to mapOf(
+				false to mapOf(
+					false to "getFormValue",
+					true to "getFormValueOrNull"
+				),
+				true to mapOf(
+					false to "getForm",
+					true to "getFormOrNull"
+				)
+			),
+			ClassNames.PartFile to mapOf(
+				false to mapOf(
+					false to "getFileByteArray",
+					true to "getFileByteArrayOrNull"
+				),
+				true to mapOf(
+					false to "getFile",
+					true to "getFileOrNull"
+				)
+			),
+			ClassNames.PartBinary to mapOf(
+				false to mapOf(
+					false to "getBinaryByteArray",
+					true to "getBinaryByteArrayOrNull"
+				),
+				true to mapOf(
+					false to "getBinary",
+					true to "getBinaryOrNull"
+				)
+			),
+			ClassNames.PartBinaryChannel to mapOf(
+				true to mapOf(
+					false to "getBinaryChannel",
+					true to "getBinaryChannelOrNull"
+				)
+			)
+		)
+		
 		partModels.forEach {
-			addStatement("val %N = %N.%N(%S)", it.varName, varName, it.funName, it.name)
+			if (beforePartDispose) {
+				beforePartDispose = !it.isPartData
+			}
+			val funName = funNameMap[it.annotation]!![it.isPartData]!![it.isNullable]!!
+			addStatement("val %N = %N.%N(%S)", it.varName, partVarName, funName, it.name)
 		}
 	}
 	
-	private fun CodeBlock.Builder.addFunCodeBlock(funName: String) {
+	private fun CodeBlock.Builder.addFunCodeBlock(
+		funName: String
+	) {
 		val parameters = funModel.varNames.joinToString()
 		if (funModel.routeModel is HttpRequestModel) {
-			beginControlFlow("%N(%L).also", funName, parameters)
+			if (partVarName != null && beforePartDispose) {
+				addStatement("%N.disposeAll()", partVarName)
+			}
+			
 			fileSpecBuilder.addImport(PackageNames.KTOR_RESPONSE, "respond")
-			addStatement("this.call.respond(it)")
-			endControlFlow()
+			val varName = getVarName("result")
+			addStatement("val %N = %N(%L)", varName, funName, parameters)
+			if (partVarName != null && !beforePartDispose) {
+				addStatement("%N.disposeAll()", partVarName)
+			}
+			addStatement("this.call.respond(%N)", varName)
 		} else {
 			addStatement("%N(%L)", funName, parameters)
 		}

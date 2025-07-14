@@ -76,14 +76,15 @@ internal class RouteKotlinPoet {
 		funModel: FunModel,
 		httpRequestModel: HttpRequestModel
 	) {
-		fileSpecBuilder.addImport(PackageNames.KTOR_ROUTING, httpRequestModel.method)
+		val method = httpRequestModel.className.simpleName.lowercase()
+		fileSpecBuilder.addImport(PackageNames.KTOR_ROUTING, method)
 		beginControlFlow(
 			"""
 			%N(
 				path = %S
 			)
 			""".trimIndent(),
-			httpRequestModel.method,
+			method,
 			httpRequestModel.path
 		)
 		buildCodeBlock(funModel)

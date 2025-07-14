@@ -23,9 +23,7 @@ class MultipartResolver(
 	
 	fun getFormValue(name: String): String {
 		val formItem = getForm(name)
-		return formItem.value.also {
-			formItem.dispose()
-		}
+		return formItem.value
 	}
 	
 	fun getFormOrNull(name: String): PartData.FormItem? {
@@ -34,9 +32,7 @@ class MultipartResolver(
 	
 	fun getFormValueOrNull(name: String): String? {
 		val formItem = getFormOrNull(name) ?: return null
-		return formItem.value.also {
-			formItem.dispose()
-		}
+		return formItem.value
 	}
 	
 	fun getFile(name: String): PartData.FileItem {
@@ -45,9 +41,7 @@ class MultipartResolver(
 	
 	suspend fun getFileByteArray(name: String): ByteArray {
 		val fileItem = getFile(name)
-		return fileItem.provider().readBuffer().readByteArray().also {
-			fileItem.dispose()
-		}
+		return fileItem.provider().readBuffer().readByteArray()
 	}
 	
 	fun getFileOrNull(name: String): PartData.FileItem? {
@@ -56,9 +50,7 @@ class MultipartResolver(
 	
 	suspend fun getFileByteArrayOrNull(name: String): ByteArray? {
 		val fileItem = getFileOrNull(name) ?: return null
-		return fileItem.provider().readBuffer().readByteArray().also {
-			fileItem.dispose()
-		}
+		return fileItem.provider().readBuffer().readByteArray()
 	}
 	
 	fun getBinary(name: String): PartData.BinaryItem {
@@ -67,9 +59,7 @@ class MultipartResolver(
 	
 	fun getBinaryByteArray(name: String): ByteArray {
 		val binaryItem = getBinary(name)
-		return binaryItem.provider().readByteArray().also {
-			binaryItem.dispose()
-		}
+		return binaryItem.provider().readByteArray()
 	}
 	
 	fun getBinaryOrNull(name: String): PartData.BinaryItem? {
@@ -78,9 +68,7 @@ class MultipartResolver(
 	
 	fun getBinaryByteArrayOrNull(name: String): ByteArray? {
 		val binaryItem = getBinaryOrNull(name) ?: return null
-		return binaryItem.provider().readByteArray().also {
-			binaryItem.dispose()
-		}
+		return binaryItem.provider().readByteArray()
 	}
 	
 	fun getBinaryChannel(name: String): PartData.BinaryChannelItem {
@@ -89,5 +77,9 @@ class MultipartResolver(
 	
 	fun getBinaryChannelOrNull(name: String): PartData.BinaryChannelItem? {
 		return partDatas[name] as? PartData.BinaryChannelItem
+	}
+	
+	fun disposeAll() {
+		partDatas.values.forEach { it.dispose() }
 	}
 }

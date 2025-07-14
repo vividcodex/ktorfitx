@@ -18,3 +18,10 @@ fun partTest2(
 	@PartBinaryChannel channel: PartData.BinaryChannelItem,
 	@PartBinaryChannel("custom2") channel2: PartData.BinaryChannelItem?
 ): String = ""
+
+@POST("part/test3")
+fun partTest3(
+	@PartForm name: String,
+	@PartFile file: ByteArray?,
+	@PartBinary binary: ByteArray
+): String = ""

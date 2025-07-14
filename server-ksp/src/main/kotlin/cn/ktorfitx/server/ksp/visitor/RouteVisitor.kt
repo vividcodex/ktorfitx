@@ -22,17 +22,18 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		data: Unit
 	): FunModel {
 		function.checkReturnType()
+		val routeModel = function.getRouteModel()
 		return FunModel(
 			function.simpleName.asString(),
 			function.getCanonicalName(),
 			function.extensionReceiver != null,
 			function.getGroupName(),
 			function.getAuthenticationModel(),
-			function.getRouteModel(),
+			routeModel,
 			function.getVarNames(),
 			function.getPrincipalModels(),
 			function.getQueryModels(),
-			function.getRequestBody()
+			function.getRequestBody(routeModel)
 		)
 	}
 	
@@ -111,8 +112,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 						"${this.simpleName} 是扩展函数，但仅允许扩展 RoutingContext"
 					}
 				}
-				val method = className.simpleName.lowercase()
-				HttpRequestModel(path, method)
+				HttpRequestModel(path, className)
 			}
 		}
 	}
@@ -137,7 +137,9 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		}
 	}
 	
-	private fun KSFunctionDeclaration.getRequestBody(): RequestBody? {
+	private fun KSFunctionDeclaration.getRequestBody(
+		routeModel: RouteModel
+	): RequestBody? {
 		val classNames = mapOf(
 			BodyModel::class to ClassNames.Body,
 			FieldModels::class to ClassNames.Field,
@@ -155,8 +157,14 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			if (exists) entity.key else null
 		}
 		if (modelKClasses.isEmpty()) return null
+		this.compileCheck(
+			routeModel is HttpRequestModel &&
+				routeModel.className in arrayOf(ClassNames.POST, ClassNames.PUT, ClassNames.DELETE, ClassNames.PATCH, ClassNames.OPTIONS)
+		) {
+			"${simpleName.asString()} 函数的参数中不允许使用 @Body, @Field, @PartForm, @PartFile, @PartBinary, @PartBinaryChannel 注解，因为请求类型必须是 @POST, @PUT, @DELETE, @PATCH, @OPTIONS 才能使用"
+		}
 		this.compileCheck(modelKClasses.size == 1) {
-			"${simpleName.asString()} 函数参数不允许同时使用 @Body, @Field, (@PartForm, @PartFile, @PartBinary, @PartBinaryChannel) 注解"
+			"${simpleName.asString()} 函数参数不允许同时使用 @Body, @Field 或 @PartForm, @PartFile, @PartBinary, @PartBinaryChannel 注解"
 		}
 		val modelKClass = modelKClasses.single()
 		return when (modelKClass) {
@@ -205,32 +213,32 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		val configs = listOf(
 			PartModelConfig(
 				annotation = ClassNames.PartForm,
-				typeMethodMap = mapOf(
-					ClassNames.FormItem to "getForm",
-					ClassNames.String to "getFormValue"
+				classNames = listOf(
+					ClassNames.FormItem,
+					ClassNames.String
 				),
 				errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 String 和 PartData.FormItem 类型" }
 			),
 			PartModelConfig(
 				annotation = ClassNames.PartFile,
-				typeMethodMap = mapOf(
-					ClassNames.FileItem to "getFile",
-					ClassNames.ByteArray to "getFileByteArray",
+				classNames = listOf(
+					ClassNames.FileItem,
+					ClassNames.ByteArray
 				),
 				errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 ByteArray 和 PartData.FileItem 类型" }
 			),
 			PartModelConfig(
 				annotation = ClassNames.PartBinary,
-				typeMethodMap = mapOf(
-					ClassNames.BinaryItem to "getBinary",
-					ClassNames.ByteArray to "getBinaryByteArray",
+				classNames = listOf(
+					ClassNames.BinaryItem,
+					ClassNames.ByteArray
 				),
 				errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 ByteArray 和 PartData.BinaryItem 类型" }
 			),
 			PartModelConfig(
 				annotation = ClassNames.PartBinaryChannel,
-				typeMethodMap = mapOf(
-					ClassNames.BinaryChannelItem to "getBinaryChannel"
+				classNames = listOf(
+					ClassNames.BinaryChannelItem
 				),
 				errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 PartData.BinaryChannelItem 类型" }
 			),
@@ -252,9 +260,10 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			}
 			val annotation = parameter.getKSAnnotationByType(config.annotation)!!
 			val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
-			config.typeMethodMap.forEach { (className, funName) ->
+			config.classNames.forEach { className ->
 				if (typeName == className) {
-					return@map PartModel(name, varName, "$funName${if (isNullable) "OrNull" else ""}")
+					val isPartData = className in ClassNames.partDatas
+					return@map PartModel(name, varName, config.annotation, className, isNullable, isPartData)
 				}
 			}
 			parameter.compileError {
@@ -285,6 +294,6 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 
 private data class PartModelConfig(
 	val annotation: ClassName,
-	val typeMethodMap: Map<ClassName, String>,
+	val classNames: List<ClassName>,
 	val errorMessage: (KSValueParameter) -> String
 )

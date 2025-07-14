@@ -1,10 +1,9 @@
 package cn.ktorfitx.server.sample.routes
 
 import cn.ktorfitx.server.annotation.Field
-import cn.ktorfitx.server.annotation.GET
 import cn.ktorfitx.server.annotation.POST
 
-@GET("field/test1")
+@POST("field/test1")
 fun fieldTest1(
 	@Field test1: String,
 	@Field("custom") test2: Int

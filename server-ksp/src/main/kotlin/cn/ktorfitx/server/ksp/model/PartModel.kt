@@ -1,7 +1,12 @@
 package cn.ktorfitx.server.ksp.model
 
+import com.squareup.kotlinpoet.ClassName
+
 internal class PartModel(
 	val name: String,
 	val varName: String,
-	val funName: String
+	val annotation: ClassName,
+	val className: ClassName,
+	val isNullable: Boolean,
+	val isPartData: Boolean
 )
