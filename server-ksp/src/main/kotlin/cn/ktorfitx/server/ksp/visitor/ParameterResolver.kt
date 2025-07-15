@@ -2,10 +2,7 @@ package cn.ktorfitx.server.ksp.visitor
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.check.ktorfitxError
-import cn.ktorfitx.common.ksp.util.expends.camelToHeaderCase
-import cn.ktorfitx.common.ksp.util.expends.getKSAnnotationByType
-import cn.ktorfitx.common.ksp.util.expends.getValueOrNull
-import cn.ktorfitx.common.ksp.util.expends.hasAnnotation
+import cn.ktorfitx.common.ksp.util.expends.*
 import cn.ktorfitx.server.ksp.constants.ClassNames
 import cn.ktorfitx.server.ksp.model.*
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -247,6 +244,32 @@ internal object ParameterResolver {
 				"${simpleName.asString()} 函数的 $varName 参数只允许使用 String 类型"
 			}
 			HeaderModel(name, varName, isNullable)
+		}
+	}
+	
+	fun KSFunctionDeclaration.getCookieModels(): List<CookieModel> {
+		return this.parameters.mapNotNull { parameter ->
+			val annotation = parameter.getKSAnnotationByType(ClassNames.Cookie) ?: return@mapNotNull null
+			var typeName = parameter.type.toTypeName()
+			val isNullable = typeName.isNullable
+			if (isNullable) {
+				typeName = typeName.copy(nullable = false)
+			}
+			val varName = parameter.name!!.asString()
+			parameter.compileCheck(typeName == ClassNames.String) {
+				"${simpleName.asString()} 函数的 $varName 参数只允许使用 String 类型"
+			}
+			val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
+			val encoding = annotation.getClassName("encoding")?.simpleName?.let { simpleName ->
+				when (simpleName) {
+					ClassNames.CookieEncodingRaw.simpleName -> ClassNames.CookieEncodingRaw
+					ClassNames.CookieEncodingDQuotes.simpleName -> ClassNames.CookieEncodingDQuotes
+					ClassNames.CookieEncodingURIEncoding.simpleName -> ClassNames.CookieEncodingURIEncoding
+					ClassNames.CookieEncodingBase64Encoding.simpleName -> ClassNames.CookieEncodingBase64Encoding
+					else -> error("不支持的类型")
+				}
+			} ?: ClassNames.CookieEncodingURIEncoding
+			CookieModel(name, varName, isNullable, encoding)
 		}
 	}
 }

@@ -25,5 +25,9 @@ fun complexTest2(
 	@Principal principal: UserIdPrincipal,
 	@Query query: String,
 	@Query("custom2") query2: Int,
-	@Path name: String
+	@Path name: String,
+	@Cookie cookie: String,
+	@Cookie("custom3") cookie2: String?,
+	@Header authentication: String,
+	@Header("Custom4") header1: String?,
 ): String = ""

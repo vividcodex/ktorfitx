@@ -13,70 +13,82 @@ internal object ClassNames {
 	}
 	
 	val parameterAnnotations by lazy {
-		arrayOf(Principal, Body, Field, Path, Query, PartForm, PartFile, PartBinary, PartBinaryChannel, Header)
+		arrayOf(Principal, Body, Field, Path, Query, PartForm, PartFile, PartBinary, PartBinaryChannel, Header, Cookie)
 	}
 	
-	val String = ClassName.bestGuess("kotlin.String")
+	val String = ClassName("kotlin", "String")
 	
-	val ByteArray = ClassName.bestGuess("kotlin.ByteArray")
+	val ByteArray = ClassName("kotlin", "ByteArray")
 	
-	val GET = ClassName.bestGuess("cn.ktorfitx.server.annotation.GET")
+	val GET = ClassName("cn.ktorfitx.server.annotation", "GET")
 	
-	val POST = ClassName.bestGuess("cn.ktorfitx.server.annotation.POST")
+	val POST = ClassName("cn.ktorfitx.server.annotation", "POST")
 	
-	val PUT = ClassName.bestGuess("cn.ktorfitx.server.annotation.PUT")
+	val PUT = ClassName("cn.ktorfitx.server.annotation", "PUT")
 	
-	val DELETE = ClassName.bestGuess("cn.ktorfitx.server.annotation.DELETE")
+	val DELETE = ClassName("cn.ktorfitx.server.annotation", "DELETE")
 	
-	val PATCH = ClassName.bestGuess("cn.ktorfitx.server.annotation.PATCH")
+	val PATCH = ClassName("cn.ktorfitx.server.annotation", "PATCH")
 	
-	val HEAD = ClassName.bestGuess("cn.ktorfitx.server.annotation.HEAD")
+	val HEAD = ClassName("cn.ktorfitx.server.annotation", "HEAD")
 	
-	val OPTIONS = ClassName.bestGuess("cn.ktorfitx.server.annotation.OPTIONS")
+	val OPTIONS = ClassName("cn.ktorfitx.server.annotation", "OPTIONS")
 	
-	val Group = ClassName.bestGuess("cn.ktorfitx.server.annotation.Group")
+	val Group = ClassName("cn.ktorfitx.server.annotation", "Group")
 	
-	val WebSocket = ClassName.bestGuess("cn.ktorfitx.server.annotation.WebSocket")
+	val WebSocket = ClassName("cn.ktorfitx.server.annotation", "WebSocket")
 	
-	val WebSocketRaw = ClassName.bestGuess("cn.ktorfitx.server.annotation.WebSocketRaw")
+	val WebSocketRaw = ClassName("cn.ktorfitx.server.annotation", "WebSocketRaw")
 	
-	val Authentication = ClassName.bestGuess("cn.ktorfitx.server.annotation.Authentication")
+	val Authentication = ClassName("cn.ktorfitx.server.annotation", "Authentication")
 	
-	val RouteGenerator = ClassName.bestGuess("cn.ktorfitx.server.annotation.RouteGenerator")
+	val RouteGenerator = ClassName("cn.ktorfitx.server.annotation", "RouteGenerator")
 	
-	val Principal = ClassName.bestGuess("cn.ktorfitx.server.annotation.Principal")
+	val Principal = ClassName("cn.ktorfitx.server.annotation", "Principal")
 	
-	val Body = ClassName.bestGuess("cn.ktorfitx.server.annotation.Body")
+	val Body = ClassName("cn.ktorfitx.server.annotation", "Body")
 	
-	val Field = ClassName.bestGuess("cn.ktorfitx.server.annotation.Field")
+	val Field = ClassName("cn.ktorfitx.server.annotation", "Field")
 	
-	val PartForm = ClassName.bestGuess("cn.ktorfitx.server.annotation.PartForm")
+	val PartForm = ClassName("cn.ktorfitx.server.annotation", "PartForm")
 	
-	val PartFile = ClassName.bestGuess("cn.ktorfitx.server.annotation.PartFile")
+	val PartFile = ClassName("cn.ktorfitx.server.annotation", "PartFile")
 	
-	val PartBinary = ClassName.bestGuess("cn.ktorfitx.server.annotation.PartBinary")
+	val PartBinary = ClassName("cn.ktorfitx.server.annotation", "PartBinary")
 	
-	val PartBinaryChannel = ClassName.bestGuess("cn.ktorfitx.server.annotation.PartBinaryChannel")
+	val PartBinaryChannel = ClassName("cn.ktorfitx.server.annotation", "PartBinaryChannel")
 	
-	val FormItem = ClassName.bestGuess("io.ktor.http.content.PartData.FormItem")
+	val Query = ClassName("cn.ktorfitx.server.annotation", "Query")
 	
-	val FileItem = ClassName.bestGuess("io.ktor.http.content.PartData.FileItem")
+	val Path = ClassName("cn.ktorfitx.server.annotation", "Path")
 	
-	val BinaryItem = ClassName.bestGuess("io.ktor.http.content.PartData.BinaryItem")
+	val Header = ClassName("cn.ktorfitx.server.annotation", "Header")
 	
-	val BinaryChannelItem = ClassName.bestGuess("io.ktor.http.content.PartData.BinaryChannelItem")
+	val Cookie = ClassName("cn.ktorfitx.server.annotation", "Cookie")
 	
-	val Query = ClassName.bestGuess("cn.ktorfitx.server.annotation.Query")
+	val FormItem = ClassName("io.ktor.http.content", "PartData", "FormItem")
 	
-	val Path = ClassName.bestGuess("cn.ktorfitx.server.annotation.Path")
+	val FileItem = ClassName("io.ktor.http.content", "PartData", "FileItem")
 	
-	val Header = ClassName.bestGuess("cn.ktorfitx.server.annotation.Header")
+	val BinaryItem = ClassName("io.ktor.http.content", "PartData", "BinaryItem")
 	
-	val RoutingContext = ClassName.bestGuess("io.ktor.server.routing.RoutingContext")
+	val BinaryChannelItem = ClassName("io.ktor.http.content", "PartData", "BinaryChannelItem")
 	
-	val Routing = ClassName.bestGuess("io.ktor.server.routing.Routing")
+	val RoutingContext = ClassName("io.ktor.server.routing", "RoutingContext")
 	
-	val WebSocketServerSession = ClassName.bestGuess("io.ktor.server.websocket.WebSocketServerSession")
+	val Routing = ClassName("io.ktor.server.routing", "Routing")
 	
-	val DefaultWebSocketServerSession = ClassName.bestGuess("io.ktor.server.websocket.DefaultWebSocketServerSession")
+	val WebSocketServerSession = ClassName("io.ktor.server.websocket", "WebSocketServerSession")
+	
+	val DefaultWebSocketServerSession = ClassName("io.ktor.server.websocket", "DefaultWebSocketServerSession")
+	
+	val CookieEncodingRaw = ClassName("io.ktor.http", "CookieEncoding", "RAW")
+	
+	val CookieEncodingDQuotes = ClassName("io.ktor.http", "CookieEncoding", "DQUOTES")
+	
+	val CookieEncodingURIEncoding = ClassName("io.ktor.http", "CookieEncoding", "URI_ENCODING")
+	
+	val CookieEncodingBase64Encoding = ClassName("io.ktor.http", "CookieEncoding", "BASE64_ENCODING")
+	
+	
 }

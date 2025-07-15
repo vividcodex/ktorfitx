@@ -19,6 +19,7 @@ internal class RouteCodeBlock(
 		addQueriesCodeBlock()
 		addPathsCodeBlock()
 		addHeadersCodeBlock()
+		addCookiesCodeBlock()
 		addRequestBodyCodeBlock()
 		addFunCodeBlock(funName)
 	}
@@ -78,6 +79,15 @@ internal class RouteCodeBlock(
 		}
 	}
 	
+	private fun CodeBlock.Builder.addCookiesCodeBlock() {
+		val cookieModels = funModel.cookieModels.takeIf { it.isNotEmpty() } ?: return
+		val varName = getVarName("cookies")
+		addStatement("val %N = this.call.request.cookies", varName)
+		cookieModels.forEach {
+			addStatement("val %N = %N[%S, %T]%L", it.varName, varName, it.name, it.encoding, if (it.isNullable) "" else "!!")
+		}
+	}
+	
 	private fun CodeBlock.Builder.addRequestBodyCodeBlock() {
 		when (funModel.requestBody) {
 			is BodyModel -> addBodyCodeBlock(funModel.requestBody)
@@ -126,50 +136,18 @@ internal class RouteCodeBlock(
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "receiveMultipart")
 		partVarName = getVarName("resolver")
 		addStatement("val %N = this.call.receiveMultipart().resolve()", partVarName)
-		val funNameMap = mapOf(
-			ClassNames.PartForm to mapOf(
-				false to mapOf(
-					false to "getFormValue",
-					true to "getFormValueOrNull"
-				),
-				true to mapOf(
-					false to "getForm",
-					true to "getFormOrNull"
-				)
-			),
-			ClassNames.PartFile to mapOf(
-				false to mapOf(
-					false to "getFileByteArray",
-					true to "getFileByteArrayOrNull"
-				),
-				true to mapOf(
-					false to "getFile",
-					true to "getFileOrNull"
-				)
-			),
-			ClassNames.PartBinary to mapOf(
-				false to mapOf(
-					false to "getBinaryByteArray",
-					true to "getBinaryByteArrayOrNull"
-				),
-				true to mapOf(
-					false to "getBinary",
-					true to "getBinaryOrNull"
-				)
-			),
-			ClassNames.PartBinaryChannel to mapOf(
-				true to mapOf(
-					false to "getBinaryChannel",
-					true to "getBinaryChannelOrNull"
-				)
-			)
-		)
-		
 		partModels.forEach {
 			if (beforePartDispose) {
 				beforePartDispose = !it.isPartData
 			}
-			val funName = funNameMap[it.annotation]!![it.isPartData]!![it.isNullable]!!
+			val orNull = if (it.isNullable) "OrNull" else ""
+			val funName = when (it.annotation) {
+				ClassNames.PartForm -> "getForm${if (it.isPartData) "" else "Value"}$orNull"
+				ClassNames.PartFile -> "getFile${if (it.isPartData) "" else "ByteArray"}$orNull"
+				ClassNames.PartBinary -> "getBinary${if (it.isPartData) "" else "ByteArray"}$orNull"
+				ClassNames.PartBinaryChannel -> "getBinaryChannel$orNull"
+				else -> error("不支持的类型 ${it.annotation}")
+			}
 			addStatement("val %N = %N.%N(%S)", it.varName, partVarName, funName, it.name)
 		}
 	}
