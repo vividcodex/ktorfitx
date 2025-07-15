@@ -13,7 +13,7 @@ internal object ClassNames {
 	}
 	
 	val parameterAnnotations by lazy {
-		arrayOf(Principal, Body, Field, Path, Query, PartForm, PartFile, PartBinary, PartBinaryChannel)
+		arrayOf(Principal, Body, Field, Path, Query, PartForm, PartFile, PartBinary, PartBinaryChannel, Header)
 	}
 	
 	val String = ClassName.bestGuess("kotlin.String")
@@ -69,6 +69,8 @@ internal object ClassNames {
 	val Query = ClassName.bestGuess("cn.ktorfitx.server.annotation.Query")
 	
 	val Path = ClassName.bestGuess("cn.ktorfitx.server.annotation.Path")
+	
+	val Header = ClassName.bestGuess("cn.ktorfitx.server.annotation.Header")
 	
 	val RoutingContext = ClassName.bestGuess("io.ktor.server.routing.RoutingContext")
 	

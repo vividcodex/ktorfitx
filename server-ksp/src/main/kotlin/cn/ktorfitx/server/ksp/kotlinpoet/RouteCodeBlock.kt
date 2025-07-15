@@ -18,40 +18,37 @@ internal class RouteCodeBlock(
 		addPrincipalsCodeBlock()
 		addQueriesCodeBlock()
 		addPathsCodeBlock()
+		addHeadersCodeBlock()
 		addRequestBodyCodeBlock()
 		addFunCodeBlock(funName)
 	}
 	
 	private fun CodeBlock.Builder.addPrincipalsCodeBlock() {
-		val principalModels = funModel.principalModels
-		if (principalModels.isNotEmpty()) {
-			fileSpecBuilder.addImport(PackageNames.KTOR_AUTH, "principal")
-			principalModels.forEach {
-				val nullSafety = if (it.isNullable) "" else "!!"
-				if (it.provider != null) {
-					addStatement("val %N = this.call.principal<%T>(%S)%L", it.varName, it.typeName, it.provider, nullSafety)
-				} else {
-					addStatement("val %N = this.call.principal<%T>()%L", it.varName, it.typeName, nullSafety)
-				}
+		val principalModels = funModel.principalModels.takeIf { it.isNotEmpty() } ?: return
+		fileSpecBuilder.addImport(PackageNames.KTOR_AUTH, "principal")
+		principalModels.forEach {
+			val nullSafety = if (it.isNullable) "" else "!!"
+			if (it.provider != null) {
+				addStatement("val %N = this.call.principal<%T>(%S)%L", it.varName, it.typeName, it.provider, nullSafety)
+			} else {
+				addStatement("val %N = this.call.principal<%T>()%L", it.varName, it.typeName, nullSafety)
 			}
 		}
 	}
 	
 	private fun CodeBlock.Builder.addQueriesCodeBlock() {
-		val queryModels = funModel.queryModels
-		if (queryModels.isNotEmpty()) {
-			val varName = getVarName("queryParameters")
-			addStatement("val %N = this.call.request.queryParameters", varName)
-			queryModels.forEach {
-				when {
-					it.isNullable -> addStatement("val %N = %L[%S]", it.varName, varName, it.name)
-					else -> {
-						fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "getOrFail")
-						if (it.typeName == ClassNames.String) {
-							addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
-						} else {
-							addStatement("val %N = %N.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
-						}
+		val queryModels = funModel.queryModels.takeIf { it.isNotEmpty() } ?: return
+		val varName = getVarName("queryParameters")
+		addStatement("val %N = this.call.request.queryParameters", varName)
+		queryModels.forEach {
+			when {
+				it.isNullable -> addStatement("val %N = %L[%S]", it.varName, varName, it.name)
+				else -> {
+					fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "getOrFail")
+					if (it.typeName == ClassNames.String) {
+						addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
+					} else {
+						addStatement("val %N = %N.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
 					}
 				}
 			}
@@ -59,22 +56,25 @@ internal class RouteCodeBlock(
 	}
 	
 	private fun CodeBlock.Builder.addPathsCodeBlock() {
-		val pathModels = funModel.pathModels
-		if (pathModels.isNotEmpty()) {
-			val varName = getVarName("pathParameters")
-			addStatement("val %N = this.call.pathParameters", varName)
-			fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "getOrFail")
-			pathModels.forEach {
-				when (it.typeName) {
-					ClassNames.String -> {
-						addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
-					}
-					
-					else -> {
-						addStatement("val %N = %N.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
-					}
-				}
+		val pathModels = funModel.pathModels.takeIf { it.isNotEmpty() } ?: return
+		val varName = getVarName("pathParameters")
+		addStatement("val %N = this.call.pathParameters", varName)
+		fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "getOrFail")
+		pathModels.forEach {
+			if (it.typeName == ClassNames.String) {
+				addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
+			} else {
+				addStatement("val %N = %N.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
 			}
+		}
+	}
+	
+	private fun CodeBlock.Builder.addHeadersCodeBlock() {
+		val headerModels = funModel.headerModels.takeIf { it.isNotEmpty() } ?: return
+		val varName = getVarName("headers")
+		addStatement("val %N = this.call.request.headers", varName)
+		headerModels.forEach {
+			addStatement("val %N = %N[%S]%L", it.varName, varName, it.name, if (it.isNullable) "" else "!!")
 		}
 	}
 	
@@ -106,10 +106,7 @@ internal class RouteCodeBlock(
 		addStatement("val %N = this.call.receiveParameters()", varName)
 		fieldModels.forEach {
 			when {
-				it.isNullable -> {
-					addStatement("val %N = %N[%S]", it.varName, varName, it.name)
-				}
-				
+				it.isNullable -> addStatement("val %N = %N[%S]", it.varName, varName, it.name)
 				else -> {
 					fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "getOrFail")
 					if (it.typeName == ClassNames.String) {

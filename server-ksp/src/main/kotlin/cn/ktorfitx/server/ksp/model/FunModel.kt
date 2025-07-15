@@ -11,5 +11,6 @@ internal class FunModel(
 	val principalModels: List<PrincipalModel>,
 	val queryModels: List<QueryModel>,
 	val pathModels: List<PathModel>,
-	val requestBody: RequestBody?
+	val requestBody: RequestBody?,
+	val headerModels: List<HeaderModel>,
 )

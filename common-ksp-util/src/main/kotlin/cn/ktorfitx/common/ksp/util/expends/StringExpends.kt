@@ -59,3 +59,11 @@ fun String.isHttpOrHttps(): Boolean {
 fun String.isWSOrWSS(): Boolean {
 	return this.startsWith(WS) || this.startsWith(WSS)
 }
+
+private val headerCaseRegex = "([a-z])([A-Z])".toRegex()
+
+fun String.camelToHeaderCase(): String {
+	return this.replace(headerCaseRegex) {
+		"${it.groupValues[1]}-${it.groupValues[2]}"
+	}.replaceFirstChar { it.uppercaseChar() }
+}

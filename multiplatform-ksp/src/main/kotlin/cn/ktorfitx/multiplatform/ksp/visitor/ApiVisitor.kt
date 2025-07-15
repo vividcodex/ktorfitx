@@ -117,17 +117,17 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 			val isResult = rawType == ClassNames.Result
 			if (isResult) {
 				returnType.compileCheck(!rawType.isNullable && typeName is ParameterizedTypeName) {
-					"${simpleName.asString()} 函数不允许为 ${ClassNames.Result.canonicalName} 返回类型设置为可空"
+					"${simpleName.asString()} 函数不允许为 Result 返回类型设置为可空"
 				}
 				AnyReturnStructure(typeName, isResult = true, isUnit = false)
 			} else {
 				returnType.compileCheck(rawType != ClassNames.Nothing) {
-					"${simpleName.asString()} 函数不允许使用 ${ClassNames.Nothing.canonicalName} 返回类型"
+					"${simpleName.asString()} 函数不允许使用 Nothing 返回类型"
 				}
 				val isUnit = rawType == ClassNames.Unit
 				if (isUnit) {
 					returnType.compileCheck(!rawType.isNullable) {
-						"${simpleName.asString()} 函数不允许使用 ${ClassNames.Unit.canonicalName}? 返回类型"
+						"${simpleName.asString()} 函数不允许使用 Unit? 返回类型"
 					}
 				}
 				AnyReturnStructure(typeName, isResult = false, isUnit = isUnit)
