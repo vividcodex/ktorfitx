@@ -7,6 +7,4 @@ import cn.ktorfitx.server.annotation.Path
 fun pathTest1(
 	@Path parent: String,
 	@Path("custom") child: Int
-) {
-
-}
+): String = ""

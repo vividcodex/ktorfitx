@@ -10,6 +10,4 @@ import io.ktor.server.routing.*
 fun RoutingContext.headerTest1(
 	@Header contentType: String,
 	@Header authentication: String?
-) {
-
-}
+): String = ""

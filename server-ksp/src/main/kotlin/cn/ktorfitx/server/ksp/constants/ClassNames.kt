@@ -16,6 +16,10 @@ internal object ClassNames {
 		arrayOf(Principal, Body, Field, Path, Query, PartForm, PartFile, PartBinary, PartBinaryChannel, Header, Cookie)
 	}
 	
+	val Unit = ClassName("kotlin", "Unit")
+	
+	val Nothing = ClassName("kotlin", "Nothing")
+	
 	val String = ClassName("kotlin", "String")
 	
 	val ByteArray = ClassName("kotlin", "ByteArray")

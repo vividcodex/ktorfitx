@@ -18,6 +18,6 @@ fun <T : KSNode> T.ktorfitxError(
 ): Nothing {
 	val errorLocation = (this.location as? FileLocation)
 		?.let { "\n错误位于：${it.filePath}:${it.lineNumber}" }
-		?: ""
+		?: "\nnull"
 	throw KtorfitxCompilationException("${message()}$errorLocation")
 }

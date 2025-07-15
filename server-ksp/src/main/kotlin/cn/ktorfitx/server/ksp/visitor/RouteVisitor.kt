@@ -19,8 +19,8 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		function: KSFunctionDeclaration,
 		data: Unit
 	): FunModel {
-		function.checkReturnType()
 		val routeModel = function.getRouteModel()
+		function.checkReturnType(routeModel !is HttpRequestModel)
 		return with(ParameterResolver) {
 			FunModel(
 				funName = function.simpleName.asString(),
@@ -53,15 +53,27 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		return annotation.getValue("name")
 	}
 	
-	private fun KSFunctionDeclaration.checkReturnType() {
+	private fun KSFunctionDeclaration.checkReturnType(
+		isWebSocket: Boolean
+	) {
 		val returnType = this.returnType!!.resolve()
-		returnType.declaration.compileCheck(!returnType.isMarkedNullable) {
-			"${this.simpleName} 函数返回类型不允许为可空类型"
+		
+		this.compileCheck(!returnType.isMarkedNullable) {
+			"${simpleName.asString()} 函数返回类型不允许为可空类型"
 		}
 		val typeName = returnType.toTypeName()
-		val validTypeName = typeName is ClassName || typeName is ParameterizedTypeName
-		returnType.declaration.compileCheck(validTypeName) {
-			"${this.simpleName} 函数返回类型必须是明确的类"
+		if (isWebSocket) {
+			this.compileCheck(typeName == ClassNames.Unit) {
+				"${simpleName.asString()} 函数是 WebSocket 类型，返回类型必须是 Unit"
+			}
+		} else {
+			val validType = typeName is ClassName || typeName is ParameterizedTypeName
+			this.compileCheck(validType) {
+				"${simpleName.asString()} 函数返回类型必须是明确的类"
+			}
+			this.compileCheck(typeName != ClassNames.Unit && typeName != ClassNames.Nothing) {
+				"${simpleName.asString()} 函数不允许使用 Unit 和 Nothing 返回类型"
+			}
 		}
 	}
 	
@@ -77,7 +89,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			this.getKSAnnotationByType(it)?.let(it::to)
 		}
 		this.compileCheck(dataList.size == 1) {
-			"${this.simpleName} 不允许同时添加多个请求类型"
+			"${simpleName.asString()} 函数不允许同时添加多个请求类型"
 		}
 		val data = dataList.first()
 		val className = data.first
@@ -90,7 +102,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 				if (isExtension) {
 					val valid = this.isExtension(ClassNames.DefaultWebSocketServerSession)
 					this.compileCheck(valid) {
-						"${this.simpleName} 是扩展函数，但仅允许扩展 DefaultWebSocketServerSession"
+						"${simpleName.asString()} 是扩展函数，但仅允许扩展 DefaultWebSocketServerSession"
 					}
 				}
 				WebSocketModel(path, protocol)
@@ -102,7 +114,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 				if (isExtension) {
 					val valid = this.isExtension(ClassNames.WebSocketServerSession)
 					this.compileCheck(valid) {
-						"${this.simpleName} 是扩展函数，但仅允许扩展 WebSocketServerSession"
+						"${simpleName.asString()} 是扩展函数，但仅允许扩展 WebSocketServerSession"
 					}
 				}
 				WebSocketRawModel(path, protocol, negotiateExtensions)
@@ -112,7 +124,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 				if (isExtension) {
 					val valid = this.isExtension(ClassNames.RoutingContext)
 					this.compileCheck(valid) {
-						"${this.simpleName} 是扩展函数，但仅允许扩展 RoutingContext"
+						"${simpleName.asString()} 是扩展函数，但仅允许扩展 RoutingContext"
 					}
 				}
 				HttpRequestModel(path, className)

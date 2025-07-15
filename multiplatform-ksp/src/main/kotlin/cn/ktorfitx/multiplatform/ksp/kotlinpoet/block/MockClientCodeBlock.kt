@@ -84,7 +84,23 @@ internal class MockClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>) {
-	
+		beginControlFlow("cookies")
+		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK, "MockClient")
+		cookieModels.forEach {
+			addStatement(
+				"append(%S, MockCookie(%S, %N, %L, %L, %L, %L, %L, %L, %L))",
+				it.name,
+				it.varName,
+				it.maxAge,
+				it.expires,
+				it.domain,
+				it.path,
+				it.secure,
+				it.httpOnly,
+				it.extensions
+			)
+		}
+		endControlFlow()
 	}
 	
 	fun CodeBlock.Builder.buildPaths(pathModels: List<PathModel>) {
