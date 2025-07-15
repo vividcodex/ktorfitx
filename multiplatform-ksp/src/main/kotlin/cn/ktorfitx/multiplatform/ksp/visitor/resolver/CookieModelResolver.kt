@@ -30,21 +30,18 @@ internal object CookieModelResolver {
 			val secure = annotation.getValueOrNull<Boolean>("secure")
 			val httpOnly = annotation.getValueOrNull<Boolean>("httpOnly")
 			val extensions = annotation.getValuesOrNull<String>("extensions")
-				?.takeIf { it.isNotEmpty() }
-				?.let {
-					it.associate { entry ->
-						val parts = entry.split(":")
-						parameter.compileCheck(parts.size == 2) {
-							"${simpleName.asString()} 函数的 $varName 参数的 @Cookie 注解上 extensions 参数格式错误，应该为 <key>:<value> 形式"
-						}
-						val key = parts[0].trim()
-						val value = parts[1].trim()
-						parameter.compileCheck(key.isNotBlank()) {
-							"${simpleName.asString()} 函数的 $varName 参数的 @Cookie 注解上 extensions 参数格式错误，key 不能为空"
-						}
-						key to value
+				?.associate { entry ->
+					val parts = entry.split(":")
+					parameter.compileCheck(parts.size == 2) {
+						"${simpleName.asString()} 函数的 $varName 参数的 @Cookie 注解上 extensions 参数格式错误，应该为 <key>:<value> 形式"
 					}
-				}
+					val key = parts[0].trim()
+					val value = parts[1].takeIf { it.isNotBlank() }
+					parameter.compileCheck(key.isNotBlank()) {
+						"${simpleName.asString()} 函数的 $varName 参数的 @Cookie 注解上 extensions 参数格式错误，key 不能为空"
+					}
+					key to value
+				}?.takeIf { it.isNotEmpty() }
 			CookieModel(varName, name, maxAge, expires, domain, path, secure, httpOnly, extensions)
 		}
 	}

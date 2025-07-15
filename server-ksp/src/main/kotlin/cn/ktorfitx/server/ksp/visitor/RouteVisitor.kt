@@ -20,7 +20,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		data: Unit
 	): FunModel {
 		val routeModel = function.getRouteModel()
-		function.checkReturnType(routeModel !is HttpRequestModel)
+		function.checkReturnType(routeModel is HttpRequestModel)
 		return with(ParameterResolver) {
 			FunModel(
 				funName = function.simpleName.asString(),
@@ -35,6 +35,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 				pathModels = function.getPathModels(routeModel.path),
 				headerModels = function.getHeaderModels(),
 				cookieModels = function.getCookieModels(),
+				attributeModels = function.getAttributeModels(),
 				requestBody = function.getRequestBody(routeModel),
 			)
 		}
@@ -54,7 +55,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	}
 	
 	private fun KSFunctionDeclaration.checkReturnType(
-		isWebSocket: Boolean
+		isHttpRequest: Boolean
 	) {
 		val returnType = this.returnType!!.resolve()
 		
@@ -62,17 +63,17 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			"${simpleName.asString()} 函数返回类型不允许为可空类型"
 		}
 		val typeName = returnType.toTypeName()
-		if (isWebSocket) {
-			this.compileCheck(typeName == ClassNames.Unit) {
-				"${simpleName.asString()} 函数是 WebSocket 类型，返回类型必须是 Unit"
-			}
-		} else {
+		if (isHttpRequest) {
 			val validType = typeName is ClassName || typeName is ParameterizedTypeName
 			this.compileCheck(validType) {
 				"${simpleName.asString()} 函数返回类型必须是明确的类"
 			}
 			this.compileCheck(typeName != ClassNames.Unit && typeName != ClassNames.Nothing) {
 				"${simpleName.asString()} 函数不允许使用 Unit 和 Nothing 返回类型"
+			}
+		} else {
+			this.compileCheck(typeName == ClassNames.Unit) {
+				"${simpleName.asString()} 函数是 WebSocket 类型，返回类型必须是 Unit"
 			}
 		}
 	}

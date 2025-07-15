@@ -9,5 +9,5 @@ internal class CookieModel(
 	val path: String?,
 	val secure: Boolean?,
 	val httpOnly: Boolean?,
-	val extensions: Map<String, String>?
+	val extensions: Map<String, String?>?
 ) : ValueParameterModel

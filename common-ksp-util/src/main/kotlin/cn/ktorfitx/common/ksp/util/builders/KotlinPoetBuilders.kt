@@ -2,6 +2,7 @@ package cn.ktorfitx.common.ksp.util.builders
 
 import com.squareup.kotlinpoet.*
 import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
 
 /**
  * buildFileSpec
@@ -83,3 +84,24 @@ fun buildAnnotationSpec(
 	type: KClass<out Annotation>,
 	block: AnnotationSpec.Builder.() -> Unit = {},
 ): AnnotationSpec = AnnotationSpec.builder(type).apply(block).build()
+
+inline fun <reified V : String?> Map<String, V>.toCodeBlock(
+	showTypeIfEmpty: Boolean = false
+): CodeBlock = buildCodeBlock {
+	if (this@toCodeBlock.isEmpty()) {
+		if (showTypeIfEmpty) {
+			val valueTypeName = typeOf<V>().asTypeName()
+			add("emptyMap<String, %T>()", valueTypeName)
+		} else {
+			add("emptyMap()")
+		}
+	} else {
+		val format = buildString {
+			append("mapOf(")
+			append(this@toCodeBlock.map { "%S to %S" }.joinToString())
+			append(")")
+		}
+		val args = this@toCodeBlock.flatMap { listOf(it.key, it.value) }
+		add(format, *args.toTypedArray())
+	}
+}

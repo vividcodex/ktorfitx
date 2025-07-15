@@ -1,6 +1,7 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
+import cn.ktorfitx.common.ksp.util.builders.toCodeBlock
 import cn.ktorfitx.common.ksp.util.expends.rawType
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
@@ -8,6 +9,7 @@ import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.AnyReturnStructure
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.buildCodeBlock
 
 internal class HttpClientCodeBlock(
 	private val returnStructure: AnyReturnStructure
@@ -112,21 +114,25 @@ internal class HttpClientCodeBlock(
 	override fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "cookie")
 		cookieModels.forEach { model ->
-			val name = "\"${model.name}\""
-			val value = ", ${model.varName}"
-			val maxAge = model.maxAge?.let { ", maxAge = $it" } ?: ""
-			val expires = model.expires?.let {
-				fileSpecBuilder.addImport(PackageNames.KTOR_UTIL_DATE, "GMTDate")
-				", expires = GMTDate(${it}L)"
-			} ?: ""
-			val domain = model.domain?.let { ", domain = \"$it\"" } ?: ""
-			val path = model.path?.let { ", path = \"$it\"" } ?: ""
-			val secure = model.secure?.let { ", secure = $it" } ?: ""
-			val httpOnly = model.httpOnly?.let { ", httpOnly = $it" } ?: ""
-			val extensions = model.extensions?.let {
-				", extensions = mapOf(${it.map { entry -> "\"${entry.key}\" to \"${entry.value}\"" }.joinToString()})"
-			} ?: ""
-			addStatement("cookie($name$value$maxAge$expires$domain$path$secure$httpOnly$extensions)")
+			val codeBlock = buildCodeBlock {
+				add("cookie(\n")
+				indent()
+				add("name = %S,\n", model.name)
+				add("value = %N,\n", model.varName)
+				model.maxAge?.let { add("maxAge = %L,\n", it) }
+				model.expires?.let {
+					fileSpecBuilder.addImport(PackageNames.KTOR_UTIL_DATE, "GMTDate")
+					add("expires = %L,\n", "GMTDate(${it}L)")
+				}
+				model.domain?.let { add("domain = %S,\n", it) }
+				model.path?.let { add("path = %S,\n", it) }
+				model.secure?.let { add("secure = %L,\n", it) }
+				model.httpOnly?.let { add("httpOnly = %L,\n", it) }
+				model.extensions?.let { add("extensions = %L,\n", it.toCodeBlock()) }
+				unindent()
+				add(")\n")
+			}
+			add(codeBlock)
 		}
 	}
 	
