@@ -30,4 +30,6 @@ fun complexTest2(
 	@Cookie("custom3") cookie2: String?,
 	@Header authentication: String,
 	@Header("Custom4") header1: String?,
+	@Attribute attribute1: Int,
+	@Attribute("custom5") attribute2: String?,
 ): String = ""

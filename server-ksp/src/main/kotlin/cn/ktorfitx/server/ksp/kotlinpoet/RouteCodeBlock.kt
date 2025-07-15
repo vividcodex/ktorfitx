@@ -20,13 +20,14 @@ internal class RouteCodeBlock(
 		addPathsCodeBlock()
 		addHeadersCodeBlock()
 		addCookiesCodeBlock()
+		addAttributesCodeBlock()
 		addRequestBodyCodeBlock()
 		addFunCodeBlock(funName)
 	}
 	
 	private fun CodeBlock.Builder.addPrincipalsCodeBlock() {
 		val principalModels = funModel.principalModels.takeIf { it.isNotEmpty() } ?: return
-		fileSpecBuilder.addImport(PackageNames.KTOR_AUTH, "principal")
+		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_AUTH, "principal")
 		principalModels.forEach {
 			val nullSafety = if (it.isNullable) "" else "!!"
 			if (it.provider != null) {
@@ -45,7 +46,7 @@ internal class RouteCodeBlock(
 			when {
 				it.isNullable -> addStatement("val %N = %L[%S]", it.varName, varName, it.name)
 				else -> {
-					fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "getOrFail")
+					fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_UTIL, "getOrFail")
 					if (it.typeName == ClassNames.String) {
 						addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
 					} else {
@@ -60,7 +61,7 @@ internal class RouteCodeBlock(
 		val pathModels = funModel.pathModels.takeIf { it.isNotEmpty() } ?: return
 		val varName = getVarName("pathParameters")
 		addStatement("val %N = this.call.pathParameters", varName)
-		fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "getOrFail")
+		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_UTIL, "getOrFail")
 		pathModels.forEach {
 			if (it.typeName == ClassNames.String) {
 				addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
@@ -88,6 +89,20 @@ internal class RouteCodeBlock(
 		}
 	}
 	
+	private fun CodeBlock.Builder.addAttributesCodeBlock() {
+		val attributeModels = funModel.attributeModels.takeIf { it.isNotEmpty() } ?: return
+		val varName = getVarName("attributes")
+		addStatement("val %N = this.call.attributes", varName)
+		fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "AttributeKey")
+		attributeModels.forEach {
+			if (it.isNullable) {
+				addStatement("val %N = %L.getOrNull(AttributeKey<%T>(%S))", it.varName, varName, it.typeName, it.name)
+			} else {
+				addStatement("val %N = %L[AttributeKey<%T>(%S)]", it.varName, varName, it.typeName, it.name)
+			}
+		}
+	}
+	
 	private fun CodeBlock.Builder.addRequestBodyCodeBlock() {
 		when (funModel.requestBody) {
 			is BodyModel -> addBodyCodeBlock(funModel.requestBody)
@@ -100,10 +115,10 @@ internal class RouteCodeBlock(
 		bodyModel: BodyModel
 	) {
 		if (bodyModel.isNullable) {
-			fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "receiveNullable")
+			fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_REQUEST, "receiveNullable")
 			addStatement("val %N = this.call.receiveNullable<%T>()", bodyModel.varName, bodyModel.typeName)
 		} else {
-			fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "receive")
+			fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_REQUEST, "receive")
 			addStatement("val %N = this.call.receive<%T>()", bodyModel.varName, bodyModel.typeName)
 		}
 	}
@@ -111,14 +126,14 @@ internal class RouteCodeBlock(
 	private fun CodeBlock.Builder.addFieldsCodeBlock(
 		fieldModels: List<FieldModel>
 	) {
-		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "receiveParameters")
+		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_REQUEST, "receiveParameters")
 		val varName = getVarName("parameters")
 		addStatement("val %N = this.call.receiveParameters()", varName)
 		fieldModels.forEach {
 			when {
 				it.isNullable -> addStatement("val %N = %N[%S]", it.varName, varName, it.name)
 				else -> {
-					fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "getOrFail")
+					fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_UTIL, "getOrFail")
 					if (it.typeName == ClassNames.String) {
 						addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
 					} else {
@@ -132,8 +147,8 @@ internal class RouteCodeBlock(
 	private fun CodeBlock.Builder.addPartsCodeBlock(
 		partModels: List<PartModel>
 	) {
-		fileSpecBuilder.addImport(PackageNames.KTORFITX_CORE, "resolve")
-		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "receiveMultipart")
+		fileSpecBuilder.addImport(PackageNames.KTORFITX_SERVER_CORE, "resolve")
+		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_REQUEST, "receiveMultipart")
 		partVarName = getVarName("resolver")
 		addStatement("val %N = this.call.receiveMultipart().resolve()", partVarName)
 		partModels.forEach {
@@ -161,7 +176,7 @@ internal class RouteCodeBlock(
 				addStatement("%N.disposeAll()", partVarName)
 			}
 			
-			fileSpecBuilder.addImport(PackageNames.KTOR_RESPONSE, "respond")
+			fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_RESPONSE, "respond")
 			val varName = getVarName("result")
 			addStatement("val %N = %N(%L)", varName, funName, parameters)
 			if (partVarName != null && !beforePartDispose) {

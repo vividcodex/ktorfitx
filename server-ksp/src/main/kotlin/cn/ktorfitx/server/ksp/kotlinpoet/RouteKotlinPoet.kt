@@ -54,7 +54,7 @@ internal class RouteKotlinPoet {
 		if (funModel.authenticationModel != null) {
 			val configurations = funModel.authenticationModel.configurations
 			val strategy = funModel.authenticationModel.strategy
-			fileSpecBuilder.addImport(PackageNames.KTOR_AUTH, "authenticate")
+			fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_AUTH, "authenticate")
 			beginControlFlow(
 				"""
 				authenticate(
@@ -77,7 +77,7 @@ internal class RouteKotlinPoet {
 		httpRequestModel: HttpRequestModel
 	) {
 		val method = httpRequestModel.className.simpleName.lowercase()
-		fileSpecBuilder.addImport(PackageNames.KTOR_ROUTING, method)
+		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_ROUTING, method)
 		beginControlFlow(
 			"""
 			%N(
@@ -95,7 +95,7 @@ internal class RouteKotlinPoet {
 		funModel: FunModel,
 		webSocketRawModel: WebSocketRawModel
 	) {
-		fileSpecBuilder.addImport(PackageNames.KTOR_WEB_SOCKET, "webSocketRaw")
+		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_WEBSOCKET, "webSocketRaw")
 		beginControlFlow(
 			"""
 			webSocketRaw(
@@ -116,7 +116,7 @@ internal class RouteKotlinPoet {
 		funModel: FunModel,
 		webSocketModel: WebSocketModel
 	) {
-		fileSpecBuilder.addImport(PackageNames.KTOR_WEB_SOCKET, "webSocket")
+		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_WEBSOCKET, "webSocket")
 		beginControlFlow(
 			"""
 			webSocket(

@@ -272,6 +272,20 @@ internal object ParameterResolver {
 			CookieModel(name, varName, isNullable, encoding)
 		}
 	}
+	
+	fun KSFunctionDeclaration.getAttributeModels(): List<AttributeModel> {
+		return this.parameters.mapNotNull { parameter ->
+			val annotation = parameter.getKSAnnotationByType(ClassNames.Attribute) ?: return@mapNotNull null
+			var typeName = parameter.type.toTypeName()
+			val isNullable = typeName.isNullable
+			if (isNullable) {
+				typeName = typeName.copy(nullable = false)
+			}
+			val varName = parameter.name!!.asString()
+			val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
+			AttributeModel(name, varName, typeName, isNullable)
+		}
+	}
 }
 
 private data class PartModelConfig(
