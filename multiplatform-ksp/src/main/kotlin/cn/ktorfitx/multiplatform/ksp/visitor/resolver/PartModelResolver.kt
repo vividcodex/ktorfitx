@@ -9,9 +9,9 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 internal object PartModelResolver {
 	
 	fun KSFunctionDeclaration.resolves(): List<PartModel> {
-		return this.parameters.mapNotNull { valueParameter ->
-			val annotation = valueParameter.getKSAnnotationByType(ClassNames.Part) ?: return@mapNotNull null
-			val varName = valueParameter.name!!.asString()
+		return this.parameters.mapNotNull { parameter ->
+			val annotation = parameter.getKSAnnotationByType(ClassNames.Part) ?: return@mapNotNull null
+			val varName = parameter.name!!.asString()
 			var name = annotation.getValueOrNull<String>("name")
 			if (name.isNullOrBlank()) {
 				name = varName

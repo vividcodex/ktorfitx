@@ -23,10 +23,42 @@ class MockLogging(
 					appendLine("REQUEST: $urlString")
 					appendLine("METHOD: ${method.value}")
 				}
-				if (log.level.headers && mockRequest.headers.isNotEmpty()) {
-					appendLine("HEADERS: COUNT=${mockRequest.headers.size}")
-					mockRequest.headers.forEach { (name, value) ->
-						appendLine("-> $name: $value")
+				if (log.level.headers) {
+					if (mockRequest.headers.isNotEmpty()) {
+						appendLine("HEADERS: COUNT=${mockRequest.headers.size}")
+						mockRequest.headers.forEach { (name, value) ->
+							appendLine("-> $name: $value")
+						}
+					}
+					if (mockRequest.cookies.isNotEmpty()) {
+						appendLine("COOKIES: COUNT=${mockRequest.cookies.size}")
+						mockRequest.cookies.forEach { (name, value) ->
+							val value = buildString {
+								append("-> $name: $value")
+								if (value.maxAge > 0) {
+									append(", max-age=$value")
+								}
+								if (value.expires != null && value.expires > 0L) {
+									append(", expires=${value.expires}")
+								}
+								if (value.domain != null) {
+									append(", domain=${value.domain}")
+								}
+								if (value.path != null) {
+									append(", path=${value.path}")
+								}
+								if (value.secure) {
+									append(", secure=true")
+								}
+								if (value.httpOnly) {
+									append(", httpOnly=true")
+								}
+								if (value.extensions.isNotEmpty()) {
+									append(", extensions=${value.extensions}")
+								}
+							}
+							appendLine("-> $name: $value")
+						}
 					}
 				}
 				if (log.level.body) {

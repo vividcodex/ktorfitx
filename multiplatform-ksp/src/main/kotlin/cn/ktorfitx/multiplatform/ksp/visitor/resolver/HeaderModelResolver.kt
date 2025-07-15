@@ -10,10 +10,10 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 internal object HeaderModelResolver {
 	
 	fun KSFunctionDeclaration.resolves(): List<HeaderModel> {
-		return this.parameters.mapNotNull { valueParameter ->
-			val annotation = valueParameter.getKSAnnotationByType(ClassNames.Header) ?: return@mapNotNull null
+		return this.parameters.mapNotNull { parameter ->
+			val annotation = parameter.getKSAnnotationByType(ClassNames.Header) ?: return@mapNotNull null
 			var name = annotation.getValueOrNull<String>("name")
-			val varName = valueParameter.name!!.asString()
+			val varName = parameter.name!!.asString()
 			if (name.isNullOrBlank()) {
 				name = varName.camelToHeaderCase()
 			}

@@ -27,6 +27,9 @@ class MockRequestBuilder(
 	private val _paths = mutableMapOf<String, Any>()
 	val paths: Map<String, Any> = _paths
 	
+	private val _cookies = mutableMapOf<String, MockCookie>()
+	val cookies: Map<String, MockCookie> = _cookies
+	
 	var body: String? = null
 	
 	fun url(urlString: String) {
@@ -57,6 +60,10 @@ class MockRequestBuilder(
 		this._paths += mutableMapOf<String, Any>().apply(block)
 	}
 	
+	fun cookies(block: MutableMap<String, MockCookie>.() -> Unit) {
+		this._cookies += mutableMapOf<String, MockCookie>().apply(block)
+	}
+	
 	inline fun <reified T : Any> body(body: T) {
 		this.body = json.encodeToString(body)
 	}
@@ -65,3 +72,15 @@ class MockRequestBuilder(
 		this[name] = value
 	}
 }
+
+class MockCookie(
+	val name: String,
+	val value: String,
+	val maxAge: Int,
+	val expires: Long?,
+	val domain: String?,
+	val path: String?,
+	val secure: Boolean,
+	val httpOnly: Boolean,
+	val extensions: Map<String, String>
+)

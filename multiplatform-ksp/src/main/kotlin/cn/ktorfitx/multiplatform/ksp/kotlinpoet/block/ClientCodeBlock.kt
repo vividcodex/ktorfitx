@@ -51,6 +51,11 @@ internal sealed interface ClientCodeBlock {
 	fun CodeBlock.Builder.buildFields(fieldModels: List<FieldModel>)
 	
 	/**
+	 * cookies
+	 */
+	fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>)
+	
+	/**
 	 * body
 	 */
 	fun CodeBlock.Builder.buildBody(bodyModel: BodyModel)

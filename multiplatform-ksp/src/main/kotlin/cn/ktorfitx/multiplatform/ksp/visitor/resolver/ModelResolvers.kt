@@ -37,6 +37,7 @@ internal object ModelResolvers {
 		models += with(FieldModelResolver) { resolves() }
 		models += with(PathModelResolver) { resolves() }
 		models += with(HeaderModelResolver) { resolves() }
+		models += with(CookieModelResolver) { resolves() }
 		val filterModels = models.filterNotNull()
 		val incompatibleTypeCount = filterModels.mapNotNull {
 			when (it) {

@@ -11,14 +11,14 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 internal object FieldModelResolver {
 	
 	fun KSFunctionDeclaration.resolves(): List<FieldModel> {
-		return this.parameters.mapNotNull { valueParameter ->
-			val annotation = valueParameter.getKSAnnotationByType(ClassNames.Field) ?: return@mapNotNull null
-			val varName = valueParameter.name!!.asString()
+		return this.parameters.mapNotNull { parameter ->
+			val annotation = parameter.getKSAnnotationByType(ClassNames.Field) ?: return@mapNotNull null
+			val varName = parameter.name!!.asString()
 			var name = annotation.getValueOrNull<String>("name")
 			if (name.isNullOrBlank()) {
 				name = varName
 			}
-			val isString = valueParameter.type.toTypeName() == String::class.asTypeName()
+			val isString = parameter.type.toTypeName() == String::class.asTypeName()
 			FieldModel(name, varName, isString)
 		}
 	}

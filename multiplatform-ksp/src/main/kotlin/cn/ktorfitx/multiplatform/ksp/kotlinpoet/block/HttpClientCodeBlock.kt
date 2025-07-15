@@ -109,6 +109,27 @@ internal class HttpClientCodeBlock(
 		addStatement("setBody(listOf($body).formUrlEncode())")
 	}
 	
+	override fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>) {
+		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "cookie")
+		cookieModels.forEach { model ->
+			val name = "\"${model.name}\""
+			val value = ", ${model.varName}"
+			val maxAge = model.maxAge?.let { ", maxAge = $it" } ?: ""
+			val expires = model.expires?.let {
+				fileSpecBuilder.addImport(PackageNames.KTOR_UTIL_DATE, "GMTDate")
+				", expires = GMTDate(${it}L)"
+			} ?: ""
+			val domain = model.domain?.let { ", domain = \"$it\"" } ?: ""
+			val path = model.path?.let { ", path = \"$it\"" } ?: ""
+			val secure = model.secure?.let { ", secure = $it" } ?: ""
+			val httpOnly = model.httpOnly?.let { ", httpOnly = $it" } ?: ""
+			val extensions = model.extensions?.let {
+				", extensions = mapOf(${it.map { entry -> "\"${entry.key}\" to \"${entry.value}\"" }.joinToString()})"
+			} ?: ""
+			addStatement("cookie($name$value$maxAge$expires$domain$path$secure$httpOnly$extensions)")
+		}
+	}
+	
 	override fun CodeBlock.Builder.buildBody(bodyModel: BodyModel) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")

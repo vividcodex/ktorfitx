@@ -57,7 +57,13 @@ fun <V : Any> KSAnnotation.getValue(propertyName: String): V {
 /**
  * 获取注解上的数组数据
  */
-inline fun <reified T : Any> KSAnnotation.getValues(propertyName: String): Array<T>? {
+inline fun <reified T : Any> KSAnnotation.getValues(propertyName: String): Array<T> {
+	val values = this.arguments.find { it.name?.asString() == propertyName }?.value
+	values as ArrayList<*>
+	return values.map { it as T }.toTypedArray()
+}
+
+inline fun <reified T : Any> KSAnnotation.getValuesOrNull(propertyName: String): Array<T>? {
 	val values = this.arguments.find { it.name?.asString() == propertyName }?.value
 	return if (values is ArrayList<*>) {
 		values.map { it as T }.toTypedArray()

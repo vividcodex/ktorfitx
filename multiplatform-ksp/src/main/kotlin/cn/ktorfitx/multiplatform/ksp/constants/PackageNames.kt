@@ -2,8 +2,6 @@ package cn.ktorfitx.multiplatform.ksp.constants
 
 internal object PackageNames {
 	
-	const val KTORFITX_CORE_EXPENDS = "cn.ktorfitx.multiplatform.core.expends"
-	
 	const val KTORFITX_MOCK_CONFIG = "cn.ktorfitx.multiplatform.mock.config"
 	
 	const val KTOR_HTTP = "io.ktor.http"
@@ -17,4 +15,6 @@ internal object PackageNames {
 	const val KTOR_STATEMENT = "io.ktor.client.statement"
 	
 	const val KTOR_CALL = "io.ktor.client.call"
+	
+	const val KTOR_UTIL_DATE = "io.ktor.util.date"
 }

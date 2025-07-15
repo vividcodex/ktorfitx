@@ -50,6 +50,8 @@ internal object ClassNames {
 	
 	val Header = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Header")
 	
+	val Cookie = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Cookie")
+	
 	val Field = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Field")
 	
 	val Query = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Query")
@@ -58,8 +60,6 @@ internal object ClassNames {
 	
 	val Path = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Path")
 	
-	val ApiResult = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.model.ApiResult")
-	
 	val WebSocketSessionHandler = ClassName.bestGuess("cn.ktorfitx.multiplatform.websockets.WebSocketSessionHandler")
 	
 	val MockProvider = ClassName.bestGuess("cn.ktorfitx.multiplatform.mock.MockProvider")
@@ -67,8 +67,4 @@ internal object ClassNames {
 	val Ktorfit = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.Ktorfit")
 	
 	val KtorfitConfig = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.config.KtorfitConfig")
-	
-	val ExceptionListener = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.exception.ExceptionListener")
-	
-	val ExceptionListeners = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.ExceptionListeners")
 }

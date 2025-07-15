@@ -1,6 +1,7 @@
 package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.expends.hasAnnotation
 import cn.ktorfitx.common.ksp.util.expends.isLowerCamelCase
 import cn.ktorfitx.common.ksp.util.expends.toLowerCamelCase
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
@@ -10,13 +11,14 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 
 internal object ParameterModelResolver {
 	
-	private val annotationQualifiedNames = arrayOf(
-		ClassNames.Body.canonicalName,
-		ClassNames.Part.canonicalName,
-		ClassNames.Field.canonicalName,
-		ClassNames.Header.canonicalName,
-		ClassNames.Path.canonicalName,
-		ClassNames.Query.canonicalName
+	private val parameterClassNames = arrayOf(
+		ClassNames.Body,
+		ClassNames.Part,
+		ClassNames.Field,
+		ClassNames.Header,
+		ClassNames.Path,
+		ClassNames.Query,
+		ClassNames.Cookie
 	)
 	
 	fun KSFunctionDeclaration.resolves(isWebSocket: Boolean): List<ParameterModel> {
@@ -37,15 +39,15 @@ internal object ParameterModelResolver {
 			val varName = valueParameter.name!!.asString()
 			return listOf(ParameterModel(varName, typeName))
 		} else {
-			this.parameters.map { valueParameter ->
-				val varName = valueParameter.name!!.asString()
-				val annotationCount = valueParameter.annotations.toList()
-					.map { it.annotationType.resolve().declaration.qualifiedName?.asString() }
-					.count { it in annotationQualifiedNames }
-				this.compileCheck(annotationCount > 0) {
+			this.parameters.map { parameter ->
+				val varName = parameter.name!!.asString()
+				val count = parameterClassNames.count {
+					parameter.hasAnnotation(it)
+				}
+				this.compileCheck(count > 0) {
 					"${simpleName.asString()} 函数上的 $varName 参数未使用任何功能注解"
 				}
-				this.compileCheck(annotationCount == 1) {
+				this.compileCheck(count == 1) {
 					val useAnnotations = this.annotations.joinToString()
 					"${simpleName.asString()} 函数上的 $varName 参数不允许同时使用 $useAnnotations 多个注解"
 				}
@@ -53,7 +55,7 @@ internal object ParameterModelResolver {
 					val varNameSuggestion = varName.toLowerCamelCase()
 					"${simpleName.asString()} 函数上的 $varName 参数不符合小驼峰命名规则，建议修改为 $varNameSuggestion"
 				}
-				val typeName = valueParameter.type.toTypeName()
+				val typeName = parameter.type.toTypeName()
 				ParameterModel(varName, typeName)
 			}
 		}

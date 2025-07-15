@@ -83,6 +83,10 @@ internal class MockClientCodeBlock(
 		endControlFlow()
 	}
 	
+	override fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>) {
+	
+	}
+	
 	fun CodeBlock.Builder.buildPaths(pathModels: List<PathModel>) {
 		beginControlFlow("paths")
 		pathModels.forEach {
