@@ -7,7 +7,8 @@ import cn.ktorfitx.multiplatform.sample.http.mock.ApiResultMockProvider
 import cn.ktorfitx.multiplatform.sample.http.mock.StringMockProvider
 import kotlinx.serialization.Serializable
 
-@Api(url = "test1", apiScope = TestApiScope::class)
+@ApiScope(TestApiScope::class)
+@Api(url = "test1")
 interface TestMethod1Api {
 	
 	@GET(url = "test01")

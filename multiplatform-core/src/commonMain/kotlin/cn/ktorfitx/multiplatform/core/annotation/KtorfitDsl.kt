@@ -1,4 +1,4 @@
-package cn.ktorfitx.multiplatform.annotation
+package cn.ktorfitx.multiplatform.core.annotation
 
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)

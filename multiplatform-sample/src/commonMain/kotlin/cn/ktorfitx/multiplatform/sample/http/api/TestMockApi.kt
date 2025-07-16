@@ -1,10 +1,12 @@
 package cn.ktorfitx.multiplatform.sample.http.api
 
 import cn.ktorfitx.multiplatform.annotation.*
+import cn.ktorfitx.multiplatform.sample.http.Test2ApiScope
 import cn.ktorfitx.multiplatform.sample.http.TestApiScope
 import cn.ktorfitx.multiplatform.sample.http.mock.StringMockProvider
 
-@Api(url = "/mock", apiScope = TestApiScope::class)
+@ApiScopes(TestApiScope::class, Test2ApiScope::class)
+@Api(url = "/mock")
 interface TestMockApi {
 	
 	@POST(url = "/{path}")

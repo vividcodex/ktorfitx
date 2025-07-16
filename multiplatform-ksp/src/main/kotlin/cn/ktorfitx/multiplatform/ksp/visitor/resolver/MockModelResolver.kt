@@ -14,7 +14,7 @@ internal object MockModelResolver {
 	
 	fun KSFunctionDeclaration.resolve(): MockModel? {
 		val annotation = getKSAnnotationByType(ClassNames.Mock) ?: return null
-		val className = annotation.getClassName("provider")!!
+		val className = annotation.getClassName("provider")
 		val delay = annotation.getValueOrNull("delay") ?: 0L
 		
 		annotation.compileCheck(className != ClassNames.MockProvider) {

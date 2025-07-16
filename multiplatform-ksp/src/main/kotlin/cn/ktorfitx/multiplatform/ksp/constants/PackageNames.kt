@@ -19,4 +19,6 @@ internal object PackageNames {
 	const val KTOR_CALL = "io.ktor.client.call"
 	
 	const val KTOR_UTIL_DATE = "io.ktor.util.date"
+	
+	const val KTOR_UTILS_IO_LOCKS = "io.ktor.utils.io.locks"
 }

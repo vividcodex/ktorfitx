@@ -70,11 +70,8 @@ inline fun <reified T : Any> KSAnnotation.getValuesOrNull(propertyName: String):
 	} else null
 }
 
-/**
- * 获取注解上的 KClass 的 ClassName
- */
-fun KSAnnotation.getClassName(propertyName: String): ClassName? {
-	val value = this.arguments.find { it.name?.asString() == propertyName }?.value ?: return null
+fun KSAnnotation.getClassName(propertyName: String): ClassName {
+	val value = this.arguments.first { it.name!!.asString() == propertyName }.value
 	return when (value) {
 		is KSClassDeclaration -> value.toClassName()
 		is KSType -> (value.declaration as KSClassDeclaration).toClassName()
@@ -82,15 +79,31 @@ fun KSAnnotation.getClassName(propertyName: String): ClassName? {
 	}
 }
 
-/**
- * 获取注解上的 KClass 的 ClassName
- */
-fun KSAnnotation.getClassNames(propertyName: String): Array<ClassName>? {
-	val values = this.arguments.find { it.name?.asString() == propertyName }?.value
+fun KSAnnotation.getClassNameOrNull(propertyName: String): ClassName? {
+	val value = this.arguments.find { it.name?.asString() == propertyName }?.value ?: return null
+	return when (value) {
+		is KSClassDeclaration -> value.toClassName()
+		is KSType -> (value.declaration as? KSClassDeclaration)?.toClassName()
+		else -> null
+	}
+}
+
+fun KSAnnotation.getClassNames(propertyName: String): Array<ClassName> {
+	val values = this.arguments.first { it.name!!.asString() == propertyName }.value
 	return if (values is ArrayList<*>) {
 		values.map {
 			check(it is KSType) { "$it is not KSType!" }
 			(it.declaration as KSClassDeclaration).toClassName()
+		}.toTypedArray()
+	} else error("类型错误")
+}
+
+fun KSAnnotation.getClassNamesOrNull(propertyName: String): Array<ClassName>? {
+	val values = this.arguments.find { it.name?.asString() == propertyName }?.value
+	return if (values is ArrayList<*>) {
+		values.mapNotNull {
+			check(it is KSType) { "$it is not KSType!" }
+			(it.declaration as? KSClassDeclaration)?.toClassName()
 		}.toTypedArray()
 	} else null
 }

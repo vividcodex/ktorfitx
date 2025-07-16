@@ -2,7 +2,9 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet
 
 import cn.ktorfitx.common.ksp.util.builders.*
 import cn.ktorfitx.common.ksp.util.expends.allClassNames
+import cn.ktorfitx.common.ksp.util.expends.replaceFirstToLowercase
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpClientCodeBlock
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpCodeBlockBuilder
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.MockClientCodeBlock
@@ -38,17 +40,17 @@ internal object ApiKotlinPoet {
 	private fun getTypeSpec(classStructure: ClassStructure): TypeSpec {
 		val primaryConstructorFunSpec = buildConstructorFunSpec {
 			addModifiers(KModifier.PRIVATE)
-			addParameter("config", ClassNames.KtorfitConfig)
+			addParameter("config", ClassNames.KtorfitxConfig)
 		}
 		return buildClassTypeSpec(classStructure.className) {
 			addModifiers(KModifier.PRIVATE)
 			addSuperinterface(classStructure.superinterface)
 			primaryConstructor(primaryConstructorFunSpec)
-			val ktorfitConfigPropertySpec = buildPropertySpec("config", ClassNames.KtorfitConfig, KModifier.PRIVATE) {
+			val ktorfitxConfigPropertySpec = buildPropertySpec("config", ClassNames.KtorfitxConfig, KModifier.PRIVATE) {
 				initializer("config")
 				mutable(false)
 			}
-			addProperty(ktorfitConfigPropertySpec)
+			addProperty(ktorfitxConfigPropertySpec)
 			addType(getCompanionObjectBuilder(classStructure))
 			addFunctions(getFunSpecs(classStructure))
 		}
@@ -59,34 +61,44 @@ internal object ApiKotlinPoet {
 	 */
 	private fun getCompanionObjectBuilder(classStructure: ClassStructure): TypeSpec {
 		val typeName = classStructure.superinterface.copy(nullable = true)
-		val propertySpec = buildPropertySpec("instance", typeName, KModifier.PRIVATE) {
-			initializer("null")
-			mutable(true)
-		}
-		val codeBlock = buildCodeBlock {
-			beginControlFlow("return instance ?: %T(ktorfit.config).also", classStructure.className)
-			addStatement("instance = it")
-			endControlFlow()
-		}
-		val funSpecs = classStructure.apiStructure.apiScopeClassNames.map { apiScopeClassName ->
-			val jvmNameAnnotationSpec = buildAnnotationSpec(JvmName::class) {
-				addMember("%S", "getInstanceBy${apiScopeClassName.simpleName}")
-			}
-			buildFunSpec("getInstance") {
-				addAnnotation(jvmNameAnnotationSpec)
-				addModifiers(classStructure.kModifier)
-				returns(classStructure.superinterface)
-				addParameter(
-					"ktorfit",
-					ClassNames.Ktorfit.parameterizedBy(apiScopeClassName)
-				)
-				addCode(codeBlock)
-			}
-		}
+		fileSpecBuilder.addImport(PackageNames.KTOR_UTILS_IO_LOCKS, "synchronized")
 		return buildCompanionObjectTypeSpec {
 			addModifiers(classStructure.kModifier)
-			addProperty(propertySpec)
-			addFunctions(funSpecs)
+			val optInSpec = buildAnnotationSpec(ClassNames.OptIn) {
+				addMember("%T::class", ClassNames.InternalAPI)
+			}
+			addAnnotation(optInSpec)
+			classStructure.apiStructure.apiScopeClassNames.forEach { apiScopeClassName ->
+				val simpleName = apiScopeClassName.simpleNames.joinToString(".")
+				val varName = simpleName.replaceFirstToLowercase()
+				val instanceVarName = "${varName}Instance"
+				val instancePropertySpec = buildPropertySpec(instanceVarName, typeName, KModifier.PRIVATE) {
+					initializer("null")
+					mutable(true)
+				}
+				addProperty(instancePropertySpec)
+				val lockVarName = "${varName}SynchronizedObject"
+				val mutexPropertySpec = buildPropertySpec(lockVarName, ClassNames.SynchronizedObject, KModifier.PRIVATE) {
+					initializer("%T()", ClassNames.SynchronizedObject)
+					mutable(false)
+				}
+				addProperty(mutexPropertySpec)
+				val funSpec = buildFunSpec("getInstanceBy$simpleName") {
+					addModifiers(classStructure.kModifier)
+					returns(classStructure.superinterface)
+					addParameter(
+						"ktorfitx",
+						ClassNames.Ktorfitx.parameterizedBy(apiScopeClassName)
+					)
+					val codeBlock = buildCodeBlock {
+						beginControlFlow("return %N ?: synchronized(%N)", instanceVarName, lockVarName)
+						addStatement("%N ?: %T(ktorfitx.config).also { %N = it }", instanceVarName, classStructure.className, instanceVarName)
+						endControlFlow()
+					}
+					addCode(codeBlock)
+				}
+				addFunction(funSpec)
+			}
 		}
 	}
 	
@@ -96,16 +108,16 @@ internal object ApiKotlinPoet {
 	private fun getExpendPropertySpecs(classStructure: ClassStructure): List<PropertySpec> {
 		val expendPropertyName = classStructure.superinterface.simpleName.replaceFirstChar { it.lowercase() }
 		return classStructure.apiStructure.apiScopeClassNames.map { apiScopeClassName ->
-			fileSpecBuilder.addImport(apiScopeClassName.packageName, apiScopeClassName.simpleName)
+			val simpleName = apiScopeClassName.simpleNames.joinToString(".")
 			val jvmNameAnnotationSpec = buildAnnotationSpec(JvmName::class) {
-				addMember("%S", "${expendPropertyName}By${apiScopeClassName.simpleName}")
+				addMember("%S", "${expendPropertyName}By$simpleName")
 			}
 			val getterFunSpec = buildGetterFunSpec {
 				addAnnotation(jvmNameAnnotationSpec)
-				addStatement("return %T.getInstance(this)", classStructure.className)
+				addStatement("return %T.getInstanceBy$simpleName(this)", classStructure.className)
 			}
 			buildPropertySpec(expendPropertyName, classStructure.superinterface, classStructure.kModifier) {
-				receiver(ClassNames.Ktorfit.parameterizedBy(apiScopeClassName))
+				receiver(ClassNames.Ktorfitx.parameterizedBy(apiScopeClassName))
 				getter(getterFunSpec)
 			}
 		}

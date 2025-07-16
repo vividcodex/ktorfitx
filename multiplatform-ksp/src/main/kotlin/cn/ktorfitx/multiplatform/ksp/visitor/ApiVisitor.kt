@@ -1,6 +1,7 @@
 package cn.ktorfitx.multiplatform.ksp.visitor
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.check.ktorfitxError
 import cn.ktorfitx.common.ksp.util.expends.*
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.WebSocketModel
@@ -31,21 +32,36 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 	 * 获取 ClassStructure
 	 */
 	private fun KSClassDeclaration.getClassStructure(): ClassStructure {
-		val apiKSAnnotation = getKSAnnotationByType(ClassNames.Api)!!
+		val apiAnnotation = getKSAnnotationByType(ClassNames.Api)!!
 		val className = ClassName("${packageName.asString()}.impls", "${simpleName.asString()}Impl")
 		val superinterface = this.toClassName()
-		val apiScopeClassName = apiKSAnnotation.getClassName("apiScope") ?: ClassNames.DefaultApiScope
-		val apiScopeClassNames = apiKSAnnotation.getClassNames("apiScopes")?.toSet() ?: emptySet()
-		val mergeApiScopeClassNames = when {
-			apiScopeClassName == ClassNames.DefaultApiScope && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames
-			apiScopeClassName != ClassNames.DefaultApiScope && apiScopeClassNames.isNotEmpty() -> apiScopeClassNames + apiScopeClassName
-			else -> setOf(apiScopeClassName)
+		val apiScopeAnnotation = getKSAnnotationByType(ClassNames.ApiScope)
+		val apiScopesAnnotation = getKSAnnotationByType(ClassNames.ApiScopes)
+		val apiScopeClassNames = when {
+			apiScopeAnnotation != null && apiScopesAnnotation != null -> {
+				this.ktorfitxError {
+					"${simpleName.asString()} 接口上不允许同时使用 @ApiScope 和 @ApiScopes 注解"
+				}
+			}
+			
+			apiScopeAnnotation != null -> {
+				setOf(apiScopeAnnotation.getClassName("apiScope"))
+			}
+			
+			apiScopesAnnotation != null -> {
+				apiScopesAnnotation.getClassNamesOrNull("apiScopes")?.toSet() ?: this.ktorfitxError {
+					"${simpleName.asString()} 接口上的 @ApiScopes 注解参数不允许为空"
+				}
+			}
+			
+			else -> setOf(ClassNames.DefaultApiScope)
 		}
-		apiKSAnnotation.compileCheck(ClassNames.ApiScope !in mergeApiScopeClassNames) {
-			"${simpleName.asString()} 接口上的 @Api 注解的 apiScope 不允许使用 ApiScope::class，请使用默认的 DefaultApiScope::class 或者自定义 object 对象并实现 ApiScope::class"
+		val groupSize = apiScopeClassNames.groupBy { it.simpleNames.joinToString(".") }.size
+		this.compileCheck(apiScopeClassNames.size == groupSize) {
+			"${simpleName.asString()} 函数不允许使用相同的类名"
 		}
-		val apiUrl = getApiUrl(apiKSAnnotation)
-		val apiStructure = ApiStructure(apiUrl, mergeApiScopeClassNames)
+		val apiUrl = getApiUrl(apiAnnotation)
+		val apiStructure = ApiStructure(apiUrl, apiScopeClassNames)
 		val funStructure = getFunStructures()
 		return ClassStructure(className, superinterface, this.getVisibilityKModifier(), apiStructure, funStructure)
 	}

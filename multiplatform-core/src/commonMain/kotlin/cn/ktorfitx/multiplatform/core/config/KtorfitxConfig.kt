@@ -1,14 +1,13 @@
 package cn.ktorfitx.multiplatform.core.config
 
-import cn.ktorfitx.multiplatform.annotation.KtorfitDsl
-import cn.ktorfitx.multiplatform.core.Ktorfit
-import cn.ktorfitx.multiplatform.core.scope.ApiScope
+import cn.ktorfitx.multiplatform.core.Ktorfitx
+import cn.ktorfitx.multiplatform.core.annotation.KtorfitDsl
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
 
 @KtorfitDsl
-class KtorfitConfig internal constructor() {
+class KtorfitxConfig internal constructor() {
 	
 	var baseUrl: String? = null
 	
@@ -32,7 +31,7 @@ class KtorfitConfig internal constructor() {
 		this.token = token
 	}
 	
-	fun <AS : ApiScope> build(): Ktorfit<AS> {
+	fun <AS : Any> build(): Ktorfitx<AS> {
 		this.token = this.token ?: { null }
 		this.httpClient = if (httpClientBlock == null) HttpClient() else with(httpClientBlock!!) {
 			HttpClient(engine) {
@@ -44,7 +43,7 @@ class KtorfitConfig internal constructor() {
 				block()
 			}
 		}
-		return Ktorfit(this)
+		return Ktorfitx(this)
 	}
 	
 	private class HttpClientBlock(

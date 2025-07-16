@@ -85,6 +85,14 @@ fun buildAnnotationSpec(
 	block: AnnotationSpec.Builder.() -> Unit = {},
 ): AnnotationSpec = AnnotationSpec.builder(type).apply(block).build()
 
+/**
+ * buildAnnotationSpec
+ */
+fun buildAnnotationSpec(
+	className: ClassName,
+	block: AnnotationSpec.Builder.() -> Unit = {},
+): AnnotationSpec = AnnotationSpec.builder(className).apply(block).build()
+
 inline fun <reified V : String?> Map<String, V>.toCodeBlock(
 	showTypeIfEmpty: Boolean = false
 ): CodeBlock = buildCodeBlock {

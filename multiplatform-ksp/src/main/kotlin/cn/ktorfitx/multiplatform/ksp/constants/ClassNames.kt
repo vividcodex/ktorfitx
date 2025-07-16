@@ -14,15 +14,23 @@ internal object ClassNames {
 	
 	val ByteReadChannel = ClassName.bestGuess("kotlinx.io.ByteReadChannel")
 	
+	val SynchronizedObject = ClassName("io.ktor.utils.io.locks", "SynchronizedObject")
+	
 	val CancellationException = ClassName.bestGuess("io.ktor.utils.io.CancellationException")
 	
 	val String = ClassName.bestGuess("kotlin.String")
 	
 	val Api = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Api")
 	
-	val ApiScope = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.scope.ApiScope")
+	val OptIn = ClassName("kotlin", "OptIn")
+	
+	val InternalAPI = ClassName("io.ktor.utils.io", "InternalAPI")
 	
 	val DefaultApiScope = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.scope.DefaultApiScope")
+	
+	val ApiScope = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.ApiScope")
+	
+	val ApiScopes = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.ApiScopes")
 	
 	val WebSocket = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.WebSocket")
 	
@@ -64,7 +72,7 @@ internal object ClassNames {
 	
 	val MockProvider = ClassName.bestGuess("cn.ktorfitx.multiplatform.mock.MockProvider")
 	
-	val Ktorfit = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.Ktorfit")
+	val Ktorfitx = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.Ktorfitx")
 	
-	val KtorfitConfig = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.config.KtorfitConfig")
+	val KtorfitxConfig = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.config.KtorfitxConfig")
 }

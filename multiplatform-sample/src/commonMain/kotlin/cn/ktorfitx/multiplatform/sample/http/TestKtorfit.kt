@@ -1,14 +1,13 @@
 package cn.ktorfitx.multiplatform.sample.http
 
-import cn.ktorfitx.multiplatform.core.ktorfit
-import cn.ktorfitx.multiplatform.core.scope.ApiScope
+import cn.ktorfitx.multiplatform.core.ktorfitx
 import cn.ktorfitx.multiplatform.mock.config.mockClient
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
-val testKtorfit = ktorfit<TestApiScope> {
+val testKtorfit = ktorfitx<TestApiScope> {
 	token { "<token>" }
 	baseUrl = "http://localhost:8080/api/"
 	httpClient(CIO) {
@@ -30,9 +29,11 @@ val testKtorfit = ktorfit<TestApiScope> {
 	}
 }
 
-object TestApiScope : ApiScope
+sealed interface TestApiScope
 
-val testKtorfit2 = ktorfit {
+sealed interface Test2ApiScope
+
+val testKtorfit2 = ktorfitx {
 	token { "<token>" }
 	baseUrl = "http://localhost:8080/api/"
 	httpClient(CIO) {

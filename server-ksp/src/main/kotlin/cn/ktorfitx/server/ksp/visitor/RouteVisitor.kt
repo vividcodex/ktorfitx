@@ -81,7 +81,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	private fun KSFunctionDeclaration.getAuthenticationModel(): AuthenticationModel? {
 		val annotation = this.getKSAnnotationByType(ClassNames.Authentication) ?: return null
 		val configurations = annotation.getValues<String>("configurations")
-		val strategy = annotation.getClassName("strategy")!!
+		val strategy = annotation.getClassName("strategy")
 		return AuthenticationModel(configurations, strategy)
 	}
 	

@@ -260,7 +260,7 @@ internal object ParameterResolver {
 				"${simpleName.asString()} 函数的 $varName 参数只允许使用 String 类型"
 			}
 			val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
-			val encoding = annotation.getClassName("encoding")?.simpleName?.let { simpleName ->
+			val encoding = annotation.getClassNameOrNull("encoding")?.simpleName?.let { simpleName ->
 				when (simpleName) {
 					ClassNames.CookieEncodingRaw.simpleName -> ClassNames.CookieEncodingRaw
 					ClassNames.CookieEncodingDQuotes.simpleName -> ClassNames.CookieEncodingDQuotes
