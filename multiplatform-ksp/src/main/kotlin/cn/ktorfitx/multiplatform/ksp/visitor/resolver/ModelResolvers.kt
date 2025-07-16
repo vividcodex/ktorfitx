@@ -11,11 +11,11 @@ internal object ModelResolvers {
 	 */
 	fun KSFunctionDeclaration.getAllFunModels(): List<FunModel> {
 		val models = mutableListOf<FunModel?>()
-		models += with(WebSocketResolver) { resolve() }
-		models += with(ApiModelResolver) { resolve(models.any { it is WebSocketModel }) }
-		models += with(HeadersModelResolver) { resolve() }
-		models += with(MockModelResolver) { resolve() }
-		models += with(BearerAuthModelResolver) { resolve() }
+		models += this.resolveWebSocketModel()
+		models += this.resolveApiModel(isWebSocket = models.any { it is WebSocketModel })
+		models += this.resolveHeadersModel()
+		models += this.resolveMockModel()
+		models += this.resolveBearerAuthModel()
 		return models.filterNotNull()
 	}
 	
@@ -23,7 +23,7 @@ internal object ModelResolvers {
 	 * 获取所有 ParameterModel
 	 */
 	fun KSFunctionDeclaration.getAllParameterModel(isWebSocket: Boolean): List<ParameterModel> {
-		return with(ParameterModelResolver) { resolves(isWebSocket) }
+		return this.resolveParameterModels(isWebSocket)
 	}
 	
 	/**
@@ -31,24 +31,23 @@ internal object ModelResolvers {
 	 */
 	fun KSFunctionDeclaration.getAllValueParameterModels(): List<ValueParameterModel> {
 		val models = mutableListOf<ValueParameterModel?>()
-		models += with(BodyModelResolver) { resolve() }
-		models += with(QueryModelResolver) { resolves() }
-		models += with(PartModelResolver) { resolves() }
-		models += with(FieldModelResolver) { resolves() }
-		models += with(PathModelResolver) { resolves() }
-		models += with(HeaderModelResolver) { resolves() }
-		models += with(CookieModelResolver) { resolves() }
+		models += this.resolveBodyModel()
+		models += this.resolveQueryModels()
+		models += this.resolvePartModels()
+		models += this.resolveFieldModels()
+		models += this.resolvePathModels()
+		models += this.resolveHeaderModels()
+		models += this.resolveCookieModels()
+		models += this.resolveAttributeModels()
+		
 		val filterModels = models.filterNotNull()
-		val incompatibleTypeCount = filterModels.mapNotNull {
-			when (it) {
-				is BodyModel -> BodyModel::class
-				is PartModel -> PartModel::class
-				is FieldModel -> FieldModel::class
-				else -> null
-			}
-		}.toSet().size
+		val targetTypes = setOf(BodyModel::class, PartModel::class, FieldModel::class)
+		val incompatibleTypeCount = targetTypes.count { kClass ->
+			filterModels.any { kClass.isInstance(it) }
+		}
+		
 		this.compileCheck(incompatibleTypeCount <= 1) {
-			"${simpleName.asString()} 函数不能同时使用 @Body, @Part 和 @Field 注解"
+			"${simpleName.asString()} 函数不能同时使用 @Body, @Part 和 @Field 注解 $incompatibleTypeCount"
 		}
 		return models.filterNotNull()
 	}

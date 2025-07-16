@@ -59,6 +59,10 @@ internal class HttpCodeBlockBuilder(
 					if (cookieModels.isNotEmpty()) {
 						buildCookies(cookieModels)
 					}
+					val attributeModels = valueParameterModels.filterIsInstance<AttributeModel>()
+					if (attributeModels.isNotEmpty()) {
+						buildAttributes(attributeModels)
+					}
 					if (this@with is MockClientCodeBlock) {
 						val pathModels = valueParameterModels.filterIsInstance<PathModel>()
 						if (pathModels.isNotEmpty()) {

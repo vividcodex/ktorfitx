@@ -9,6 +9,7 @@ import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.AnyReturnStructure
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.buildCodeBlock
 
 internal class HttpClientCodeBlock(
@@ -134,6 +135,17 @@ internal class HttpClientCodeBlock(
 			}
 			add(codeBlock)
 		}
+	}
+	
+	override fun CodeBlock.Builder.buildAttributes(cookieModels: List<AttributeModel>) {
+		// setAttributes {
+		//				this[AttributeKey<Int>("age")] = age
+		//			}
+		beginControlFlow("setAttributes")
+		cookieModels.forEach {
+			addStatement("this[%T(%S)] = %L", ClassNames.AttributeKey.parameterizedBy(it.typeName), it.name, it.varName)
+		}
+		endControlFlow()
 	}
 	
 	override fun CodeBlock.Builder.buildBody(bodyModel: BodyModel) {

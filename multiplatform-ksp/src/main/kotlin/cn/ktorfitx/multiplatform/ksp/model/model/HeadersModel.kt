@@ -1,6 +1,5 @@
 package cn.ktorfitx.multiplatform.ksp.model.model
 
-@JvmInline
-internal value class HeadersModel(
+internal class HeadersModel(
 	val headerMap: Map<String, String>,
 ) : FunModel

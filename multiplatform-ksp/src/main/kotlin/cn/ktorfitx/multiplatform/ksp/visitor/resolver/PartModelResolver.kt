@@ -6,17 +6,14 @@ import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.PartModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
-internal object PartModelResolver {
-	
-	fun KSFunctionDeclaration.resolves(): List<PartModel> {
-		return this.parameters.mapNotNull { parameter ->
-			val annotation = parameter.getKSAnnotationByType(ClassNames.Part) ?: return@mapNotNull null
-			val varName = parameter.name!!.asString()
-			var name = annotation.getValueOrNull<String>("name")
-			if (name.isNullOrBlank()) {
-				name = varName
-			}
-			PartModel(name, varName)
+internal fun KSFunctionDeclaration.resolvePartModels(): List<PartModel> {
+	return this.parameters.mapNotNull { parameter ->
+		val annotation = parameter.getKSAnnotationByType(ClassNames.Part) ?: return@mapNotNull null
+		val varName = parameter.name!!.asString()
+		var name = annotation.getValueOrNull<String>("name")
+		if (name.isNullOrBlank()) {
+			name = varName
 		}
+		PartModel(name, varName)
 	}
 }

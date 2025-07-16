@@ -7,17 +7,14 @@ import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.HeaderModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
-internal object HeaderModelResolver {
-	
-	fun KSFunctionDeclaration.resolves(): List<HeaderModel> {
-		return this.parameters.mapNotNull { parameter ->
-			val annotation = parameter.getKSAnnotationByType(ClassNames.Header) ?: return@mapNotNull null
-			var name = annotation.getValueOrNull<String>("name")
-			val varName = parameter.name!!.asString()
-			if (name.isNullOrBlank()) {
-				name = varName.camelToHeaderCase()
-			}
-			HeaderModel(name, varName)
+internal fun KSFunctionDeclaration.resolveHeaderModels(): List<HeaderModel> {
+	return this.parameters.mapNotNull { parameter ->
+		val annotation = parameter.getKSAnnotationByType(ClassNames.Header) ?: return@mapNotNull null
+		var name = annotation.getValueOrNull<String>("name")
+		val varName = parameter.name!!.asString()
+		if (name.isNullOrBlank()) {
+			name = varName.camelToHeaderCase()
 		}
+		HeaderModel(name, varName)
 	}
 }

@@ -4,75 +4,79 @@ import com.squareup.kotlinpoet.ClassName
 
 internal object ClassNames {
 	
-	val Unit = ClassName.bestGuess("kotlin.Unit")
+	val Unit = ClassName("kotlin", "Unit")
 	
-	val Nothing = ClassName.bestGuess("kotlin.Nothing")
+	val Nothing = ClassName("kotlin", "Nothing")
 	
-	val Result = ClassName.bestGuess("kotlin.Result")
+	val Result = ClassName("kotlin", "Result")
 	
-	val ByteArray = ClassName.bestGuess("kotlin.ByteArray")
+	val ByteArray = ClassName("kotlin", "ByteArray")
 	
-	val ByteReadChannel = ClassName.bestGuess("kotlinx.io.ByteReadChannel")
-	
-	val SynchronizedObject = ClassName("io.ktor.utils.io.locks", "SynchronizedObject")
-	
-	val CancellationException = ClassName.bestGuess("io.ktor.utils.io.CancellationException")
-	
-	val String = ClassName.bestGuess("kotlin.String")
-	
-	val Api = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Api")
+	val String = ClassName("kotlin", "String")
 	
 	val OptIn = ClassName("kotlin", "OptIn")
 	
+	val ByteReadChannel = ClassName("kotlinx.io", "ByteReadChannel")
+	
+	val SynchronizedObject = ClassName("io.ktor.utils.io.locks", "SynchronizedObject")
+	
+	val CancellationException = ClassName("io.ktor.utils.io", "CancellationException")
+	
+	val AttributeKey = ClassName("io.ktor.util", "AttributeKey")
+	
 	val InternalAPI = ClassName("io.ktor.utils.io", "InternalAPI")
 	
-	val DefaultApiScope = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.scope.DefaultApiScope")
+	val Api = ClassName("cn.ktorfitx.multiplatform.annotation", "Api")
 	
-	val ApiScope = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.ApiScope")
+	val DefaultApiScope = ClassName("cn.ktorfitx.multiplatform.core.scope", "DefaultApiScope")
 	
-	val ApiScopes = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.ApiScopes")
+	val ApiScope = ClassName("cn.ktorfitx.multiplatform.annotation", "ApiScope")
 	
-	val WebSocket = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.WebSocket")
+	val ApiScopes = ClassName("cn.ktorfitx.multiplatform.annotation", "ApiScopes")
 	
-	val BearerAuth = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.BearerAuth")
+	val WebSocket = ClassName("cn.ktorfitx.multiplatform.annotation", "WebSocket")
 	
-	val Headers = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Headers")
+	val BearerAuth = ClassName("cn.ktorfitx.multiplatform.annotation", "BearerAuth")
 	
-	val GET = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.GET")
+	val Headers = ClassName("cn.ktorfitx.multiplatform.annotation", "Headers")
 	
-	val POST = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.POST")
+	val GET = ClassName("cn.ktorfitx.multiplatform.annotation", "GET")
 	
-	val PUT = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.PUT")
+	val POST = ClassName("cn.ktorfitx.multiplatform.annotation", "POST")
 	
-	val DELETE = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.DELETE")
+	val PUT = ClassName("cn.ktorfitx.multiplatform.annotation", "PUT")
 	
-	val HEAD = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.HEAD")
+	val DELETE = ClassName("cn.ktorfitx.multiplatform.annotation", "DELETE")
 	
-	val PATCH = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.PATCH")
+	val HEAD = ClassName("cn.ktorfitx.multiplatform.annotation", "HEAD")
 	
-	val OPTIONS = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.OPTIONS")
+	val PATCH = ClassName("cn.ktorfitx.multiplatform.annotation", "PATCH")
 	
-	val Mock = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Mock")
+	val OPTIONS = ClassName("cn.ktorfitx.multiplatform.annotation", "OPTIONS")
 	
-	val Body = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Body")
+	val Mock = ClassName("cn.ktorfitx.multiplatform.annotation", "Mock")
 	
-	val Header = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Header")
+	val Body = ClassName("cn.ktorfitx.multiplatform.annotation", "Body")
 	
-	val Cookie = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Cookie")
+	val Header = ClassName("cn.ktorfitx.multiplatform.annotation", "Header")
 	
-	val Field = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Field")
+	val Cookie = ClassName("cn.ktorfitx.multiplatform.annotation", "Cookie")
 	
-	val Query = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Query")
+	val Attribute = ClassName("cn.ktorfitx.multiplatform.annotation", "Attribute")
 	
-	val Part = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Part")
+	val Field = ClassName("cn.ktorfitx.multiplatform.annotation", "Field")
 	
-	val Path = ClassName.bestGuess("cn.ktorfitx.multiplatform.annotation.Path")
+	val Query = ClassName("cn.ktorfitx.multiplatform.annotation", "Query")
 	
-	val WebSocketSessionHandler = ClassName.bestGuess("cn.ktorfitx.multiplatform.websockets.WebSocketSessionHandler")
+	val Part = ClassName("cn.ktorfitx.multiplatform.annotation", "Part")
 	
-	val MockProvider = ClassName.bestGuess("cn.ktorfitx.multiplatform.mock.MockProvider")
+	val Path = ClassName("cn.ktorfitx.multiplatform.annotation", "Path")
 	
-	val Ktorfitx = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.Ktorfitx")
+	val WebSocketSessionHandler = ClassName("cn.ktorfitx.multiplatform.websockets", "WebSocketSessionHandler")
 	
-	val KtorfitxConfig = ClassName.bestGuess("cn.ktorfitx.multiplatform.core.config.KtorfitxConfig")
+	val MockProvider = ClassName("cn.ktorfitx.multiplatform.mock", "MockProvider")
+	
+	val Ktorfitx = ClassName("cn.ktorfitx.multiplatform.core", "Ktorfitx")
+	
+	val KtorfitxConfig = ClassName("cn.ktorfitx.multiplatform.core.config", "KtorfitxConfig")
 }

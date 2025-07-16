@@ -18,8 +18,6 @@ internal class MockClientCodeBlock(
 		funName: String,
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
-//		val topLevelClassName = mockModel.provider.topLevelClassName()
-//		fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleName)
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK_CONFIG, "mockClient")
 		when {
 			returnStructure.isUnit -> {
@@ -137,6 +135,14 @@ internal class MockClientCodeBlock(
 				it.httpOnly,
 				it.extensions
 			)
+		}
+		endControlFlow()
+	}
+	
+	override fun CodeBlock.Builder.buildAttributes(cookieModels: List<AttributeModel>) {
+		beginControlFlow("attributes")
+		cookieModels.forEach {
+			addStatement("append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}

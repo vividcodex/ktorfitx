@@ -6,17 +6,14 @@ import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.QueryModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
-internal object QueryModelResolver {
-	
-	fun KSFunctionDeclaration.resolves(): List<QueryModel> {
-		return this.parameters.mapNotNull { parameter ->
-			val annotation = parameter.getKSAnnotationByType(ClassNames.Query) ?: return@mapNotNull null
-			var name = annotation.getValueOrNull<String>("name")
-			val varName = parameter.name!!.asString()
-			if (name.isNullOrBlank()) {
-				name = varName
-			}
-			QueryModel(name, varName)
+internal fun KSFunctionDeclaration.resolveQueryModels(): List<QueryModel> {
+	return this.parameters.mapNotNull { parameter ->
+		val annotation = parameter.getKSAnnotationByType(ClassNames.Query) ?: return@mapNotNull null
+		var name = annotation.getValueOrNull<String>("name")
+		val varName = parameter.name!!.asString()
+		if (name.isNullOrBlank()) {
+			name = varName
 		}
+		QueryModel(name, varName)
 	}
 }

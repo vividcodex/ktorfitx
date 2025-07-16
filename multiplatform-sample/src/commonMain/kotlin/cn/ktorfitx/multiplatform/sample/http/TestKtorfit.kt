@@ -4,6 +4,7 @@ import cn.ktorfitx.multiplatform.core.ktorfitx
 import cn.ktorfitx.multiplatform.mock.config.mockClient
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
@@ -25,7 +26,9 @@ val testKtorfit = ktorfitx<TestApiScope> {
 		}
 	}
 	mockClient {
-	
+		log {
+			level = LogLevel.ALL
+		}
 	}
 }
 
