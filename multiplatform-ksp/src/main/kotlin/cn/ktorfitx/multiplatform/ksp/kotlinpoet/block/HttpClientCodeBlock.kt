@@ -107,10 +107,13 @@ internal class HttpClientCodeBlock(
 		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "formUrlEncode")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
 		addStatement("contentType(ContentType.Application.FormUrlEncoded)")
-		val body = fieldModels.joinToString {
-			"\"${it.varName}\" to ${it.varName}${if (it.isStringType) "" else ".toString()"}"
-		}
-		addStatement("setBody(listOf($body).formUrlEncode())")
+//		val body = fieldModels.joinToString {
+//			"\"${it.varName}\" to ${it.varName}${if (it.isStringType) "" else ".toString()"}"
+//		}
+//		addStatement("setBody(listOf($body).formUrlEncode())")
+		val parameters = fieldModels.joinToString { "%S to %L" }
+		val args = fieldModels.flatMap { listOf(it.name, "${it.varName}${if (it.isStringType) "" else ".toString()"}") }
+		addStatement("setBody(listOf($parameters).formUrlEncode())", *args.toTypedArray())
 	}
 	
 	override fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>) {
