@@ -31,7 +31,7 @@ class MockLogging(
 						}
 					}
 					if (mockRequest.attributes.isNotEmpty()) {
-						appendLine("COOKIES: COUNT=${mockRequest.attributes.size}")
+						appendLine("ATTRIBUTES: COUNT=${mockRequest.attributes.size}")
 						mockRequest.attributes.forEach { (name, value) ->
 							appendLine("-> $name: $value")
 						}
