@@ -113,7 +113,7 @@ internal class HttpCodeBlockBuilder(
 			
 			MockClientCodeBlock::class -> {
 				val mockModel = funStructure.funModels.first { it is MockModel } as MockModel
-				MockClientCodeBlock(mockModel)
+				MockClientCodeBlock(mockModel, returnStructure)
 			}
 			
 			else -> error("不支持的类型")

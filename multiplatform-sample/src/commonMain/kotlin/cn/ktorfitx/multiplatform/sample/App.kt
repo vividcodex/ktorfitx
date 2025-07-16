@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import cn.ktorfitx.multiplatform.sample.http.api.impls.testMethod1Api
+import cn.ktorfitx.multiplatform.sample.http.api.impls.testMockApi
 import cn.ktorfitx.multiplatform.sample.http.testKtorfit
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -144,6 +145,22 @@ fun App() {
 					Text("点击查询")
 				}
 				Spacer(modifier = Modifier.height(8.dp))
+				
+				Button(
+					modifier = Modifier
+						.padding(vertical = 8.dp)
+						.width(380.dp)
+						.clip(RoundedCornerShape(4.dp)),
+					onClick = {
+						coroutineScope.launch {
+							val result = testKtorfit.testMockApi.mockTest3()
+							text = result
+						}
+					}
+				) {
+					Text("测试 Mock")
+				}
+				
 				val horizontalScrollState = rememberScrollState()
 				val verticalScrollState = rememberScrollState()
 				Text(

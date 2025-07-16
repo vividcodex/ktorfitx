@@ -3,36 +3,74 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
+import cn.ktorfitx.multiplatform.ksp.model.structure.AnyReturnStructure
 import com.squareup.kotlinpoet.CodeBlock
 
 /**
  * MockClient 代码块
  */
 internal class MockClientCodeBlock(
-	private val mockModel: MockModel
+	private val mockModel: MockModel,
+	private val returnStructure: AnyReturnStructure
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
 		funName: String,
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
-		val topLevelClassName = mockModel.provider.topLevelClassName()
-		fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleName)
+//		val topLevelClassName = mockModel.provider.topLevelClassName()
+//		fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleName)
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK_CONFIG, "mockClient")
-		beginControlFlow(
-			"""
-			val value = this.config.mockClient.%N(
-				mockProvider = %N,
-				delay = %L
-			)
-			""".trimIndent(),
-			funName,
-			mockModel.provider.simpleNames.joinToString("."),
-			mockModel.delay
-		)
+		when {
+			returnStructure.isUnit -> {
+				beginControlFlow(
+					"""
+					this.config.mockClient.%N(
+						mockProvider = %T,
+						delay = %L
+					)
+					""".trimIndent(),
+					funName,
+					mockModel.provider,
+					mockModel.delay
+				)
+			}
+			
+			returnStructure.isResult -> {
+				beginControlFlow(
+					"""
+					val result = this.config.mockClient.%N(
+						mockProvider = %T,
+						delay = %L
+					)
+					""".trimIndent(),
+					funName,
+					mockModel.provider,
+					mockModel.delay
+				)
+			}
+			
+			else -> {
+				beginControlFlow(
+					"""
+					return this.config.mockClient.%N(
+						mockProvider = %T,
+						delay = %L
+					)
+					""".trimIndent(),
+					funName,
+					mockModel.provider,
+					mockModel.delay
+				)
+			}
+		}
 		builder()
 		endControlFlow()
-		addStatement("Result.success(value)")
+		when {
+			returnStructure.isResult -> {
+				addStatement("Result.success(result)")
+			}
+		}
 	}
 	
 	override fun CodeBlock.Builder.buildUrlString(urlString: String) {
