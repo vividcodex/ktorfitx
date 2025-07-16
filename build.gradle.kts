@@ -16,6 +16,7 @@ val projects = arrayOf(
 	"multiplatform-mock",
 	"multiplatform-websockets",
 	"multiplatform-ksp",
+	"server-core",
 	"server-annotation",
 	"server-auth",
 	"server-websockets",

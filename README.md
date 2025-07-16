@@ -1,4 +1,4 @@
-# KtorfitX 3.2.1-3.0.0-Beta3
+# KtorfitX 3.2.1-3.0.0-Beta4
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,21 +6,111 @@
 
 ## 更新时间
 
-### 2025-07-09
+### 2025-07-16
 
 ## 项目简介
 
 Kotlin Multiplatform 平台是为了实现类似RESTful风格的网络请求接口定义，使用代码生成实现类
 
-Ktor Server 是为了自动生成路由层代码定义，达到无需手动管理复杂路由代码管理
+Ktor Server 是为了自动生成路由层代码，自动管理路由代码，并可以通过注解获取各种类型参数
 
 ## 版本说明
 
 Kotlin `2.2.0`
 
-Ktor `3.2.1`
+Ktor `3.2.2`
 
 KSP `2.2.0-2.0.2`
+
+## 支持平台
+
+Android, IOS, Desktop (JVM), WasmJs, Js, Ktor Server
+
+## 依赖说明
+
+请使用和 ktorfitx 相同版本的 ktor 版本，以保证他们的最佳兼容性
+
+### 目前所有依赖项
+
+- cn.ktorfitx:multiplatform-core
+- cn.ktorfitx:multiplatform-annotation
+- cn.ktorfitx:multiplatform-websockets
+- cn.ktorfitx:multiplatform-mock
+- cn.ktorfitx:multiplatform-ksp
+- cn.ktorfitx:server-core
+- cn.ktorfitx:server-annotation
+- cn.ktorfitx:server-websockets
+- cn.ktorfitx:server-auth
+- cn.ktorfitx:server-ksp
+- cn.ktorfitx:common-ksp-util
+
+## 注解介绍
+
+### Kotlin Multiplatform
+
+#### INTERFACE 接口
+
+- `@Api` 定义接口
+- `@ApiScope` 接口作用域，用于控制扩展方法的泛型
+- `@ApiScopes` 接口作用域，用于控制扩展方法的泛型
+
+#### FUNCTION 方法
+
+- `@GET` GET 请求
+- `@POST` POST 请求
+- `@PUT` PUT 请求
+- `@DELETE` DELETE 请求
+- `@PATCH` PATCH 请求
+- `@OPTIONS` OPTIONS 请求
+- `@HEAD` HEAD 请求
+- `@BearerAuth` 启用授权
+- `@Headers` 多个请求头
+- `@Mock` Mock
+- `@WebSocket` WebSocket
+
+#### VALUE_PARAMETER 参数
+
+- `@Body` 请求体
+- `@Query` 请求参数
+- `@Field` x-www-form-urlencoded 字段
+- `@Part` form-data 字段
+- `@Header` 动态请求头
+- `@Path` path 参数
+- `@Cookie` cookie 参数
+- `@Attribute` attribute 参数
+
+### Ktor Server
+
+#### FILE 文件
+
+- `@RouteGenerator` 路由生成文件定义
+
+#### FUNCTION 方法
+
+- `@GET` GET 请求
+- `@POST` POST 请求
+- `@PUT` PUT 请求
+- `@DELETE` DELETE 请求
+- `@PATCH` PATCH 请求
+- `@OPTIONS` OPTIONS 请求
+- `@HEAD` HEAD 请求
+- `@Authentication` 路由授权
+- `@WebSocket` WebSocket
+- `@Group` 定义路由生成组
+
+#### VALUE_PARAMETER 参数
+
+- `@Attribute` attribute 参数
+- `@Body` 请求体参数
+- `@Cookie` cookie 参数
+- `@Field` x-www-form-urlencoded 字段
+- `@Header` 请求头参数
+- `@PartForm` form-data 参数
+- `@PartFile` form-data 文件
+- `@PartBinary` form-data 二进制参数
+- `@PartBinaryChannel` form-data 数据流
+- `@Path` path 参数
+- `@Query` 查询参数
 
 ## 迁移 从 2.x 迁移至 3.x
 
@@ -34,33 +124,6 @@ KSP `2.2.0-2.0.2`
 
 添加 Ktor Server 端支持，标记注解，符号处理器会自动生成对应的路由函数，您您只需要调用它就可以了
 
-## 支持平台
-
-### Kotlin Multiplatform
-
-Android, IOS, Desktop (JVM), WasmJs, Js
-
-### Ktor Server
-
-Ktor Server, Ktor Auth, Ktor WebSocket
-
-## 依赖说明
-
-请使用和 ktorfitx 相同版本的 ktor 版本，以保证他们的最佳兼容性
-
-### 目前所有依赖项
-
-- cn.ktorfitx:multiplatform-core:3.2.1-3.0.0-Beta3
-- cn.ktorfitx:multiplatform-annotation:3.2.1-3.0.0-Beta3
-- cn.ktorfitx:multiplatform-websockets:3.2.1-3.0.0-Beta3
-- cn.ktorfitx:multiplatform-mock:3.2.1-3.0.0-Beta3
-- cn.ktorfitx:multiplatform-ksp:3.2.1-3.0.0-Beta3
-- cn.ktorfitx:server-annotation:3.2.1-3.0.0-Beta3
-- cn.ktorfitx:server-websockets:3.2.1-3.0.0-Beta3
-- cn.ktorfitx:server-auth:3.2.1-3.0.0-Beta3
-- cn.ktorfitx:server-ksp:3.2.1-3.0.0-Beta3
-- cn.ktorfitx:common-ksp-util:3.2.1-3.0.0-Beta3
-
 ## 使用方法
 
 ### Kotlin Multiplatform
@@ -69,14 +132,14 @@ Ktor Server, Ktor Auth, Ktor WebSocket
 
 ``` kotlin
 plugins {
-    // 可选
+    // 必选
     alias(libs.plugins.kotlin.serialization)
     
     // 必选
     alias(libs.plugins.ksp)
 }
 
-val ktorfitxVersion = "3.2.1-3.0.0-Beta3"
+val ktorfitxVersion = "3.2.1-3.0.0-Beta4"
 
 kotlin {
     sourceSets {
@@ -138,9 +201,10 @@ kotlin {
 }
 
 dependencies {
-    val ktorfitxVersion = "3.2.1-3.0.0-Beta3"
+    val ktorfitxVersion = "3.2.1-3.0.0-Beta4"
 
-    // 常规注解（必选）
+    // 注解（必选）
+    implementation("cn.ktorfitx:server-core:$ktorfitxVersion")
     implementation("cn.ktorfitx:server-annotation:$ktorfitxVersion")
     
     // 可选，Ktor Auth 支持
@@ -164,53 +228,4 @@ dependencies {
 
 ## 异常处理及返回值
 
-从 3.2.1-3.0.0-Beta3 开始，返回值统一改为 `kotlin.Result<T>` 使用 Result 提供的获取异常处理的方式处理
-
-## 注解介绍
-
-### Kotlin Multiplatform
-
-#### CLASS
-
-- `@Api` 定义接口
-
-#### FUNCTION
-
-- `@GET` GET 请求
-- `@POST` POST 请求
-- `@PUT` PUT 请求
-- `@DELETE` DELETE 请求
-- `@PATCH` PATCH 请求
-- `@OPTIONS` OPTIONS 请求
-- `@HEAD` HEAD 请求
-- `@BearerAuth` 启用授权
-- `@Headers` 多个请求头
-- `@Mock` Mock
-- `@WebSocket` WebSocket
-
-#### VALUE_PARAMETER
-
-- `@Body` 请求体
-- `@Query` 请求参数
-- `@Field` x-www-form-urlencoded 字段
-- `@Part` form-data 字段
-- `@Header` 动态请求头
-- `@Path` path 参数
-
-### Ktor Server
-
-#### FILE
-
-- `@RouteGenerator` 路由生成文件定义
-
-#### FUNCTION
-
-- `@GET` GET 请求
-- `@POST` POST 请求
-- `@PUT` PUT 请求
-- `@DELETE` DELETE 请求
-- `@PATCH` PATCH 请求
-- `@OPTIONS` OPTIONS 请求
-- `@HEAD` HEAD 请求
-- `@Authentication` 路由授权
-- `@WebSocket` WebSocket
+当返回值是 `Result<T>` 时，会自动处理异常，否则需要自行处理异常
