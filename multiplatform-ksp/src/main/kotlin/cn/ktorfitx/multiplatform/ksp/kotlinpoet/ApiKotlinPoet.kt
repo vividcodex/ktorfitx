@@ -1,7 +1,6 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet
 
 import cn.ktorfitx.common.ksp.util.builders.*
-import cn.ktorfitx.common.ksp.util.expends.allClassNames
 import cn.ktorfitx.common.ksp.util.expends.replaceFirstToLowercase
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
@@ -10,10 +9,8 @@ import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpCodeBlockBuilder
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.MockClientCodeBlock
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.WebSocketBuilder
 import cn.ktorfitx.multiplatform.ksp.model.model.*
-import cn.ktorfitx.multiplatform.ksp.model.structure.AnyReturnStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
-import cn.ktorfitx.multiplatform.ksp.model.structure.UnitReturnStructure
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
@@ -133,16 +130,22 @@ internal object ApiKotlinPoet {
 				addParameters(getParameterSpecs(it.parameterModels))
 				addCode(getCodeBlock(classStructure, it))
 				val returnStructure = it.returnStructure
-				when (returnStructure) {
-					is UnitReturnStructure -> returns(ClassNames.Unit)
-					is AnyReturnStructure -> {
-						returnStructure.typeName.allClassNames.forEach { className ->
-							val topLevelClassName = className.topLevelClassName()
-							fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
-						}
-						returns(returnStructure.typeName)
-					}
-				}
+				returns(returnStructure.typeName)
+//				when (returnStructure.returnKind) {
+//					ReturnKind.Unit -> returns()
+//					ReturnKind.Result -> TODO()
+//					ReturnKind.Any -> TODO()
+//				}
+//				when (returnStructure) {
+//					is UnitReturnStructure -> returns(ClassNames.Unit)
+//					is AnyReturnStructure -> {
+//						returnStructure.typeName.allClassNames.forEach { className ->
+//							val topLevelClassName = className.topLevelClassName()
+//							fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
+//						}
+//						returns(returnStructure.typeName)
+//					}
+//				}
 				
 			}
 		}.toList()

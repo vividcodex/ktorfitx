@@ -6,9 +6,9 @@ import cn.ktorfitx.common.ksp.util.expends.allClassNames
 import cn.ktorfitx.common.ksp.util.expends.isHttpOrHttps
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
-import cn.ktorfitx.multiplatform.ksp.model.structure.AnyReturnStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
+import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnKind
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -20,7 +20,7 @@ internal class HttpCodeBlockBuilder(
 	private val codeBlockKClass: KClass<out ClientCodeBlock>,
 ) {
 	
-	private val returnStructure = funStructure.returnStructure as AnyReturnStructure
+	private val returnStructure = funStructure.returnStructure
 	private val valueParameterModels = funStructure.valueParameterModels
 	private val funModels = funStructure.funModels
 	private val apiStructure = classStructure.apiStructure
@@ -96,7 +96,7 @@ internal class HttpCodeBlockBuilder(
 	private fun CodeBlock.Builder.buildTryCatchIfNeed(
 		builder: CodeBlock.Builder.() -> Unit
 	) {
-		if (returnStructure.isResult) {
+		if (returnStructure.returnKind == ReturnKind.Result) {
 			beginControlFlow("return try")
 			builder()
 			nextControlFlow("catch (e: %T)", ClassNames.CancellationException)

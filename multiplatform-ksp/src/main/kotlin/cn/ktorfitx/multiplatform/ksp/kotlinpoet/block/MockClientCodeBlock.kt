@@ -3,7 +3,8 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
-import cn.ktorfitx.multiplatform.ksp.model.structure.AnyReturnStructure
+import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnKind
+import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnStructure
 import com.squareup.kotlinpoet.CodeBlock
 
 /**
@@ -11,7 +12,7 @@ import com.squareup.kotlinpoet.CodeBlock
  */
 internal class MockClientCodeBlock(
 	private val mockModel: MockModel,
-	private val returnStructure: AnyReturnStructure
+	private val returnStructure: ReturnStructure
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
@@ -19,8 +20,8 @@ internal class MockClientCodeBlock(
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK_CONFIG, "mockClient")
-		when {
-			returnStructure.isUnit -> {
+		when (returnStructure.returnKind) {
+			ReturnKind.Unit -> {
 				beginControlFlow(
 					"""
 					this.config.mockClient.%N(
@@ -34,7 +35,7 @@ internal class MockClientCodeBlock(
 				)
 			}
 			
-			returnStructure.isResult -> {
+			ReturnKind.Result -> {
 				beginControlFlow(
 					"""
 					val result = this.config.mockClient.%N(
@@ -48,7 +49,7 @@ internal class MockClientCodeBlock(
 				)
 			}
 			
-			else -> {
+			ReturnKind.Any -> {
 				beginControlFlow(
 					"""
 					return this.config.mockClient.%N(
@@ -64,10 +65,8 @@ internal class MockClientCodeBlock(
 		}
 		builder()
 		endControlFlow()
-		when {
-			returnStructure.isResult -> {
-				addStatement("Result.success(result)")
-			}
+		if (returnStructure.returnKind == ReturnKind.Result) {
+			addStatement("Result.success(result)")
 		}
 	}
 	

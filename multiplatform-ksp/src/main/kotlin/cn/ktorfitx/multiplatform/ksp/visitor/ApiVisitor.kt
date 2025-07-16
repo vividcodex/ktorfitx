@@ -123,32 +123,36 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 	private fun KSFunctionDeclaration.getReturnStructure(isWebSocket: Boolean): ReturnStructure {
 		val returnType = this.returnType!!
 		val typeName = returnType.toTypeName()
-		return if (isWebSocket) {
-			returnType.compileCheck(!typeName.isNullable && typeName == ClassNames.Unit) {
-				"${simpleName.asString()} 函数必须使用 ${ClassNames.Unit.canonicalName} 作为返回类型，因为你已经标记了 @WebSocket 注解"
+		val returnKind = when {
+			isWebSocket -> {
+				returnType.compileCheck(!typeName.isNullable && typeName == ClassNames.Unit) {
+					"${simpleName.asString()} 函数必须使用 ${ClassNames.Unit.canonicalName} 作为返回类型，因为你已经标记了 @WebSocket 注解"
+				}
+				ReturnKind.Unit
 			}
-			UnitReturnStructure
-		} else {
-			val rawType = typeName.rawType
-			val isResult = rawType == ClassNames.Result
-			if (isResult) {
-				returnType.compileCheck(!rawType.isNullable && typeName is ParameterizedTypeName) {
+			
+			typeName.rawType == ClassNames.Result -> {
+				returnType.compileCheck(!typeName.isNullable && typeName is ParameterizedTypeName) {
 					"${simpleName.asString()} 函数不允许为 Result 返回类型设置为可空"
 				}
-				AnyReturnStructure(typeName, isResult = true, isUnit = false)
-			} else {
-				returnType.compileCheck(rawType != ClassNames.Nothing) {
+				ReturnKind.Result
+			}
+			
+			typeName == ClassNames.Unit -> {
+				returnType.compileCheck(!typeName.isNullable) {
+					"${simpleName.asString()} 函数不允许使用 Unit? 返回类型"
+				}
+				ReturnKind.Unit
+			}
+			
+			else -> {
+				returnType.compileCheck(typeName != ClassNames.Nothing) {
 					"${simpleName.asString()} 函数不允许使用 Nothing 返回类型"
 				}
-				val isUnit = rawType == ClassNames.Unit
-				if (isUnit) {
-					returnType.compileCheck(!rawType.isNullable) {
-						"${simpleName.asString()} 函数不允许使用 Unit? 返回类型"
-					}
-				}
-				AnyReturnStructure(typeName, isResult = false, isUnit = isUnit)
+				ReturnKind.Any
 			}
 		}
+		return ReturnStructure(typeName, returnKind)
 	}
 	
 	override fun defaultHandler(node: KSNode, data: Unit): ClassStructure = error("Not Implemented")

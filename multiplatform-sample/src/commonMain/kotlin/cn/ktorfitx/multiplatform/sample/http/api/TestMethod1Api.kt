@@ -3,6 +3,7 @@ package cn.ktorfitx.multiplatform.sample.http.api
 import cn.ktorfitx.multiplatform.annotation.*
 import cn.ktorfitx.multiplatform.sample.http.TestApiScope
 import cn.ktorfitx.multiplatform.sample.http.TestRequest2
+import cn.ktorfitx.multiplatform.sample.http.TestResponse
 import cn.ktorfitx.multiplatform.sample.http.mock.ApiResultMockProvider
 import cn.ktorfitx.multiplatform.sample.http.mock.StringMockProvider
 import kotlinx.serialization.Serializable
@@ -107,11 +108,6 @@ interface TestMethod1Api {
 data class TestRequest(
 	val param1: String,
 	val param2: String,
-)
-
-@Serializable
-data class TestResponse(
-	val param1: String,
 )
 
 @Serializable

@@ -6,14 +6,15 @@ import cn.ktorfitx.common.ksp.util.expends.rawType
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
-import cn.ktorfitx.multiplatform.ksp.model.structure.AnyReturnStructure
+import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnKind
+import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnStructure
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.buildCodeBlock
 
 internal class HttpClientCodeBlock(
-	private val returnStructure: AnyReturnStructure
+	private val returnStructure: ReturnStructure
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
@@ -21,7 +22,7 @@ internal class HttpClientCodeBlock(
 		builder: CodeBlock.Builder.() -> Unit
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, funName)
-		if (returnStructure.isUnit) {
+		if (returnStructure.returnKind == ReturnKind.Unit) {
 			beginControlFlow("this.config.httpClient!!.%N", funName)
 		} else {
 			beginControlFlow("val response = this.config.httpClient!!.%N", funName)
@@ -29,7 +30,7 @@ internal class HttpClientCodeBlock(
 		builder()
 		endControlFlow()
 		
-		val typeName = if (returnStructure.isResult) {
+		val typeName = if (returnStructure.returnKind == ReturnKind.Result) {
 			(returnStructure.typeName as ParameterizedTypeName).typeArguments.first()
 		} else returnStructure.typeName
 		val rawType = if (typeName.isNullable) typeName.rawType.copy(nullable = false) else typeName
@@ -44,7 +45,7 @@ internal class HttpClientCodeBlock(
 		} else {
 			fileSpecBuilder.addImport(PackageNames.KTOR_STATEMENT, funName)
 		}
-		if (returnStructure.isResult) {
+		if (returnStructure.returnKind == ReturnKind.Result) {
 			addStatement("Result.success(response.%N())", funName)
 		} else if (returnStructure.typeName != ClassNames.Unit) {
 			addStatement("return response.%N()", funName)

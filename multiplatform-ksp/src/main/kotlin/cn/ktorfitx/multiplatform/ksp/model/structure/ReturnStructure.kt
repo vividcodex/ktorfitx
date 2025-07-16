@@ -2,12 +2,13 @@ package cn.ktorfitx.multiplatform.ksp.model.structure
 
 import com.squareup.kotlinpoet.TypeName
 
-internal sealed interface ReturnStructure
-
-internal class AnyReturnStructure(
+internal class ReturnStructure(
 	val typeName: TypeName,
-	val isResult: Boolean,
-	val isUnit: Boolean
-) : ReturnStructure
+	val returnKind: ReturnKind
+)
 
-internal object UnitReturnStructure : ReturnStructure
+internal enum class ReturnKind {
+	Unit,
+	Result,
+	Any
+}
