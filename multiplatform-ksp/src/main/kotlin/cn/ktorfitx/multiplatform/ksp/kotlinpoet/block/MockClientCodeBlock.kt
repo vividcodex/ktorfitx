@@ -1,11 +1,13 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
+import cn.ktorfitx.common.ksp.util.builders.toCodeBlock
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnKind
 import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnStructure
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.buildCodeBlock
 
 /**
  * MockClient 代码块
@@ -121,19 +123,71 @@ internal class MockClientCodeBlock(
 	override fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>) {
 		beginControlFlow("cookies")
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK, "MockClient")
-		cookieModels.forEach {
-			addStatement(
-				"append(%S, MockCookie(%S, %N, %L, %L, %L, %L, %L, %L, %L))",
-				it.name,
-				it.varName,
-				it.maxAge,
-				it.expires,
-				it.domain,
-				it.path,
-				it.secure,
-				it.httpOnly,
-				it.extensions
-			)
+		cookieModels.forEach { model ->
+//			addStatement(
+//				"append(%S, %N, %L, %L, %S, %S, %L, %L, %L)",
+//				it.name,
+//				it.varName,
+//				it.maxAge,
+//				it.expires,
+//				it.domain,
+//				it.path,
+//				it.secure,
+//				it.httpOnly,
+//				it.extensions?.toCodeBlock()
+//			)
+			
+			val codeBlock = buildCodeBlock {
+				add("append(\n")
+				indent()
+				add("name = %S,\n", model.name)
+				add("value = %N,\n", model.varName)
+				model.maxAge?.let { add("maxAge = %L,\n", it) }
+				model.expires?.let {
+					fileSpecBuilder.addImport(PackageNames.KTOR_UTIL_DATE, "GMTDate")
+					add("expires = %L,\n", "GMTDate(${it}L)")
+				}
+				model.domain?.let { add("domain = %S,\n", it) }
+				model.path?.let { add("path = %S,\n", it) }
+				model.secure?.let { add("secure = %L,\n", it) }
+				model.httpOnly?.let { add("httpOnly = %L,\n", it) }
+				model.extensions?.let { add("extensions = %L,\n", it.toCodeBlock()) }
+				unindent()
+				add(")\n")
+			}
+			add(codeBlock)
+			
+			// override fun append(
+			//		name: String,
+			//		value: String,
+			//		maxAge: Int,
+			//		expires: Long?,
+			//		domain: String?,
+			//		path: String?,
+			//		secure: Boolean,
+			//		httpOnly: Boolean,
+			//		extensions: Map<String, String?>
+			//	) {
+			
+			// val codeBlock = buildCodeBlock {
+			//				add("cookie(\n")
+			//				indent()
+			//				add("name = %S,\n", model.name)
+			//				add("value = %N,\n", model.varName)
+			//				model.maxAge?.let { add("maxAge = %L,\n", it) }
+			//				model.expires?.let {
+			//					fileSpecBuilder.addImport(PackageNames.KTOR_UTIL_DATE, "GMTDate")
+			//					add("expires = %L,\n", "GMTDate(${it}L)")
+			//				}
+			//				model.domain?.let { add("domain = %S,\n", it) }
+			//				model.path?.let { add("path = %S,\n", it) }
+			//				model.secure?.let { add("secure = %L,\n", it) }
+			//				model.httpOnly?.let { add("httpOnly = %L,\n", it) }
+			//				model.extensions?.let { add("extensions = %L,\n", it.toCodeBlock()) }
+			//				unindent()
+			//				add(")\n")
+			//			}
+			//			add(codeBlock)
 		}
 		endControlFlow()
 	}

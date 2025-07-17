@@ -111,8 +111,7 @@ internal class HttpClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildFields(fieldModels: List<FieldModel>) {
-		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType")
-		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "formUrlEncode")
+		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType", "formUrlEncode")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
 		addStatement("contentType(ContentType.Application.FormUrlEncoded)")
 		val parameters = fieldModels.joinToString { "%S to %L" }

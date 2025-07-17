@@ -2,6 +2,7 @@ package cn.ktorfitx.multiplatform.mock
 
 import cn.ktorfitx.multiplatform.annotation.MockDsl
 import io.ktor.http.*
+import io.ktor.util.date.*
 import kotlinx.serialization.json.Json
 
 @MockDsl
@@ -13,25 +14,25 @@ class MockRequestBuilder(
 		private set
 	
 	private val _headers = mutableMapOf<String, Any>()
-	val headers: Map<String, Any> = _headers
+	internal val headers: Map<String, Any> = _headers
 	
 	private val _queries = mutableMapOf<String, Any>()
-	val queries: Map<String, Any> = _queries
+	internal val queries: Map<String, Any> = _queries
 	
 	private val _parts = mutableMapOf<String, Any>()
-	val parts: Map<String, Any> = _parts
+	internal val parts: Map<String, Any> = _parts
 	
 	private val _fields = mutableMapOf<String, Any>()
-	val fields: Map<String, Any> = _fields
+	internal val fields: Map<String, Any> = _fields
 	
 	private val _paths = mutableMapOf<String, Any>()
-	val paths: Map<String, Any> = _paths
+	internal val paths: Map<String, Any> = _paths
 	
 	private val _cookies = mutableMapOf<String, MockCookie>()
-	val cookies: Map<String, MockCookie> = _cookies
+	internal val cookies: Map<String, MockCookie> = _cookies
 	
 	private val _attributes = mutableMapOf<String, Any>()
-	val attributes: Map<String, Any> = _attributes
+	internal val attributes: Map<String, Any> = _attributes
 	
 	var body: String? = null
 	
@@ -63,8 +64,8 @@ class MockRequestBuilder(
 		this._paths += mutableMapOf<String, Any>().apply(block)
 	}
 	
-	fun cookies(block: MutableMap<String, MockCookie>.() -> Unit) {
-		this._cookies += mutableMapOf<String, MockCookie>().apply(block)
+	fun cookies(block: CookieBuilder.() -> Unit) {
+		this._cookies += CookieBuilderImpl().apply(block).cookies
 	}
 	
 	fun attributes(block: MutableMap<String, Any>.() -> Unit) {
@@ -80,14 +81,56 @@ class MockRequestBuilder(
 	}
 }
 
-class MockCookie(
-	val name: String,
-	val value: String,
+sealed interface CookieBuilder {
+	
+	fun append(
+		name: String,
+		value: String,
+		maxAge: Int = 0,
+		expires: GMTDate? = null,
+		domain: String? = null,
+		path: String? = null,
+		secure: Boolean = false,
+		httpOnly: Boolean = false,
+		extensions: Map<String, String?> = emptyMap()
+	)
+}
+
+private class CookieBuilderImpl : CookieBuilder {
+	
+	val cookies = mutableMapOf<String, MockCookie>()
+	
+	override fun append(
+		name: String,
+		value: String,
+		maxAge: Int,
+		expires: GMTDate?,
+		domain: String?,
+		path: String?,
+		secure: Boolean,
+		httpOnly: Boolean,
+		extensions: Map<String, String?>
+	) {
+		this.cookies[name] = MockCookie(
+			value = value,
+			maxAge = maxAge,
+			expires = expires,
+			domain = domain,
+			path = path,
+			secure = secure,
+			httpOnly = httpOnly,
+			extensions = extensions
+		)
+	}
+}
+
+internal class MockCookie(
+	val value: Any,
 	val maxAge: Int,
-	val expires: Long?,
+	val expires: GMTDate?,
 	val domain: String?,
 	val path: String?,
 	val secure: Boolean,
 	val httpOnly: Boolean,
-	val extensions: Map<String, String>
+	val extensions: Map<String, String?>
 )

@@ -153,7 +153,7 @@ fun App() {
 						.clip(RoundedCornerShape(4.dp)),
 					onClick = {
 						coroutineScope.launch {
-							val result = testKtorfit.testMockApi.mockTest3()
+							val result = testKtorfit.testMockApi.mockTest2().getOrNull()
 							text = result
 						}
 					}

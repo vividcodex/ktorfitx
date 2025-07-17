@@ -44,7 +44,7 @@ class MockLogging(
 								if (value.maxAge > 0) {
 									append(", max-age=$value")
 								}
-								if (value.expires != null && value.expires > 0L) {
+								if (value.expires != null) {
 									append(", expires=${value.expires}")
 								}
 								if (value.domain != null) {

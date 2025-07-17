@@ -3,6 +3,7 @@ package cn.ktorfitx.multiplatform.sample.http.api
 import cn.ktorfitx.multiplatform.annotation.*
 import cn.ktorfitx.multiplatform.sample.http.Test2ApiScope
 import cn.ktorfitx.multiplatform.sample.http.TestApiScope
+import cn.ktorfitx.multiplatform.sample.http.TestRequest2
 import cn.ktorfitx.multiplatform.sample.http.mock.StringMockProvider
 
 @ApiScopes(TestApiScope::class, Test2ApiScope::class)
@@ -19,7 +20,17 @@ interface TestMockApi {
 	@Mock(provider = StringMockProvider::class)
 	suspend fun mockTest2(): Result<String>
 	
-	@GET(url = "/mockTest3")
-	@Mock(provider = StringMockProvider::class)
-	suspend fun mockTest3(): String
+	@POST(url = "/mockTest3")
+	@Headers("Content-Type: application/json")
+	@Mock(StringMockProvider::class)
+	suspend fun mockTest3(
+		@Body testRequest: TestRequest2,
+		@Header testHeader: String,
+	): Result<String>
+	
+	@POST("/mockTest4")
+	suspend fun mockTest4(
+		@Field field1: String,
+		@Field("custom") field2: Int
+	): Result<String>
 }

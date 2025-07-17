@@ -23,5 +23,5 @@ internal fun KSFunctionDeclaration.resolveBodyModel(): BodyModel? {
 	this.compileCheck(typeName is ClassName || typeName is ParameterizedTypeName) {
 		"${simpleName.asString()} 函数的参数列表中标记了 @Body 注解，但是未找到参数类型"
 	}
-	return BodyModel(varName, typeName)
+	return BodyModel(varName)
 }
