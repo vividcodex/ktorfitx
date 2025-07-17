@@ -29,7 +29,7 @@ internal fun KSFunctionDeclaration.resolveMockModel(): MockModel? {
 	
 	val mockReturnType = classDeclaration.superTypes
 		.map { it.resolve() }
-		.find { it.toTypeName().rawType == ClassNames.MockProvider } // 替换为实际包名
+		.find { it.toTypeName().rawType == ClassNames.MockProvider }
 		?.arguments
 		?.firstOrNull()
 		?.type
