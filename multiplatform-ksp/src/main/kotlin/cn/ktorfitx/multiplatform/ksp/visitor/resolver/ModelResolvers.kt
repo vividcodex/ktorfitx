@@ -11,8 +11,9 @@ internal object ModelResolvers {
 	 */
 	fun KSFunctionDeclaration.getAllFunModels(): List<FunModel> {
 		val models = mutableListOf<FunModel?>()
-		models += this.resolveWebSocketModel()
-		models += this.resolveApiModel(isWebSocket = models.any { it is WebSocketModel })
+		val webSocketModel = this.resolveWebSocketModel()
+		models += webSocketModel
+		models += this.resolveApiModel(webSocketModel != null)
 		models += this.resolveHeadersModel()
 		models += this.resolveMockModel()
 		models += this.resolveBearerAuthModel()

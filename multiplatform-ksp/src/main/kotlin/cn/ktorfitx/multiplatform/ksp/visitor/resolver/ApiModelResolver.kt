@@ -6,16 +6,21 @@ import cn.ktorfitx.common.ksp.util.expends.getValue
 import cn.ktorfitx.common.ksp.util.expends.isHttpOrHttps
 import cn.ktorfitx.common.ksp.util.expends.isWSOrWSS
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
-import cn.ktorfitx.multiplatform.ksp.model.RequestMethod
 import cn.ktorfitx.multiplatform.ksp.model.model.ApiModel
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 
-private val requestMethodClassNames by lazy {
-	RequestMethod.entries.map { it.className }
-}
+private val requestMethodClassNames = arrayOf(
+	ClassNames.GET,
+	ClassNames.POST,
+	ClassNames.PUT,
+	ClassNames.DELETE,
+	ClassNames.PATCH,
+	ClassNames.HEAD,
+	ClassNames.OPTIONS,
+)
 
 internal fun KSFunctionDeclaration.resolveApiModel(isWebSocket: Boolean): ApiModel {
 	val funName = this.simpleName.asString()
