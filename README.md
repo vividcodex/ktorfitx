@@ -6,7 +6,7 @@
 
 ## 更新时间
 
-### 2025-07-16
+### 2025-07-17
 
 ## 项目简介
 
@@ -207,13 +207,13 @@ dependencies {
     implementation("cn.ktorfitx:server-core:$ktorfitxVersion")
     implementation("cn.ktorfitx:server-annotation:$ktorfitxVersion")
     
-    // 可选，Ktor Auth 支持
+    // 可选，ktor auth 支持
     implementation("cn.ktorfitx:server-auth:$ktorfitxVersion")
     
-    // 可选，Ktor WebSocket 支持
+    // 可选，ktor websockets 支持
     implementation("cn.ktorfitx:server-websockets:$ktorfitxVersion")
     
-    // Ktor的依赖库，需要自行定义，以上依赖仅提供注解支持
+    // Ktor 的依赖库，需要自行定义，以上依赖仅提供注解支持
     implementation(libs.bundles.server.sample)
     
     // 代码生成扫描器（必选）
