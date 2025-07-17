@@ -8,8 +8,18 @@ import cn.ktorfitx.server.ksp.constants.ClassNames
 import cn.ktorfitx.server.ksp.constants.PackageNames
 import cn.ktorfitx.server.ksp.model.*
 import com.squareup.kotlinpoet.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 internal class RouteKotlinPoet {
+	
+	private val fileComment = """
+        该文件是由 cn.ktorfitx:server-ksp 在编译期间根据注解生成的代码，
+        所有手动修改将会在下次构建时被覆盖，
+        若需修改行为，请修改对应的注解或源代码定义，而不是此文件本身。
+        
+        生成时间：%L
+        """.trimIndent()
 	
 	private val funNames = mutableListOf<String>()
 	
@@ -18,6 +28,7 @@ internal class RouteKotlinPoet {
 		funModels: List<FunModel>
 	): FileSpec = buildFileSpec(generatorModel.packageName, generatorModel.fileName) {
 		fileSpecBuilderLocal.set(this)
+		addFileComment(fileComment, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
 		indent("\t")
 		val funSpec = getFunctionSpec(generatorModel.funName, funModels)
 		addFunction(funSpec)

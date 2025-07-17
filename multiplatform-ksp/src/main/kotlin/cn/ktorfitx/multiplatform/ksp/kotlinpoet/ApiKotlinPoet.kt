@@ -13,10 +13,20 @@ import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 internal object ApiKotlinPoet {
 	
 	private const val TOKEN_VAR_NAME = "token"
+	
+	private val fileComment = """
+        该文件是由 cn.ktorfitx:multiplatform-ksp 在编译期间根据注解生成的代码，
+        所有手动修改将会在下次构建时被覆盖，
+        若需修改行为，请修改对应的注解或源代码定义，而不是此文件本身。
+        
+        生成时间：%L
+        """.trimIndent()
 	
 	/**
 	 * 文件
@@ -24,6 +34,7 @@ internal object ApiKotlinPoet {
 	fun getFileSpec(classStructure: ClassStructure): FileSpec {
 		return buildFileSpec(classStructure.className) {
 			fileSpecBuilderLocal.set(this)
+			addFileComment(fileComment, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
 			indent("\t")
 			addType(getTypeSpec(classStructure))
 			addProperties(getExpendPropertySpecs(classStructure))
