@@ -1,4 +1,4 @@
-# KtorfitX 3.2.2-3.0.0-RC1
+# KtorfitX 3.2.2-3.0.0-RC2
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -139,21 +139,21 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val ktorfitxVersion = "3.2.1-3.0.0-RC1"
+val ktorfitxVersion = "3.2.1-3.0.0-RC2"
 
 kotlin {
     sourceSets {
         // ...
         commonMain.dependencies {
             // 必选
-            implementation("cn.ktorfitx:multiplatform-core:ktorfitxVersion")
-            implementation("cn.ktorfitx:multiplatform-annotation:ktorfitxVersion")
+            implementation("cn.ktorfitx:multiplatform-core:$ktorfitxVersion")
+            implementation("cn.ktorfitx:multiplatform-annotation:$ktorfitxVersion")
             
             // 可选，如果你需要 WebSocket 支持
-            implementation("cn.ktorfitx:multiplatform-websockets:ktorfitxVersion")
+            implementation("cn.ktorfitx:multiplatform-websockets:$ktorfitxVersion")
             
             // 可选，如果你需要 Mock 支持
-            implementation("cn.ktorfitx:multiplatform-mock:ktorfitxVersion")
+            implementation("cn.ktorfitx:multiplatform-mock:$ktorfitxVersion")
         }
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
@@ -163,7 +163,7 @@ kotlin {
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.ktorfitx:multiplatform-ksp:ktorfitxVersion")
+    kspCommonMainMetadata("cn.ktorfitx:multiplatform-ksp:$ktorfitxVersion")
 }
 
 tasks.withType<KotlinCompilationTask<*>>().all {
@@ -201,7 +201,7 @@ kotlin {
 }
 
 dependencies {
-    val ktorfitxVersion = "3.2.1-3.0.0-RC1"
+    val ktorfitxVersion = "3.2.1-3.0.0-RC2"
 
     // 注解（必选）
     implementation("cn.ktorfitx:server-core:$ktorfitxVersion")
