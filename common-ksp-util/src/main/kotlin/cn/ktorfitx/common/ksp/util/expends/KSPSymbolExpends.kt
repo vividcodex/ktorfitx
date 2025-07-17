@@ -114,3 +114,5 @@ fun <T> Any.safeAs(): T = this as T
 fun KSFunctionDeclaration.isExtension(className: ClassName): Boolean {
 	return this.extensionReceiver?.resolve()?.declaration?.qualifiedName?.asString() == className.canonicalName
 }
+
+private val UnitClassName = ClassName("kotlin", "Unit")

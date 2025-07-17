@@ -2,7 +2,7 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.isHttpOrHttps
-import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
@@ -80,7 +80,7 @@ internal class HttpCodeBlockBuilder(
 		if (returnStructure.returnKind == ReturnKind.Result) {
 			beginControlFlow("return try")
 			builder()
-			nextControlFlow("catch (e: %T)", ClassNames.CancellationException)
+			nextControlFlow("catch (e: %T)", TypeNames.CancellationException)
 			addStatement("throw e")
 			nextControlFlow("catch (e: Exception)")
 			addStatement("Result.failure(e)")

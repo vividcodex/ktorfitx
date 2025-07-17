@@ -3,7 +3,7 @@ package cn.ktorfitx.multiplatform.ksp.visitor
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.check.ktorfitxError
 import cn.ktorfitx.common.ksp.util.expends.*
-import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.model.WebSocketModel
 import cn.ktorfitx.multiplatform.ksp.model.structure.*
 import cn.ktorfitx.multiplatform.ksp.visitor.resolver.ModelResolvers
@@ -32,11 +32,11 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 	 * 获取 ClassStructure
 	 */
 	private fun KSClassDeclaration.getClassStructure(): ClassStructure {
-		val apiAnnotation = getKSAnnotationByType(ClassNames.Api)!!
+		val apiAnnotation = getKSAnnotationByType(TypeNames.Api)!!
 		val className = ClassName("${packageName.asString()}.impls", "${simpleName.asString()}Impl")
 		val superinterface = this.toClassName()
-		val apiScopeAnnotation = getKSAnnotationByType(ClassNames.ApiScope)
-		val apiScopesAnnotation = getKSAnnotationByType(ClassNames.ApiScopes)
+		val apiScopeAnnotation = getKSAnnotationByType(TypeNames.ApiScope)
+		val apiScopesAnnotation = getKSAnnotationByType(TypeNames.ApiScopes)
 		val apiScopeClassNames = when {
 			apiScopeAnnotation != null && apiScopesAnnotation != null -> {
 				this.ktorfitxError {
@@ -54,7 +54,7 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 				}
 			}
 			
-			else -> setOf(ClassNames.DefaultApiScope)
+			else -> setOf(TypeNames.DefaultApiScope)
 		}
 		val groupSize = apiScopeClassNames.groupBy { it.simpleNames.joinToString(".") }.size
 		this.compileCheck(apiScopeClassNames.size == groupSize) {
@@ -125,20 +125,20 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 		val typeName = returnType.toTypeName()
 		val returnKind = when {
 			isWebSocket -> {
-				returnType.compileCheck(!typeName.isNullable && typeName == ClassNames.Unit) {
-					"${simpleName.asString()} 函数必须使用 ${ClassNames.Unit.canonicalName} 作为返回类型，因为你已经标记了 @WebSocket 注解"
+				returnType.compileCheck(!typeName.isNullable && typeName == TypeNames.Unit) {
+					"${simpleName.asString()} 函数必须使用 ${TypeNames.Unit.canonicalName} 作为返回类型，因为你已经标记了 @WebSocket 注解"
 				}
 				ReturnKind.Unit
 			}
 			
-			typeName.rawType == ClassNames.Result -> {
+			typeName.rawType == TypeNames.Result -> {
 				returnType.compileCheck(!typeName.isNullable && typeName is ParameterizedTypeName) {
 					"${simpleName.asString()} 函数不允许为 Result 返回类型设置为可空"
 				}
 				ReturnKind.Result
 			}
 			
-			typeName == ClassNames.Unit -> {
+			typeName == TypeNames.Unit -> {
 				returnType.compileCheck(!typeName.isNullable) {
 					"${simpleName.asString()} 函数不允许使用 Unit? 返回类型"
 				}
@@ -146,7 +146,7 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 			}
 			
 			else -> {
-				returnType.compileCheck(typeName != ClassNames.Nothing) {
+				returnType.compileCheck(typeName != TypeNames.Nothing) {
 					"${simpleName.asString()} 函数不允许使用 Nothing 返回类型"
 				}
 				ReturnKind.Any

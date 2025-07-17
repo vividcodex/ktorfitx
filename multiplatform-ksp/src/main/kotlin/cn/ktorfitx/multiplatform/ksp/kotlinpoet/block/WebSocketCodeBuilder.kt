@@ -8,7 +8,7 @@ import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
 import com.squareup.kotlinpoet.CodeBlock
 
-internal class WebSocketBuilder(
+internal class WebSocketCodeBuilder(
 	classStructure: ClassStructure,
 	funStructure: FunStructure
 ) {
@@ -27,8 +27,9 @@ internal class WebSocketBuilder(
 		if (tokenVarName != null) {
 			buildBearerAuth(tokenVarName)
 		}
-		unindent()
 		buildBlock()
+		unindent()
+		addStatement(")")
 	}
 	
 	private fun parseToFullUrl(): String {
@@ -47,13 +48,11 @@ internal class WebSocketBuilder(
 		indent()
 		addStatement("%N?.let { bearerAuth(it) }", tokenVarName)
 		unindent()
-		addStatement("}")
+		addStatement("},")
 	}
 	
 	private fun CodeBlock.Builder.buildBlock() {
-		beginControlFlow(") {")
 		val varName = parameterModels.first().varName
-		addStatement("with(%N) { handle() }", varName)
-		endControlFlow()
+		addStatement("block = %N", varName)
 	}
 }

@@ -1,30 +1,33 @@
 package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
+import cn.ktorfitx.common.ksp.util.check.ktorfitxError
 import cn.ktorfitx.common.ksp.util.expends.hasAnnotation
 import cn.ktorfitx.common.ksp.util.expends.isLowerCamelCase
 import cn.ktorfitx.common.ksp.util.expends.toLowerCamelCase
-import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.model.ParameterModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
 
 private val parameterClassNames = arrayOf(
-	ClassNames.Body,
-	ClassNames.Part,
-	ClassNames.Field,
-	ClassNames.Header,
-	ClassNames.Path,
-	ClassNames.Query,
-	ClassNames.Cookie,
-	ClassNames.Attribute
+	TypeNames.Body,
+	TypeNames.Part,
+	TypeNames.Field,
+	TypeNames.Header,
+	TypeNames.Path,
+	TypeNames.Query,
+	TypeNames.Cookie,
+	TypeNames.Attribute
 )
 
 internal fun KSFunctionDeclaration.resolveParameterModels(isWebSocket: Boolean): List<ParameterModel> {
 	return if (isWebSocket) {
 		val errorMessage = {
-			"${simpleName.asString()} 函数上必须只使用 WebSocketSessionHandler 类型"
+			"${simpleName.asString()} 函数必须只使用 WebSocketSessionHandler 别名 或直接使用 suspend DefaultClientWebSocketSession.() -> Unit 类型"
 		}
 		this.compileCheck(
 			value = this.parameters.size == 1,
@@ -32,10 +35,19 @@ internal fun KSFunctionDeclaration.resolveParameterModels(isWebSocket: Boolean):
 		)
 		val valueParameter = this.parameters.first()
 		val typeName = valueParameter.type.toTypeName()
-		this.compileCheck(
-			value = typeName == ClassNames.WebSocketSessionHandler,
-			errorMessage = errorMessage
-		)
+		when (typeName) {
+			is ClassName -> this.compileCheck(
+				value = typeName == TypeNames.WebSocketSessionHandler,
+				errorMessage = errorMessage
+			)
+			
+			is LambdaTypeName -> this.compileCheck(
+				value = typeName == TypeNames.DefaultClientWebSocketSessionLambda,
+				errorMessage = errorMessage
+			)
+			
+			else -> this.ktorfitxError(errorMessage)
+		}
 		val varName = valueParameter.name!!.asString()
 		return listOf(ParameterModel(varName, typeName))
 	} else {

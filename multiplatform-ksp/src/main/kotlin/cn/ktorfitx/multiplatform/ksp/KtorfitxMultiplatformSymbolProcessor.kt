@@ -2,7 +2,7 @@ package cn.ktorfitx.multiplatform.ksp
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.code
-import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.ApiKotlinPoet
 import cn.ktorfitx.multiplatform.ksp.visitor.ApiVisitor
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -20,7 +20,7 @@ internal class KtorfitxMultiplatformSymbolProcessor(
 ) : SymbolProcessor {
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
-		resolver.getSymbolsWithAnnotation(ClassNames.Api.canonicalName)
+		resolver.getSymbolsWithAnnotation(TypeNames.Api.canonicalName)
 			.filterIsInstance<KSClassDeclaration>()
 			.filter {
 				if (!it.validate()) return@filter false

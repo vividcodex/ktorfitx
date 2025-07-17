@@ -5,7 +5,7 @@ import cn.ktorfitx.common.ksp.util.expends.getKSAnnotationByType
 import cn.ktorfitx.common.ksp.util.expends.getValue
 import cn.ktorfitx.common.ksp.util.expends.isHttpOrHttps
 import cn.ktorfitx.common.ksp.util.expends.isWSOrWSS
-import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.model.ApiModel
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -13,13 +13,13 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 
 private val requestMethodClassNames = arrayOf(
-	ClassNames.GET,
-	ClassNames.POST,
-	ClassNames.PUT,
-	ClassNames.DELETE,
-	ClassNames.PATCH,
-	ClassNames.HEAD,
-	ClassNames.OPTIONS,
+	TypeNames.GET,
+	TypeNames.POST,
+	TypeNames.PUT,
+	TypeNames.DELETE,
+	TypeNames.PATCH,
+	TypeNames.HEAD,
+	TypeNames.OPTIONS,
 )
 
 internal fun KSFunctionDeclaration.resolveApiModel(isWebSocket: Boolean): ApiModel {
@@ -32,7 +32,7 @@ internal fun KSFunctionDeclaration.resolveApiModel(isWebSocket: Boolean): ApiMod
 			val requestMethods = requestMethodClassNames.joinToString { "@${it.simpleName}" }
 			"$funName 函数不允许使用 $requestMethods 这些注解，因为你已经标记了 @WebSocket 注解"
 		}
-		val annotation = getKSAnnotationByType(ClassNames.WebSocket)!!
+		val annotation = getKSAnnotationByType(TypeNames.WebSocket)!!
 		ApiModel("", annotation.getUrl(funName, true))
 	} else {
 		val annotations = requestMethodClassNames.mapNotNull {

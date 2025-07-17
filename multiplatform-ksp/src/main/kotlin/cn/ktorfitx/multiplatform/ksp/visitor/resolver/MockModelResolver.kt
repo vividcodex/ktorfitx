@@ -2,7 +2,7 @@ package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.*
-import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.model.MockModel
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -11,11 +11,11 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
 internal fun KSFunctionDeclaration.resolveMockModel(): MockModel? {
-	val annotation = getKSAnnotationByType(ClassNames.Mock) ?: return null
+	val annotation = getKSAnnotationByType(TypeNames.Mock) ?: return null
 	val className = annotation.getClassName("provider")
 	val delay = annotation.getValueOrNull("delay") ?: 0L
 	
-	annotation.compileCheck(className != ClassNames.MockProvider) {
+	annotation.compileCheck(className != TypeNames.MockProvider) {
 		"${simpleName.asString()} 函数上的 @Mock 注解的 provider 参数不允许使用 MockProvider::class"
 	}
 	val classDeclaration = annotation.getArgumentKSClassDeclaration("provider")!!
@@ -29,7 +29,7 @@ internal fun KSFunctionDeclaration.resolveMockModel(): MockModel? {
 	
 	val mockReturnType = classDeclaration.superTypes
 		.map { it.resolve() }
-		.find { it.toTypeName().rawType == ClassNames.MockProvider }
+		.find { it.toTypeName().rawType == TypeNames.MockProvider }
 		?.arguments
 		?.firstOrNull()
 		?.type
@@ -38,7 +38,7 @@ internal fun KSFunctionDeclaration.resolveMockModel(): MockModel? {
 		"${className.simpleName} 类必须实现 MockProvider<T> 接口"
 	}
 	val returnType = this.returnType!!.toTypeName().let {
-		if (it.rawType == ClassNames.Result) {
+		if (it.rawType == TypeNames.Result) {
 			it as ParameterizedTypeName
 			it.typeArguments.first()
 		} else {

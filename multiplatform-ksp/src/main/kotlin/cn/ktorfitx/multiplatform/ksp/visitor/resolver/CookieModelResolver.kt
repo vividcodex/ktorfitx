@@ -4,20 +4,20 @@ import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.getKSAnnotationByType
 import cn.ktorfitx.common.ksp.util.expends.getValueOrNull
 import cn.ktorfitx.common.ksp.util.expends.getValuesOrNull
-import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.model.CookieModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.ksp.toTypeName
 
 internal fun KSFunctionDeclaration.resolveCookieModels(): List<CookieModel> {
 	return this.parameters.mapNotNull { parameter ->
-		val annotation = parameter.getKSAnnotationByType(ClassNames.Cookie) ?: return@mapNotNull null
+		val annotation = parameter.getKSAnnotationByType(TypeNames.Cookie) ?: return@mapNotNull null
 		val varName = parameter.name!!.asString()
 		val typeName = parameter.type.toTypeName()
 		compileCheck(!typeName.isNullable) {
 			"${simpleName.asString()} 函数的 $varName 参数不允许为可空类型"
 		}
-		compileCheck(typeName == ClassNames.String) {
+		compileCheck(typeName == TypeNames.String) {
 			"${simpleName.asString()} 函数的 $varName 参数只允许为 String 类型"
 		}
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName

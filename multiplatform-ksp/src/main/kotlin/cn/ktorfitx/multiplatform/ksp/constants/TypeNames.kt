@@ -1,8 +1,9 @@
 package cn.ktorfitx.multiplatform.ksp.constants
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.LambdaTypeName
 
-internal object ClassNames {
+internal object TypeNames {
 	
 	val Unit = ClassName("kotlin", "Unit")
 	
@@ -71,6 +72,13 @@ internal object ClassNames {
 	val Part = ClassName("cn.ktorfitx.multiplatform.annotation", "Part")
 	
 	val Path = ClassName("cn.ktorfitx.multiplatform.annotation", "Path")
+	
+	private val DefaultClientWebSocketSession = ClassName("io.ktor.client.plugins.websocket", "DefaultClientWebSocketSession")
+	
+	val DefaultClientWebSocketSessionLambda = LambdaTypeName.get(
+		receiver = DefaultClientWebSocketSession,
+		returnType = Unit
+	).copy(suspending = true)
 	
 	val WebSocketSessionHandler = ClassName("cn.ktorfitx.multiplatform.websockets", "WebSocketSessionHandler")
 	

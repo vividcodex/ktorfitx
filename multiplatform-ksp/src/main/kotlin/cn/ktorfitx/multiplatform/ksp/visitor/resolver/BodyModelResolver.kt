@@ -2,7 +2,7 @@ package cn.ktorfitx.multiplatform.ksp.visitor.resolver
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.hasAnnotation
-import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
+import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.model.BodyModel
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.ClassName
@@ -11,7 +11,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 
 internal fun KSFunctionDeclaration.resolveBodyModel(): BodyModel? {
 	val valueParameters = this.parameters.filter {
-		it.hasAnnotation(ClassNames.Body)
+		it.hasAnnotation(TypeNames.Body)
 	}
 	if (valueParameters.isEmpty()) return null
 	this.compileCheck(valueParameters.size == 1) {

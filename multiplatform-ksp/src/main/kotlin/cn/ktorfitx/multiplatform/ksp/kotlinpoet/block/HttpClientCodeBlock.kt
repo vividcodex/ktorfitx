@@ -3,8 +3,8 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.common.ksp.util.builders.toCodeBlock
 import cn.ktorfitx.common.ksp.util.expends.rawType
-import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
+import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnKind
 import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnStructure
@@ -37,15 +37,15 @@ internal class HttpClientCodeBlock(
 		if (returnStructure.returnKind == ReturnKind.Unit) {
 			return
 		}
-		if (returnStructure.returnKind == ReturnKind.Result && rawType == ClassNames.Unit) {
+		if (returnStructure.returnKind == ReturnKind.Result && rawType == TypeNames.Unit) {
 			addStatement("Result.success(Unit)")
 			return
 		}
 		
 		val funName = when (rawType) {
-			ClassNames.String -> "bodyAsText"
-			ClassNames.ByteArray -> "bodyAsBytes"
-			ClassNames.ByteReadChannel -> "bodyAsChannel"
+			TypeNames.String -> "bodyAsText"
+			TypeNames.ByteArray -> "bodyAsBytes"
+			TypeNames.ByteReadChannel -> "bodyAsChannel"
 			else -> "body"
 		}
 		if (funName == "body") {
@@ -55,7 +55,7 @@ internal class HttpClientCodeBlock(
 		}
 		if (returnStructure.returnKind == ReturnKind.Result) {
 			addStatement("Result.success(response.%N())", funName)
-		} else if (returnStructure.typeName != ClassNames.Unit) {
+		} else if (returnStructure.typeName != TypeNames.Unit) {
 			addStatement("return response.%N()", funName)
 		}
 	}
@@ -147,7 +147,7 @@ internal class HttpClientCodeBlock(
 	override fun CodeBlock.Builder.buildAttributes(cookieModels: List<AttributeModel>) {
 		beginControlFlow("setAttributes")
 		cookieModels.forEach {
-			addStatement("this[%T(%S)] = %L", ClassNames.AttributeKey.parameterizedBy(it.typeName), it.name, it.varName)
+			addStatement("this[%T(%S)] = %L", TypeNames.AttributeKey.parameterizedBy(it.typeName), it.name, it.varName)
 		}
 		endControlFlow()
 	}

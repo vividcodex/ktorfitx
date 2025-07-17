@@ -11,12 +11,16 @@ internal object ModelResolvers {
 	 */
 	fun KSFunctionDeclaration.getAllFunModels(): List<FunModel> {
 		val models = mutableListOf<FunModel?>()
-		val webSocketModel = this.resolveWebSocketModel()
-		models += webSocketModel
-		models += this.resolveApiModel(webSocketModel != null)
+		models += this.resolveWebSocketModel()
+		val isWebSocket = models.any { it is WebSocketModel }
+		models += this.resolveApiModel(isWebSocket)
 		models += this.resolveHeadersModel()
 		models += this.resolveMockModel()
 		models += this.resolveBearerAuthModel()
+		val isMock = models.any { it is MockModel }
+		this.compileCheck(!isWebSocket || !isMock) {
+			"${simpleName.asString()} 函数不支持同时使用 @WebSocket 和 @Mock 注解"
+		}
 		return models.filterNotNull()
 	}
 	

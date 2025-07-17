@@ -2,12 +2,12 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet
 
 import cn.ktorfitx.common.ksp.util.builders.*
 import cn.ktorfitx.common.ksp.util.expends.replaceFirstToLowercase
-import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
+import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpClientCodeBlock
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpCodeBlockBuilder
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.MockClientCodeBlock
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.WebSocketBuilder
+import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.WebSocketCodeBuilder
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
@@ -48,13 +48,13 @@ internal object ApiKotlinPoet {
 	private fun getTypeSpec(classStructure: ClassStructure): TypeSpec {
 		val primaryConstructorFunSpec = buildConstructorFunSpec {
 			addModifiers(KModifier.PRIVATE)
-			addParameter("config", ClassNames.KtorfitxConfig)
+			addParameter("config", TypeNames.KtorfitxConfig)
 		}
 		return buildClassTypeSpec(classStructure.className) {
 			addModifiers(KModifier.PRIVATE)
 			addSuperinterface(classStructure.superinterface)
 			primaryConstructor(primaryConstructorFunSpec)
-			val ktorfitxConfigPropertySpec = buildPropertySpec("config", ClassNames.KtorfitxConfig, KModifier.PRIVATE) {
+			val ktorfitxConfigPropertySpec = buildPropertySpec("config", TypeNames.KtorfitxConfig, KModifier.PRIVATE) {
 				initializer("config")
 				mutable(false)
 			}
@@ -72,8 +72,8 @@ internal object ApiKotlinPoet {
 		fileSpecBuilder.addImport(PackageNames.KTOR_UTILS_IO_LOCKS, "synchronized")
 		return buildCompanionObjectTypeSpec {
 			addModifiers(classStructure.kModifier)
-			val optInSpec = buildAnnotationSpec(ClassNames.OptIn) {
-				addMember("%T::class", ClassNames.InternalAPI)
+			val optInSpec = buildAnnotationSpec(TypeNames.OptIn) {
+				addMember("%T::class", TypeNames.InternalAPI)
 			}
 			addAnnotation(optInSpec)
 			classStructure.apiStructure.apiScopeClassNames.forEach { apiScopeClassName ->
@@ -86,8 +86,8 @@ internal object ApiKotlinPoet {
 				}
 				addProperty(instancePropertySpec)
 				val lockVarName = "${varName}SynchronizedObject"
-				val mutexPropertySpec = buildPropertySpec(lockVarName, ClassNames.SynchronizedObject, KModifier.PRIVATE) {
-					initializer("%T()", ClassNames.SynchronizedObject)
+				val mutexPropertySpec = buildPropertySpec(lockVarName, TypeNames.SynchronizedObject, KModifier.PRIVATE) {
+					initializer("%T()", TypeNames.SynchronizedObject)
 					mutable(false)
 				}
 				addProperty(mutexPropertySpec)
@@ -96,7 +96,7 @@ internal object ApiKotlinPoet {
 					returns(classStructure.superinterface)
 					addParameter(
 						"ktorfitx",
-						ClassNames.Ktorfitx.parameterizedBy(apiScopeClassName)
+						TypeNames.Ktorfitx.parameterizedBy(apiScopeClassName)
 					)
 					val codeBlock = buildCodeBlock {
 						beginControlFlow("return %N ?: synchronized(%N)", instanceVarName, lockVarName)
@@ -125,7 +125,7 @@ internal object ApiKotlinPoet {
 				addStatement("return %T.%N(this)", classStructure.className, "getInstanceBy$simpleName")
 			}
 			buildPropertySpec(expendPropertyName, classStructure.superinterface, classStructure.kModifier) {
-				receiver(ClassNames.Ktorfitx.parameterizedBy(apiScopeClassName))
+				receiver(TypeNames.Ktorfitx.parameterizedBy(apiScopeClassName))
 				getter(getterFunSpec)
 			}
 		}
@@ -158,7 +158,7 @@ internal object ApiKotlinPoet {
 			}
 			val isWebSocket = funStructure.funModels.any { it is WebSocketModel }
 			if (isWebSocket) {
-				with(WebSocketBuilder(classStructure, funStructure)) {
+				with(WebSocketCodeBuilder(classStructure, funStructure)) {
 					buildCodeBlock(tokenVarName)
 				}
 			} else {
