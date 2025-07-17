@@ -1,4 +1,4 @@
-# KtorfitX 3.2.2-3.0.0-Beta4
+# KtorfitX 3.2.2-3.0.0-RC1
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -139,7 +139,7 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val ktorfitxVersion = "3.2.1-3.0.0-Beta4"
+val ktorfitxVersion = "3.2.1-3.0.0-RC1"
 
 kotlin {
     sourceSets {
@@ -201,7 +201,7 @@ kotlin {
 }
 
 dependencies {
-    val ktorfitxVersion = "3.2.1-3.0.0-Beta4"
+    val ktorfitxVersion = "3.2.1-3.0.0-RC1"
 
     // 注解（必选）
     implementation("cn.ktorfitx:server-core:$ktorfitxVersion")
