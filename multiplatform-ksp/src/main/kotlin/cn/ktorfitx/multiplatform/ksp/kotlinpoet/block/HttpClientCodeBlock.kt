@@ -34,6 +34,14 @@ internal class HttpClientCodeBlock(
 			(returnStructure.typeName as ParameterizedTypeName).typeArguments.first()
 		} else returnStructure.typeName
 		val rawType = if (typeName.isNullable) typeName.rawType.copy(nullable = false) else typeName
+		if (returnStructure.returnKind == ReturnKind.Unit) {
+			return
+		}
+		if (returnStructure.returnKind == ReturnKind.Result && rawType == ClassNames.Unit) {
+			addStatement("Result.success(Unit)")
+			return
+		}
+		
 		val funName = when (rawType) {
 			ClassNames.String -> "bodyAsText"
 			ClassNames.ByteArray -> "bodyAsBytes"
