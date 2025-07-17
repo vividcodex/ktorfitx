@@ -111,7 +111,7 @@ internal object ApiKotlinPoet {
 			}
 			val getterFunSpec = buildGetterFunSpec {
 				addAnnotation(jvmNameAnnotationSpec)
-				addStatement("return %T.getInstanceBy$simpleName(this)", classStructure.className)
+				addStatement("return %T.%N(this)", classStructure.className, "getInstanceBy$simpleName")
 			}
 			buildPropertySpec(expendPropertyName, classStructure.superinterface, classStructure.kModifier) {
 				receiver(ClassNames.Ktorfitx.parameterizedBy(apiScopeClassName))
