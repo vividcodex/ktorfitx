@@ -1,17 +1,13 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
-import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.common.ksp.util.check.compileCheck
-import cn.ktorfitx.common.ksp.util.expends.allClassNames
 import cn.ktorfitx.common.ksp.util.expends.isHttpOrHttps
 import cn.ktorfitx.multiplatform.ksp.constants.ClassNames
 import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
 import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnKind
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.ParameterizedTypeName
 import kotlin.reflect.KClass
 
 internal class HttpCodeBlockBuilder(
@@ -71,21 +67,6 @@ internal class HttpCodeBlockBuilder(
 					}
 					val bodyModel = valueParameterModels.filterIsInstance<BodyModel>().firstOrNull()
 					if (bodyModel != null) {
-						val typeName = bodyModel.typeName
-						when (typeName) {
-							is ClassName -> {
-								val topLevelClassName = typeName.topLevelClassName()
-								fileSpecBuilder.addImport(topLevelClassName.packageName, topLevelClassName.simpleNames)
-							}
-							
-							is ParameterizedTypeName -> {
-								typeName.allClassNames.forEach {
-									fileSpecBuilder.addImport(it.packageName, it.simpleName)
-								}
-							}
-							
-							else -> null
-						}
 						buildBody(bodyModel)
 					}
 				}

@@ -93,11 +93,14 @@ fun buildAnnotationSpec(
 	block: AnnotationSpec.Builder.() -> Unit = {},
 ): AnnotationSpec = AnnotationSpec.builder(className).apply(block).build()
 
+/**
+ * Map<String, V> to CodeBlock
+ */
 inline fun <reified V : String?> Map<String, V>.toCodeBlock(
-	showTypeIfEmpty: Boolean = false
+	explicitTypeIfEmpty: Boolean = false
 ): CodeBlock = buildCodeBlock {
 	if (this@toCodeBlock.isEmpty()) {
-		if (showTypeIfEmpty) {
+		if (explicitTypeIfEmpty) {
 			val valueTypeName = typeOf<V>().asTypeName()
 			add("emptyMap<String, %T>()", valueTypeName)
 		} else {

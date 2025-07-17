@@ -16,8 +16,9 @@ private class KtorfitxCompilationException(
 fun <T : KSNode> T.ktorfitxError(
 	message: () -> String
 ): Nothing {
-	val errorLocation = (this.location as? FileLocation)
-		?.let { "\n错误位于：${it.filePath}:${it.lineNumber}" }
-		?: "\nnull"
-	throw KtorfitxCompilationException("${message()}$errorLocation")
+	val message = message()
+	val errorLocation = (this.location as? FileLocation).let {
+		"\n错误位于：${if (it != null) "${it.filePath}:${it.lineNumber}" else "未知"}"
+	}
+	throw KtorfitxCompilationException("$message$errorLocation")
 }
