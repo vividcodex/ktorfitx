@@ -140,7 +140,7 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val ktorfitxVersion = "3.2.1-3.0.0-RC3"
+val ktorfitxVersion = "3.2.2-3.0.0-RC3"
 
 kotlin {
     sourceSets {
@@ -202,7 +202,7 @@ kotlin {
 }
 
 dependencies {
-    val ktorfitxVersion = "3.2.1-3.0.0-RC3"
+    val ktorfitxVersion = "3.2.2-3.0.0-RC3"
 
     // 注解（必选）
     implementation("cn.ktorfitx:server-core:$ktorfitxVersion")
