@@ -22,7 +22,7 @@ kotlin {
 		compilerOptions {
 			apiVersion = KotlinVersion.KOTLIN_2_2
 			languageVersion = KotlinVersion.KOTLIN_2_2
-			jvmTarget.set(JvmTarget.JVM_21)
+			jvmTarget = JvmTarget.JVM_21
 		}
 	}
 	
@@ -30,7 +30,7 @@ kotlin {
 		compilerOptions {
 			apiVersion = KotlinVersion.KOTLIN_2_2
 			languageVersion = KotlinVersion.KOTLIN_2_2
-			jvmTarget.set(JvmTarget.JVM_21)
+			jvmTarget = JvmTarget.JVM_21
 		}
 	}
 	

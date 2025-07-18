@@ -1,4 +1,4 @@
-# KtorfitX 3.2.2-3.0.0-RC2
+# KtorfitX 3.2.2-3.0.0-RC3
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,7 +6,7 @@
 
 ## 更新时间
 
-### 2025-07-17
+### 2025-07-18
 
 ## 项目简介
 
@@ -46,7 +46,7 @@ Android, IOS, Desktop (JVM), WasmJs, Js, Ktor Server
 
 ## 注解介绍
 
-### Kotlin Multiplatform
+### Kotlin Multiplatform（23个）
 
 #### INTERFACE 接口
 
@@ -65,8 +65,9 @@ Android, IOS, Desktop (JVM), WasmJs, Js, Ktor Server
 - `@HEAD` HEAD 请求
 - `@BearerAuth` 启用授权
 - `@Headers` 多个请求头
-- `@Mock` Mock
+- `@Mock` 定义 Mock
 - `@WebSocket` WebSocket
+- `@Timeout` 超时时间
 
 #### VALUE_PARAMETER 参数
 
@@ -79,7 +80,7 @@ Android, IOS, Desktop (JVM), WasmJs, Js, Ktor Server
 - `@Cookie` cookie 参数
 - `@Attribute` attribute 参数
 
-### Ktor Server
+### Ktor Server（22个）
 
 #### FILE 文件
 
@@ -139,7 +140,7 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val ktorfitxVersion = "3.2.1-3.0.0-RC2"
+val ktorfitxVersion = "3.2.1-3.0.0-RC3"
 
 kotlin {
     sourceSets {
@@ -201,7 +202,7 @@ kotlin {
 }
 
 dependencies {
-    val ktorfitxVersion = "3.2.1-3.0.0-RC2"
+    val ktorfitxVersion = "3.2.1-3.0.0-RC3"
 
     // 注解（必选）
     implementation("cn.ktorfitx:server-core:$ktorfitxVersion")

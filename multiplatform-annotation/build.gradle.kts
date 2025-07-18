@@ -20,7 +20,7 @@ kotlin {
 	
 	androidTarget {
 		compilerOptions {
-			jvmTarget.set(JvmTarget.JVM_21)
+			jvmTarget = JvmTarget.JVM_21
 			languageVersion = KotlinVersion.KOTLIN_2_2
 			apiVersion = KotlinVersion.KOTLIN_2_2
 		}
@@ -28,7 +28,7 @@ kotlin {
 	
 	jvm("desktop") {
 		compilerOptions {
-			jvmTarget.set(JvmTarget.JVM_21)
+			jvmTarget = JvmTarget.JVM_21
 			languageVersion = KotlinVersion.KOTLIN_2_2
 			apiVersion = KotlinVersion.KOTLIN_2_2
 		}
