@@ -6,7 +6,7 @@ import io.ktor.util.date.*
 import kotlinx.serialization.json.Json
 
 @MockDsl
-class MockRequestBuilder(
+class MockRequestBuilder internal constructor(
 	val json: Json
 ) {
 	
@@ -88,6 +88,7 @@ class MockRequestBuilder(
 	}
 }
 
+@MockDsl
 sealed interface CookieBuilder {
 	
 	fun append(
@@ -103,6 +104,7 @@ sealed interface CookieBuilder {
 	)
 }
 
+@MockDsl
 private class CookieBuilderImpl : CookieBuilder {
 	
 	val cookies = mutableMapOf<String, CookieConfig>()
@@ -142,12 +144,14 @@ internal class CookieConfig(
 	val extensions: Map<String, String?>
 )
 
+@MockDsl
 sealed interface TimeoutConfig {
 	var requestTimeoutMillis: Long?
 	var connectTimeoutMillis: Long?
 	var socketTimeoutMillis: Long?
 }
 
+@MockDsl
 private class TimeoutConfigImpl(
 	override var requestTimeoutMillis: Long? = null,
 	override var connectTimeoutMillis: Long? = null,

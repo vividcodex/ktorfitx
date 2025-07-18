@@ -2,8 +2,8 @@ package cn.ktorfitx.multiplatform.annotation
 
 import kotlin.reflect.KClass
 
-@Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.SOURCE)
 annotation class ApiScopes(
 	vararg val apiScopes: KClass<*>
 )

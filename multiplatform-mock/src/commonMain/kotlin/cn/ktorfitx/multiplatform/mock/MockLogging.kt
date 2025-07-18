@@ -7,7 +7,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.milliseconds
 
-class MockLogging(
+class MockLogging internal constructor(
 	val log: LogConfig,
 	private val mockRequest: MockRequestBuilder,
 	urlString: String,

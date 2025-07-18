@@ -1,7 +1,7 @@
 package cn.ktorfitx.multiplatform.annotation
 
-@Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.SOURCE)
 annotation class Cookie(
 	val name: String = "",
 	val maxAge: Int = 0,
