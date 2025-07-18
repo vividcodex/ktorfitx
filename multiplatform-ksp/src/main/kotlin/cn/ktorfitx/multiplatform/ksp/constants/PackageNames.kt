@@ -8,6 +8,8 @@ internal object PackageNames {
 	
 	const val KTOR_HTTP = "io.ktor.http"
 	
+	const val KTOR_PLUGINS = "io.ktor.client.plugins"
+	
 	const val KTOR_REQUEST = "io.ktor.client.request"
 	
 	const val KTOR_REQUEST_FORMS = "io.ktor.client.request.forms"

@@ -14,6 +14,7 @@ internal class HttpCodeBlockBuilder(
 	classStructure: ClassStructure,
 	private val funStructure: FunStructure,
 	private val codeBlockKClass: KClass<out ClientCodeBlock>,
+	private val tokenVarName: String?
 ) {
 	
 	private val returnStructure = funStructure.returnStructure
@@ -21,9 +22,7 @@ internal class HttpCodeBlockBuilder(
 	private val funModels = funStructure.funModels
 	private val apiStructure = classStructure.apiStructure
 	
-	fun CodeBlock.Builder.buildCodeBlock(
-		tokenVarName: String?
-	) {
+	fun CodeBlock.Builder.buildCodeBlock() {
 		buildTryCatchIfNeed {
 			with(getClientCodeBlock()) {
 				val apiModel = funModels.first { it is ApiModel } as ApiModel
@@ -31,10 +30,14 @@ internal class HttpCodeBlockBuilder(
 				buildClientCodeBlock(funName) {
 					val fullUrl = parseToFullUrl(apiModel.url)
 					buildUrlString(fullUrl)
+					val timeoutModel = funModels.filterIsInstance<TimeoutModel>().firstOrNull()
+					if (timeoutModel != null) {
+						buildTimeoutCodeBlock(timeoutModel)
+					}
 					if (tokenVarName != null) {
 						buildBearerAuth(tokenVarName)
 					}
-					val headersModel = funModels.find { it is HeadersModel } as? HeadersModel
+					val headersModel = funModels.filterIsInstance<HeadersModel>().firstOrNull()
 					val headerModels = valueParameterModels.filterIsInstance<HeaderModel>()
 					if (headerModels.isNotEmpty() || headersModel != null) {
 						buildHeadersCodeBlock(headersModel, headerModels)

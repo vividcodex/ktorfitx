@@ -4,9 +4,9 @@ import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.check.ktorfitxError
 import cn.ktorfitx.common.ksp.util.expends.*
 import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
-import cn.ktorfitx.multiplatform.ksp.model.model.WebSocketModel
+import cn.ktorfitx.multiplatform.ksp.model.model.*
 import cn.ktorfitx.multiplatform.ksp.model.structure.*
-import cn.ktorfitx.multiplatform.ksp.visitor.resolver.ModelResolvers
+import cn.ktorfitx.multiplatform.ksp.visitor.resolver.*
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.symbol.*
@@ -104,14 +104,14 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 					"$funName 函数缺少 suspend 修饰符"
 				}
 				val funName = it.simpleName.asString()
-				val funModels = with(ModelResolvers) { it.getAllFunModels() }
+				val funModels = it.getAllFunModels()
 				val isWebSocket = funModels.any { model -> model is WebSocketModel }
-				val parameterModels = with(ModelResolvers) { it.getAllParameterModel(isWebSocket) }
+				val parameterModels = it.resolveParameterModels(isWebSocket)
 				val returnStructure = it.getReturnStructure(isWebSocket)
 				if (isWebSocket) {
 					FunStructure(funName, returnStructure, parameterModels, funModels, emptyList())
 				} else {
-					val valueParameterModels = with(ModelResolvers) { it.getAllValueParameterModels() }
+					val valueParameterModels = it.getAllValueParameterModels()
 					FunStructure(funName, returnStructure, parameterModels, funModels, valueParameterModels)
 				}
 			}
@@ -156,4 +156,42 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 	}
 	
 	override fun defaultHandler(node: KSNode, data: Unit): ClassStructure = error("Not Implemented")
+	
+	private fun KSFunctionDeclaration.getAllFunModels(): List<FunModel> {
+		val models = mutableListOf<FunModel?>()
+		models += this.resolveWebSocketModel()
+		val isWebSocket = models.any { it is WebSocketModel }
+		models += this.resolveApiModel(isWebSocket)
+		models += this.resolveHeadersModel()
+		models += this.resolveMockModel()
+		models += this.resolveBearerAuthModel()
+		models += this.resolveTimeoutModel()
+		val isMock = models.any { it is MockModel }
+		this.compileCheck(!isWebSocket || !isMock) {
+			"${simpleName.asString()} 函数不支持同时使用 @WebSocket 和 @Mock 注解"
+		}
+		return models.filterNotNull()
+	}
+	
+	private fun KSFunctionDeclaration.getAllValueParameterModels(): List<ValueParameterModel> {
+		val models = mutableListOf<ValueParameterModel?>()
+		models += this.resolveBodyModel()
+		models += this.resolveQueryModels()
+		models += this.resolvePartModels()
+		models += this.resolveFieldModels()
+		models += this.resolvePathModels()
+		models += this.resolveHeaderModels()
+		models += this.resolveCookieModels()
+		models += this.resolveAttributeModels()
+		
+		val filterModels = models.filterNotNull()
+		val targetTypes = setOf(BodyModel::class, PartModel::class, FieldModel::class)
+		val incompatibleTypeCount = targetTypes.count { kClass ->
+			filterModels.any { kClass.isInstance(it) }
+		}
+		this.compileCheck(incompatibleTypeCount <= 1) {
+			"${simpleName.asString()} 函数不能同时使用 @Body, @Part 和 @Field 注解 $incompatibleTypeCount"
+		}
+		return models.filterNotNull()
+	}
 }

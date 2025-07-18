@@ -158,14 +158,14 @@ internal object ApiKotlinPoet {
 			}
 			val isWebSocket = funStructure.funModels.any { it is WebSocketModel }
 			if (isWebSocket) {
-				with(WebSocketCodeBuilder(classStructure, funStructure)) {
-					buildCodeBlock(tokenVarName)
+				with(WebSocketCodeBuilder(classStructure, funStructure, tokenVarName)) {
+					buildCodeBlock()
 				}
 			} else {
 				val isMockClient = funStructure.funModels.any { it is MockModel }
 				val codeBlockKClass = if (isMockClient) MockClientCodeBlock::class else HttpClientCodeBlock::class
-				with(HttpCodeBlockBuilder(classStructure, funStructure, codeBlockKClass)) {
-					buildCodeBlock(tokenVarName)
+				with(HttpCodeBlockBuilder(classStructure, funStructure, codeBlockKClass, tokenVarName)) {
+					buildCodeBlock()
 				}
 			}
 		}

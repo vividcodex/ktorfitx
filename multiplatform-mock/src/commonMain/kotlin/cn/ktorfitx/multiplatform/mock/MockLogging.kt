@@ -3,6 +3,7 @@ package cn.ktorfitx.multiplatform.mock
 import cn.ktorfitx.multiplatform.mock.config.LogConfig
 import io.ktor.client.plugins.logging.LogLevel.*
 import io.ktor.http.*
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -22,6 +23,19 @@ class MockLogging(
 				if (log.level.info) {
 					appendLine("REQUEST: $urlString")
 					appendLine("METHOD: ${method.value}")
+					val timeout = mockRequest.timeout
+					if (timeout != null) {
+						appendLine("TIMEOUT:")
+						if (timeout.requestTimeoutMillis != null) {
+							appendLine("-> Request Timeout: ${timeout.requestTimeoutMillis}ms")
+						}
+						if (timeout.connectTimeoutMillis != null) {
+							appendLine("-> Connect Timeout: ${timeout.connectTimeoutMillis}ms")
+						}
+						if (timeout.socketTimeoutMillis != null) {
+							appendLine("-> Socket Timeout: ${timeout.socketTimeoutMillis}ms")
+						}
+					}
 				}
 				if (log.level.headers) {
 					if (mockRequest.headers.isNotEmpty()) {
@@ -90,8 +104,9 @@ class MockLogging(
 		}
 	}
 	
-	inline fun <reified R> response(
+	internal fun <R> response(
 		result: R,
+		serializer: KSerializer<R>,
 		json: Json,
 		delay: Long
 	) {
@@ -102,7 +117,7 @@ class MockLogging(
 					appendLine("DELAY TIME: ${delay.milliseconds}")
 				}
 				if (log.level.body) {
-					val stringJson = result.let { json.encodeToString(it) }
+					val stringJson = result.let { json.encodeToString(serializer, it) }
 					val length = stringJson.filterNot { it == ' ' || it == '\n' }.length
 					appendLine("BODY START: LENGTH=$length")
 					appendLine(stringJson)

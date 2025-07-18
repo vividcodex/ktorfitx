@@ -1,9 +1,7 @@
 package cn.ktorfitx.multiplatform.sample.http.api
 
-import cn.ktorfitx.multiplatform.annotation.Api
-import cn.ktorfitx.multiplatform.annotation.Field
-import cn.ktorfitx.multiplatform.annotation.GET
-import cn.ktorfitx.multiplatform.annotation.POST
+import cn.ktorfitx.multiplatform.annotation.*
+import cn.ktorfitx.multiplatform.sample.http.mock.StringMockProvider
 
 @Api
 interface TestMethod2Api {
@@ -14,6 +12,10 @@ interface TestMethod2Api {
 	@GET("/test2")
 	suspend fun test2(): Result<String>
 	
+	@Timeout(
+		requestTimeoutMillis = 10_000L,
+		connectTimeoutMillis = 2_000L,
+	)
 	@POST("/test3")
 	suspend fun test3(
 		@Field field1: String,
@@ -28,4 +30,15 @@ interface TestMethod2Api {
 	
 	@POST("/test5")
 	suspend fun test5(): Result<String>
+	
+	@Timeout(
+		requestTimeoutMillis = 10_000L,
+		connectTimeoutMillis = 2_000L,
+	)
+	@Mock(StringMockProvider::class)
+	@POST("/mockTest6")
+	suspend fun mockTest6(
+		@Field field1: String,
+		@Field field2: Int
+	): Result<String>
 }

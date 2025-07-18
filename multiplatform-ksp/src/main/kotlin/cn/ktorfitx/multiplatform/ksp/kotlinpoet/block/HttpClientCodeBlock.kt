@@ -64,14 +64,31 @@ internal class HttpClientCodeBlock(
 		urlString: String
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "url")
-		addStatement("url(\"$urlString\")")
+		addStatement("this.url(\"$urlString\")")
+	}
+	
+	override fun CodeBlock.Builder.buildTimeoutCodeBlock(
+		timeoutModel: TimeoutModel
+	) {
+		fileSpecBuilder.addImport(PackageNames.KTOR_PLUGINS, "timeout")
+		beginControlFlow("this.timeout")
+		if (timeoutModel.requestTimeoutMillis != null) {
+			addStatement("this.requestTimeoutMillis = %LL", timeoutModel.requestTimeoutMillis)
+		}
+		if (timeoutModel.connectTimeoutMillis != null) {
+			addStatement("this.connectTimeoutMillis = %LL", timeoutModel.connectTimeoutMillis)
+		}
+		if (timeoutModel.socketTimeoutMillis != null) {
+			addStatement("this.socketTimeoutMillis = %LL", timeoutModel.socketTimeoutMillis)
+		}
+		endControlFlow()
 	}
 	
 	override fun CodeBlock.Builder.buildBearerAuth(
 		varName: String
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "bearerAuth")
-		addStatement("%N?.let { bearerAuth(it) }", varName)
+		addStatement("%N?.let { this.bearerAuth(it) }", varName)
 	}
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(
@@ -79,12 +96,12 @@ internal class HttpClientCodeBlock(
 		headerModels: List<HeaderModel>
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "headers")
-		beginControlFlow("headers")
+		beginControlFlow("this.headers")
 		headersModel?.headerMap?.forEach { (name, value) ->
-			addStatement("append(%S, %S)", name, value)
+			addStatement("this.append(%S, %S)", name, value)
 		}
 		headerModels.forEach {
-			addStatement("append(%S, %N)", it.name, it.varName)
+			addStatement("this.append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
@@ -92,7 +109,7 @@ internal class HttpClientCodeBlock(
 	override fun CodeBlock.Builder.buildQueries(queryModels: List<QueryModel>) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "parameter")
 		queryModels.forEach {
-			addStatement("parameter(%S, %N)", it.name, it.varName)
+			addStatement("this.parameter(%S, %N)", it.name, it.varName)
 		}
 	}
 	
@@ -100,30 +117,30 @@ internal class HttpClientCodeBlock(
 		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST_FORMS, "formData", "MultiPartFormDataContent")
-		addStatement("contentType(ContentType.MultiPart.FormData)")
+		addStatement("this.contentType(ContentType.MultiPart.FormData)")
 		beginControlFlow("formData {")
 		partModels.forEach {
-			addStatement("append(%S, %N)", it.name, it.varName)
+			addStatement("this.append(%S, %N)", it.name, it.varName)
 		}
 		nextControlFlow(".let")
-		addStatement("setBody(MultiPartFormDataContent(it))")
+		addStatement("this.setBody(MultiPartFormDataContent(it))")
 		endControlFlow()
 	}
 	
 	override fun CodeBlock.Builder.buildFields(fieldModels: List<FieldModel>) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType", "formUrlEncode")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
-		addStatement("contentType(ContentType.Application.FormUrlEncoded)")
+		addStatement("this.contentType(ContentType.Application.FormUrlEncoded)")
 		val parameters = fieldModels.joinToString { "%S to %L" }
 		val args = fieldModels.flatMap { listOf(it.name, "${it.varName}${if (it.isStringType) "" else ".toString()"}") }
-		addStatement("setBody(listOf($parameters).formUrlEncode())", *args.toTypedArray())
+		addStatement("this.setBody(listOf($parameters).formUrlEncode())", *args.toTypedArray())
 	}
 	
 	override fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "cookie")
 		cookieModels.forEach { model ->
 			val codeBlock = buildCodeBlock {
-				add("cookie(\n")
+				add("this.cookie(\n")
 				indent()
 				add("name = %S,\n", model.name)
 				add("value = %N,\n", model.varName)
@@ -145,7 +162,7 @@ internal class HttpClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildAttributes(cookieModels: List<AttributeModel>) {
-		beginControlFlow("setAttributes")
+		beginControlFlow("this.setAttributes")
 		cookieModels.forEach {
 			addStatement("this[%T(%S)] = %L", TypeNames.AttributeKey.parameterizedBy(it.typeName), it.name, it.varName)
 		}
@@ -155,7 +172,7 @@ internal class HttpClientCodeBlock(
 	override fun CodeBlock.Builder.buildBody(bodyModel: BodyModel) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
-		addStatement("contentType(ContentType.Application.Json)")
-		addStatement("setBody(%N)", bodyModel.varName)
+		addStatement("this.contentType(ContentType.Application.Json)")
+		addStatement("this.setBody(%N)", bodyModel.varName)
 	}
 }

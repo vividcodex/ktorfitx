@@ -20,6 +20,10 @@ internal sealed interface ClientCodeBlock {
 		urlString: String
 	)
 	
+	fun CodeBlock.Builder.buildTimeoutCodeBlock(
+		timeoutModel: TimeoutModel
+	)
+	
 	/**
 	 * bearerAuth
 	 */

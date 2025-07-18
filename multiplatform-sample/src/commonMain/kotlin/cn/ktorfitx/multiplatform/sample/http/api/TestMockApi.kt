@@ -28,6 +28,7 @@ interface TestMockApi {
 		@Header testHeader: String,
 	): Result<String>
 	
+	@Mock(provider = StringMockProvider::class)
 	@POST("/mockTest4")
 	suspend fun mockTest4(
 		@Field field1: String,

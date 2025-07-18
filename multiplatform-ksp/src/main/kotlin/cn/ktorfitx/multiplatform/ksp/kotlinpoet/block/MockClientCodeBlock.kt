@@ -28,7 +28,7 @@ internal class MockClientCodeBlock(
 					"""
 					this.config.mockClient.%N(
 						mockProvider = %T,
-						delay = %L
+						delay = %LL
 					)
 					""".trimIndent(),
 					funName,
@@ -42,7 +42,7 @@ internal class MockClientCodeBlock(
 					"""
 					val result = this.config.mockClient.%N(
 						mockProvider = %T,
-						delay = %L
+						delay = %LL
 					)
 					""".trimIndent(),
 					funName,
@@ -56,7 +56,7 @@ internal class MockClientCodeBlock(
 					"""
 					return this.config.mockClient.%N(
 						mockProvider = %T,
-						delay = %L
+						delay = %LL
 					)
 					""".trimIndent(),
 					funName,
@@ -73,59 +73,75 @@ internal class MockClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildUrlString(urlString: String) {
-		addStatement("url(\"$urlString\")")
+		addStatement("this.url(\"$urlString\")")
+	}
+	
+	override fun CodeBlock.Builder.buildTimeoutCodeBlock(timeoutModel: TimeoutModel) {
+		beginControlFlow("this.timeout")
+		if (timeoutModel.requestTimeoutMillis != null) {
+			addStatement("this.requestTimeoutMillis = %LL", timeoutModel.requestTimeoutMillis)
+		}
+		if (timeoutModel.connectTimeoutMillis != null) {
+			addStatement("this.connectTimeoutMillis = %LL", timeoutModel.connectTimeoutMillis)
+		}
+		if (timeoutModel.socketTimeoutMillis != null) {
+			addStatement("this.socketTimeoutMillis = %LL", timeoutModel.socketTimeoutMillis)
+		}
+		endControlFlow()
 	}
 	
 	override fun CodeBlock.Builder.buildBearerAuth(
 		varName: String
 	) {
-		addStatement("%N?.let { bearerAuth(it) }", varName)
+		beginControlFlow("if (%N != null)", varName)
+		addStatement("this.bearerAuth(%N)", varName)
+		endControlFlow()
 	}
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(
 		headersModel: HeadersModel?,
 		headerModels: List<HeaderModel>,
 	) {
-		beginControlFlow("headers")
+		beginControlFlow("this.headers")
 		headersModel?.headerMap?.forEach { (name, value) ->
-			addStatement("append(%S, %S)", name, value)
+			addStatement("this.append(%S, %S)", name, value)
 		}
 		headerModels.forEach {
-			addStatement("append(%S, %N)", it.name, it.varName)
+			addStatement("this.append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
 	
 	override fun CodeBlock.Builder.buildQueries(queryModels: List<QueryModel>) {
-		beginControlFlow("queries")
+		beginControlFlow("this.queries")
 		queryModels.forEach {
-			addStatement("append(%S, %N)", it.name, it.varName)
+			addStatement("this.append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
 	
 	override fun CodeBlock.Builder.buildParts(partModels: List<PartModel>) {
-		beginControlFlow("parts")
+		beginControlFlow("this.parts")
 		partModels.forEach {
-			addStatement("append(%S, %N)", it.name, it.varName)
+			addStatement("this.append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
 	
 	override fun CodeBlock.Builder.buildFields(fieldModels: List<FieldModel>) {
-		beginControlFlow("fields")
+		beginControlFlow("this.fields")
 		fieldModels.forEach {
-			addStatement("append(%S, %N)", it.name, it.varName)
+			addStatement("this.append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
 	
 	override fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>) {
-		beginControlFlow("cookies")
+		beginControlFlow("this.cookies")
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK, "MockClient")
 		cookieModels.forEach { model ->
 			val codeBlock = buildCodeBlock {
-				add("append(\n")
+				add("this.append(\n")
 				indent()
 				add("name = %S,\n", model.name)
 				add("value = %N,\n", model.varName)
@@ -148,22 +164,22 @@ internal class MockClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildAttributes(cookieModels: List<AttributeModel>) {
-		beginControlFlow("attributes")
+		beginControlFlow("this.attributes")
 		cookieModels.forEach {
-			addStatement("append(%S, %N)", it.name, it.varName)
+			addStatement("this.append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
 	
 	fun CodeBlock.Builder.buildPaths(pathModels: List<PathModel>) {
-		beginControlFlow("paths")
+		beginControlFlow("this.paths")
 		pathModels.forEach {
-			addStatement("append(%S, %N)", it.name, it.varName)
+			addStatement("this.append(%S, %N)", it.name, it.varName)
 		}
 		endControlFlow()
 	}
 	
 	override fun CodeBlock.Builder.buildBody(bodyModel: BodyModel) {
-		addStatement("body(%N)", bodyModel.varName)
+		addStatement("this.body(%N)", bodyModel.varName)
 	}
 }

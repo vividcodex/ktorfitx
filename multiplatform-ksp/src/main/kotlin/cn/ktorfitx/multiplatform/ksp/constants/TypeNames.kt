@@ -57,6 +57,8 @@ internal object TypeNames {
 	
 	val Mock = ClassName("cn.ktorfitx.multiplatform.annotation", "Mock")
 	
+	val Timeout = ClassName("cn.ktorfitx.multiplatform.annotation", "Timeout")
+	
 	val Body = ClassName("cn.ktorfitx.multiplatform.annotation", "Body")
 	
 	val Header = ClassName("cn.ktorfitx.multiplatform.annotation", "Header")

@@ -10,7 +10,10 @@ class MockRequestBuilder(
 	val json: Json
 ) {
 	
-	var urlString: String? = null
+	internal var urlString: String? = null
+		private set
+	
+	internal var timeout: TimeoutConfig? = null
 		private set
 	
 	private val _headers = mutableMapOf<String, Any>()
@@ -28,8 +31,8 @@ class MockRequestBuilder(
 	private val _paths = mutableMapOf<String, Any>()
 	internal val paths: Map<String, Any> = _paths
 	
-	private val _cookies = mutableMapOf<String, MockCookie>()
-	internal val cookies: Map<String, MockCookie> = _cookies
+	private val _cookies = mutableMapOf<String, CookieConfig>()
+	internal val cookies: Map<String, CookieConfig> = _cookies
 	
 	private val _attributes = mutableMapOf<String, Any>()
 	internal val attributes: Map<String, Any> = _attributes
@@ -38,6 +41,10 @@ class MockRequestBuilder(
 	
 	fun url(urlString: String) {
 		this.urlString = urlString
+	}
+	
+	fun timeout(block: TimeoutConfig.() -> Unit) {
+		this.timeout = TimeoutConfigImpl().apply(block)
 	}
 	
 	fun bearerAuth(token: String) {
@@ -76,7 +83,7 @@ class MockRequestBuilder(
 		this.body = json.encodeToString(body)
 	}
 	
-	fun MutableMap<String, Any>.append(name: String, value: Any) {
+	fun <V> MutableMap<String, V>.append(name: String, value: V) {
 		this[name] = value
 	}
 }
@@ -98,7 +105,7 @@ sealed interface CookieBuilder {
 
 private class CookieBuilderImpl : CookieBuilder {
 	
-	val cookies = mutableMapOf<String, MockCookie>()
+	val cookies = mutableMapOf<String, CookieConfig>()
 	
 	override fun append(
 		name: String,
@@ -111,7 +118,7 @@ private class CookieBuilderImpl : CookieBuilder {
 		httpOnly: Boolean,
 		extensions: Map<String, String?>
 	) {
-		this.cookies[name] = MockCookie(
+		this.cookies[name] = CookieConfig(
 			value = value,
 			maxAge = maxAge,
 			expires = expires,
@@ -124,7 +131,7 @@ private class CookieBuilderImpl : CookieBuilder {
 	}
 }
 
-internal class MockCookie(
+internal class CookieConfig(
 	val value: Any,
 	val maxAge: Int,
 	val expires: GMTDate?,
@@ -134,3 +141,15 @@ internal class MockCookie(
 	val httpOnly: Boolean,
 	val extensions: Map<String, String?>
 )
+
+sealed interface TimeoutConfig {
+	var requestTimeoutMillis: Long?
+	var connectTimeoutMillis: Long?
+	var socketTimeoutMillis: Long?
+}
+
+private class TimeoutConfigImpl(
+	override var requestTimeoutMillis: Long? = null,
+	override var connectTimeoutMillis: Long? = null,
+	override var socketTimeoutMillis: Long? = null
+) : TimeoutConfig
