@@ -21,24 +21,22 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	): FunModel {
 		val routeModel = function.getRouteModel()
 		function.checkReturnType(routeModel is HttpRequestModel)
-		return with(ParameterResolver) {
-			FunModel(
-				funName = function.simpleName.asString(),
-				canonicalName = function.getCanonicalName(),
-				isExtension = function.extensionReceiver != null,
-				group = function.getGroupName(),
-				authenticationModel = function.getAuthenticationModel(),
-				routeModel = routeModel,
-				varNames = function.getVarNames(),
-				principalModels = function.getPrincipalModels(),
-				queryModels = function.getQueryModels(),
-				pathModels = function.getPathModels(routeModel.path),
-				headerModels = function.getHeaderModels(),
-				cookieModels = function.getCookieModels(),
-				attributeModels = function.getAttributeModels(),
-				requestBodyModel = function.getRequestBody(routeModel),
-			)
-		}
+		return FunModel(
+			funName = function.simpleName.asString(),
+			canonicalName = function.getCanonicalName(),
+			isExtension = function.extensionReceiver != null,
+			group = function.getGroupName(),
+			authenticationModel = function.getAuthenticationModel(),
+			routeModel = routeModel,
+			varNames = function.getVarNames(),
+			principalModels = function.getPrincipalModels(),
+			queryModels = function.getQueryModels(),
+			pathModels = function.getPathModels(routeModel.path),
+			headerModels = function.getHeaderModels(),
+			cookieModels = function.getCookieModels(),
+			attributeModels = function.getAttributeModels(),
+			requestBodyModel = function.getRequestBody(routeModel),
+		)
 	}
 	
 	private fun KSFunctionDeclaration.getCanonicalName(): String {

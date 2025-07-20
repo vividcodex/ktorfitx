@@ -57,19 +57,19 @@ internal fun KSFunctionDeclaration.getQueryModels(): List<QueryModel> {
 }
 
 internal fun KSFunctionDeclaration.getPathModels(path: String): List<PathModel> {
-	val pathParams = extractPathParams(path)
-	val residuePathParams = pathParams.toMutableSet()
+	val pathParameters = extractPathParameters(path)
+	val residuePathParameters = pathParameters.toMutableSet()
 	val pathModels = this.parameters.mapNotNull { parameter ->
 		val annotation = parameter.getKSAnnotationByType(ClassNames.Path) ?: return@mapNotNull null
 		val varName = parameter.name!!.asString()
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
-		parameter.compileCheck(name in pathParams) {
+		parameter.compileCheck(name in pathParameters) {
 			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数未在 url 中找到"
 		}
-		parameter.compileCheck(name in residuePathParams) {
+		parameter.compileCheck(name in residuePathParameters) {
 			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数重复解析 path 参数"
 		}
-		residuePathParams -= name
+		residuePathParameters -= name
 		
 		val typeName = parameter.type.toTypeName()
 		parameter.compileCheck(!typeName.isNullable) {
@@ -77,15 +77,16 @@ internal fun KSFunctionDeclaration.getPathModels(path: String): List<PathModel> 
 		}
 		PathModel(name, varName, typeName)
 	}
-	this.compileCheck(residuePathParams.isEmpty()) {
-		"${simpleName.asString()} 函数未解析 ${residuePathParams.joinToString { "\"$it\"" }} Path 参数"
+	this.compileCheck(residuePathParameters.isEmpty()) {
+		"${simpleName.asString()} 函数未解析以下 ${residuePathParameters.size} 个 path 参数：${residuePathParameters.joinToString { it }}"
 	}
 	return pathModels
 }
 
-private fun extractPathParams(path: String): Set<String> {
-	val regex = "\\{([^}]+)}".toRegex()
-	val matches = regex.findAll(path)
+private val pathRegex = "\\{([^}]+)}".toRegex()
+
+private fun extractPathParameters(path: String): Set<String> {
+	val matches = pathRegex.findAll(path)
 	val params = mutableSetOf<String>()
 	for (match in matches) {
 		params += match.groupValues[1]

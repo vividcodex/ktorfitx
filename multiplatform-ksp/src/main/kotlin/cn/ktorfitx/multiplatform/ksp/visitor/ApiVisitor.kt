@@ -113,7 +113,7 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassModel>() {
 					hasBearerAuth = it.hasBearerAuth(),
 					timeoutModel = it.getTimeoutModel(),
 					queryModels = it.getQueryModels(),
-					pathModels = it.getPathModels(),
+					pathModels = it.getPathModels(routeModel.url),
 					cookieModels = it.getCookieModels(),
 					attributeModels = it.getAttributeModels(),
 					headerModels = it.getHeaderModels(),

@@ -256,17 +256,43 @@ internal fun KSFunctionDeclaration.getParameterModels(isWebSocket: Boolean): Lis
 	}
 }
 
-internal fun KSFunctionDeclaration.getPathModels(): List<PathModel> {
-	return this.parameters.mapNotNull { parameter ->
+internal fun KSFunctionDeclaration.getPathModels(url: String): List<PathModel> {
+	val pathParameters = extractUrlPathParameters(url)
+	val residuePathParameters = pathParameters.toMutableSet()
+	val pathModels = this.parameters.mapNotNull { parameter ->
 		val annotation = parameter.getKSAnnotationByType(TypeNames.Path) ?: return@mapNotNull null
 		val varName = parameter.name!!.asString()
-		var name = annotation.getValueOrNull<String>("name")
-		if (name.isNullOrBlank()) {
-			name = varName
+		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
+		parameter.compileCheck(name in pathParameters) {
+			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数未在 url 中找到"
 		}
-		PathModel(name, varName, parameter)
+		parameter.compileCheck(name in residuePathParameters) {
+			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数重复解析 path 参数"
+		}
+		residuePathParameters -= name
+		val typeName = parameter.type.toTypeName()
+		parameter.compileCheck(!typeName.isNullable) {
+			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数不允许可空"
+		}
+		PathModel(name, varName)
 	}
+	this.compileCheck(residuePathParameters.isEmpty()) {
+		"${simpleName.asString()} 函数未解析以下 ${residuePathParameters.size} 个 path 参数：${residuePathParameters.joinToString { it }}"
+	}
+	return pathModels
 }
+
+private val pathRegex = "\\{([^}]+)}".toRegex()
+
+private fun extractUrlPathParameters(url: String): Set<String> {
+	val matches = pathRegex.findAll(url)
+	val params = mutableSetOf<String>()
+	for (match in matches) {
+		params += match.groupValues[1]
+	}
+	return params
+}
+
 
 internal fun KSFunctionDeclaration.getTimeoutModel(): TimeoutModel? {
 	val annotation = this.getKSAnnotationByType(TypeNames.Timeout) ?: return null

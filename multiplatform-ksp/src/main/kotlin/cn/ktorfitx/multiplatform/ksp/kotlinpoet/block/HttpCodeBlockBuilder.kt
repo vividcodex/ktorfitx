@@ -1,6 +1,5 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
-import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.isHttpOrHttps
 import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.*
@@ -91,10 +90,6 @@ internal class HttpCodeBlockBuilder(
 			"$apiUrl/$url"
 		}
 		val fullUrl = pathModels.fold(initialUrl) { acc, it ->
-			it.parameter.compileCheck(url.contains("{${it.name}}")) {
-				val funName = funModel.funName
-				"$funName 函数上的 ${it.varName} 参数上的 @Path 注解的 name 参数没有在 url 上找到"
-			}
 			acc.replace("{${it.name}}", $$"${$${it.varName}}")
 		}
 		return fullUrl
