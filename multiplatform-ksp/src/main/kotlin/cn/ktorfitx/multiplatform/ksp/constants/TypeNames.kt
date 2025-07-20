@@ -5,6 +5,14 @@ import com.squareup.kotlinpoet.LambdaTypeName
 
 internal object TypeNames {
 	
+	val routes by lazy {
+		arrayOf(GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS, WebSocket)
+	}
+	
+	val parameters by lazy {
+		arrayOf(Body, Part, Field, Header, Path, Query, Cookie, Attribute)
+	}
+	
 	val Unit = ClassName("kotlin", "Unit")
 	
 	val Nothing = ClassName("kotlin", "Nothing")

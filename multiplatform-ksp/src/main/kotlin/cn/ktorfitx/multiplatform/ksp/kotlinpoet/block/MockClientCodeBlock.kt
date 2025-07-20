@@ -3,9 +3,7 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.common.ksp.util.builders.toCodeBlock
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
-import cn.ktorfitx.multiplatform.ksp.model.model.*
-import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnKind
-import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnStructure
+import cn.ktorfitx.multiplatform.ksp.model.*
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.buildCodeBlock
 
@@ -14,7 +12,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
  */
 internal class MockClientCodeBlock(
 	private val mockModel: MockModel,
-	private val returnStructure: ReturnStructure
+	private val returnModel: ReturnModel
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
@@ -22,7 +20,7 @@ internal class MockClientCodeBlock(
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK_CONFIG, "mockClient")
-		when (returnStructure.returnKind) {
+		when (returnModel.returnKind) {
 			ReturnKind.Unit -> {
 				beginControlFlow(
 					"""
@@ -67,7 +65,7 @@ internal class MockClientCodeBlock(
 		}
 		builder()
 		endControlFlow()
-		if (returnStructure.returnKind == ReturnKind.Result) {
+		if (returnModel.returnKind == ReturnKind.Result) {
 			addStatement("Result.success(result)")
 		}
 	}

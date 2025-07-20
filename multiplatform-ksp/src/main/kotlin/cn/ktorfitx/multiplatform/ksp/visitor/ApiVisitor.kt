@@ -4,12 +4,13 @@ import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.check.ktorfitxError
 import cn.ktorfitx.common.ksp.util.expends.*
 import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
-import cn.ktorfitx.multiplatform.ksp.model.model.*
-import cn.ktorfitx.multiplatform.ksp.model.structure.*
-import cn.ktorfitx.multiplatform.ksp.visitor.resolver.*
+import cn.ktorfitx.multiplatform.ksp.model.*
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getVisibility
-import com.google.devtools.ksp.symbol.*
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSNode
+import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Visibility.INTERNAL
 import com.google.devtools.ksp.symbol.Visibility.PUBLIC
 import com.google.devtools.ksp.visitor.KSEmptyVisitor
@@ -19,22 +20,42 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
-internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
+internal object ApiVisitor : KSEmptyVisitor<Unit, ClassModel>() {
 	
 	private val apiUrlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 	
 	override fun visitClassDeclaration(
 		classDeclaration: KSClassDeclaration,
 		data: Unit
-	): ClassStructure = classDeclaration.getClassStructure()
+	): ClassModel = classDeclaration.getClassModel()
 	
-	/**
-	 * 获取 ClassStructure
-	 */
-	private fun KSClassDeclaration.getClassStructure(): ClassStructure {
-		val apiAnnotation = getKSAnnotationByType(TypeNames.Api)!!
+	private fun KSClassDeclaration.getClassModel(): ClassModel {
 		val className = ClassName("${packageName.asString()}.impls", "${simpleName.asString()}Impl")
 		val superinterface = this.toClassName()
+		return ClassModel(
+			className = className,
+			superinterface = superinterface,
+			kModifier = this.getVisibilityKModifier(),
+			apiUrl = this.getApiUrl(),
+			apiScopeModels = this.getApiScopeModels(),
+			funModels = getFunModel()
+		)
+	}
+	
+	private fun KSClassDeclaration.getApiUrl(): String? {
+		val annotation = getKSAnnotationByType(TypeNames.Api)!!
+		val url = annotation.getValueOrNull<String>("url")?.trim('/') ?: return null
+		if (url.isBlank()) return null
+		annotation.compileCheck(!url.isHttpOrHttps() && !url.isWSOrWSS()) {
+			"${simpleName.asString()} 接口上的 @Api 注解的 url 参数不允许开头是 http:// 或 https:// 或 ws:// 或 wss://"
+		}
+		annotation.compileCheck(apiUrlRegex.matches(url)) {
+			"${simpleName.asString()} 接口上的 @Api 注解的 url 参数格式错误"
+		}
+		return url
+	}
+	
+	private fun KSClassDeclaration.getApiScopeModels(): List<ApiScopeModel> {
 		val apiScopeAnnotation = getKSAnnotationByType(TypeNames.ApiScope)
 		val apiScopesAnnotation = getKSAnnotationByType(TypeNames.ApiScopes)
 		val apiScopeClassNames = when {
@@ -45,25 +66,22 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 			}
 			
 			apiScopeAnnotation != null -> {
-				setOf(apiScopeAnnotation.getClassName("apiScope"))
+				listOf(apiScopeAnnotation.getClassName("apiScope"))
 			}
 			
 			apiScopesAnnotation != null -> {
-				apiScopesAnnotation.getClassNamesOrNull("apiScopes")?.toSet() ?: this.ktorfitxError {
+				apiScopesAnnotation.getClassNamesOrNull("apiScopes")?.distinct() ?: this.ktorfitxError {
 					"${simpleName.asString()} 接口上的 @ApiScopes 注解参数不允许为空"
 				}
 			}
 			
-			else -> setOf(TypeNames.DefaultApiScope)
+			else -> listOf(TypeNames.DefaultApiScope)
 		}
 		val groupSize = apiScopeClassNames.groupBy { it.simpleNames.joinToString(".") }.size
 		this.compileCheck(apiScopeClassNames.size == groupSize) {
 			"${simpleName.asString()} 函数不允许使用相同的类名"
 		}
-		val apiUrl = getApiUrl(apiAnnotation)
-		val apiStructure = ApiStructure(apiUrl, apiScopeClassNames)
-		val funStructure = getFunStructures()
-		return ClassStructure(className, superinterface, this.getVisibilityKModifier(), apiStructure, funStructure)
+		return apiScopeClassNames.map { ApiScopeModel(it) }
 	}
 	
 	/**
@@ -77,50 +95,72 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 		return KModifier.entries.first { it.name == visibility.name }
 	}
 	
-	/**
-	 * 获取 `@Api` 注解上的 url 参数
-	 */
-	private fun KSClassDeclaration.getApiUrl(annotation: KSAnnotation): String? {
-		val url = annotation.getValueOrNull<String>("url")?.trim('/') ?: return null
-		if (url.isBlank()) return null
-		annotation.compileCheck(!url.isHttpOrHttps() && !url.isWSOrWSS()) {
-			"${simpleName.asString()} 接口上的 @Api 注解的 url 参数不允许开头是 http:// 或 https:// 或 ws:// 或 wss://"
-		}
-		annotation.compileCheck(apiUrlRegex.matches(url)) {
-			"${simpleName.asString()} 接口上的 @Api 注解的 url 参数格式错误"
-		}
-		return url
-	}
-	
-	/**
-	 * 获取 FunStructures
-	 */
-	private fun KSClassDeclaration.getFunStructures(): List<FunStructure> {
+	private fun KSClassDeclaration.getFunModel(): List<FunModel> {
 		return this.getDeclaredFunctions().toList()
 			.filter { it.isAbstract }
 			.map {
 				it.compileCheck(Modifier.SUSPEND in it.modifiers) {
-					val funName = it.simpleName.asString()
-					"$funName 函数缺少 suspend 修饰符"
+					"${simpleName.asString()} 函数缺少 suspend 修饰符"
 				}
-				val funName = it.simpleName.asString()
-				val funModels = it.getAllFunModels()
-				val isWebSocket = funModels.any { model -> model is WebSocketModel }
-				val parameterModels = it.resolveParameterModels(isWebSocket)
-				val returnStructure = it.getReturnStructure(isWebSocket)
-				if (isWebSocket) {
-					FunStructure(funName, returnStructure, parameterModels, funModels, emptyList())
-				} else {
-					val valueParameterModels = it.getAllValueParameterModels()
-					FunStructure(funName, returnStructure, parameterModels, funModels, valueParameterModels)
-				}
+				val routeModel = it.getRouteModel()
+				val isWebSocket = routeModel is WebSocketModel
+				FunModel(
+					funName = it.simpleName.asString(),
+					returnModel = it.getReturnModel(isWebSocket),
+					parameterModels = it.getParameterModels(isWebSocket),
+					routeModel = routeModel,
+					mockModel = it.getMockModel(isWebSocket),
+					hasBearerAuth = it.hasBearerAuth(),
+					timeoutModel = it.getTimeoutModel(),
+					queryModels = it.getQueryModels(),
+					pathModels = it.getPathModels(),
+					cookieModels = it.getCookieModels(),
+					attributeModels = it.getAttributeModels(),
+					headerModels = it.getHeaderModels(),
+					headersModel = it.getHeadersModel(),
+					requestBodyModel = it.getRequestBodyModel()
+				)
 			}
 	}
 	
-	/**
-	 * 获取 ReturnStructure
-	 */
-	private fun KSFunctionDeclaration.getReturnStructure(isWebSocket: Boolean): ReturnStructure {
+	private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
+	
+	private fun KSFunctionDeclaration.getRouteModel(): RouteModel {
+		val classNames = TypeNames.routes.filter {
+			hasAnnotation(it)
+		}
+		this.compileCheck(classNames.size <= 1) {
+			val useAnnotations = classNames.joinToString { "@${it.simpleName}" }
+			val useSize = classNames.size
+			"${simpleName.asString()} 函数只允许使用一种类型注解，而你使用了 $useAnnotations $useSize 个"
+		}
+		this.compileCheck(classNames.size == 1) {
+			val routes = TypeNames.routes.joinToString { "@${it.simpleName}" }
+			"${simpleName.asString()} 函数缺少注解，请使用以下注解标记：$routes"
+		}
+		val className = classNames.first()
+		val isWebSocket = className == TypeNames.WebSocket
+		val url = getKSAnnotationByType(className)!!.getValue<String>("url").removePrefix("/").removeSuffix("/")
+		if (isWebSocket) {
+			this.compileCheck(!url.isHttpOrHttps()) {
+				"${simpleName.asString()} 函数上的 @${className.simpleName} 注解不允许使用 http:// 或 https:// 协议"
+			}
+		} else {
+			this.compileCheck(!url.isWSOrWSS()) {
+				"${simpleName.asString()} 函数上的 @${className.simpleName} 注解不允许使用 ws:// 或 wss:// 协议"
+			}
+		}
+		this.compileCheck(urlRegex.matches(url)) {
+			"${simpleName.asString()} 函数上的 @${className.simpleName} 注解的 url 参数格式错误"
+		}
+		return if (className == TypeNames.WebSocket) {
+			WebSocketModel(url)
+		} else {
+			HttpRequestModel(url, className)
+		}
+	}
+	
+	private fun KSFunctionDeclaration.getReturnModel(isWebSocket: Boolean): ReturnModel {
 		val returnType = this.returnType!!
 		val typeName = returnType.toTypeName()
 		val returnKind = when {
@@ -152,46 +192,8 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassStructure>() {
 				ReturnKind.Any
 			}
 		}
-		return ReturnStructure(typeName, returnKind)
+		return ReturnModel(typeName, returnKind)
 	}
 	
-	override fun defaultHandler(node: KSNode, data: Unit): ClassStructure = error("Not Implemented")
-	
-	private fun KSFunctionDeclaration.getAllFunModels(): List<FunModel> {
-		val models = mutableListOf<FunModel?>()
-		models += this.resolveWebSocketModel()
-		val isWebSocket = models.any { it is WebSocketModel }
-		models += this.resolveApiModel(isWebSocket)
-		models += this.resolveHeadersModel()
-		models += this.resolveMockModel()
-		models += this.resolveBearerAuthModel()
-		models += this.resolveTimeoutModel()
-		val isMock = models.any { it is MockModel }
-		this.compileCheck(!isWebSocket || !isMock) {
-			"${simpleName.asString()} 函数不支持同时使用 @WebSocket 和 @Mock 注解"
-		}
-		return models.filterNotNull()
-	}
-	
-	private fun KSFunctionDeclaration.getAllValueParameterModels(): List<ValueParameterModel> {
-		val models = mutableListOf<ValueParameterModel?>()
-		models += this.resolveBodyModel()
-		models += this.resolveQueryModels()
-		models += this.resolvePartModels()
-		models += this.resolveFieldModels()
-		models += this.resolvePathModels()
-		models += this.resolveHeaderModels()
-		models += this.resolveCookieModels()
-		models += this.resolveAttributeModels()
-		
-		val filterModels = models.filterNotNull()
-		val targetTypes = setOf(BodyModel::class, PartModel::class, FieldModel::class)
-		val incompatibleTypeCount = targetTypes.count { kClass ->
-			filterModels.any { kClass.isInstance(it) }
-		}
-		this.compileCheck(incompatibleTypeCount <= 1) {
-			"${simpleName.asString()} 函数不能同时使用 @Body, @Part 和 @Field 注解 $incompatibleTypeCount"
-		}
-		return models.filterNotNull()
-	}
+	override fun defaultHandler(node: KSNode, data: Unit): ClassModel = error("Not Implemented")
 }

@@ -2,15 +2,12 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet
 
 import cn.ktorfitx.common.ksp.util.builders.*
 import cn.ktorfitx.common.ksp.util.expends.replaceFirstToLowercase
+import cn.ktorfitx.common.ksp.util.expends.replaceFirstToUppercase
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpClientCodeBlock
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.HttpCodeBlockBuilder
-import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.MockClientCodeBlock
 import cn.ktorfitx.multiplatform.ksp.kotlinpoet.block.WebSocketCodeBuilder
-import cn.ktorfitx.multiplatform.ksp.model.model.*
-import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
-import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
+import cn.ktorfitx.multiplatform.ksp.model.*
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import java.time.LocalDateTime
@@ -31,13 +28,13 @@ internal object ApiKotlinPoet {
 	/**
 	 * 文件
 	 */
-	fun getFileSpec(classStructure: ClassStructure): FileSpec {
-		return buildFileSpec(classStructure.className) {
+	fun getFileSpec(classModel: ClassModel): FileSpec {
+		return buildFileSpec(classModel.className) {
 			fileSpecBuilderLocal.set(this)
 			addFileComment(fileComment, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
 			indent("\t")
-			addType(getTypeSpec(classStructure))
-			addProperties(getExpendPropertySpecs(classStructure))
+			addType(getTypeSpec(classModel))
+			addProperties(getExpendPropertySpecs(classModel))
 			fileSpecBuilderLocal.remove()
 		}
 	}
@@ -45,39 +42,39 @@ internal object ApiKotlinPoet {
 	/**
 	 * 实现类
 	 */
-	private fun getTypeSpec(classStructure: ClassStructure): TypeSpec {
+	private fun getTypeSpec(classModel: ClassModel): TypeSpec {
 		val primaryConstructorFunSpec = buildConstructorFunSpec {
 			addModifiers(KModifier.PRIVATE)
 			addParameter("config", TypeNames.KtorfitxConfig)
 		}
-		return buildClassTypeSpec(classStructure.className) {
+		return buildClassTypeSpec(classModel.className) {
 			addModifiers(KModifier.PRIVATE)
-			addSuperinterface(classStructure.superinterface)
+			addSuperinterface(classModel.superinterface)
 			primaryConstructor(primaryConstructorFunSpec)
 			val ktorfitxConfigPropertySpec = buildPropertySpec("config", TypeNames.KtorfitxConfig, KModifier.PRIVATE) {
 				initializer("config")
 				mutable(false)
 			}
 			addProperty(ktorfitxConfigPropertySpec)
-			addType(getCompanionObjectBuilder(classStructure))
-			addFunctions(getFunSpecs(classStructure))
+			addType(getCompanionObjectBuilder(classModel))
+			addFunctions(getFunSpecs(classModel))
 		}
 	}
 	
 	/**
 	 * 伴生对象
 	 */
-	private fun getCompanionObjectBuilder(classStructure: ClassStructure): TypeSpec {
-		val typeName = classStructure.superinterface.copy(nullable = true)
+	private fun getCompanionObjectBuilder(classModel: ClassModel): TypeSpec {
+		val typeName = classModel.superinterface.copy(nullable = true)
 		fileSpecBuilder.addImport(PackageNames.KTOR_UTILS_IO_LOCKS, "synchronized")
 		return buildCompanionObjectTypeSpec {
-			addModifiers(classStructure.kModifier)
+			addModifiers(classModel.kModifier)
 			val optInSpec = buildAnnotationSpec(TypeNames.OptIn) {
 				addMember("%T::class", TypeNames.InternalAPI)
 			}
 			addAnnotation(optInSpec)
-			classStructure.apiStructure.apiScopeClassNames.forEach { apiScopeClassName ->
-				val simpleName = apiScopeClassName.simpleNames.joinToString(".")
+			classModel.apiScopeModels.forEach { model ->
+				val simpleName = model.className.simpleNames.joinToString("") { it.replaceFirstToUppercase() }
 				val varName = simpleName.replaceFirstToLowercase()
 				val instanceVarName = "${varName}Instance"
 				val instancePropertySpec = buildPropertySpec(instanceVarName, typeName, KModifier.PRIVATE) {
@@ -92,15 +89,15 @@ internal object ApiKotlinPoet {
 				}
 				addProperty(mutexPropertySpec)
 				val funSpec = buildFunSpec("getInstanceBy$simpleName") {
-					addModifiers(classStructure.kModifier)
-					returns(classStructure.superinterface)
+					addModifiers(classModel.kModifier)
+					returns(classModel.superinterface)
 					addParameter(
 						"ktorfitx",
-						TypeNames.Ktorfitx.parameterizedBy(apiScopeClassName)
+						TypeNames.Ktorfitx.parameterizedBy(model.className)
 					)
 					val codeBlock = buildCodeBlock {
 						beginControlFlow("return %N ?: synchronized(%N)", instanceVarName, lockVarName)
-						addStatement("%N ?: %T(ktorfitx.config).also { %N = it }", instanceVarName, classStructure.className, instanceVarName)
+						addStatement("%N ?: %T(ktorfitx.config).also { %N = it }", instanceVarName, classModel.className, instanceVarName)
 						endControlFlow()
 					}
 					addCode(codeBlock)
@@ -113,19 +110,19 @@ internal object ApiKotlinPoet {
 	/**
 	 * 扩展函数
 	 */
-	private fun getExpendPropertySpecs(classStructure: ClassStructure): List<PropertySpec> {
-		val expendPropertyName = classStructure.superinterface.simpleName.replaceFirstChar { it.lowercase() }
-		return classStructure.apiStructure.apiScopeClassNames.map { apiScopeClassName ->
-			val simpleName = apiScopeClassName.simpleNames.joinToString(".")
+	private fun getExpendPropertySpecs(classModel: ClassModel): List<PropertySpec> {
+		val expendPropertyName = classModel.superinterface.simpleName.replaceFirstChar { it.lowercase() }
+		return classModel.apiScopeModels.map { model ->
+			val simpleName = model.className.simpleNames.joinToString(".")
 			val jvmNameAnnotationSpec = buildAnnotationSpec(JvmName::class) {
 				addMember("%S", "${expendPropertyName}By$simpleName")
 			}
 			val getterFunSpec = buildGetterFunSpec {
 				addAnnotation(jvmNameAnnotationSpec)
-				addStatement("return %T.%N(this)", classStructure.className, "getInstanceBy$simpleName")
+				addStatement("return %T.%N(this)", classModel.className, "getInstanceBy$simpleName")
 			}
-			buildPropertySpec(expendPropertyName, classStructure.superinterface, classStructure.kModifier) {
-				receiver(TypeNames.Ktorfitx.parameterizedBy(apiScopeClassName))
+			buildPropertySpec(expendPropertyName, classModel.superinterface, classModel.kModifier) {
+				receiver(TypeNames.Ktorfitx.parameterizedBy(model.className))
 				getter(getterFunSpec)
 			}
 		}
@@ -134,14 +131,13 @@ internal object ApiKotlinPoet {
 	/**
 	 * 实现方法
 	 */
-	private fun getFunSpecs(classStructure: ClassStructure): List<FunSpec> {
-		return classStructure.funStructures.map {
+	private fun getFunSpecs(classModel: ClassModel): List<FunSpec> {
+		return classModel.funModels.map {
 			buildFunSpec(it.funName) {
 				addModifiers(KModifier.SUSPEND, KModifier.OVERRIDE)
 				addParameters(getParameterSpecs(it.parameterModels))
-				addCode(getCodeBlock(classStructure, it))
-				val returnStructure = it.returnStructure
-				returns(returnStructure.typeName)
+				addCode(getCodeBlock(classModel, it))
+				returns(it.returnModel.typeName)
 			}
 		}.toList()
 	}
@@ -150,34 +146,31 @@ internal object ApiKotlinPoet {
 		return models.map { buildParameterSpec(it.varName, it.typeName) }
 	}
 	
-	private fun getCodeBlock(classStructure: ClassStructure, funStructure: FunStructure): CodeBlock {
+	private fun getCodeBlock(classModel: ClassModel, funModel: FunModel): CodeBlock {
 		return buildCodeBlock {
-			val tokenVarName = getTokenVarName(funStructure.funModels, funStructure.parameterModels)
+			val tokenVarName = if (funModel.hasBearerAuth) getTokenVarName(funModel.parameterModels) else null
 			if (tokenVarName != null) {
 				addStatement("val %N = this.config.token?.invoke()", tokenVarName)
 			}
-			val isWebSocket = funStructure.funModels.any { it is WebSocketModel }
-			if (isWebSocket) {
-				with(WebSocketCodeBuilder(classStructure, funStructure, tokenVarName)) {
-					buildCodeBlock()
+			when (funModel.routeModel) {
+				is HttpRequestModel -> {
+					with(HttpCodeBlockBuilder(classModel, funModel, funModel.routeModel, tokenVarName)) {
+						buildCodeBlock()
+					}
 				}
-			} else {
-				val isMockClient = funStructure.funModels.any { it is MockModel }
-				val codeBlockKClass = if (isMockClient) MockClientCodeBlock::class else HttpClientCodeBlock::class
-				with(HttpCodeBlockBuilder(classStructure, funStructure, codeBlockKClass, tokenVarName)) {
-					buildCodeBlock()
+				
+				is WebSocketModel -> {
+					with(WebSocketCodeBuilder(classModel, funModel, funModel.routeModel, tokenVarName)) {
+						buildCodeBlock()
+					}
 				}
 			}
 		}
 	}
 	
 	private fun getTokenVarName(
-		funModels: List<FunModel>,
 		parameterModels: List<ParameterModel>
-	): String? {
-		if (funModels.all { it !is BearerAuthModel }) {
-			return null
-		}
+	): String {
 		var i = 0
 		var varName = TOKEN_VAR_NAME
 		val varNames = parameterModels.map { it.varName }

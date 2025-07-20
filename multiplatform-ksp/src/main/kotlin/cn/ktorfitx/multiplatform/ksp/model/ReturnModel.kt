@@ -1,8 +1,8 @@
-package cn.ktorfitx.multiplatform.ksp.model.structure
+package cn.ktorfitx.multiplatform.ksp.model
 
 import com.squareup.kotlinpoet.TypeName
 
-internal class ReturnStructure(
+internal class ReturnModel(
 	val typeName: TypeName,
 	val returnKind: ReturnKind
 )

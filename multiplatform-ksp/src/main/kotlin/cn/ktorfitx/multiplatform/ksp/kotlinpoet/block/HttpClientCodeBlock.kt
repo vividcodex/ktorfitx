@@ -5,16 +5,14 @@ import cn.ktorfitx.common.ksp.util.builders.toCodeBlock
 import cn.ktorfitx.common.ksp.util.expends.rawType
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
-import cn.ktorfitx.multiplatform.ksp.model.model.*
-import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnKind
-import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnStructure
+import cn.ktorfitx.multiplatform.ksp.model.*
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.buildCodeBlock
 
 internal class HttpClientCodeBlock(
-	private val returnStructure: ReturnStructure
+	private val returnModel: ReturnModel
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
@@ -22,22 +20,22 @@ internal class HttpClientCodeBlock(
 		builder: CodeBlock.Builder.() -> Unit
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, funName)
-		if (returnStructure.returnKind == ReturnKind.Unit) {
-			beginControlFlow("this.config.httpClient!!.%N", funName)
+		if (returnModel.returnKind == ReturnKind.Unit) {
+			beginControlFlow("this.config.httpClient.%N", funName)
 		} else {
-			beginControlFlow("val response = this.config.httpClient!!.%N", funName)
+			beginControlFlow("val response = this.config.httpClient.%N", funName)
 		}
 		builder()
 		endControlFlow()
 		
-		val typeName = if (returnStructure.returnKind == ReturnKind.Result) {
-			(returnStructure.typeName as ParameterizedTypeName).typeArguments.first()
-		} else returnStructure.typeName
+		val typeName = if (returnModel.returnKind == ReturnKind.Result) {
+			(returnModel.typeName as ParameterizedTypeName).typeArguments.first()
+		} else returnModel.typeName
 		val rawType = if (typeName.isNullable) typeName.rawType.copy(nullable = false) else typeName
-		if (returnStructure.returnKind == ReturnKind.Unit) {
+		if (returnModel.returnKind == ReturnKind.Unit) {
 			return
 		}
-		if (returnStructure.returnKind == ReturnKind.Result && rawType == TypeNames.Unit) {
+		if (returnModel.returnKind == ReturnKind.Result && rawType == TypeNames.Unit) {
 			addStatement("Result.success(Unit)")
 			return
 		}
@@ -53,9 +51,9 @@ internal class HttpClientCodeBlock(
 		} else {
 			fileSpecBuilder.addImport(PackageNames.KTOR_STATEMENT, funName)
 		}
-		if (returnStructure.returnKind == ReturnKind.Result) {
+		if (returnModel.returnKind == ReturnKind.Result) {
 			addStatement("Result.success(response.%N())", funName)
-		} else if (returnStructure.typeName != TypeNames.Unit) {
+		} else if (returnModel.typeName != TypeNames.Unit) {
 			addStatement("return response.%N()", funName)
 		}
 	}
@@ -88,7 +86,9 @@ internal class HttpClientCodeBlock(
 		varName: String
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "bearerAuth")
-		addStatement("%N?.let { this.bearerAuth(it) }", varName)
+		beginControlFlow("if (%N != null)", varName)
+		addStatement("this.bearerAuth(%N)", varName)
+		endControlFlow()
 	}
 	
 	override fun CodeBlock.Builder.buildHeadersCodeBlock(
@@ -132,7 +132,13 @@ internal class HttpClientCodeBlock(
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
 		addStatement("this.contentType(ContentType.Application.FormUrlEncoded)")
 		val parameters = fieldModels.joinToString { "%S to %L" }
-		val args = fieldModels.flatMap { listOf(it.name, "${it.varName}${if (it.isStringType) "" else ".toString()"}") }
+		val args = fieldModels.flatMap {
+			when {
+				it.isStringType -> listOf(it.name, it.varName)
+				it.isNullable -> listOf(it.name, "${it.varName}?.toString()")
+				else -> listOf(it.name, "${it.varName}.toString()")
+			}
+		}
 		addStatement("this.setBody(listOf($parameters).formUrlEncode())", *args.toTypedArray())
 	}
 	

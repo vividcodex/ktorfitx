@@ -6,4 +6,4 @@ internal class BodyModel(
 	val varName: String,
 	val typeName: TypeName,
 	val isNullable: Boolean
-) : RequestBody
+) : RequestBodyModel

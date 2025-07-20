@@ -25,7 +25,7 @@ interface TestMethod2Api {
 	@POST("/test4")
 	suspend fun test4(
 		@Field field1: String,
-		@Field("customField2") field2: Int
+		@Field("customField2") field2: Int?
 	): Result<String>
 	
 	@POST("/test5")

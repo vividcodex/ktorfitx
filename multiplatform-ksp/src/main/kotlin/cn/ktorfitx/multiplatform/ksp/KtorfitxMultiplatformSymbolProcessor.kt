@@ -38,9 +38,9 @@ internal class KtorfitxMultiplatformSymbolProcessor(
 				true
 			}
 			.forEach {
-				val classStructure = it.accept(ApiVisitor, Unit)
-				val fileSpec = ApiKotlinPoet.getFileSpec(classStructure)
-				val className = classStructure.className
+				val classModel = it.accept(ApiVisitor, Unit)
+				val fileSpec = ApiKotlinPoet.getFileSpec(classModel)
+				val className = classModel.className
 				codeGenerator.createNewFile(
 					dependencies = Dependencies.ALL_FILES,
 					packageName = className.packageName,

@@ -1,6 +1,6 @@
 package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
-import cn.ktorfitx.multiplatform.ksp.model.model.*
+import cn.ktorfitx.multiplatform.ksp.model.*
 import com.squareup.kotlinpoet.CodeBlock
 
 internal sealed interface ClientCodeBlock {
@@ -42,30 +42,42 @@ internal sealed interface ClientCodeBlock {
 	/**
 	 * queries
 	 */
-	fun CodeBlock.Builder.buildQueries(queryModels: List<QueryModel>)
+	fun CodeBlock.Builder.buildQueries(
+		queryModels: List<QueryModel>
+	)
 	
 	/**
 	 * parts
 	 */
-	fun CodeBlock.Builder.buildParts(partModels: List<PartModel>)
+	fun CodeBlock.Builder.buildParts(
+		partModels: List<PartModel>
+	)
 	
 	/**
 	 * fields
 	 */
-	fun CodeBlock.Builder.buildFields(fieldModels: List<FieldModel>)
+	fun CodeBlock.Builder.buildFields(
+		fieldModels: List<FieldModel>
+	)
 	
 	/**
 	 * cookies
 	 */
-	fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>)
+	fun CodeBlock.Builder.buildCookies(
+		cookieModels: List<CookieModel>
+	)
 	
 	/**
 	 * cookies
 	 */
-	fun CodeBlock.Builder.buildAttributes(cookieModels: List<AttributeModel>)
+	fun CodeBlock.Builder.buildAttributes(
+		cookieModels: List<AttributeModel>
+	)
 	
 	/**
 	 * body
 	 */
-	fun CodeBlock.Builder.buildBody(bodyModel: BodyModel)
+	fun CodeBlock.Builder.buildBody(
+		bodyModel: BodyModel
+	)
 }

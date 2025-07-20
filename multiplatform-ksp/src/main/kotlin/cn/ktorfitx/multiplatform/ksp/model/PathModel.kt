@@ -1,9 +1,9 @@
-package cn.ktorfitx.multiplatform.ksp.model.model
+package cn.ktorfitx.multiplatform.ksp.model
 
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 internal class PathModel(
 	val name: String,
-	override val varName: String,
+	val varName: String,
 	val parameter: KSValueParameter
-) : ValueParameterModel
+)

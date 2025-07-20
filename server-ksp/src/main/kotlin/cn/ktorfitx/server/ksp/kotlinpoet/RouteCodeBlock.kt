@@ -104,10 +104,11 @@ internal class RouteCodeBlock(
 	}
 	
 	private fun CodeBlock.Builder.addRequestBodyCodeBlock() {
-		when (funModel.requestBody) {
-			is BodyModel -> addBodyCodeBlock(funModel.requestBody)
-			is FieldModels -> addFieldsCodeBlock(funModel.requestBody.fieldModels)
-			is PartModels -> addPartsCodeBlock(funModel.requestBody.partModels)
+		when (funModel.requestBodyModel) {
+			is BodyModel -> addBodyCodeBlock(funModel.requestBodyModel)
+			is FieldModels -> addFieldsCodeBlock(funModel.requestBodyModel.fieldModels)
+			is PartModels -> addPartsCodeBlock(funModel.requestBodyModel.partModels)
+			else -> {}
 		}
 	}
 	

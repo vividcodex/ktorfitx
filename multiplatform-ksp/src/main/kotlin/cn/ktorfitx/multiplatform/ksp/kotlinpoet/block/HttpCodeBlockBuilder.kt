@@ -3,74 +3,55 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.isHttpOrHttps
 import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
-import cn.ktorfitx.multiplatform.ksp.model.model.*
-import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
-import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
-import cn.ktorfitx.multiplatform.ksp.model.structure.ReturnKind
+import cn.ktorfitx.multiplatform.ksp.model.*
 import com.squareup.kotlinpoet.CodeBlock
-import kotlin.reflect.KClass
 
 internal class HttpCodeBlockBuilder(
-	classStructure: ClassStructure,
-	private val funStructure: FunStructure,
-	private val codeBlockKClass: KClass<out ClientCodeBlock>,
+	private val classModel: ClassModel,
+	private val funModel: FunModel,
+	private val httpRequestModel: HttpRequestModel,
 	private val tokenVarName: String?
 ) {
-	
-	private val returnStructure = funStructure.returnStructure
-	private val valueParameterModels = funStructure.valueParameterModels
-	private val funModels = funStructure.funModels
-	private val apiStructure = classStructure.apiStructure
 	
 	fun CodeBlock.Builder.buildCodeBlock() {
 		buildTryCatchIfNeed {
 			with(getClientCodeBlock()) {
-				val apiModel = funModels.first { it is ApiModel } as ApiModel
-				val funName = apiModel.requestFunName
+				val url = httpRequestModel.url
+				val funName = httpRequestModel.className.simpleName.lowercase()
 				buildClientCodeBlock(funName) {
-					val fullUrl = parseToFullUrl(apiModel.url)
+					val fullUrl = parseToFullUrl(url)
 					buildUrlString(fullUrl)
-					val timeoutModel = funModels.filterIsInstance<TimeoutModel>().firstOrNull()
-					if (timeoutModel != null) {
-						buildTimeoutCodeBlock(timeoutModel)
-					}
-					if (tokenVarName != null) {
-						buildBearerAuth(tokenVarName)
-					}
-					val headersModel = funModels.filterIsInstance<HeadersModel>().firstOrNull()
-					val headerModels = valueParameterModels.filterIsInstance<HeaderModel>()
-					if (headerModels.isNotEmpty() || headersModel != null) {
+					funModel.timeoutModel?.let { buildTimeoutCodeBlock(it) }
+					tokenVarName?.let { buildBearerAuth(it) }
+					val headersModel = funModel.headersModel
+					val headerModels = funModel.headerModels
+					if (headersModel != null || headerModels.isNotEmpty()) {
 						buildHeadersCodeBlock(headersModel, headerModels)
 					}
-					val queryModels = valueParameterModels.filterIsInstance<QueryModel>()
+					val queryModels = funModel.queryModels
 					if (queryModels.isNotEmpty()) {
 						buildQueries(queryModels)
 					}
-					val partModels = valueParameterModels.filterIsInstance<PartModel>()
-					if (partModels.isNotEmpty()) {
-						buildParts(partModels)
-					}
-					val fieldModels = valueParameterModels.filterIsInstance<FieldModel>()
-					if (fieldModels.isNotEmpty()) {
-						buildFields(fieldModels)
-					}
-					val cookieModels = valueParameterModels.filterIsInstance<CookieModel>()
+					val cookieModels = funModel.cookieModels
 					if (cookieModels.isNotEmpty()) {
 						buildCookies(cookieModels)
 					}
-					val attributeModels = valueParameterModels.filterIsInstance<AttributeModel>()
+					val attributeModels = funModel.attributeModels
 					if (attributeModels.isNotEmpty()) {
 						buildAttributes(attributeModels)
 					}
 					if (this@with is MockClientCodeBlock) {
-						val pathModels = valueParameterModels.filterIsInstance<PathModel>()
+						val pathModels = funModel.pathModels
 						if (pathModels.isNotEmpty()) {
 							buildPaths(pathModels)
 						}
 					}
-					val bodyModel = valueParameterModels.filterIsInstance<BodyModel>().firstOrNull()
-					if (bodyModel != null) {
-						buildBody(bodyModel)
+					val requestBodyModel = funModel.requestBodyModel
+					when (funModel.requestBodyModel) {
+						is BodyModel -> buildBody(requestBodyModel)
+						is FieldModels -> buildFields(requestBodyModel.fieldModels)
+						is PartModels -> buildParts(requestBodyModel.partModels)
+						null -> {}
 					}
 				}
 			}
@@ -80,7 +61,7 @@ internal class HttpCodeBlockBuilder(
 	private fun CodeBlock.Builder.buildTryCatchIfNeed(
 		builder: CodeBlock.Builder.() -> Unit
 	) {
-		if (returnStructure.returnKind == ReturnKind.Result) {
+		if (funModel.returnModel.returnKind == ReturnKind.Result) {
 			beginControlFlow("return try")
 			builder()
 			nextControlFlow("catch (e: %T)", TypeNames.CancellationException)
@@ -94,31 +75,24 @@ internal class HttpCodeBlockBuilder(
 	}
 	
 	private fun getClientCodeBlock(): ClientCodeBlock {
-		return when (this.codeBlockKClass) {
-			HttpClientCodeBlock::class -> {
-				HttpClientCodeBlock(returnStructure)
-			}
-			
-			MockClientCodeBlock::class -> {
-				val mockModel = funStructure.funModels.first { it is MockModel } as MockModel
-				MockClientCodeBlock(mockModel, returnStructure)
-			}
-			
-			else -> error("不支持的类型")
+		val mockModel = funModel.mockModel
+		return if (mockModel != null) {
+			MockClientCodeBlock(mockModel, funModel.returnModel)
+		} else {
+			HttpClientCodeBlock(funModel.returnModel)
 		}
 	}
 	
 	private fun parseToFullUrl(url: String): String {
-		val pathModels = valueParameterModels.filterIsInstance<PathModel>()
+		val pathModels = funModel.pathModels
 		val initialUrl = if (url.isHttpOrHttps()) url else {
-			val apiUrl = apiStructure.url
-			if (url.isHttpOrHttps()) return url
-			if (apiUrl == null) return url
+			val apiUrl = classModel.apiUrl
+			if (apiUrl == null || url.isHttpOrHttps()) return url
 			"$apiUrl/$url"
 		}
 		val fullUrl = pathModels.fold(initialUrl) { acc, it ->
 			it.parameter.compileCheck(url.contains("{${it.name}}")) {
-				val funName = funStructure.funName
+				val funName = funModel.funName
 				"$funName 函数上的 ${it.varName} 参数上的 @Path 注解的 name 参数没有在 url 上找到"
 			}
 			acc.replace("{${it.name}}", $$"${$${it.varName}}")

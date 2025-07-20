@@ -14,5 +14,5 @@ internal class FunModel(
 	val headerModels: List<HeaderModel>,
 	val cookieModels: List<CookieModel>,
 	val attributeModels: List<AttributeModel>,
-	val requestBody: RequestBody?
+	val requestBodyModel: RequestBodyModel?
 )

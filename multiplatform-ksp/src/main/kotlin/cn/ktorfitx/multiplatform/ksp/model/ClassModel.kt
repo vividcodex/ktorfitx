@@ -1,12 +1,13 @@
-package cn.ktorfitx.multiplatform.ksp.model.structure
+package cn.ktorfitx.multiplatform.ksp.model
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
 
-internal class ClassStructure(
+internal class ClassModel(
 	val className: ClassName,
 	val superinterface: ClassName,
 	val kModifier: KModifier,
-	val apiStructure: ApiStructure,
-	val funStructures: List<FunStructure>,
+	val apiUrl: String?,
+	val apiScopeModels: List<ApiScopeModel>,
+	val funModels: List<FunModel>,
 )

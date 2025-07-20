@@ -14,8 +14,10 @@ class KtorfitxConfig internal constructor() {
 	var token: (suspend () -> String?)? = null
 		private set
 	
-	var httpClient: HttpClient? = null
-		private set
+	private var _httpClient: HttpClient? = null
+	
+	val httpClient: HttpClient
+		get() = _httpClient!!
 	
 	private var httpClientBlock: HttpClientBlock? = null
 	
@@ -32,8 +34,7 @@ class KtorfitxConfig internal constructor() {
 	}
 	
 	fun <AS : Any> build(): Ktorfitx<AS> {
-		this.token = this.token ?: { null }
-		this.httpClient = if (httpClientBlock == null) HttpClient() else with(httpClientBlock!!) {
+		this._httpClient = if (httpClientBlock == null) HttpClient() else with(httpClientBlock!!) {
 			HttpClient(engine) {
 				defaultRequest {
 					if (baseUrl != null) {

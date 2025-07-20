@@ -1,4 +1,4 @@
-package cn.ktorfitx.server.ksp.model
+package cn.ktorfitx.multiplatform.ksp.model
 
 internal class PartModels(
 	val partModels: List<PartModel>

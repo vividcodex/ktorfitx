@@ -1,7 +1,7 @@
-package cn.ktorfitx.multiplatform.ksp.model.model
+package cn.ktorfitx.multiplatform.ksp.model
 
 internal class CookieModel(
-	override val varName: String,
+	val varName: String,
 	val name: String,
 	val maxAge: Int?,
 	val expires: Long?,
@@ -10,4 +10,4 @@ internal class CookieModel(
 	val secure: Boolean?,
 	val httpOnly: Boolean?,
 	val extensions: Map<String, String?>?
-) : ValueParameterModel
+)

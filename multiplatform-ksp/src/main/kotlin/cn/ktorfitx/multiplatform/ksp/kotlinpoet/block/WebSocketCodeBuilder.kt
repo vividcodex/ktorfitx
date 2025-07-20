@@ -3,28 +3,27 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.common.ksp.util.expends.isWSOrWSS
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
-import cn.ktorfitx.multiplatform.ksp.model.model.ApiModel
-import cn.ktorfitx.multiplatform.ksp.model.model.TimeoutModel
-import cn.ktorfitx.multiplatform.ksp.model.structure.ClassStructure
-import cn.ktorfitx.multiplatform.ksp.model.structure.FunStructure
+import cn.ktorfitx.multiplatform.ksp.model.ClassModel
+import cn.ktorfitx.multiplatform.ksp.model.FunModel
+import cn.ktorfitx.multiplatform.ksp.model.TimeoutModel
+import cn.ktorfitx.multiplatform.ksp.model.WebSocketModel
 import com.squareup.kotlinpoet.CodeBlock
 
 internal class WebSocketCodeBuilder(
-	classStructure: ClassStructure,
-	funStructure: FunStructure,
+	private val classModel: ClassModel,
+	private val funModel: FunModel,
+	private val webSocketModel: WebSocketModel,
 	private val tokenVarName: String?
 ) {
 	
-	private val apiStructure = classStructure.apiStructure
-	private val funModels = funStructure.funModels
-	private val parameterModels = funStructure.parameterModels
+	private val parameterModels = funModel.parameterModels
 	
 	fun CodeBlock.Builder.buildCodeBlock() {
 		fileSpecBuilder.addImport(PackageNames.KTOR_WEBSOCKET, "webSocket")
-		addStatement("this.config.httpClient!!.webSocket(")
+		addStatement("this.config.httpClient.webSocket(")
 		indent()
 		addStatement("urlString = %S,", parseToFullUrl())
-		buildRequestParam(
+		buildRequestCodeBlock(
 			buildBearerAuth = { buildBearerAuth(it) },
 			buildTimeout = { buildTimeout(it) }
 		)
@@ -34,26 +33,22 @@ internal class WebSocketCodeBuilder(
 	}
 	
 	private fun parseToFullUrl(): String {
-		val url = funModels.filterIsInstance<ApiModel>().first().url
+		val url = webSocketModel.url
 		if (url.isWSOrWSS()) return url
-		val apiUrl = apiStructure.url
+		val apiUrl = classModel.apiUrl
 		if (apiUrl == null) return url
 		return "$apiUrl/$url"
 	}
 	
-	private fun CodeBlock.Builder.buildRequestParam(
+	private fun CodeBlock.Builder.buildRequestCodeBlock(
 		buildBearerAuth: CodeBlock.Builder.(String) -> Unit,
 		buildTimeout: CodeBlock.Builder.(timeoutModel: TimeoutModel) -> Unit
 	) {
-		val timeoutModel = funModels.filterIsInstance<TimeoutModel>().firstOrNull()
+		val timeoutModel = funModel.timeoutModel
 		if (tokenVarName == null && timeoutModel == null) return
 		beginControlFlow("request = ")
-		if (tokenVarName != null) {
-			buildBearerAuth(tokenVarName)
-		}
-		if (timeoutModel != null) {
-			buildTimeout(timeoutModel)
-		}
+		tokenVarName?.let { buildBearerAuth(it) }
+		timeoutModel?.let { buildTimeout(it) }
 		endControlFlow()
 		add(",")
 	}

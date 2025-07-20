@@ -36,7 +36,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 				headerModels = function.getHeaderModels(),
 				cookieModels = function.getCookieModels(),
 				attributeModels = function.getAttributeModels(),
-				requestBody = function.getRequestBody(routeModel),
+				requestBodyModel = function.getRequestBody(routeModel),
 			)
 		}
 	}
