@@ -33,3 +33,9 @@ fun complexTest2(
 	@Attribute attribute1: Int,
 	@Attribute("custom5") attribute2: String?,
 ): String = ""
+
+@Authentication
+@POST("complex/{name}")
+fun pathTest2(
+	@Path name: String
+): String = ""

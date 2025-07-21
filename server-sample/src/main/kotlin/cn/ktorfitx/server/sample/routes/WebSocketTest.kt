@@ -1,14 +1,18 @@
 package cn.ktorfitx.server.sample.routes
 
-import cn.ktorfitx.server.annotation.Authentication
-import cn.ktorfitx.server.annotation.Query
-import cn.ktorfitx.server.annotation.WebSocket
-import cn.ktorfitx.server.annotation.WebSocketRaw
+import cn.ktorfitx.server.annotation.*
 
 @WebSocket("/websocket/test1")
 fun testWebSocket1(
 	@Query name: String,
 	@Query("custom") name2: String
+) {
+
+}
+
+@WebSocket("/websocket/{id}")
+fun testWebSocket2(
+	@Path id: Int
 ) {
 
 }

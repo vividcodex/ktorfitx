@@ -21,8 +21,6 @@ internal class RouteKotlinPoet {
         生成时间：%L
         """.trimIndent()
 	
-	private val funNames = mutableListOf<String>()
-	
 	fun getFileSpec(
 		generatorModel: RouteGeneratorModel,
 		funModels: List<FunModel>
@@ -145,25 +143,32 @@ internal class RouteKotlinPoet {
 	private fun CodeBlock.Builder.buildCodeBlock(
 		funModel: FunModel
 	) {
-		RouteCodeBlock(funModel).apply {
+		with(RouteCodeBlock(funModel)) {
 			val funName = getFunNameAndImport(funModel)
 			addCodeBlock(funName)
 		}
 	}
 	
+	private val funNameCanonicalNamesMap = mutableMapOf<String, MutableSet<String>>()
+	
 	private fun getFunNameAndImport(funModel: FunModel): String {
-		var i = 0
-		var funName = funModel.funName
-		while (funName in funNames) {
-			funName = funModel.funName + i++
-		}
-		funNames += funName
-		if (i == 0) {
+		val canonicalNames = funNameCanonicalNamesMap.getOrPut(funModel.funName) { mutableSetOf() }
+		if (canonicalNames.isEmpty()) {
+			canonicalNames += funModel.canonicalName
 			fileSpecBuilder.addImport(funModel.canonicalName, funModel.funName)
-		} else {
-			val memberName = MemberName(funModel.canonicalName, funModel.funName, funModel.isExtension)
-			fileSpecBuilder.addAliasedImport(memberName, funName)
+			return funModel.funName
 		}
+		if (funModel.canonicalName in canonicalNames) {
+			return funModel.funName
+		}
+		var i = 0
+		var funName = funModel.funName + i
+		while (funName in funNameCanonicalNamesMap) {
+			funName = funModel.funName + ++i
+		}
+		funNameCanonicalNamesMap[funName] = mutableSetOf(funModel.canonicalName)
+		val memberName = MemberName(funModel.canonicalName, funModel.funName, funModel.isExtension)
+		fileSpecBuilder.addAliasedImport(memberName, funName)
 		return funName
 	}
 }

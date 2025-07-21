@@ -1,5 +1,6 @@
 package cn.ktorfitx.server.sample.routes
 
+import cn.ktorfitx.server.annotation.GET
 import cn.ktorfitx.server.annotation.POST
 import cn.ktorfitx.server.annotation.Path
 
@@ -7,4 +8,9 @@ import cn.ktorfitx.server.annotation.Path
 fun pathTest1(
 	@Path parent: String,
 	@Path("custom") child: Int
+): String = ""
+
+@GET("path/test2/{id}")
+fun pathTest2(
+	@Path id: Int
 ): String = ""

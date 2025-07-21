@@ -26,7 +26,8 @@ internal class RouteCodeBlock(
 	}
 	
 	private fun CodeBlock.Builder.addPrincipalsCodeBlock() {
-		val principalModels = funModel.principalModels.takeIf { it.isNotEmpty() } ?: return
+		val principalModels = funModel.principalModels
+		if (principalModels.isEmpty()) return
 		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_AUTH, "principal")
 		principalModels.forEach {
 			val nullSafety = if (it.isNullable) "" else "!!"
@@ -39,7 +40,8 @@ internal class RouteCodeBlock(
 	}
 	
 	private fun CodeBlock.Builder.addQueriesCodeBlock() {
-		val queryModels = funModel.queryModels.takeIf { it.isNotEmpty() } ?: return
+		val queryModels = funModel.queryModels
+		if (queryModels.isEmpty()) return
 		val varName = getVarName("queryParameters")
 		addStatement("val %N = this.call.request.queryParameters", varName)
 		queryModels.forEach {
@@ -58,9 +60,11 @@ internal class RouteCodeBlock(
 	}
 	
 	private fun CodeBlock.Builder.addPathsCodeBlock() {
-		val pathModels = funModel.pathModels.takeIf { it.isNotEmpty() } ?: return
-		val varName = getVarName("pathParameters")
-		addStatement("val %N = this.call.pathParameters", varName)
+		val pathModels = funModel.pathModels
+		if (pathModels.isEmpty()) return
+		val isWebSocket = funModel.routeModel !is HttpRequestModel
+		val varName = getVarName(if (isWebSocket) "parameters" else "pathParameters")
+		addStatement("val %N = this.call.%N", varName, if (isWebSocket) "parameters" else "pathParameters")
 		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_UTIL, "getOrFail")
 		pathModels.forEach {
 			if (it.typeName == ClassNames.String) {
@@ -72,7 +76,8 @@ internal class RouteCodeBlock(
 	}
 	
 	private fun CodeBlock.Builder.addHeadersCodeBlock() {
-		val headerModels = funModel.headerModels.takeIf { it.isNotEmpty() } ?: return
+		val headerModels = funModel.headerModels
+		if (headerModels.isEmpty()) return
 		val varName = getVarName("headers")
 		addStatement("val %N = this.call.request.headers", varName)
 		headerModels.forEach {
@@ -81,7 +86,8 @@ internal class RouteCodeBlock(
 	}
 	
 	private fun CodeBlock.Builder.addCookiesCodeBlock() {
-		val cookieModels = funModel.cookieModels.takeIf { it.isNotEmpty() } ?: return
+		val cookieModels = funModel.cookieModels
+		if (cookieModels.isEmpty()) return
 		val varName = getVarName("cookies")
 		addStatement("val %N = this.call.request.cookies", varName)
 		cookieModels.forEach {
@@ -90,7 +96,8 @@ internal class RouteCodeBlock(
 	}
 	
 	private fun CodeBlock.Builder.addAttributesCodeBlock() {
-		val attributeModels = funModel.attributeModels.takeIf { it.isNotEmpty() } ?: return
+		val attributeModels = funModel.attributeModels
+		if (attributeModels.isEmpty()) return
 		val varName = getVarName("attributes")
 		addStatement("val %N = this.call.attributes", varName)
 		fileSpecBuilder.addImport(PackageNames.KTOR_UTIL, "AttributeKey")
