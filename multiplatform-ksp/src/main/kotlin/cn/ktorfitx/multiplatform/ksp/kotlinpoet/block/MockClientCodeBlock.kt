@@ -139,20 +139,20 @@ internal class MockClientCodeBlock(
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK, "MockClient")
 		cookieModels.forEach { model ->
 			val codeBlock = buildCodeBlock {
-				add("this.append(\n")
+				addStatement("this.append(")
 				indent()
-				add("name = %S,\n", model.name)
-				add("value = %N,\n", model.varName)
-				model.maxAge?.let { add("maxAge = %L,\n", it) }
+				addStatement("name = %S,", model.name)
+				addStatement("value = %N,", model.varName)
+				model.maxAge?.let { addStatement("maxAge = %L,", it) }
 				model.expires?.let {
 					fileSpecBuilder.addImport(PackageNames.KTOR_UTIL_DATE, "GMTDate")
-					add("expires = %L,\n", "GMTDate(${it}L)")
+					addStatement("expires = GMTDate(%LL),", it)
 				}
-				model.domain?.let { add("domain = %S,\n", it) }
-				model.path?.let { add("path = %S,\n", it) }
-				model.secure?.let { add("secure = %L,\n", it) }
-				model.httpOnly?.let { add("httpOnly = %L,\n", it) }
-				model.extensions?.let { add("extensions = %L,\n", it.toCodeBlock()) }
+				model.domain?.let { addStatement("domain = %S,", it) }
+				model.path?.let { addStatement("path = %S,", it) }
+				model.secure?.let { addStatement("secure = %L,", it) }
+				model.httpOnly?.let { addStatement("httpOnly = %L,", it) }
+				model.extensions?.let { addStatement("extensions = %L,", it.toCodeBlock()) }
 				unindent()
 				add(")\n")
 			}
