@@ -31,7 +31,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			varNames = function.getVarNames(),
 			principalModels = function.getPrincipalModels(),
 			queryModels = function.getQueryModels(),
-			pathModels = function.getPathModels(routeModel.path),
+			pathModels = function.getPathModels(routeModel),
 			headerModels = function.getHeaderModels(),
 			cookieModels = function.getCookieModels(),
 			attributeModels = function.getAttributeModels(),
@@ -104,7 +104,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 						"${simpleName.asString()} 是扩展函数，但仅允许扩展 DefaultWebSocketServerSession"
 					}
 				}
-				WebSocketModel(path, protocol)
+				WebSocketModel(path, protocol, annotation)
 			}
 			
 			ClassNames.WebSocketRaw -> {
@@ -116,7 +116,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 						"${simpleName.asString()} 是扩展函数，但仅允许扩展 WebSocketServerSession"
 					}
 				}
-				WebSocketRawModel(path, protocol, negotiateExtensions)
+				WebSocketRawModel(path, protocol, negotiateExtensions, annotation)
 			}
 			
 			else -> {
@@ -126,7 +126,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 						"${simpleName.asString()} 是扩展函数，但仅允许扩展 RoutingContext"
 					}
 				}
-				HttpRequestModel(path, className)
+				HttpRequestModel(path, className, annotation)
 			}
 		}
 	}

@@ -67,3 +67,12 @@ fun String.camelToHeaderCase(): String {
 		"${it.groupValues[1]}-${it.groupValues[2]}"
 	}.replaceFirstChar { it.uppercaseChar() }
 }
+
+fun String.isValidRegex(): Boolean {
+	return try {
+		Regex(this)
+		true
+	} catch (_: Exception) {
+		false
+	}
+}

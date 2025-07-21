@@ -14,3 +14,8 @@ fun pathTest1(
 fun pathTest2(
 	@Path id: Int
 ): String = ""
+
+@GET("path/test2/{id}")
+fun pathTest3(
+	@Path(regex = "[0-9]+") id: Int
+): String = ""

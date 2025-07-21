@@ -56,8 +56,8 @@ internal fun KSFunctionDeclaration.getQueryModels(): List<QueryModel> {
 	}
 }
 
-internal fun KSFunctionDeclaration.getPathModels(path: String): List<PathModel> {
-	val pathParameters = extractPathParameters(path)
+internal fun KSFunctionDeclaration.getPathModels(routeModel: RouteModel): List<PathModel> {
+	val pathParameters = extractPathParameters(routeModel)
 	val residuePathParameters = pathParameters.toMutableSet()
 	val pathModels = this.parameters.mapNotNull { parameter ->
 		val annotation = parameter.getKSAnnotationByType(ClassNames.Path) ?: return@mapNotNull null
@@ -75,7 +75,13 @@ internal fun KSFunctionDeclaration.getPathModels(path: String): List<PathModel> 
 		parameter.compileCheck(!typeName.isNullable) {
 			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数不允许可空"
 		}
-		PathModel(name, varName, typeName)
+		val regex = annotation.getValueOrNull<String>("regex")?.takeIf { it.isNotEmpty() }
+		if (regex != null) {
+			parameter.compileCheck(regex.isValidRegex()) {
+				"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数的 @Path 注解的 regex 参数不是一个合法的正则表达式"
+			}
+		}
+		PathModel(name, varName, typeName, regex)
 	}
 	this.compileCheck(residuePathParameters.isEmpty()) {
 		"${simpleName.asString()} 函数未解析以下 ${residuePathParameters.size} 个 path 参数：${residuePathParameters.joinToString { it }}"
@@ -85,11 +91,15 @@ internal fun KSFunctionDeclaration.getPathModels(path: String): List<PathModel> 
 
 private val pathRegex = "\\{([^}]+)}".toRegex()
 
-private fun extractPathParameters(path: String): Set<String> {
-	val matches = pathRegex.findAll(path)
+private fun KSFunctionDeclaration.extractPathParameters(routeModel: RouteModel): Set<String> {
+	val matches = pathRegex.findAll(routeModel.path)
 	val params = mutableSetOf<String>()
 	for (match in matches) {
-		params += match.groupValues[1]
+		val param = match.groupValues[1]
+		routeModel.annotation.compileCheck(param !in params) {
+			"${simpleName.asString()} 函数的 ${routeModel.annotation} 注解的 path 参数中不允许使用相同的 path 参数名称"
+		}
+		params += param
 	}
 	return params
 }

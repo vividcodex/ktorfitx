@@ -94,7 +94,7 @@ internal class RouteKotlinPoet {
 			)
 			""".trimIndent(),
 			method,
-			httpRequestModel.path
+			httpRequestModel.path.applyRegexToPathParameters(funModel.pathModels)
 		)
 		buildCodeBlock(funModel)
 		endControlFlow()
@@ -113,7 +113,7 @@ internal class RouteKotlinPoet {
 				negotiateExtensions = %L
 			)
 			""".trimIndent(),
-			webSocketRawModel.path,
+			webSocketRawModel.path.applyRegexToPathParameters(funModel.pathModels),
 			webSocketRawModel.protocol.ifBlank { null },
 			webSocketRawModel.negotiateExtensions
 		)
@@ -133,11 +133,22 @@ internal class RouteKotlinPoet {
 				protocol = %S
 			)
 			""".trimIndent(),
-			webSocketModel.path,
+			webSocketModel.path.applyRegexToPathParameters(funModel.pathModels),
 			webSocketModel.protocol.ifBlank { null }
 		)
 		buildCodeBlock(funModel)
 		endControlFlow()
+	}
+	
+	private fun String.applyRegexToPathParameters(
+		pathModels: List<PathModel>
+	): String {
+		if (pathModels.all { it.regex == null }) return this
+		var oldPath = this
+		pathModels.filter { it.regex != null }.forEach {
+			oldPath = oldPath.replace("{${it.name}}", "{${it.name}<${it.regex}>}")
+		}
+		return oldPath
 	}
 	
 	private fun CodeBlock.Builder.buildCodeBlock(
