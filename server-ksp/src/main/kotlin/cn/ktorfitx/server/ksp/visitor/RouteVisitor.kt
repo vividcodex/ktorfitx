@@ -19,6 +19,9 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		function: KSFunctionDeclaration,
 		data: Unit
 	): FunModel {
+		function.compileCheck(!(function.isGeneric())) {
+			"${function.simpleName.asString()} 函数不允许包含泛型"
+		}
 		val routeModel = function.getRouteModel()
 		function.checkReturnType(routeModel is HttpRequestModel)
 		return FunModel(
