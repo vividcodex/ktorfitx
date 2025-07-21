@@ -1,4 +1,4 @@
-# KtorfitX 3.2.2-3.0.0-RC4
+# KtorfitX 3.2.2-3.0.0
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -30,18 +30,23 @@ Android, IOS, Desktop (JVM), WasmJs, Js, Ktor Server
 
 请使用和 ktorfitx 相同版本的 ktor 版本，以保证他们的最佳兼容性
 
-### 目前所有依赖项
+### 全部依赖
 
+Kotlin Multiplatform
 - cn.ktorfitx:multiplatform-core
 - cn.ktorfitx:multiplatform-annotation
 - cn.ktorfitx:multiplatform-websockets
 - cn.ktorfitx:multiplatform-mock
 - cn.ktorfitx:multiplatform-ksp
+
+Ktor Server
 - cn.ktorfitx:server-core
 - cn.ktorfitx:server-annotation
 - cn.ktorfitx:server-websockets
 - cn.ktorfitx:server-auth
 - cn.ktorfitx:server-ksp
+
+Common
 - cn.ktorfitx:common-ksp-util
 
 ## 注解介绍
