@@ -1,4 +1,4 @@
-# KtorfitX 3.2.2-3.0.0-RC3
+# KtorfitX 3.2.2-3.0.0-RC4
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,7 +6,7 @@
 
 ## 更新时间
 
-### 2025-07-18
+### 2025-07-21
 
 ## 项目简介
 
@@ -110,20 +110,20 @@ Android, IOS, Desktop (JVM), WasmJs, Js, Ktor Server
 - `@PartFile` form-data 文件
 - `@PartBinary` form-data 二进制参数
 - `@PartBinaryChannel` form-data 数据流
-- `@Path` path 参数
+- `@Path` path 参数，支持正则表达式
 - `@Query` 查询参数
 
 ## 迁移 从 2.x 迁移至 3.x
 
 - 修改了依赖包名
 
-请将依赖包改为：cn.ktorfitx 下的依赖包，旧的：cn.vividcode.multiplatform 包现在已经处于暂停开发状态
+请将依赖包改为 `cn.ktorfitx` 下的 GroupId，旧的 `cn.vividcode.multiplatform` GroupId 现在已弃用
 
 - ktorfitx-api 模块拆分为 multiplatform-core 和 multiplatform-mock 模块
 
-- 服务端
+- 支持服务端
 
-添加 Ktor Server 端支持，标记注解，符号处理器会自动生成对应的路由函数，您您只需要调用它就可以了
+添加 Ktor Server 端支持，标记注解，符号处理器会自动生成对应的路由解析函数，包含参数解析授权等行为
 
 ## 使用方法
 
@@ -140,7 +140,7 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val ktorfitxVersion = "3.2.2-3.0.0-RC3"
+val ktorfitxVersion = "<latest>"
 
 kotlin {
     sourceSets {
@@ -202,7 +202,7 @@ kotlin {
 }
 
 dependencies {
-    val ktorfitxVersion = "3.2.2-3.0.0-RC3"
+    val ktorfitxVersion = "<latest>"
 
     // 注解（必选）
     implementation("cn.ktorfitx:server-core:$ktorfitxVersion")
@@ -227,6 +227,6 @@ dependencies {
 支持编译期错误检查，当您使用的方式不正确时，Ktorfitx 将会在编译期提供错误检查，
 以帮助用户更快的定位错误
 
-## 异常处理及返回值
+## 异常处理及返回类型
 
-当返回值是 `Result<T>` 时，会自动处理异常，否则需要自行处理异常
+当返回值是 `Result<T>` 时，会自动处理异常，反之则需要自行处理异常逻辑
