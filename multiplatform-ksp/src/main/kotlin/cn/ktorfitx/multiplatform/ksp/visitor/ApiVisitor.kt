@@ -30,6 +30,9 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassModel>() {
 	): ClassModel = classDeclaration.getClassModel()
 	
 	private fun KSClassDeclaration.getClassModel(): ClassModel {
+		this.compileCheck(!(this.isGeneric())) {
+			"${simpleName.asString()} 接口不允许包含泛型"
+		}
 		val className = ClassName("${packageName.asString()}.impls", "${simpleName.asString()}Impl")
 		val superinterface = this.toClassName()
 		return ClassModel(

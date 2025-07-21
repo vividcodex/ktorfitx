@@ -21,4 +21,11 @@ interface TestAttributeApi {
 		@Attribute name: String,
 		@Attribute("custom") age: Int
 	): String
+	
+	@POST("test1")
+	@Mock(StringMockProvider::class)
+	suspend fun test3(
+		@Attribute name: String,
+		@Attribute("custom") age: Int
+	): String
 }

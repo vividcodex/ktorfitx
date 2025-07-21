@@ -219,6 +219,9 @@ internal fun KSFunctionDeclaration.getMockModel(isWebSocket: Boolean): MockModel
 }
 
 internal fun KSFunctionDeclaration.getParameterModels(isWebSocket: Boolean): List<ParameterModel> {
+	this.compileCheck(!(this.isGeneric())) {
+		"${simpleName.asString()} 函数不允许包含泛型"
+	}
 	return if (isWebSocket) {
 		val errorMessage = {
 			"${simpleName.asString()} 函数只允许一个参数，且类型为 WebSocketSessionHandler 别名 或 suspend DefaultClientWebSocketSession.() -> Unit"

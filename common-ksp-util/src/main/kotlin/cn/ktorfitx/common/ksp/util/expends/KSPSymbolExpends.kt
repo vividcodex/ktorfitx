@@ -115,4 +115,6 @@ fun KSFunctionDeclaration.isExtension(className: ClassName): Boolean {
 	return this.extensionReceiver?.resolve()?.declaration?.qualifiedName?.asString() == className.canonicalName
 }
 
-private val UnitClassName = ClassName("kotlin", "Unit")
+fun KSDeclaration.isGeneric(): Boolean {
+	return this.typeParameters.isNotEmpty()
+}
