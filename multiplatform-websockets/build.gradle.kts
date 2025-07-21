@@ -150,7 +150,7 @@ mavenPublishing {
 	
 	pom {
 		name.set("multiplatform-websockets")
-		description.set("Ktorfitx 基于 KSP2 的代码生成框架，在 Kotlin Multiplatform 中是 RESTful API 框架，在 Ktor Server 中是 路由生成框架")
+		description.set("Ktorfitx 基于 KSP2 的代码生成框架，在 Kotlin Multiplatform 中是 RESTful API 框架，在 Ktor Server 中是 路由以及参数解析框架")
 		inceptionYear.set("2025")
 		url.set("https://github.com/vividcodex/ktorfitx")
 		licenses {
