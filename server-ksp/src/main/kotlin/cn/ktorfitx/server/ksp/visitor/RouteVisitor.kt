@@ -2,7 +2,7 @@ package cn.ktorfitx.server.ksp.visitor
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.expends.*
-import cn.ktorfitx.server.ksp.constants.ClassNames
+import cn.ktorfitx.server.ksp.constants.TypeNames
 import cn.ktorfitx.server.ksp.model.*
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -48,7 +48,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	}
 	
 	private fun KSFunctionDeclaration.getGroupName(): String? {
-		val annotation = this.getKSAnnotationByType(ClassNames.Group) ?: return null
+		val annotation = this.getKSAnnotationByType(TypeNames.Group) ?: return null
 		return annotation.getValue("name")
 	}
 	
@@ -66,25 +66,25 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			this.compileCheck(validType) {
 				"${simpleName.asString()} 函数返回类型必须是明确的类"
 			}
-			this.compileCheck(typeName != ClassNames.Unit && typeName != ClassNames.Nothing) {
+			this.compileCheck(typeName != TypeNames.Unit && typeName != TypeNames.Nothing) {
 				"${simpleName.asString()} 函数不允许使用 Unit 和 Nothing 返回类型"
 			}
 		} else {
-			this.compileCheck(typeName == ClassNames.Unit) {
+			this.compileCheck(typeName == TypeNames.Unit) {
 				"${simpleName.asString()} 函数是 WebSocket 类型，返回类型必须是 Unit"
 			}
 		}
 	}
 	
 	private fun KSFunctionDeclaration.getAuthenticationModel(): AuthenticationModel? {
-		val annotation = this.getKSAnnotationByType(ClassNames.Authentication) ?: return null
+		val annotation = this.getKSAnnotationByType(TypeNames.Authentication) ?: return null
 		val configurations = annotation.getValues<String>("configurations")
 		val strategy = annotation.getClassName("strategy")
 		return AuthenticationModel(configurations, strategy)
 	}
 	
 	private fun KSFunctionDeclaration.getRouteModel(): RouteModel {
-		val dataList = ClassNames.routes.mapNotNull {
+		val dataList = TypeNames.routes.mapNotNull {
 			this.getKSAnnotationByType(it)?.let(it::to)
 		}
 		this.compileCheck(dataList.size == 1) {
@@ -96,10 +96,10 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		val path = annotation.getValue<String>("path").removePrefix("/").removeSuffix("/")
 		val isExtension = this.extensionReceiver != null
 		return when (className) {
-			ClassNames.WebSocket -> {
+			TypeNames.WebSocket -> {
 				val protocol = annotation.getValueOrNull("protocol") ?: ""
 				if (isExtension) {
-					val valid = this.isExtension(ClassNames.DefaultWebSocketServerSession)
+					val valid = this.isExtension(TypeNames.DefaultWebSocketServerSession)
 					this.compileCheck(valid) {
 						"${simpleName.asString()} 是扩展函数，但仅允许扩展 DefaultWebSocketServerSession"
 					}
@@ -107,11 +107,11 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 				WebSocketModel(path, protocol, annotation)
 			}
 			
-			ClassNames.WebSocketRaw -> {
+			TypeNames.WebSocketRaw -> {
 				val protocol = annotation.getValueOrNull("protocol") ?: ""
 				val negotiateExtensions = annotation.getValueOrNull("negotiateExtensions") ?: false
 				if (isExtension) {
-					val valid = this.isExtension(ClassNames.WebSocketServerSession)
+					val valid = this.isExtension(TypeNames.WebSocketServerSession)
 					this.compileCheck(valid) {
 						"${simpleName.asString()} 是扩展函数，但仅允许扩展 WebSocketServerSession"
 					}
@@ -121,7 +121,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			
 			else -> {
 				if (isExtension) {
-					val valid = this.isExtension(ClassNames.RoutingContext)
+					val valid = this.isExtension(TypeNames.RoutingContext)
 					this.compileCheck(valid) {
 						"${simpleName.asString()} 是扩展函数，但仅允许扩展 RoutingContext"
 					}

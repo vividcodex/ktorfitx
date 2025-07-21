@@ -3,7 +3,7 @@ package cn.ktorfitx.server.ksp.visitor
 import cn.ktorfitx.common.ksp.util.check.compileCheck
 import cn.ktorfitx.common.ksp.util.check.ktorfitxError
 import cn.ktorfitx.common.ksp.util.expends.*
-import cn.ktorfitx.server.ksp.constants.ClassNames
+import cn.ktorfitx.server.ksp.constants.TypeNames
 import cn.ktorfitx.server.ksp.model.*
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
@@ -12,13 +12,13 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 
 internal fun KSFunctionDeclaration.getVarNames(): List<String> {
 	return this.parameters.map { parameter ->
-		val count = ClassNames.parameterAnnotations.count { parameter.hasAnnotation(it) }
+		val count = TypeNames.parameterAnnotations.count { parameter.hasAnnotation(it) }
 		parameter.compileCheck(count > 0) {
-			val annotations = ClassNames.parameterAnnotations.joinToString { "@${it.simpleName}" }
+			val annotations = TypeNames.parameterAnnotations.joinToString { "@${it.simpleName}" }
 			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数必须使用 $annotations 注解中的一个"
 		}
 		parameter.compileCheck(count == 1) {
-			val annotations = ClassNames.parameterAnnotations.joinToString { "@${it.simpleName}" }
+			val annotations = TypeNames.parameterAnnotations.joinToString { "@${it.simpleName}" }
 			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数只允许使用 $annotations 注解中的一个"
 		}
 		parameter.name!!.asString()
@@ -27,7 +27,7 @@ internal fun KSFunctionDeclaration.getVarNames(): List<String> {
 
 internal fun KSFunctionDeclaration.getPrincipalModels(): List<PrincipalModel> {
 	return this.parameters.mapNotNull { parameter ->
-		val annotation = parameter.getKSAnnotationByType(ClassNames.Principal) ?: return@mapNotNull null
+		val annotation = parameter.getKSAnnotationByType(TypeNames.Principal) ?: return@mapNotNull null
 		val varName = parameter.name!!.asString()
 		var typeName = parameter.type.toTypeName()
 		val isNullable = typeName.isNullable
@@ -41,14 +41,14 @@ internal fun KSFunctionDeclaration.getPrincipalModels(): List<PrincipalModel> {
 
 internal fun KSFunctionDeclaration.getQueryModels(): List<QueryModel> {
 	return this.parameters.mapNotNull { parameter ->
-		val annotation = parameter.getKSAnnotationByType(ClassNames.Query) ?: return@mapNotNull null
+		val annotation = parameter.getKSAnnotationByType(TypeNames.Query) ?: return@mapNotNull null
 		val varName = parameter.name!!.asString()
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
 		var typeName = parameter.type.toTypeName()
 		val isNullable = typeName.isNullable
 		if (isNullable) {
 			typeName = typeName.copy(nullable = false)
-			parameter.compileCheck(typeName == ClassNames.String) {
+			parameter.compileCheck(typeName == TypeNames.String) {
 				"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数可空类型只允许 String?"
 			}
 		}
@@ -60,7 +60,7 @@ internal fun KSFunctionDeclaration.getPathModels(routeModel: RouteModel): List<P
 	val pathParameters = extractPathParameters(routeModel)
 	val residuePathParameters = pathParameters.toMutableSet()
 	val pathModels = this.parameters.mapNotNull { parameter ->
-		val annotation = parameter.getKSAnnotationByType(ClassNames.Path) ?: return@mapNotNull null
+		val annotation = parameter.getKSAnnotationByType(TypeNames.Path) ?: return@mapNotNull null
 		val varName = parameter.name!!.asString()
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
 		parameter.compileCheck(name in pathParameters) {
@@ -108,9 +108,9 @@ internal fun KSFunctionDeclaration.getRequestBody(
 	routeModel: RouteModel
 ): RequestBodyModel? {
 	val classNames = mapOf(
-		BodyModel::class to ClassNames.Body,
-		FieldModels::class to ClassNames.Field,
-		PartModels::class to arrayOf(ClassNames.PartForm, ClassNames.PartFile, ClassNames.PartBinary, ClassNames.PartBinaryChannel)
+		BodyModel::class to TypeNames.Body,
+		FieldModels::class to TypeNames.Field,
+		PartModels::class to arrayOf(TypeNames.PartForm, TypeNames.PartFile, TypeNames.PartBinary, TypeNames.PartBinaryChannel)
 	)
 	val modelKClasses = classNames.mapNotNull { entity ->
 		val exists = this.parameters.any { parameter ->
@@ -126,7 +126,7 @@ internal fun KSFunctionDeclaration.getRequestBody(
 	if (modelKClasses.isEmpty()) return null
 	this.compileCheck(
 		routeModel is HttpRequestModel &&
-			routeModel.className in arrayOf(ClassNames.POST, ClassNames.PUT, ClassNames.DELETE, ClassNames.PATCH, ClassNames.OPTIONS)
+			routeModel.className in arrayOf(TypeNames.POST, TypeNames.PUT, TypeNames.DELETE, TypeNames.PATCH, TypeNames.OPTIONS)
 	) {
 		"${simpleName.asString()} 函数的参数中不允许使用 @Body, @Field, @PartForm, @PartFile, @PartBinary, @PartBinaryChannel 注解，因为请求类型必须是 @POST, @PUT, @DELETE, @PATCH, @OPTIONS 才能使用"
 	}
@@ -143,7 +143,7 @@ internal fun KSFunctionDeclaration.getRequestBody(
 }
 
 private fun KSFunctionDeclaration.getBodyModel(): BodyModel {
-	val filters = this.parameters.filter { it.hasAnnotation(ClassNames.Body) }
+	val filters = this.parameters.filter { it.hasAnnotation(TypeNames.Body) }
 	this.compileCheck(filters.size == 1) {
 		"${simpleName.asString()} 函数参数中不允许使用多个 @Body"
 	}
@@ -158,16 +158,16 @@ private fun KSFunctionDeclaration.getBodyModel(): BodyModel {
 }
 
 private fun KSFunctionDeclaration.getFieldModels(): FieldModels {
-	val parameters = this.parameters.filter { it.hasAnnotation(ClassNames.Field) }
+	val parameters = this.parameters.filter { it.hasAnnotation(TypeNames.Field) }
 	val fieldModels = parameters.map { parameter ->
 		val varName = parameter.name!!.asString()
-		val annotation = parameter.getKSAnnotationByType(ClassNames.Field)!!
+		val annotation = parameter.getKSAnnotationByType(TypeNames.Field)!!
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
 		var typeName = parameter.type.toTypeName()
 		val isNullable = typeName.isNullable
 		if (isNullable) {
 			typeName = typeName.copy(nullable = false)
-			parameter.compileCheck(typeName == ClassNames.String) {
+			parameter.compileCheck(typeName == TypeNames.String) {
 				"${simpleName.asString()} 函数的 $varName 参数可空类型只允许 String?"
 			}
 		}
@@ -179,33 +179,33 @@ private fun KSFunctionDeclaration.getFieldModels(): FieldModels {
 private fun KSFunctionDeclaration.getPartModels(): PartModels {
 	val configs = listOf(
 		PartModelConfig(
-			annotation = ClassNames.PartForm,
+			annotation = TypeNames.PartForm,
 			classNames = listOf(
-				ClassNames.FormItem,
-				ClassNames.String
+				TypeNames.FormItem,
+				TypeNames.String
 			),
 			errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 String 和 PartData.FormItem 类型" }
 		),
 		PartModelConfig(
-			annotation = ClassNames.PartFile,
+			annotation = TypeNames.PartFile,
 			classNames = listOf(
-				ClassNames.FileItem,
-				ClassNames.ByteArray
+				TypeNames.FileItem,
+				TypeNames.ByteArray
 			),
 			errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 ByteArray 和 PartData.FileItem 类型" }
 		),
 		PartModelConfig(
-			annotation = ClassNames.PartBinary,
+			annotation = TypeNames.PartBinary,
 			classNames = listOf(
-				ClassNames.BinaryItem,
-				ClassNames.ByteArray
+				TypeNames.BinaryItem,
+				TypeNames.ByteArray
 			),
 			errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 ByteArray 和 PartData.BinaryItem 类型" }
 		),
 		PartModelConfig(
-			annotation = ClassNames.PartBinaryChannel,
+			annotation = TypeNames.PartBinaryChannel,
 			classNames = listOf(
-				ClassNames.BinaryChannelItem
+				TypeNames.BinaryChannelItem
 			),
 			errorMessage = { "${simpleName.asString()} 函数的 ${it.name!!.asString()} 参数只允许使用 PartData.BinaryChannelItem 类型" }
 		),
@@ -229,8 +229,8 @@ private fun KSFunctionDeclaration.getPartModels(
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
 		config.classNames.forEach { className ->
 			if (typeName == className) {
-				val isPartData = className in ClassNames.partDatas
-				return@map PartModel(name, varName, config.annotation, className, isNullable, isPartData)
+				val isPartData = className in TypeNames.partDatas
+				return@map PartModel(name, varName, config.annotation, isNullable, isPartData)
 			}
 		}
 		parameter.ktorfitxError {
@@ -241,7 +241,7 @@ private fun KSFunctionDeclaration.getPartModels(
 
 internal fun KSFunctionDeclaration.getHeaderModels(): List<HeaderModel> {
 	return this.parameters.mapNotNull { parameter ->
-		val annotation = parameter.getKSAnnotationByType(ClassNames.Header) ?: return@mapNotNull null
+		val annotation = parameter.getKSAnnotationByType(TypeNames.Header) ?: return@mapNotNull null
 		val varName = parameter.name!!.asString()
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName.camelToHeaderCase()
 		var typeName = parameter.type.toTypeName()
@@ -249,7 +249,7 @@ internal fun KSFunctionDeclaration.getHeaderModels(): List<HeaderModel> {
 		if (isNullable) {
 			typeName = typeName.copy(nullable = false)
 		}
-		parameter.compileCheck(typeName == ClassNames.String) {
+		parameter.compileCheck(typeName == TypeNames.String) {
 			"${simpleName.asString()} 函数的 $varName 参数只允许使用 String 类型"
 		}
 		HeaderModel(name, varName, isNullable)
@@ -258,33 +258,33 @@ internal fun KSFunctionDeclaration.getHeaderModels(): List<HeaderModel> {
 
 internal fun KSFunctionDeclaration.getCookieModels(): List<CookieModel> {
 	return this.parameters.mapNotNull { parameter ->
-		val annotation = parameter.getKSAnnotationByType(ClassNames.Cookie) ?: return@mapNotNull null
+		val annotation = parameter.getKSAnnotationByType(TypeNames.Cookie) ?: return@mapNotNull null
 		var typeName = parameter.type.toTypeName()
 		val isNullable = typeName.isNullable
 		if (isNullable) {
 			typeName = typeName.copy(nullable = false)
 		}
 		val varName = parameter.name!!.asString()
-		parameter.compileCheck(typeName == ClassNames.String) {
+		parameter.compileCheck(typeName == TypeNames.String) {
 			"${simpleName.asString()} 函数的 $varName 参数只允许使用 String 类型"
 		}
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
 		val encoding = annotation.getClassNameOrNull("encoding")?.simpleName?.let { simpleName ->
 			when (simpleName) {
-				ClassNames.CookieEncodingRaw.simpleName -> ClassNames.CookieEncodingRaw
-				ClassNames.CookieEncodingDQuotes.simpleName -> ClassNames.CookieEncodingDQuotes
-				ClassNames.CookieEncodingURIEncoding.simpleName -> ClassNames.CookieEncodingURIEncoding
-				ClassNames.CookieEncodingBase64Encoding.simpleName -> ClassNames.CookieEncodingBase64Encoding
+				TypeNames.CookieEncodingRaw.simpleName -> TypeNames.CookieEncodingRaw
+				TypeNames.CookieEncodingDQuotes.simpleName -> TypeNames.CookieEncodingDQuotes
+				TypeNames.CookieEncodingURIEncoding.simpleName -> TypeNames.CookieEncodingURIEncoding
+				TypeNames.CookieEncodingBase64Encoding.simpleName -> TypeNames.CookieEncodingBase64Encoding
 				else -> error("不支持的类型")
 			}
-		} ?: ClassNames.CookieEncodingURIEncoding
+		} ?: TypeNames.CookieEncodingURIEncoding
 		CookieModel(name, varName, isNullable, encoding)
 	}
 }
 
 internal fun KSFunctionDeclaration.getAttributeModels(): List<AttributeModel> {
 	return this.parameters.mapNotNull { parameter ->
-		val annotation = parameter.getKSAnnotationByType(ClassNames.Attribute) ?: return@mapNotNull null
+		val annotation = parameter.getKSAnnotationByType(TypeNames.Attribute) ?: return@mapNotNull null
 		var typeName = parameter.type.toTypeName()
 		val isNullable = typeName.isNullable
 		if (isNullable) {

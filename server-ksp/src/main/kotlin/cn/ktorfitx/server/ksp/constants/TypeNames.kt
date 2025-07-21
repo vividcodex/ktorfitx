@@ -2,7 +2,7 @@ package cn.ktorfitx.server.ksp.constants
 
 import com.squareup.kotlinpoet.ClassName
 
-internal object ClassNames {
+internal object TypeNames {
 	
 	val routes by lazy {
 		arrayOf(
@@ -101,6 +101,4 @@ internal object ClassNames {
 	val CookieEncodingURIEncoding = ClassName("io.ktor.http", "CookieEncoding", "URI_ENCODING")
 	
 	val CookieEncodingBase64Encoding = ClassName("io.ktor.http", "CookieEncoding", "BASE64_ENCODING")
-	
-	
 }

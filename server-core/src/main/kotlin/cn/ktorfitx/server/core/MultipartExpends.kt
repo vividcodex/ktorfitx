@@ -4,16 +4,16 @@ import io.ktor.http.content.*
 import io.ktor.utils.io.*
 import kotlinx.io.readByteArray
 
-suspend fun MultiPartData.resolve(): MultipartResolver {
+suspend fun MultiPartData.resolve(): MultiPartParameters {
 	val partDatas = mutableMapOf<String, PartData>()
 	this.forEachPart { partData ->
 		val name = partData.name ?: return@forEachPart
 		partDatas[name] = partData
 	}
-	return MultipartResolver(partDatas)
+	return MultiPartParameters(partDatas)
 }
 
-class MultipartResolver(
+class MultiPartParameters(
 	private val partDatas: Map<String, PartData>
 ) {
 	

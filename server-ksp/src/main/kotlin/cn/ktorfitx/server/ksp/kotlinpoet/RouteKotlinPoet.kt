@@ -4,8 +4,8 @@ import cn.ktorfitx.common.ksp.util.builders.buildFileSpec
 import cn.ktorfitx.common.ksp.util.builders.buildFunSpec
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilderLocal
-import cn.ktorfitx.server.ksp.constants.ClassNames
 import cn.ktorfitx.server.ksp.constants.PackageNames
+import cn.ktorfitx.server.ksp.constants.TypeNames
 import cn.ktorfitx.server.ksp.model.*
 import com.squareup.kotlinpoet.*
 import java.time.LocalDateTime
@@ -37,7 +37,7 @@ internal class RouteKotlinPoet {
 		funName: String,
 		funModels: List<FunModel>
 	): FunSpec = buildFunSpec(funName) {
-		receiver(ClassNames.Routing)
+		receiver(TypeNames.Routing)
 		val codeBlock = getCodeBlock(funModels)
 		addCode(codeBlock)
 	}
@@ -173,10 +173,10 @@ internal class RouteKotlinPoet {
 			return funModel.funName
 		}
 		var i = 0
-		var funName = funModel.funName + i
-		while (funName in funNameCanonicalNamesMap) {
-			funName = funModel.funName + ++i
-		}
+		var funName: String
+		do {
+			funName = funModel.funName + i++
+		} while (funName in funNameCanonicalNamesMap)
 		funNameCanonicalNamesMap[funName] = mutableSetOf(funModel.canonicalName)
 		val memberName = MemberName(funModel.canonicalName, funModel.funName, funModel.isExtension)
 		fileSpecBuilder.addAliasedImport(memberName, funName)

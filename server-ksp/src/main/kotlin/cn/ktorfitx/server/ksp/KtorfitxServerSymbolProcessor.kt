@@ -1,7 +1,7 @@
 package cn.ktorfitx.server.ksp
 
 import cn.ktorfitx.common.ksp.util.check.compileCheck
-import cn.ktorfitx.server.ksp.constants.ClassNames
+import cn.ktorfitx.server.ksp.constants.TypeNames
 import cn.ktorfitx.server.ksp.kotlinpoet.RouteKotlinPoet
 import cn.ktorfitx.server.ksp.visitor.RouteGeneratorVisitor
 import cn.ktorfitx.server.ksp.visitor.RouteVisitor
@@ -17,14 +17,14 @@ internal class KtorfitxServerSymbolProcessor(
 ) : SymbolProcessor {
 	
 	override fun process(resolver: Resolver): List<KSAnnotated> {
-		val routeGeneratorModels = resolver.getSymbolsWithAnnotation(ClassNames.RouteGenerator.canonicalName)
+		val routeGeneratorModels = resolver.getSymbolsWithAnnotation(TypeNames.RouteGenerator.canonicalName)
 			.filterIsInstance<KSFile>()
 			.mapNotNull {
 				val visitor = RouteGeneratorVisitor()
 				it.accept(visitor, Unit)
 			}
 		
-		val routes = ClassNames.routes
+		val routes = TypeNames.routes
 			.flatMap { resolver.getSymbolsWithAnnotation(it.canonicalName) }
 			.filterIsInstance<KSFunctionDeclaration>()
 			.onEach {

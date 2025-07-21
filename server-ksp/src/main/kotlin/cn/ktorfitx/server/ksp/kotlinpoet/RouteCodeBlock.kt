@@ -1,8 +1,8 @@
 package cn.ktorfitx.server.ksp.kotlinpoet
 
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
-import cn.ktorfitx.server.ksp.constants.ClassNames
 import cn.ktorfitx.server.ksp.constants.PackageNames
+import cn.ktorfitx.server.ksp.constants.TypeNames
 import cn.ktorfitx.server.ksp.model.*
 import com.squareup.kotlinpoet.CodeBlock
 
@@ -49,7 +49,7 @@ internal class RouteCodeBlock(
 				it.isNullable -> addStatement("val %N = %L[%S]", it.varName, varName, it.name)
 				else -> {
 					fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_UTIL, "getOrFail")
-					if (it.typeName == ClassNames.String) {
+					if (it.typeName == TypeNames.String) {
 						addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
 					} else {
 						addStatement("val %N = %N.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
@@ -67,7 +67,7 @@ internal class RouteCodeBlock(
 		addStatement("val %N = this.call.%N", varName, if (isWebSocket) "parameters" else "pathParameters")
 		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_UTIL, "getOrFail")
 		pathModels.forEach {
-			if (it.typeName == ClassNames.String) {
+			if (it.typeName == TypeNames.String) {
 				addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
 			} else {
 				addStatement("val %N = %N.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
@@ -91,7 +91,11 @@ internal class RouteCodeBlock(
 		val varName = getVarName("cookies")
 		addStatement("val %N = this.call.request.cookies", varName)
 		cookieModels.forEach {
-			addStatement("val %N = %N[%S, %T]%L", it.varName, varName, it.name, it.encoding, if (it.isNullable) "" else "!!")
+			if (it.encoding == TypeNames.CookieEncodingURIEncoding) {
+				addStatement("val %N = %N[%S]%L", it.varName, varName, it.name, if (it.isNullable) "" else "!!")
+			} else {
+				addStatement("val %N = %N[%S, %T]%L", it.varName, varName, it.name, it.encoding, if (it.isNullable) "" else "!!")
+			}
 		}
 	}
 	
@@ -111,11 +115,11 @@ internal class RouteCodeBlock(
 	}
 	
 	private fun CodeBlock.Builder.addRequestBodyCodeBlock() {
+		if (funModel.requestBodyModel == null) return
 		when (funModel.requestBodyModel) {
 			is BodyModel -> addBodyCodeBlock(funModel.requestBodyModel)
 			is FieldModels -> addFieldsCodeBlock(funModel.requestBodyModel.fieldModels)
 			is PartModels -> addPartsCodeBlock(funModel.requestBodyModel.partModels)
-			else -> {}
 		}
 	}
 	
@@ -142,7 +146,7 @@ internal class RouteCodeBlock(
 				it.isNullable -> addStatement("val %N = %N[%S]", it.varName, varName, it.name)
 				else -> {
 					fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_UTIL, "getOrFail")
-					if (it.typeName == ClassNames.String) {
+					if (it.typeName == TypeNames.String) {
 						addStatement("val %N = %N.getOrFail(%S)", it.varName, varName, it.name)
 					} else {
 						addStatement("val %N = %N.getOrFail<%T>(%S)", it.varName, varName, it.typeName, it.name)
@@ -157,7 +161,7 @@ internal class RouteCodeBlock(
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_SERVER_CORE, "resolve")
 		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_REQUEST, "receiveMultipart")
-		partVarName = getVarName("resolver")
+		partVarName = getVarName("multipartParameters")
 		addStatement("val %N = this.call.receiveMultipart().resolve()", partVarName)
 		partModels.forEach {
 			if (beforePartDispose) {
@@ -165,10 +169,10 @@ internal class RouteCodeBlock(
 			}
 			val orNull = if (it.isNullable) "OrNull" else ""
 			val funName = when (it.annotation) {
-				ClassNames.PartForm -> "getForm${if (it.isPartData) "" else "Value"}$orNull"
-				ClassNames.PartFile -> "getFile${if (it.isPartData) "" else "ByteArray"}$orNull"
-				ClassNames.PartBinary -> "getBinary${if (it.isPartData) "" else "ByteArray"}$orNull"
-				ClassNames.PartBinaryChannel -> "getBinaryChannel$orNull"
+				TypeNames.PartForm -> "getForm${if (it.isPartData) "" else "Value"}$orNull"
+				TypeNames.PartFile -> "getFile${if (it.isPartData) "" else "ByteArray"}$orNull"
+				TypeNames.PartBinary -> "getBinary${if (it.isPartData) "" else "ByteArray"}$orNull"
+				TypeNames.PartBinaryChannel -> "getBinaryChannel$orNull"
 				else -> error("不支持的类型 ${it.annotation}")
 			}
 			addStatement("val %N = %N.%N(%S)", it.varName, partVarName, funName, it.name)
