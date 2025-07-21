@@ -4,7 +4,7 @@ import cn.ktorfitx.multiplatform.mock.config.LogConfig
 import io.ktor.client.plugins.logging.LogLevel.*
 import io.ktor.http.*
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.StringFormat
 import kotlin.time.Duration.Companion.milliseconds
 
 class MockLogging internal constructor(
@@ -107,7 +107,7 @@ class MockLogging internal constructor(
 	internal fun <R> response(
 		result: R,
 		serializer: KSerializer<R>,
-		json: Json,
+		format: StringFormat?,
 		delay: Long
 	) {
 		if (log.level != NONE) {
@@ -117,10 +117,9 @@ class MockLogging internal constructor(
 					appendLine("DELAY TIME: ${delay.milliseconds}")
 				}
 				if (log.level.body) {
-					val stringJson = result.let { json.encodeToString(serializer, it) }
-					val length = stringJson.filterNot { it == ' ' || it == '\n' }.length
-					appendLine("BODY START: LENGTH=$length")
-					appendLine(stringJson)
+					val text = format?.encodeToString(serializer, result) ?: result.toString()
+					appendLine("BODY START: LENGTH=${text.length}")
+					appendLine(text)
 					appendLine("BODY END")
 				}
 			}.also(log.logger)

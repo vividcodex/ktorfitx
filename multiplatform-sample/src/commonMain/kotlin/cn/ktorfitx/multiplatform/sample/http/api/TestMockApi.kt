@@ -24,7 +24,7 @@ interface TestMockApi {
 	@Headers("Content-Type: application/json")
 	@Mock(StringMockProvider::class)
 	suspend fun mockTest3(
-		@Body testRequest: TestRequest2,
+		@Body(format = SerializationFormat.XML) testRequest: TestRequest2,
 		@Header testHeader: String,
 	): Result<String>
 	

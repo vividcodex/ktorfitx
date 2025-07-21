@@ -3,11 +3,12 @@ package cn.ktorfitx.multiplatform.mock
 import cn.ktorfitx.multiplatform.annotation.MockDsl
 import io.ktor.http.*
 import io.ktor.util.date.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.StringFormat
+import kotlinx.serialization.encodeToString
 
 @MockDsl
 class MockRequestBuilder internal constructor(
-	val json: Json
+	val format: StringFormat?
 ) {
 	
 	internal var urlString: String? = null
@@ -80,7 +81,7 @@ class MockRequestBuilder internal constructor(
 	}
 	
 	inline fun <reified T : Any> body(body: T) {
-		this.body = json.encodeToString(body)
+		this.body = format?.encodeToString(body) ?: body.toString()
 	}
 	
 	fun <V> MutableMap<String, V>.append(name: String, value: V) {

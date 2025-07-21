@@ -5,13 +5,13 @@ import cn.ktorfitx.multiplatform.mock.config.LogConfig
 import io.ktor.http.*
 import kotlinx.coroutines.delay
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.StringFormat
 import kotlinx.serialization.serializer
 
 @MockDsl
 class MockClient internal constructor(
 	val log: LogConfig = LogConfig(),
-	val json: Json = Json
+	val format: StringFormat? = null
 ) {
 	
 	suspend inline fun <reified R> get(
@@ -63,13 +63,13 @@ class MockClient internal constructor(
 		delay: Long,
 		builder: suspend MockRequestBuilder.() -> Unit
 	): R {
-		val mockRequest = MockRequestBuilder(this.json)
+		val mockRequest = MockRequestBuilder(this.format)
 			.apply { builder() }
 		val mockLogging = MockLogging(this.log, mockRequest, mockRequest.urlString!!)
 		mockLogging.request(method)
 		delay(delay)
 		return mockProvider.provide().also {
-			mockLogging.response(it, serializer, json, delay)
+			mockLogging.response(it, serializer, format, delay)
 		}
 	}
 }

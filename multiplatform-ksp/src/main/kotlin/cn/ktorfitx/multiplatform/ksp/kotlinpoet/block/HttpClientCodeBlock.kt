@@ -106,14 +106,18 @@ internal class HttpClientCodeBlock(
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildQueries(queryModels: List<QueryModel>) {
+	override fun CodeBlock.Builder.buildQueries(
+		queryModels: List<QueryModel>
+	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "parameter")
 		queryModels.forEach {
 			addStatement("this.parameter(%S, %N)", it.name, it.varName)
 		}
 	}
 	
-	override fun CodeBlock.Builder.buildParts(partModels: List<PartModel>) {
+	override fun CodeBlock.Builder.buildParts(
+		partModels: List<PartModel>
+	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST_FORMS, "formData", "MultiPartFormDataContent")
@@ -127,7 +131,9 @@ internal class HttpClientCodeBlock(
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildFields(fieldModels: List<FieldModel>) {
+	override fun CodeBlock.Builder.buildFields(
+		fieldModels: List<FieldModel>
+	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType", "formUrlEncode")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
 		addStatement("this.contentType(ContentType.Application.FormUrlEncoded)")
@@ -142,7 +148,9 @@ internal class HttpClientCodeBlock(
 		addStatement("this.setBody(listOf($parameters).formUrlEncode())", *args.toTypedArray())
 	}
 	
-	override fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>) {
+	override fun CodeBlock.Builder.buildCookies(
+		cookieModels: List<CookieModel>
+	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "cookie")
 		cookieModels.forEach { model ->
 			val codeBlock = buildCodeBlock {
@@ -167,7 +175,9 @@ internal class HttpClientCodeBlock(
 		}
 	}
 	
-	override fun CodeBlock.Builder.buildAttributes(cookieModels: List<AttributeModel>) {
+	override fun CodeBlock.Builder.buildAttributes(
+		cookieModels: List<AttributeModel>
+	) {
 		beginControlFlow("this.setAttributes")
 		cookieModels.forEach {
 			addStatement("this[%T(%S)] = %L", TypeNames.AttributeKey.parameterizedBy(it.typeName), it.name, it.varName)
@@ -175,10 +185,19 @@ internal class HttpClientCodeBlock(
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildBody(bodyModel: BodyModel) {
+	override fun CodeBlock.Builder.buildBody(
+		bodyModel: BodyModel
+	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
-		addStatement("this.contentType(ContentType.Application.Json)")
+		val format = when (bodyModel.formatClassName) {
+			TypeNames.SerializationFormatJson -> "Json"
+			TypeNames.SerializationFormatXml -> "Xml"
+			TypeNames.SerializationFormatCbor -> "Cbor"
+			TypeNames.SerializationFormatProtoBuf -> "ProtoBuf"
+			else -> error("不支持的类型 ${bodyModel.formatClassName.simpleName}")
+		}
+		addStatement("this.contentType(ContentType.Application.%N)", format)
 		addStatement("this.setBody(%N)", bodyModel.varName)
 	}
 }

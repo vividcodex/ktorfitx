@@ -31,7 +31,8 @@ interface TestMethod1Api {
 	@BearerAuth
 	@DELETE(url = "/test04/{deleteId}")
 	suspend fun test04(
-		@Path deleteId: Int
+		@Path deleteId: Int,
+		@Body(format = SerializationFormat.XML) testRequest: TestRequest2,
 	): Result<TestResponse>
 	
 	@PATCH(url = "/test05")

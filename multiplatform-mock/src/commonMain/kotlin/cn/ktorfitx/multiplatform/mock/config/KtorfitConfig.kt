@@ -15,5 +15,5 @@ fun KtorfitxConfig.mockClient(
 	builder: MockClientConfig.() -> Unit
 ) {
 	val config = MockClientConfig().apply(builder).build()
-	mockClientMap[this] = MockClient(config.log!!, config.json!!)
+	mockClientMap[this] = MockClient(config.log!!, config.format)
 }

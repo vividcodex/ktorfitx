@@ -96,20 +96,22 @@ internal fun KSFunctionDeclaration.getRequestBodyModel(): RequestBodyModel? {
 }
 
 private fun KSFunctionDeclaration.getBodyModel(): BodyModel? {
-	val valueParameters = this.parameters.filter {
+	val filters = this.parameters.filter {
 		it.hasAnnotation(TypeNames.Body)
 	}
-	if (valueParameters.isEmpty()) return null
-	this.compileCheck(valueParameters.size == 1) {
+	if (filters.isEmpty()) return null
+	this.compileCheck(filters.size == 1) {
 		"${simpleName.asString()} 函数不允许使用多个 @Body 注解"
 	}
-	val valueParameter = valueParameters.first()
-	val varName = valueParameter.name!!.asString()
-	val typeName = valueParameter.type.resolve().toTypeName()
+	val parameter = filters.first()
+	val varName = parameter.name!!.asString()
+	val typeName = parameter.type.resolve().toTypeName()
 	this.compileCheck(typeName is ClassName || typeName is ParameterizedTypeName) {
 		"${simpleName.asString()} 函数的参数列表中标记了 @Body 注解，但是未找到参数类型"
 	}
-	return BodyModel(varName)
+	val annotation = parameter.getKSAnnotationByType(TypeNames.Body)!!
+	val formatClassName = annotation.getClassNameOrNull("format") ?: TypeNames.SerializationFormatJson
+	return BodyModel(varName, formatClassName)
 }
 
 private fun KSFunctionDeclaration.getFieldModels(): FieldModels {
