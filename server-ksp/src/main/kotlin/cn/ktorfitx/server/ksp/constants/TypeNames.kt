@@ -101,4 +101,6 @@ internal object TypeNames {
 	val CookieEncodingURIEncoding = ClassName("io.ktor.http", "CookieEncoding", "URI_ENCODING")
 	
 	val CookieEncodingBase64Encoding = ClassName("io.ktor.http", "CookieEncoding", "BASE64_ENCODING")
+	
+	val AuthenticationStrategyFirstSuccessful = ClassName("io.ktor.server.auth", "AuthenticationStrategy", "FirstSuccessful")
 }

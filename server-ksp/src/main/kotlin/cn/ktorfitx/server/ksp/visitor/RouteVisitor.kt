@@ -79,7 +79,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 	private fun KSFunctionDeclaration.getAuthenticationModel(): AuthenticationModel? {
 		val annotation = this.getKSAnnotationByType(TypeNames.Authentication) ?: return null
 		val configurations = annotation.getValues<String>("configurations")
-		val strategy = annotation.getClassName("strategy")
+		val strategy = annotation.getClassNameOrNull("strategy") ?: TypeNames.AuthenticationStrategyFirstSuccessful
 		return AuthenticationModel(configurations, strategy)
 	}
 	
@@ -97,7 +97,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		val isExtension = this.extensionReceiver != null
 		return when (className) {
 			TypeNames.WebSocket -> {
-				val protocol = annotation.getValueOrNull("protocol") ?: ""
+				val protocol = annotation.getValueOrNull<String>("protocol")?.takeIf { it.isNotBlank() }
 				if (isExtension) {
 					val valid = this.isExtension(TypeNames.DefaultWebSocketServerSession)
 					this.compileCheck(valid) {
@@ -108,7 +108,7 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 			}
 			
 			TypeNames.WebSocketRaw -> {
-				val protocol = annotation.getValueOrNull("protocol") ?: ""
+				val protocol = annotation.getValueOrNull<String>("protocol")?.takeIf { it.isNotBlank() }
 				val negotiateExtensions = annotation.getValueOrNull("negotiateExtensions") ?: false
 				if (isExtension) {
 					val valid = this.isExtension(TypeNames.WebSocketServerSession)

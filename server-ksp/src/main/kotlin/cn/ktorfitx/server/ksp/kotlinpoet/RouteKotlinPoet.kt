@@ -64,16 +64,21 @@ internal class RouteKotlinPoet {
 			val configurations = funModel.authenticationModel.configurations
 			val strategy = funModel.authenticationModel.strategy
 			fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_AUTH, "authenticate")
-			beginControlFlow(
-				"""
-				authenticate(
-					configurations = %L,
-					strategy = %T
-				)
-				""".trimIndent(),
-				if (configurations.isEmpty()) "arrayOf(null)" else "arrayOf(${configurations.joinToString()})",
-				strategy
-			)
+			if (configurations.isEmpty() && strategy == TypeNames.AuthenticationStrategyFirstSuccessful) {
+				beginControlFlow("authenticate")
+			} else {
+				addStatement("authenticate(")
+				indent()
+				if (configurations.isNotEmpty()) {
+					val parameters = configurations.joinToString { "%S" }
+					addStatement("configurations = arrayOf($parameters),", *configurations)
+				}
+				if (strategy != TypeNames.AuthenticationStrategyFirstSuccessful) {
+					addStatement("strategy = %T", strategy)
+				}
+				unindent()
+				beginControlFlow(")")
+			}
 		}
 		block(funModel.routeModel)
 		if (funModel.authenticationModel != null) {
@@ -105,18 +110,15 @@ internal class RouteKotlinPoet {
 		webSocketRawModel: WebSocketRawModel
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_WEBSOCKET, "webSocketRaw")
-		beginControlFlow(
-			"""
-			webSocketRaw(
-				path = %S,
-				protocol = %S,
-				negotiateExtensions = %L
-			)
-			""".trimIndent(),
-			webSocketRawModel.path.applyRegexToPathParameters(funModel.pathModels),
-			webSocketRawModel.protocol.ifBlank { null },
-			webSocketRawModel.negotiateExtensions
-		)
+		addStatement("webSocketRaw(")
+		indent()
+		addStatement("path = %S,", webSocketRawModel.path.applyRegexToPathParameters(funModel.pathModels))
+		webSocketRawModel.protocol?.let { addStatement("protocol = %S", it) }
+		if (webSocketRawModel.negotiateExtensions) {
+			addStatement("negotiateExtensions = true")
+		}
+		unindent()
+		beginControlFlow(")")
 		buildCodeBlock(funModel)
 		endControlFlow()
 	}
@@ -126,16 +128,12 @@ internal class RouteKotlinPoet {
 		webSocketModel: WebSocketModel
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_WEBSOCKET, "webSocket")
-		beginControlFlow(
-			"""
-			webSocket(
-				path = %S,
-				protocol = %S
-			)
-			""".trimIndent(),
-			webSocketModel.path.applyRegexToPathParameters(funModel.pathModels),
-			webSocketModel.protocol.ifBlank { null }
-		)
+		addStatement("webSocket(")
+		indent()
+		addStatement("path = %S,", webSocketModel.path.applyRegexToPathParameters(funModel.pathModels))
+		webSocketModel.protocol?.let { addStatement("protocol = %S", it) }
+		unindent()
+		beginControlFlow(")")
 		buildCodeBlock(funModel)
 		endControlFlow()
 	}

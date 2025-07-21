@@ -1,7 +1,9 @@
 package cn.ktorfitx.server.sample.routes
 
 import cn.ktorfitx.server.annotation.*
+import cn.ktorfitx.server.annotation.Authentication
 import cn.ktorfitx.server.sample.model.ApiResult
+import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 
 @GET(path = "test/test5")
@@ -28,7 +30,10 @@ object Test7 {
 	
 	object Test8 {
 		
-		@Authentication
+		@Authentication(
+			configurations = ["test1", "test2"],
+			strategy = AuthenticationStrategy.Optional
+		)
 		@Group("group2")
 		@DELETE(path = "/test8")
 		fun test8(): ApiResult<Nothing> {
