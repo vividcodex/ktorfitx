@@ -2,13 +2,9 @@ package cn.ktorfitx.multiplatform.mock.config
 
 import cn.ktorfitx.multiplatform.annotation.MockDsl
 import kotlinx.serialization.StringFormat
-import kotlinx.serialization.json.Json
 
 @MockDsl
 class MockClientConfig internal constructor() {
-	
-	var json: Json? = null
-		private set
 	
 	var log: LogConfig? = null
 		private set
