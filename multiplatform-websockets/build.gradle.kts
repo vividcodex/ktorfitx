@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
@@ -20,16 +19,12 @@ kotlin {
 	
 	androidTarget {
 		compilerOptions {
-			apiVersion = KotlinVersion.KOTLIN_2_2
-			languageVersion = KotlinVersion.KOTLIN_2_2
 			jvmTarget = JvmTarget.JVM_21
 		}
 	}
 	
 	jvm("desktop") {
 		compilerOptions {
-			apiVersion = KotlinVersion.KOTLIN_2_2
-			languageVersion = KotlinVersion.KOTLIN_2_2
 			jvmTarget = JvmTarget.JVM_21
 		}
 	}
@@ -37,57 +32,43 @@ kotlin {
 	listOf(
 		iosX64(),
 		iosArm64(),
-		iosSimulatorArm64()
-	).forEach { iosTarget ->
-		iosTarget.apply {
-			binaries.framework {
-				baseName = "KtorfitxWebSockets"
-				isStatic = true
-			}
-			compilerOptions {
-				apiVersion = KotlinVersion.KOTLIN_2_2
-				languageVersion = KotlinVersion.KOTLIN_2_2
-			}
+		iosSimulatorArm64(),
+		macosX64(),
+		macosArm64(),
+		watchosX64(),
+		watchosArm32(),
+		watchosArm64(),
+		watchosSimulatorArm64(),
+		watchosDeviceArm64(),
+		tvosX64(),
+		tvosArm64(),
+		tvosSimulatorArm64()
+	).forEach { target ->
+		target.binaries.framework {
+			baseName = "KtorfitxWebSockets"
+			isStatic = true
 		}
 	}
 	
-	js {
+	listOf(
+		linuxArm64(),
+		linuxX64(),
+		mingwX64()
+	).forEach { target ->
+		target.binaries.executable()
+	}
+	
+	js(IR) {
 		outputModuleName = "ktorfitxWebSockets"
-		browser {
-			commonWebpackConfig {
-				outputFileName = "ktorfitxWebSockets.js"
-			}
-		}
+		nodejs()
 		binaries.executable()
-		useEsModules()
-		compilerOptions {
-			languageVersion = KotlinVersion.KOTLIN_2_2
-			apiVersion = KotlinVersion.KOTLIN_2_2
-		}
 	}
 	
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
 		outputModuleName = "ktorfitxWebSockets"
-		browser {
-			val rootDirPath = project.rootDir.path
-			val projectDirPath = project.projectDir.path
-			commonWebpackConfig {
-				outputFileName = "ktorfitxWebSockets.js"
-				devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-					static = (static ?: mutableListOf()).apply {
-						add(rootDirPath)
-						add(projectDirPath)
-					}
-				}
-			}
-		}
+		nodejs()
 		binaries.executable()
-		useEsModules()
-		compilerOptions {
-			languageVersion = KotlinVersion.KOTLIN_2_2
-			apiVersion = KotlinVersion.KOTLIN_2_2
-		}
 	}
 	
 	compilerOptions {
@@ -134,15 +115,7 @@ android {
 	}
 }
 
-fun checkVersion() {
-	val size = ktorfitxVersion.split("-").size
-	check((ktorfitxAutomaticRelease && size == 2) || (!ktorfitxAutomaticRelease && size == 3)) {
-		"ktorfitx 的 version 是 $ktorfitxVersion，但是 automaticRelease 是 $ktorfitxAutomaticRelease 的"
-	}
-}
-
 mavenPublishing {
-	checkVersion()
 	publishToMavenCentral(automaticRelease = ktorfitxAutomaticRelease)
 	signAllPublications()
 	

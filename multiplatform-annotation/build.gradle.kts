@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
@@ -21,73 +20,55 @@ kotlin {
 	androidTarget {
 		compilerOptions {
 			jvmTarget = JvmTarget.JVM_21
-			languageVersion = KotlinVersion.KOTLIN_2_2
-			apiVersion = KotlinVersion.KOTLIN_2_2
 		}
 	}
 	
 	jvm("desktop") {
 		compilerOptions {
 			jvmTarget = JvmTarget.JVM_21
-			languageVersion = KotlinVersion.KOTLIN_2_2
-			apiVersion = KotlinVersion.KOTLIN_2_2
 		}
 	}
 	
 	listOf(
 		iosX64(),
 		iosArm64(),
-		iosSimulatorArm64()
-	).forEach { iosTarget ->
-		iosTarget.apply {
-			binaries.framework {
-				baseName = "KtorfitxAnnotation"
-				isStatic = true
-			}
-			compilerOptions {
-				languageVersion = KotlinVersion.KOTLIN_2_2
-				apiVersion = KotlinVersion.KOTLIN_2_2
-			}
+		iosSimulatorArm64(),
+		macosX64(),
+		macosArm64(),
+		watchosX64(),
+		watchosArm32(),
+		watchosArm64(),
+		watchosSimulatorArm64(),
+		watchosDeviceArm64(),
+		tvosX64(),
+		tvosArm64(),
+		tvosSimulatorArm64()
+	).forEach { target ->
+		target.binaries.framework {
+			baseName = "KtorfitxAnnotation"
+			isStatic = true
 		}
 	}
 	
-	js {
+	listOf(
+		linuxArm64(),
+		linuxX64(),
+		mingwX64()
+	).forEach { target ->
+		target.binaries.executable()
+	}
+	
+	js(IR) {
 		outputModuleName = "ktorfitxAnnotation"
-		browser {
-			commonWebpackConfig {
-				outputFileName = "ktorfitxAnnotation.js"
-			}
-		}
+		nodejs()
 		binaries.executable()
-		useEsModules()
-		compilerOptions {
-			languageVersion = KotlinVersion.KOTLIN_2_2
-			apiVersion = KotlinVersion.KOTLIN_2_2
-		}
 	}
 	
 	@OptIn(ExperimentalWasmDsl::class)
 	wasmJs {
 		outputModuleName = "ktorfitxAnnotation"
-		browser {
-			val rootDirPath = project.rootDir.path
-			val projectDirPath = project.projectDir.path
-			commonWebpackConfig {
-				outputFileName = "ktorfitxAnnotation.js"
-				devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-					static = (static ?: mutableListOf()).apply {
-						add(rootDirPath)
-						add(projectDirPath)
-					}
-				}
-			}
-		}
+		nodejs()
 		binaries.executable()
-		useEsModules()
-		compilerOptions {
-			languageVersion = KotlinVersion.KOTLIN_2_2
-			apiVersion = KotlinVersion.KOTLIN_2_2
-		}
 	}
 	
 	compilerOptions {
@@ -126,22 +107,14 @@ android {
 	}
 }
 
-fun checkVersion() {
-	val size = ktorfitxVersion.split("-").size
-	check((ktorfitxAutomaticRelease && size == 2) || (!ktorfitxAutomaticRelease && size == 3)) {
-		"ktorfitx 的 version 是 $ktorfitxVersion，但是 automaticRelease 是 $ktorfitxAutomaticRelease 的"
-	}
-}
-
 mavenPublishing {
-	checkVersion()
 	publishToMavenCentral(automaticRelease = ktorfitxAutomaticRelease)
 	signAllPublications()
 	
 	coordinates("cn.ktorfitx", "multiplatform-annotation", ktorfitxVersion)
 	
 	pom {
-		name.set("multiplatform-api")
+		name.set("multiplatform-annotation")
 		description.set("Ktorfitx 基于 KSP2 的代码生成框架，在 Kotlin Multiplatform 中是 RESTful API 框架，在 Ktor Server 中是 路由以及参数解析框架")
 		inceptionYear.set("2025")
 		url.set("https://github.com/vividcodex/ktorfitx")
