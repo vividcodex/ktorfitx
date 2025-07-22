@@ -1,4 +1,4 @@
-# KtorfitX 3.2.2-3.0.0
+# KtorfitX 3.2.2-3.0.1
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,7 +6,7 @@
 
 ## 更新时间
 
-### 2025-07-21
+### 2025-07-22
 
 ## 项目简介
 
@@ -24,7 +24,18 @@ KSP `2.2.0-2.0.2`
 
 ## 支持平台
 
-Android, IOS, Desktop (JVM), WasmJs, Js, Ktor Server
+### Kotlin Multiplatform
+
+- android
+- ios: x86, arm64, simulatorArm64
+- watchos: x64, arm32, arm64, simulatorArm64, deviceArm64
+- tvos: x64, arm64, simulatorArm64
+- linux: x64, arm64
+- window: mingwX64
+- js
+- wasmJs
+
+### Ktor Server
 
 ## 依赖说明
 
