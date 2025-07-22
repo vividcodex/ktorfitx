@@ -14,47 +14,12 @@ class MockClient internal constructor(
 	val format: StringFormat? = null
 ) {
 	
-	suspend inline fun <reified R> get(
+	suspend inline fun <reified R> request(
+		method: HttpMethod,
 		mockProvider: MockProvider<R>,
-		delay: Long,
+		delay: Long = 0L,
 		noinline builder: suspend MockRequestBuilder.() -> Unit
-	): R = request(HttpMethod.Get, mockProvider, serializer<R>(), delay, builder)
-	
-	suspend inline fun <reified R> post(
-		mockProvider: MockProvider<R>,
-		delay: Long,
-		noinline builder: suspend MockRequestBuilder.() -> Unit
-	): R = request(HttpMethod.Post, mockProvider, serializer<R>(), delay, builder)
-	
-	suspend inline fun <reified R> put(
-		mockProvider: MockProvider<R>,
-		delay: Long,
-		noinline builder: suspend MockRequestBuilder.() -> Unit
-	): R = request(HttpMethod.Put, mockProvider, serializer<R>(), delay, builder)
-	
-	suspend inline fun <reified R> delete(
-		mockProvider: MockProvider<R>,
-		delay: Long,
-		noinline builder: suspend MockRequestBuilder.() -> Unit
-	): R = request(HttpMethod.Delete, mockProvider, serializer<R>(), delay, builder)
-	
-	suspend inline fun <reified R> patch(
-		mockProvider: MockProvider<R>,
-		delay: Long,
-		noinline builder: suspend MockRequestBuilder.() -> Unit
-	): R = request(HttpMethod.Patch, mockProvider, serializer<R>(), delay, builder)
-	
-	suspend inline fun <reified R> head(
-		mockProvider: MockProvider<R>,
-		delay: Long,
-		noinline builder: suspend MockRequestBuilder.() -> Unit
-	): R = request(HttpMethod.Head, mockProvider, serializer<R>(), delay, builder)
-	
-	suspend inline fun <reified R> options(
-		mockProvider: MockProvider<R>,
-		delay: Long,
-		noinline builder: suspend MockRequestBuilder.() -> Unit
-	): R = request(HttpMethod.Options, mockProvider, serializer<R>(), delay, builder)
+	): R = request(method, mockProvider, serializer<R>(), delay, builder)
 	
 	suspend fun <R> request(
 		method: HttpMethod,

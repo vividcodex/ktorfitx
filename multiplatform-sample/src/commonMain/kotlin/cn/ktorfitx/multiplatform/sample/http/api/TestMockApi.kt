@@ -22,7 +22,7 @@ interface TestMockApi {
 	
 	@POST(url = "/mockTest3")
 	@Headers("Content-Type: application/json")
-	@Mock(StringMockProvider::class)
+	@Mock(StringMockProvider::class, delay = 200L)
 	suspend fun mockTest3(
 		@Body(format = SerializationFormat.XML) testRequest: TestRequest2,
 		@Header testHeader: String,

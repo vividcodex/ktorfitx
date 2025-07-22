@@ -20,16 +20,18 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
-internal object ApiVisitor : KSEmptyVisitor<Unit, ClassModel>() {
+internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassModel>() {
 	
 	private val apiUrlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 	
 	override fun visitClassDeclaration(
 		classDeclaration: KSClassDeclaration,
-		data: Unit
-	): ClassModel = classDeclaration.getClassModel()
+		data: List<CustomHttpMethodModel>
+	): ClassModel = classDeclaration.getClassModel(data)
 	
-	private fun KSClassDeclaration.getClassModel(): ClassModel {
+	private fun KSClassDeclaration.getClassModel(
+		customHttpMethodModels: List<CustomHttpMethodModel>
+	): ClassModel {
 		this.compileCheck(!(this.isGeneric())) {
 			"${simpleName.asString()} 接口不允许包含泛型"
 		}
@@ -41,7 +43,7 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassModel>() {
 			kModifier = this.getVisibilityKModifier(),
 			apiUrl = this.getApiUrl(),
 			apiScopeModels = this.getApiScopeModels(),
-			funModels = getFunModel()
+			funModels = getFunModel(customHttpMethodModels)
 		)
 	}
 	
@@ -98,14 +100,16 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassModel>() {
 		return KModifier.entries.first { it.name == visibility.name }
 	}
 	
-	private fun KSClassDeclaration.getFunModel(): List<FunModel> {
+	private fun KSClassDeclaration.getFunModel(
+		customHttpMethodModels: List<CustomHttpMethodModel>
+	): List<FunModel> {
 		return this.getDeclaredFunctions().toList()
 			.filter { it.isAbstract }
 			.map {
 				it.compileCheck(Modifier.SUSPEND in it.modifiers) {
 					"${simpleName.asString()} 函数缺少 suspend 修饰符"
 				}
-				val routeModel = it.getRouteModel()
+				val routeModel = it.getRouteModel(customHttpMethodModels)
 				val isWebSocket = routeModel is WebSocketModel
 				FunModel(
 					funName = it.simpleName.asString(),
@@ -128,10 +132,12 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassModel>() {
 	
 	private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 	
-	private fun KSFunctionDeclaration.getRouteModel(): RouteModel {
-		val classNames = TypeNames.routes.filter {
-			hasAnnotation(it)
-		}
+	private fun KSFunctionDeclaration.getRouteModel(
+		customHttpMethodModels: List<CustomHttpMethodModel>
+	): RouteModel {
+		val customClassNames = customHttpMethodModels.map { it.className }
+		val availableRoutes = TypeNames.routes + customClassNames
+		val classNames = availableRoutes.filter { hasAnnotation(it) }
 		this.compileCheck(classNames.size <= 1) {
 			val useAnnotations = classNames.joinToString { "@${it.simpleName}" }
 			val useSize = classNames.size
@@ -139,7 +145,12 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassModel>() {
 		}
 		this.compileCheck(classNames.size == 1) {
 			val routes = TypeNames.routes.joinToString { "@${it.simpleName}" }
-			"${simpleName.asString()} 函数缺少注解，请使用以下注解标记：$routes"
+			if (customClassNames.isEmpty()) {
+				"函数 ${simpleName.asString()} 未添加路由注解，请选择：\n内置注解：$routes\n自定义注解：无"
+			} else {
+				val availableRoutes = customClassNames.joinToString { "@${it.simpleName}" }
+				"函数 ${simpleName.asString()} 未添加路由注解，请选择：\n内置注解：$routes\n自定义注解：$availableRoutes"
+			}
 		}
 		val className = classNames.first()
 		val isWebSocket = className == TypeNames.WebSocket
@@ -156,10 +167,13 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassModel>() {
 		this.compileCheck(urlRegex.matches(url)) {
 			"${simpleName.asString()} 函数上的 @${className.simpleName} 注解的 url 参数格式错误"
 		}
-		return if (className == TypeNames.WebSocket) {
-			WebSocketModel(url)
-		} else {
-			HttpRequestModel(url, className)
+		return when (className) {
+			TypeNames.WebSocket -> WebSocketModel(url)
+			in TypeNames.httpMethods -> HttpRequestModel(url, className.simpleName, false)
+			else -> {
+				val method = customHttpMethodModels.first { it.className == className }.method
+				HttpRequestModel(url, method, true)
+			}
 		}
 	}
 	
@@ -198,5 +212,5 @@ internal object ApiVisitor : KSEmptyVisitor<Unit, ClassModel>() {
 		return ReturnModel(typeName, returnKind)
 	}
 	
-	override fun defaultHandler(node: KSNode, data: Unit): ClassModel = error("Not Implemented")
+	override fun defaultHandler(node: KSNode, data: List<CustomHttpMethodModel>): ClassModel = error("Not Implemented")
 }

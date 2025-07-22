@@ -15,10 +15,8 @@ internal class HttpCodeBlockBuilder(
 	fun CodeBlock.Builder.buildCodeBlock() {
 		buildTryCatchIfNeed {
 			with(getClientCodeBlock()) {
-				val url = httpRequestModel.url
-				val funName = httpRequestModel.className.simpleName.lowercase()
-				buildClientCodeBlock(funName) {
-					val fullUrl = parseToFullUrl(url)
+				buildClientCodeBlock(httpRequestModel) {
+					val fullUrl = parseToFullUrl(httpRequestModel.url)
 					buildUrlString(fullUrl)
 					funModel.timeoutModel?.let { buildTimeoutCodeBlock(it) }
 					tokenVarName?.let { buildBearerAuth(it) }

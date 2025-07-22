@@ -16,14 +16,19 @@ internal class HttpClientCodeBlock(
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
-		funName: String,
+		httpRequestModel: HttpRequestModel,
 		builder: CodeBlock.Builder.() -> Unit
 	) {
+		val funName = if (httpRequestModel.isCustom) "request" else httpRequestModel.method.lowercase()
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, funName)
 		if (returnModel.returnKind == ReturnKind.Unit) {
 			beginControlFlow("this.config.httpClient.%N", funName)
 		} else {
 			beginControlFlow("val response = this.config.httpClient.%N", funName)
+		}
+		if (httpRequestModel.isCustom) {
+			fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "HttpMethod")
+			addStatement("this.method = HttpMethod(%S)", httpRequestModel.method)
 		}
 		builder()
 		endControlFlow()
@@ -40,21 +45,21 @@ internal class HttpClientCodeBlock(
 			return
 		}
 		
-		val funName = when (rawType) {
+		val bodyFunName = when (rawType) {
 			TypeNames.String -> "bodyAsText"
 			TypeNames.ByteArray -> "bodyAsBytes"
 			TypeNames.ByteReadChannel -> "bodyAsChannel"
 			else -> "body"
 		}
-		if (funName == "body") {
-			fileSpecBuilder.addImport(PackageNames.KTOR_CALL, funName)
+		if (bodyFunName == "body") {
+			fileSpecBuilder.addImport(PackageNames.KTOR_CALL, bodyFunName)
 		} else {
-			fileSpecBuilder.addImport(PackageNames.KTOR_STATEMENT, funName)
+			fileSpecBuilder.addImport(PackageNames.KTOR_STATEMENT, bodyFunName)
 		}
 		if (returnModel.returnKind == ReturnKind.Result) {
-			addStatement("Result.success(response.%N())", funName)
+			addStatement("Result.success(response.%N())", bodyFunName)
 		} else if (returnModel.typeName != TypeNames.Unit) {
-			addStatement("return response.%N()", funName)
+			addStatement("return response.%N()", bodyFunName)
 		}
 	}
 	

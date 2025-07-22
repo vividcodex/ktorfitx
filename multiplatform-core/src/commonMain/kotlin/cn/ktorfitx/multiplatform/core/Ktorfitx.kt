@@ -2,6 +2,7 @@ package cn.ktorfitx.multiplatform.core
 
 import cn.ktorfitx.multiplatform.core.config.KtorfitxConfig
 import cn.ktorfitx.multiplatform.core.scope.DefaultApiScope
+import io.ktor.http.*
 import kotlin.jvm.JvmName
 
 class Ktorfitx<AS : Any> internal constructor(
@@ -26,3 +27,7 @@ fun <AS : Any> ktorfitx(
 ): Ktorfitx<AS> = KtorfitxConfig()
 	.apply(config)
 	.build()
+
+fun a() {
+	HttpMethod.parse("")
+}

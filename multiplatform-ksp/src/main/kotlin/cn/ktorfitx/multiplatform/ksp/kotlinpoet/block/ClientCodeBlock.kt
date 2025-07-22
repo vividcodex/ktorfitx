@@ -9,7 +9,7 @@ internal sealed interface ClientCodeBlock {
 	 * httpClient or mockClient
 	 */
 	fun CodeBlock.Builder.buildClientCodeBlock(
-		funName: String,
+		httpRequestModel: HttpRequestModel,
 		builder: CodeBlock.Builder.() -> Unit
 	)
 	

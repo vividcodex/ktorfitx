@@ -27,6 +27,12 @@ fun String.toLowerCamelCase(): String {
 	}
 }
 
+private val httpMethodRegex = "^[A-Z0-9-]+$".toRegex()
+
+fun String.isValidHttpMethod(): Boolean {
+	return httpMethodRegex.matches(this)
+}
+
 /**
  * 替换首字母为小写
  */

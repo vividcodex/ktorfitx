@@ -2,6 +2,7 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.common.ksp.util.builders.toCodeBlock
+import cn.ktorfitx.common.ksp.util.expends.replaceFirstToUppercase
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.model.*
 import com.squareup.kotlinpoet.CodeBlock
@@ -16,53 +17,31 @@ internal class MockClientCodeBlock(
 ) : ClientCodeBlock {
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
-		funName: String,
+		httpRequestModel: HttpRequestModel,
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK_CONFIG, "mockClient")
+		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "HttpMethod")
 		when (returnModel.returnKind) {
-			ReturnKind.Unit -> {
-				beginControlFlow(
-					"""
-					this.config.mockClient.%N(
-						mockProvider = %T,
-						delay = %LL
-					)
-					""".trimIndent(),
-					funName,
-					mockModel.provider,
-					mockModel.delay
-				)
-			}
-			
-			ReturnKind.Result -> {
-				beginControlFlow(
-					"""
-					val result = this.config.mockClient.%N(
-						mockProvider = %T,
-						delay = %LL
-					)
-					""".trimIndent(),
-					funName,
-					mockModel.provider,
-					mockModel.delay
-				)
-			}
-			
+			ReturnKind.Unit -> addStatement("this.config.mockClient.request(")
+			ReturnKind.Result -> addStatement("val result = this.config.mockClient.request(")
 			ReturnKind.Any -> {
-				beginControlFlow(
-					"""
-					return this.config.mockClient.%N(
-						mockProvider = %T,
-						delay = %LL
-					)
-					""".trimIndent(),
-					funName,
-					mockModel.provider,
-					mockModel.delay
-				)
+				add("return ")
+				addStatement("this.config.mockClient.request(")
 			}
 		}
+		indent()
+		if (httpRequestModel.isCustom) {
+			addStatement("method = HttpMethod(%S),", httpRequestModel.method)
+		} else {
+			addStatement("method = HttpMethod.%N,", httpRequestModel.method.lowercase().replaceFirstToUppercase())
+		}
+		addStatement("mockProvider = %T,", mockModel.provider)
+		if (mockModel.delay > 0L) {
+			addStatement("delay = %LL", mockModel.delay)
+		}
+		unindent()
+		beginControlFlow(")")
 		builder()
 		endControlFlow()
 		if (returnModel.returnKind == ReturnKind.Result) {

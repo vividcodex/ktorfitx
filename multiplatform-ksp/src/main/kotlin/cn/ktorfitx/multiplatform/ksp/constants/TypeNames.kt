@@ -5,6 +5,10 @@ import com.squareup.kotlinpoet.LambdaTypeName
 
 internal object TypeNames {
 	
+	val httpMethods by lazy {
+		arrayOf(GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS)
+	}
+	
 	val routes by lazy {
 		arrayOf(GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS, WebSocket)
 	}
@@ -25,6 +29,14 @@ internal object TypeNames {
 	
 	val OptIn = ClassName("kotlin", "OptIn")
 	
+	val Retention = ClassName("kotlin.annotation", "Retention")
+	
+	val AnnotationRetentionSource = ClassName("kotlin.annotation", "AnnotationRetention", "SOURCE")
+	
+	val Target = ClassName("kotlin.annotation", "Target")
+	
+	val AnnotationTargetFunction = ClassName("kotlin.annotation", "AnnotationTarget", "FUNCTION")
+	
 	val ByteReadChannel = ClassName("kotlinx.io", "ByteReadChannel")
 	
 	val SynchronizedObject = ClassName("io.ktor.utils.io.locks", "SynchronizedObject")
@@ -34,6 +46,8 @@ internal object TypeNames {
 	val AttributeKey = ClassName("io.ktor.util", "AttributeKey")
 	
 	val InternalAPI = ClassName("io.ktor.utils.io", "InternalAPI")
+	
+	val HttpMethod = ClassName("cn.ktorfitx.multiplatform.annotation", "HttpMethod")
 	
 	val Api = ClassName("cn.ktorfitx.multiplatform.annotation", "Api")
 	
