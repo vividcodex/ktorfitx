@@ -36,6 +36,32 @@ internal class KtorfitxServerSymbolProcessor(
 		return emptyList()
 	}
 	
+	private fun Resolver.getFunModels(): List<FunModel> {
+		return TypeNames.routes
+			.flatMap { this.getSymbolsWithAnnotation(it.canonicalName) }
+			.filterIsInstance<KSFunctionDeclaration>()
+			.map {
+				val parent = it.parent
+				it.compileCheck(parent != null && (parent is KSFile || (parent is KSClassDeclaration && parent.classKind == ClassKind.OBJECT))) {
+					val functionName = it.simpleName.asString()
+					"$functionName 函数只允许声明在 文件顶层 或 object 类中"
+				}
+				val visitor = RouteVisitor()
+				it.accept(visitor, Unit)
+			}
+	}
+	
+	private fun Resolver.getRouteGeneratorModels(): List<RouteGeneratorModel> {
+		return this.getSymbolsWithAnnotation(TypeNames.RouteGenerator.canonicalName)
+			.filterIsInstance<KSFile>()
+			.filter { it.validate() }
+			.mapNotNull {
+				val visitor = RouteGeneratorVisitor()
+				it.accept(visitor, Unit)
+			}
+			.toList()
+	}
+	
 	private fun generateRouteGenerators(
 		customHttpMethodModels: List<CustomHttpMethodModel>,
 		routeGeneratorModels: List<RouteGeneratorModel>,
@@ -58,30 +84,4 @@ internal class KtorfitxServerSymbolProcessor(
 			}
 		}
 	}
-}
-
-private fun Resolver.getFunModels(): List<FunModel> {
-	return TypeNames.routes
-		.flatMap { this.getSymbolsWithAnnotation(it.canonicalName) }
-		.filterIsInstance<KSFunctionDeclaration>()
-		.map {
-			val parent = it.parent
-			it.compileCheck(parent != null && (parent is KSFile || (parent is KSClassDeclaration && parent.classKind == ClassKind.OBJECT))) {
-				val functionName = it.simpleName.asString()
-				"$functionName 函数只允许声明在 文件顶层 或 object 类中"
-			}
-			val visitor = RouteVisitor()
-			it.accept(visitor, Unit)
-		}
-}
-
-private fun Resolver.getRouteGeneratorModels(): List<RouteGeneratorModel> {
-	return this.getSymbolsWithAnnotation(TypeNames.RouteGenerator.canonicalName)
-		.filterIsInstance<KSFile>()
-		.filter { it.validate() }
-		.mapNotNull {
-			val visitor = RouteGeneratorVisitor()
-			it.accept(visitor, Unit)
-		}
-		.toList()
 }
