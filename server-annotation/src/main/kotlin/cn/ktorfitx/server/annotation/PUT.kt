@@ -1,7 +1,7 @@
 package cn.ktorfitx.server.annotation
 
-@Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.SOURCE)
 annotation class PUT(
 	val path: String
 )
