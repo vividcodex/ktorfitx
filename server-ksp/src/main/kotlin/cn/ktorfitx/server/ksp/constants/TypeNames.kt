@@ -5,18 +5,22 @@ import com.squareup.kotlinpoet.ClassName
 internal object TypeNames {
 	
 	val routes by lazy {
-		arrayOf(
+		listOf(
 			GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS,
 			WebSocket, WebSocketRaw
 		)
 	}
 	
+	val httpMethods by lazy {
+		listOf(GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)
+	}
+	
 	val partDatas by lazy {
-		arrayOf(FormItem, FileItem, BinaryItem, BinaryChannelItem)
+		listOf(FormItem, FileItem, BinaryItem, BinaryChannelItem)
 	}
 	
 	val parameterAnnotations by lazy {
-		arrayOf(
+		listOf(
 			Principal, Body, Field, Path, Query, PartForm, PartFile,
 			PartBinary, PartBinaryChannel, Header, Cookie, Attribute
 		)
@@ -77,6 +81,8 @@ internal object TypeNames {
 	val Cookie = ClassName("cn.ktorfitx.server.annotation", "Cookie")
 	
 	val Attribute = ClassName("cn.ktorfitx.server.annotation", "Attribute")
+	
+	val HttpMethod = ClassName("cn.ktorfitx.server.annotation", "HttpMethod")
 	
 	val FormItem = ClassName("io.ktor.http.content", "PartData", "FormItem")
 	

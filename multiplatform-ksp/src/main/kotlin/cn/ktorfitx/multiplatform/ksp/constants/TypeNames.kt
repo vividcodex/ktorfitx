@@ -6,15 +6,15 @@ import com.squareup.kotlinpoet.LambdaTypeName
 internal object TypeNames {
 	
 	val httpMethods by lazy {
-		arrayOf(GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS)
+		listOf(GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS)
 	}
 	
 	val routes by lazy {
-		arrayOf(GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS, WebSocket)
+		listOf(GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS, WebSocket)
 	}
 	
 	val parameters by lazy {
-		arrayOf(Body, Part, Field, Header, Path, Query, Cookie, Attribute)
+		listOf(Body, Part, Field, Header, Path, Query, Cookie, Attribute)
 	}
 	
 	val Unit = ClassName("kotlin", "Unit")
@@ -28,14 +28,6 @@ internal object TypeNames {
 	val String = ClassName("kotlin", "String")
 	
 	val OptIn = ClassName("kotlin", "OptIn")
-	
-	val Retention = ClassName("kotlin.annotation", "Retention")
-	
-	val AnnotationRetentionSource = ClassName("kotlin.annotation", "AnnotationRetention", "SOURCE")
-	
-	val Target = ClassName("kotlin.annotation", "Target")
-	
-	val AnnotationTargetFunction = ClassName("kotlin.annotation", "AnnotationTarget", "FUNCTION")
 	
 	val ByteReadChannel = ClassName("kotlinx.io", "ByteReadChannel")
 	
