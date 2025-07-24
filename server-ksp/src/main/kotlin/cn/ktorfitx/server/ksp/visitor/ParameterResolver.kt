@@ -75,13 +75,7 @@ internal fun KSFunctionDeclaration.getPathModels(routeModel: RouteModel): List<P
 		parameter.compileCheck(!typeName.isNullable) {
 			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数不允许可空"
 		}
-		val regex = annotation.getValueOrNull<String>("regex")?.takeIf { it.isNotEmpty() }
-		if (regex != null) {
-			parameter.compileCheck(regex.isValidRegex()) {
-				"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数的 @Path 注解的 regex 参数不是一个合法的正则表达式"
-			}
-		}
-		PathModel(name, varName, typeName, regex)
+		PathModel(name, varName, typeName)
 	}
 	this.compileCheck(residuePathParameters.isEmpty()) {
 		"${simpleName.asString()} 函数未解析以下 ${residuePathParameters.size} 个 path 参数：${residuePathParameters.joinToString { it }}"

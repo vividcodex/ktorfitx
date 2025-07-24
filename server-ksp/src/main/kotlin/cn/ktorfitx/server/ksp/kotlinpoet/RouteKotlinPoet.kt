@@ -90,18 +90,18 @@ internal class RouteKotlinPoet {
 		funModel: FunModel,
 		httpRequestModel: HttpRequestModel
 	) {
-		val path = httpRequestModel.path.applyRegexToPathParameters(funModel.pathModels)
 		if (httpRequestModel.isCustom) {
 			fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "HttpMethod")
 			fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_ROUTING, "route")
 			beginControlFlow(
 				"""
 				route(
-					path = %S,
+					path = %S%L,
 					method = HttpMethod(%S)
 				)
 				""".trimIndent(),
-				path,
+				httpRequestModel.path,
+				getRegexCode(funModel.regexModel),
 				httpRequestModel.method
 			)
 			beginControlFlow("handle")
@@ -114,11 +114,12 @@ internal class RouteKotlinPoet {
 			beginControlFlow(
 				"""
 				%N(
-					path = %S
+					path = %S%L
 				)
 				""".trimIndent(),
 				method,
-				path
+				httpRequestModel.path,
+				getRegexCode(funModel.regexModel)
 			)
 			buildCodeBlock(funModel)
 			endControlFlow()
@@ -132,7 +133,7 @@ internal class RouteKotlinPoet {
 		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_WEBSOCKET, "webSocketRaw")
 		addStatement("webSocketRaw(")
 		indent()
-		addStatement("path = %S,", webSocketRawModel.path.applyRegexToPathParameters(funModel.pathModels))
+		addStatement("path = %S%L,", webSocketRawModel.path, getRegexCode(funModel.regexModel))
 		webSocketRawModel.protocol?.let { addStatement("protocol = %S", it) }
 		if (webSocketRawModel.negotiateExtensions) {
 			addStatement("negotiateExtensions = true")
@@ -150,23 +151,12 @@ internal class RouteKotlinPoet {
 		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_WEBSOCKET, "webSocket")
 		addStatement("webSocket(")
 		indent()
-		addStatement("path = %S,", webSocketModel.path.applyRegexToPathParameters(funModel.pathModels))
+		addStatement("path = %S%L,", webSocketModel.path, getRegexCode(funModel.regexModel))
 		webSocketModel.protocol?.let { addStatement("protocol = %S", it) }
 		unindent()
 		beginControlFlow(")")
 		buildCodeBlock(funModel)
 		endControlFlow()
-	}
-	
-	private fun String.applyRegexToPathParameters(
-		pathModels: List<PathModel>
-	): String {
-		if (pathModels.all { it.regex == null }) return this
-		var oldPath = this
-		pathModels.filter { it.regex != null }.forEach {
-			oldPath = oldPath.replace("{${it.name}}", "{${it.name}<${it.regex}>}")
-		}
-		return oldPath
 	}
 	
 	private fun CodeBlock.Builder.buildCodeBlock(
@@ -199,5 +189,19 @@ internal class RouteKotlinPoet {
 		val memberName = MemberName(funModel.canonicalName, funModel.funName, funModel.isExtension)
 		fileSpecBuilder.addAliasedImport(memberName, funName)
 		return funName
+	}
+	
+	private fun getRegexCode(regexModel: RegexModel?): String {
+		if (regexModel == null) return ""
+		if (regexModel.classNames.isEmpty()) return ".toRegex()"
+		if (regexModel.classNames.size == 1) {
+			val className = regexModel.classNames.first()
+			val option = className.simpleNames.joinToString(".")
+			return ".toRegex(RegexOption.$option)"
+		}
+		val options = regexModel.classNames.joinToString {
+			it.simpleNames.joinToString(".")
+		}
+		return ".toRegex(setOf($options))"
 	}
 }

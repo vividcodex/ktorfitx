@@ -56,6 +56,8 @@ internal object TypeNames {
 	
 	val Authentication = ClassName("cn.ktorfitx.server.annotation", "Authentication")
 	
+	val Regex = ClassName("cn.ktorfitx.server.annotation", "Regex")
+	
 	val RouteGenerator = ClassName("cn.ktorfitx.server.annotation", "RouteGenerator")
 	
 	val Principal = ClassName("cn.ktorfitx.server.annotation", "Principal")

@@ -31,6 +31,7 @@ internal class RouteVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, FunMod
 			group = function.getGroupName(),
 			authenticationModel = function.getAuthenticationModel(),
 			routeModel = routeModel,
+			regexModel = function.getRegexModel(routeModel),
 			varNames = function.getVarNames(),
 			principalModels = function.getPrincipalModels(),
 			queryModels = function.getQueryModels(),
@@ -139,6 +140,18 @@ internal class RouteVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, FunMod
 				}
 			}
 		}
+	}
+	
+	private fun KSFunctionDeclaration.getRegexModel(
+		routeModel: RouteModel
+	): RegexModel? {
+		val annotation = this.getKSAnnotationByType(TypeNames.Regex) ?: return null
+		val classNames = annotation.getClassNamesOrNull("options")?.toSet() ?: emptySet()
+		val options = classNames.map { RegexOption.valueOf(it.simpleName) }.toSet()
+		routeModel.annotation.compileCheck(routeModel.path.isValidRegex(options)) {
+			"${simpleName.asString()} 函数上的 @${routeModel.annotation.shortName.asString()} 注解的 path 参数不是一个合法的正则表达式"
+		}
+		return RegexModel(classNames)
 	}
 	
 	override fun defaultHandler(node: KSNode, data: List<CustomHttpMethodModel>): FunModel = error("Not Implemented")

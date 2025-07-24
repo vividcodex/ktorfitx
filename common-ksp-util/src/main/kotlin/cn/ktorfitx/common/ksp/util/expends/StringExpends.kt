@@ -74,9 +74,17 @@ fun String.camelToHeaderCase(): String {
 	}.replaceFirstChar { it.uppercaseChar() }
 }
 
-fun String.isValidRegex(): Boolean {
+fun String.isValidRegex(
+	options: Set<RegexOption> = emptySet(),
+): Boolean {
 	return try {
-		Regex(this)
+		if (options.isEmpty()) {
+			this.toRegex()
+		} else if (options.size == 1) {
+			this.toRegex(options.first())
+		} else {
+			this.toRegex(options)
+		}
 		true
 	} catch (_: Exception) {
 		false

@@ -194,7 +194,8 @@ internal class RouteCodeBlock(
 			if (partVarName != null && !beforePartDispose) {
 				addStatement("%N.disposeAll()", partVarName)
 			}
-			addStatement("this.call.respond(%N)", varName)
+			fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "HttpStatusCode")
+			addStatement("this.call.respond(HttpStatusCode.OK, %N)", varName)
 		} else {
 			addStatement("%N(%L)", funName, parameters)
 		}
