@@ -24,20 +24,19 @@ internal class KtorfitxServerSymbolProcessor(
 		val customHttpMethodModels = resolver.getCustomHttpMethodModels(
 			httpMethod = TypeNames.HttpMethod,
 			httpMethods = TypeNames.httpMethods,
+			parameterName = "path",
 			transform = ::CustomHttpMethodModel
 		)
 		val routeGeneratorModels = resolver.getRouteGeneratorModels()
-		val funModels = resolver.getFunModels()
-		generateRouteGenerators(
-			customHttpMethodModels,
-			routeGeneratorModels,
-			funModels,
-		)
+		val funModels = resolver.getFunModels(customHttpMethodModels)
+		generateRouteGenerators(routeGeneratorModels, funModels)
 		return emptyList()
 	}
 	
-	private fun Resolver.getFunModels(): List<FunModel> {
-		return TypeNames.routes
+	private fun Resolver.getFunModels(
+		customHttpMethodModels: List<CustomHttpMethodModel>
+	): List<FunModel> {
+		return (TypeNames.routes + customHttpMethodModels.map { it.className })
 			.flatMap { this.getSymbolsWithAnnotation(it.canonicalName) }
 			.filterIsInstance<KSFunctionDeclaration>()
 			.map {
@@ -47,7 +46,7 @@ internal class KtorfitxServerSymbolProcessor(
 					"$functionName 函数只允许声明在 文件顶层 或 object 类中"
 				}
 				val visitor = RouteVisitor()
-				it.accept(visitor, Unit)
+				it.accept(visitor, customHttpMethodModels)
 			}
 	}
 	
@@ -63,7 +62,6 @@ internal class KtorfitxServerSymbolProcessor(
 	}
 	
 	private fun generateRouteGenerators(
-		customHttpMethodModels: List<CustomHttpMethodModel>,
 		routeGeneratorModels: List<RouteGeneratorModel>,
 		funModels: List<FunModel>,
 	) {

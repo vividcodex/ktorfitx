@@ -16,5 +16,7 @@ internal object PackageNames {
 	
 	const val KTOR_SERVER_UTIL = "io.ktor.server.util"
 	
+	const val KTOR_HTTP = "io.ktor.http"
+	
 	const val KTORFITX_SERVER_CORE = "cn.ktorfitx.server.core"
 }

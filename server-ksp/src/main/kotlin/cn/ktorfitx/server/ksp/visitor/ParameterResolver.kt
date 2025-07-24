@@ -124,12 +124,6 @@ internal fun KSFunctionDeclaration.getRequestBody(
 		if (exists) entity.key else null
 	}
 	if (modelKClasses.isEmpty()) return null
-	this.compileCheck(
-		routeModel is HttpRequestModel &&
-			routeModel.className in arrayOf(TypeNames.POST, TypeNames.PUT, TypeNames.DELETE, TypeNames.PATCH, TypeNames.OPTIONS)
-	) {
-		"${simpleName.asString()} 函数的参数中不允许使用 @Body, @Field, @PartForm, @PartFile, @PartBinary, @PartBinaryChannel 注解，因为请求类型必须是 @POST, @PUT, @DELETE, @PATCH, @OPTIONS 才能使用"
-	}
 	this.compileCheck(modelKClasses.size == 1) {
 		"${simpleName.asString()} 函数参数不允许同时使用 @Body, @Field 或 @PartForm, @PartFile, @PartBinary, @PartBinaryChannel 注解"
 	}

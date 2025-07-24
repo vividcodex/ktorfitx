@@ -90,19 +90,39 @@ internal class RouteKotlinPoet {
 		funModel: FunModel,
 		httpRequestModel: HttpRequestModel
 	) {
-		val method = httpRequestModel.className.simpleName.lowercase()
-		fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_ROUTING, method)
-		beginControlFlow(
-			"""
-			%N(
-				path = %S
+		val path = httpRequestModel.path.applyRegexToPathParameters(funModel.pathModels)
+		if (httpRequestModel.isCustom) {
+			fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "HttpMethod")
+			fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_ROUTING, "route")
+			beginControlFlow(
+				"""
+				route(
+					path = %S,
+					method = HttpMethod(%S)
+				)
+				""".trimIndent(),
+				path,
+				httpRequestModel.method
 			)
-			""".trimIndent(),
-			method,
-			httpRequestModel.path.applyRegexToPathParameters(funModel.pathModels)
-		)
-		buildCodeBlock(funModel)
-		endControlFlow()
+			beginControlFlow("handle")
+			buildCodeBlock(funModel)
+			endControlFlow()
+			endControlFlow()
+		} else {
+			val method = httpRequestModel.method.lowercase()
+			fileSpecBuilder.addImport(PackageNames.KTOR_SERVER_ROUTING, method)
+			beginControlFlow(
+				"""
+				%N(
+					path = %S
+				)
+				""".trimIndent(),
+				method,
+				path
+			)
+			buildCodeBlock(funModel)
+			endControlFlow()
+		}
 	}
 	
 	private fun CodeBlock.Builder.buildWebRawSocket(

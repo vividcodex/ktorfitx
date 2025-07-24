@@ -13,16 +13,16 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
-internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
+internal class RouteVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, FunModel>() {
 	
 	override fun visitFunctionDeclaration(
 		function: KSFunctionDeclaration,
-		data: Unit
+		data: List<CustomHttpMethodModel>
 	): FunModel {
 		function.compileCheck(!(function.isGeneric())) {
 			"${function.simpleName.asString()} 函数不允许包含泛型"
 		}
-		val routeModel = function.getRouteModel()
+		val routeModel = function.getRouteModel(data)
 		function.checkReturnType(routeModel is HttpRequestModel)
 		return FunModel(
 			funName = function.simpleName.asString(),
@@ -86,10 +86,12 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 		return AuthenticationModel(configurations, strategy)
 	}
 	
-	private fun KSFunctionDeclaration.getRouteModel(): RouteModel {
-		val dataList = TypeNames.routes.mapNotNull {
-			this.getKSAnnotationByType(it)?.let(it::to)
-		}
+	private fun KSFunctionDeclaration.getRouteModel(
+		customHttpMethodModels: List<CustomHttpMethodModel>
+	): RouteModel {
+		val customHttpMethodClassNames = customHttpMethodModels.map { it.className }
+		val dataList = (TypeNames.routes + customHttpMethodClassNames)
+			.mapNotNull { this.getKSAnnotationByType(it)?.let(it::to) }
 		this.compileCheck(dataList.size == 1) {
 			"${simpleName.asString()} 函数不允许同时添加多个请求类型"
 		}
@@ -129,10 +131,15 @@ internal class RouteVisitor : KSEmptyVisitor<Unit, FunModel>() {
 						"${simpleName.asString()} 是扩展函数，但仅允许扩展 RoutingContext"
 					}
 				}
-				HttpRequestModel(path, className, annotation)
+				if (className in TypeNames.httpMethods) {
+					HttpRequestModel(path, annotation, className.simpleName, false)
+				} else {
+					val method = customHttpMethodModels.first { it.className == className }.method
+					HttpRequestModel(path, annotation, method, true)
+				}
 			}
 		}
 	}
 	
-	override fun defaultHandler(node: KSNode, data: Unit): FunModel = error("Not Implemented")
+	override fun defaultHandler(node: KSNode, data: List<CustomHttpMethodModel>): FunModel = error("Not Implemented")
 }

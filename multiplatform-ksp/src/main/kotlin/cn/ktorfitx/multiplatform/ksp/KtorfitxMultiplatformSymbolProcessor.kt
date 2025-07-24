@@ -25,6 +25,7 @@ internal class KtorfitxMultiplatformSymbolProcessor(
 		val customHttpMethods = resolver.getCustomHttpMethodModels(
 			httpMethod = TypeNames.HttpMethod,
 			httpMethods = TypeNames.httpMethods,
+			parameterName = "url",
 			transform = ::CustomHttpMethodModel
 		)
 		resolver.generateApiImpls(customHttpMethods)

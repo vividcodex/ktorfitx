@@ -13,6 +13,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 fun <R : Any> Resolver.getCustomHttpMethodModels(
 	httpMethod: ClassName,
 	httpMethods: List<ClassName>,
+	parameterName: String,
 	transform: (method: String, className: ClassName) -> R
 ): List<R> {
 	return this.getSymbolsWithAnnotation(httpMethod.canonicalName)
@@ -33,10 +34,10 @@ fun <R : Any> Resolver.getCustomHttpMethodModels(
 				val typeName = property.type.toTypeName()
 				if (typeName != TypeNames.String) return false
 				val simpleName = property.simpleName.asString()
-				return simpleName == "url"
+				return simpleName == parameterName
 			}
 			it.compileCheck(validProperty()) {
-				"${it.simpleName.asString()} 注解必须添加 val url: String 参数"
+				"@${it.simpleName.asString()} 注解必须添加 val $parameterName: String 参数"
 			}
 			fun validTarget(): Boolean {
 				val annotation = it.getKSAnnotationByType(TypeNames.Target) ?: return false
