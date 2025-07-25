@@ -5,5 +5,5 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 annotation class ApiScope(
-	val apiScope: KClass<*>
+	vararg val scopes: KClass<*>
 )

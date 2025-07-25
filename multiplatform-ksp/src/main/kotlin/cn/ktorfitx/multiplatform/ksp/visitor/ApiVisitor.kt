@@ -61,30 +61,12 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 	}
 	
 	private fun KSClassDeclaration.getApiScopeModels(): List<ApiScopeModel> {
-		val apiScopeAnnotation = getKSAnnotationByType(TypeNames.ApiScope)
-		val apiScopesAnnotation = getKSAnnotationByType(TypeNames.ApiScopes)
-		val apiScopeClassNames = when {
-			apiScopeAnnotation != null && apiScopesAnnotation != null -> {
-				this.ktorfitxError {
-					"${simpleName.asString()} 接口上不允许同时使用 @ApiScope 和 @ApiScopes 注解"
-				}
-			}
-			
-			apiScopeAnnotation != null -> {
-				listOf(apiScopeAnnotation.getClassName("apiScope"))
-			}
-			
-			apiScopesAnnotation != null -> {
-				apiScopesAnnotation.getClassNamesOrNull("apiScopes")?.distinct() ?: this.ktorfitxError {
-					"${simpleName.asString()} 接口上的 @ApiScopes 注解参数不允许为空"
-				}
-			}
-			
-			else -> listOf(TypeNames.DefaultApiScope)
-		}
+		val apiScopeAnnotation = getKSAnnotationByType(TypeNames.ApiScope) ?: return listOf(ApiScopeModel(TypeNames.DefaultApiScope))
+		val apiScopeClassNames = apiScopeAnnotation.getClassNamesOrNull("scopes")?.distinct()?.takeIf { it.isNotEmpty() }
+			?: this.ktorfitxError { "${simpleName.asString()} 接口上的 @ApiScope 注解的参数不允许为空" }
 		val groupSize = apiScopeClassNames.groupBy { it.simpleNames.joinToString(".") }.size
 		this.compileCheck(apiScopeClassNames.size == groupSize) {
-			"${simpleName.asString()} 函数不允许使用相同的类名"
+			"${simpleName.asString()} 函数不允许使用类名相同的 KClass"
 		}
 		return apiScopeClassNames.map { ApiScopeModel(it) }
 	}

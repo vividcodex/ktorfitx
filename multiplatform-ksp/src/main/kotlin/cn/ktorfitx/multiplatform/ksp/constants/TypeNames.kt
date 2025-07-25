@@ -47,8 +47,6 @@ internal object TypeNames {
 	
 	val ApiScope = ClassName("cn.ktorfitx.multiplatform.annotation", "ApiScope")
 	
-	val ApiScopes = ClassName("cn.ktorfitx.multiplatform.annotation", "ApiScopes")
-	
 	val WebSocket = ClassName("cn.ktorfitx.multiplatform.annotation", "WebSocket")
 	
 	val BearerAuth = ClassName("cn.ktorfitx.multiplatform.annotation", "BearerAuth")

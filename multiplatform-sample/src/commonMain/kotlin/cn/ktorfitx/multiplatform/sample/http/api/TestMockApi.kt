@@ -6,7 +6,7 @@ import cn.ktorfitx.multiplatform.sample.http.TestApiScope
 import cn.ktorfitx.multiplatform.sample.http.TestRequest2
 import cn.ktorfitx.multiplatform.sample.http.mock.StringMockProvider
 
-@ApiScopes(TestApiScope::class, Test2ApiScope::class)
+@ApiScope(TestApiScope::class, Test2ApiScope::class)
 @Api(url = "/mock")
 interface TestMockApi {
 	

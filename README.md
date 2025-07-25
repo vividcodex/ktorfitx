@@ -65,7 +65,7 @@ Common
 
 ## 注解介绍
 
-### Kotlin Multiplatform（24个）
+### Kotlin Multiplatform（23个）
 
 #### 注解
 
@@ -75,7 +75,6 @@ Common
 
 - `@Api` 定义接口
 - `@ApiScope` 接口作用域，用于控制扩展方法的泛型
-- `@ApiScopes` 接口作用域，用于控制扩展方法的泛型
 
 #### 方法
 
