@@ -44,6 +44,7 @@ KSP `2.2.0-2.0.2`
 ### 全部依赖
 
 Kotlin Multiplatform
+
 - cn.ktorfitx:multiplatform-core
 - cn.ktorfitx:multiplatform-annotation
 - cn.ktorfitx:multiplatform-websockets
@@ -51,6 +52,7 @@ Kotlin Multiplatform
 - cn.ktorfitx:multiplatform-ksp
 
 Ktor Server
+
 - cn.ktorfitx:server-core
 - cn.ktorfitx:server-annotation
 - cn.ktorfitx:server-websockets
@@ -58,11 +60,16 @@ Ktor Server
 - cn.ktorfitx:server-ksp
 
 Common
+
 - cn.ktorfitx:common-ksp-util
 
 ## 注解介绍
 
 ### Kotlin Multiplatform（24个）
+
+#### ANNOTATION CLASS 注解
+
+- `@HttpMethod` 自定义 HttpMethod
 
 #### INTERFACE 接口
 
@@ -84,7 +91,6 @@ Common
 - `@Mock` 定义 Mock
 - `@WebSocket` WebSocket
 - `@Timeout` 超时时间
-- `@HttpMethod` 自定义 HttpMethod
 
 #### VALUE_PARAMETER 参数
 
@@ -97,11 +103,15 @@ Common
 - `@Cookie` cookie 参数
 - `@Attribute` attribute 参数
 
-### Ktor Server（23个）
+### Ktor Server（24个）
 
 #### FILE 文件
 
 - `@RouteGenerator` 路由生成文件定义
+
+#### ANNOTATION CLASS 注解
+
+- `@HttpMethod` 自定义 HttpMethod
 
 #### FUNCTION 方法
 
@@ -115,7 +125,7 @@ Common
 - `@Authentication` 路由授权
 - `@WebSocket` WebSocket
 - `@Group` 定义路由生成组
-- `@HttpMethod` 自定义 HttpMethod
+- `@Regex` 正则匹配 path
 
 #### VALUE_PARAMETER 参数
 
