@@ -67,17 +67,17 @@ Common
 
 ### Kotlin Multiplatform（24个）
 
-#### ANNOTATION CLASS 注解
+#### 注解
 
 - `@HttpMethod` 自定义 HttpMethod
 
-#### INTERFACE 接口
+#### 接口
 
 - `@Api` 定义接口
 - `@ApiScope` 接口作用域，用于控制扩展方法的泛型
 - `@ApiScopes` 接口作用域，用于控制扩展方法的泛型
 
-#### FUNCTION 方法
+#### 方法
 
 - `@GET` GET 请求
 - `@POST` POST 请求
@@ -92,7 +92,7 @@ Common
 - `@WebSocket` WebSocket
 - `@Timeout` 超时时间
 
-#### VALUE_PARAMETER 参数
+#### 参数
 
 - `@Body` 请求体
 - `@Query` 请求参数
@@ -105,15 +105,15 @@ Common
 
 ### Ktor Server（24个）
 
-#### FILE 文件
+#### 文件
 
 - `@RouteGenerator` 路由生成文件定义
 
-#### ANNOTATION CLASS 注解
+#### 注解
 
 - `@HttpMethod` 自定义 HttpMethod
 
-#### FUNCTION 方法
+#### 方法
 
 - `@GET` GET 请求
 - `@POST` POST 请求
@@ -127,7 +127,7 @@ Common
 - `@Group` 定义路由生成组
 - `@Regex` 正则匹配 path
 
-#### VALUE_PARAMETER 参数
+#### 参数
 
 - `@Attribute` attribute 参数
 - `@Body` 请求体参数
