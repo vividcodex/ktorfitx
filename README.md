@@ -1,4 +1,4 @@
-# KtorfitX 3.2.2-3.0.1
+# KtorfitX 3.2.2-3.0.2
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,7 +6,7 @@
 
 ## 更新时间
 
-### 2025-07-22
+### 2025-07-25
 
 ## 项目简介
 
@@ -62,7 +62,7 @@ Common
 
 ## 注解介绍
 
-### Kotlin Multiplatform（23个）
+### Kotlin Multiplatform（24个）
 
 #### INTERFACE 接口
 
@@ -84,6 +84,7 @@ Common
 - `@Mock` 定义 Mock
 - `@WebSocket` WebSocket
 - `@Timeout` 超时时间
+- `@HttpMethod` 自定义 HttpMethod
 
 #### VALUE_PARAMETER 参数
 
@@ -96,7 +97,7 @@ Common
 - `@Cookie` cookie 参数
 - `@Attribute` attribute 参数
 
-### Ktor Server（22个）
+### Ktor Server（23个）
 
 #### FILE 文件
 
@@ -114,6 +115,7 @@ Common
 - `@Authentication` 路由授权
 - `@WebSocket` WebSocket
 - `@Group` 定义路由生成组
+- `@HttpMethod` 自定义 HttpMethod
 
 #### VALUE_PARAMETER 参数
 

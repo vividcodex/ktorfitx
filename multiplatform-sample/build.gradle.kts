@@ -1,7 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
@@ -48,60 +47,7 @@ kotlin {
             }
         }
     }
-
-    if ("macos" in ktorfitxPlatforms) {
-        listOf(
-            macosX64(),
-            macosArm64(),
-        ).forEach { target ->
-            target.binaries.framework {
-                baseName = "SampleApp"
-                isStatic = true
-            }
-        }
-    }
-
-    if ("watchos" in ktorfitxPlatforms) {
-        listOf(
-            watchosX64(),
-            watchosArm32(),
-            watchosArm64(),
-            watchosSimulatorArm64(),
-            watchosDeviceArm64(),
-        ).forEach { target ->
-            target.binaries.framework {
-                baseName = "SampleApp"
-                isStatic = true
-            }
-        }
-    }
-
-    if ("tvos" in ktorfitxPlatforms) {
-        listOf(
-            tvosX64(),
-            tvosArm64(),
-            tvosSimulatorArm64()
-        ).forEach { target ->
-            target.binaries.framework {
-                baseName = "SampleApp"
-                isStatic = true
-            }
-        }
-    }
-
-    if ("linux" in ktorfitxPlatforms) {
-        listOf(
-            linuxArm64(),
-            linuxX64()
-        ).forEach { target ->
-            target.binaries.executable()
-        }
-    }
-
-    if ("mingw" in ktorfitxPlatforms) {
-        mingwX64().binaries.executable()
-    }
-
+	
     if ("js" in ktorfitxPlatforms) {
         js(IR) {
             outputModuleName = "sampleApp"
