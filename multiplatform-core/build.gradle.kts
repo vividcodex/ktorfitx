@@ -53,7 +53,7 @@ kotlin {
 			macosArm64(),
 		).forEach { target ->
 			target.binaries.framework {
-				baseName = "KtorfitxAnnotation"
+				baseName = "KtorfitxCore"
 				isStatic = true
 			}
 		}
