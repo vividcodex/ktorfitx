@@ -1,4 +1,4 @@
-# KtorfitX 3.2.2-3.0.2
+# KtorfitX 3.2.3-3.0.3
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,19 +6,25 @@
 
 ## 更新时间
 
-### 2025-07-25
+### 2025-07-30
 
 ## 项目简介
 
-Kotlin Multiplatform 平台是为了实现类似RESTful风格的网络请求接口定义，使用代码生成实现类
+Kotlin Multiplatform 平台是为了实现类似 RESTful 风格的网络请求接口定义，使用代码生成实现类
 
 Ktor Server 是为了自动生成路由层代码，自动管理路由代码，并可以通过注解获取各种类型参数
+
+## 官方文档
+
+http://vividcodex.github.io/ktorfitx-document/start.html
+
+建设中...
 
 ## 版本说明
 
 Kotlin `2.2.0`
 
-Ktor `3.2.2`
+Ktor `3.2.3`
 
 KSP `2.2.0-2.0.2`
 
@@ -160,44 +166,44 @@ Common
 
 ``` kotlin
 plugins {
-    // 必选
-    alias(libs.plugins.kotlin.serialization)
-    
-    // 必选
-    alias(libs.plugins.ksp)
+	// 必选
+	alias(libs.plugins.kotlin.serialization)
+	
+	// 必选
+	alias(libs.plugins.ksp)
 }
 
 val ktorfitxVersion = "<latest>"
 
 kotlin {
-    sourceSets {
-        // ...
-        commonMain.dependencies {
-            // 必选
-            implementation("cn.ktorfitx:multiplatform-core:$ktorfitxVersion")
-            implementation("cn.ktorfitx:multiplatform-annotation:$ktorfitxVersion")
-            
-            // 可选，如果你需要 WebSocket 支持
-            implementation("cn.ktorfitx:multiplatform-websockets:$ktorfitxVersion")
-            
-            // 可选，如果你需要 Mock 支持
-            implementation("cn.ktorfitx:multiplatform-mock:$ktorfitxVersion")
-        }
-        commonMain {
-            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin") 
-        }
-        // ...
-    }
+	sourceSets {
+		// ...
+		commonMain.dependencies {
+			// 必选
+			implementation("cn.ktorfitx:multiplatform-core:$ktorfitxVersion")
+			implementation("cn.ktorfitx:multiplatform-annotation:$ktorfitxVersion")
+			
+			// 可选，如果你需要 WebSocket 支持
+			implementation("cn.ktorfitx:multiplatform-websockets:$ktorfitxVersion")
+			
+			// 可选，如果你需要 Mock 支持
+			implementation("cn.ktorfitx:multiplatform-mock:$ktorfitxVersion")
+		}
+		commonMain {
+			kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+		}
+		// ...
+	}
 }
 
 dependencies {
-    kspCommonMainMetadata("cn.ktorfitx:multiplatform-ksp:$ktorfitxVersion")
+	kspCommonMainMetadata("cn.ktorfitx:multiplatform-ksp:$ktorfitxVersion")
 }
 
 tasks.withType<KotlinCompilationTask<*>>().all {
-    "kspCommonMainKotlinMetadata".also {
-        if (name != it) dependsOn(it)
-    }
+	"kspCommonMainKotlinMetadata".also {
+		if (name != it) dependsOn(it)
+	}
 }
 ```
 
@@ -205,47 +211,47 @@ tasks.withType<KotlinCompilationTask<*>>().all {
 
 ``` kotlin
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ktor)
-    alias(libs.plugins.ksp)
+	alias(libs.plugins.kotlin.jvm)
+	alias(libs.plugins.kotlin.serialization)
+	alias(libs.plugins.ktor)
+	alias(libs.plugins.ksp)
 }
 
 group = "cn.ktorfitx.server.sample"
 version = property("ktorfitx.sample.version").toString()
 
-application { 
-    mainClass = "io.ktor.server.netty.EngineMain"
-
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=true")
+application {
+	mainClass = "io.ktor.server.netty.EngineMain"
+	
+	applicationDefaultJvmArgs = listOf("-Dio.ktor.development=true")
 }
 
-kotlin { 
-    compilerOptions {
-        languageVersion = KotlinVersion.KOTLIN_2_2
-        apiVersion = KotlinVersion.KOTLIN_2_2
-        jvmTarget = JvmTarget.JVM_21 
-    }
+kotlin {
+	compilerOptions {
+		languageVersion = KotlinVersion.KOTLIN_2_2
+		apiVersion = KotlinVersion.KOTLIN_2_2
+		jvmTarget = JvmTarget.JVM_21
+	}
 }
 
 dependencies {
-    val ktorfitxVersion = "<latest>"
-
-    // 注解（必选）
-    implementation("cn.ktorfitx:server-core:$ktorfitxVersion")
-    implementation("cn.ktorfitx:server-annotation:$ktorfitxVersion")
-    
-    // 可选，ktor auth 支持
-    implementation("cn.ktorfitx:server-auth:$ktorfitxVersion")
-    
-    // 可选，ktor websockets 支持
-    implementation("cn.ktorfitx:server-websockets:$ktorfitxVersion")
-    
-    // Ktor 的依赖库，需要自行定义，以上依赖仅提供注解支持
-    implementation(libs.bundles.server.sample)
-    
-    // 代码生成扫描器（必选）
-    ksp("cn.ktorfitx:server-ksp:$ktorfitxVersion")
+	val ktorfitxVersion = "<latest>"
+	
+	// 注解（必选）
+	implementation("cn.ktorfitx:server-core:$ktorfitxVersion")
+	implementation("cn.ktorfitx:server-annotation:$ktorfitxVersion")
+	
+	// 可选，ktor auth 支持
+	implementation("cn.ktorfitx:server-auth:$ktorfitxVersion")
+	
+	// 可选，ktor websockets 支持
+	implementation("cn.ktorfitx:server-websockets:$ktorfitxVersion")
+	
+	// Ktor 的依赖库，需要自行定义，以上依赖仅提供注解支持
+	implementation(libs.bundles.server.sample)
+	
+	// 代码生成扫描器（必选）
+	ksp("cn.ktorfitx:server-ksp:$ktorfitxVersion")
 }
 ```
 
