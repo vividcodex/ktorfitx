@@ -1,10 +1,8 @@
 package cn.ktorfitx.multiplatform.sample.http.api
 
-import cn.ktorfitx.multiplatform.annotation.Api
-import cn.ktorfitx.multiplatform.annotation.Attribute
-import cn.ktorfitx.multiplatform.annotation.Mock
-import cn.ktorfitx.multiplatform.annotation.POST
+import cn.ktorfitx.multiplatform.annotation.*
 import cn.ktorfitx.multiplatform.sample.http.mock.StringMockProvider
+import kotlinx.serialization.Serializable
 
 @Api("attribute")
 interface TestAttributeApi {
@@ -28,4 +26,15 @@ interface TestAttributeApi {
 		@Attribute name: String,
 		@Attribute("custom") age: Int
 	): String
+	
+	@BearerAuth
+	@POST(url = "user/detail/update")
+	suspend fun updateUserDetail(
+		@Body data: UserDetail
+	): Boolean
 }
+
+@Serializable
+data class UserDetail(
+	val a: String,
+)
