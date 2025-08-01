@@ -16,13 +16,12 @@ gradlePlugin {
 	plugins {
 		create("KotrfitxMultiplatformPlugin") {
 			id = "cn.ktorfitx.multiplatform"
+			displayName = "Kotrfitx Multiplatform Plugin"
 			implementationClass = "cn.ktorfitx.multiplatform.plugin.KtorfitxMultiplatformPlugin"
 		}
 	}
 }
 
 dependencies {
-	//noinspection UseTomlInstead
-	implementation("com.google.devtools.ksp:symbol-processing-gradle-plugin:2.2.0-2.0.2")
-	implementation("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:2.2.0")
+	implementation(libs.bundles.multiplatform.plugin)
 }

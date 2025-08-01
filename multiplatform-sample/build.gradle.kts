@@ -171,6 +171,10 @@ compose.desktop {
 }
 
 ktorfitx {
-	websocketsEnabled = true
-	mockEnabled = true
+	websockets {
+		enabled = true
+	}
+	mock {
+		enabled = true
+	}
 }
