@@ -1,6 +1,7 @@
 [versions]
 kotlin = "2.2.0"
 ksp = "2.2.0-2.0.2"
+maven-publish = "0.34.0"
 
 [libraries]
 # Common
@@ -8,10 +9,4 @@ ksp = { group = "com.google.devtools.ksp", name = "symbol-processing-gradle-plug
 kotlin-multiplatform = { group = "org.jetbrains.kotlin.multiplatform", name = "org.jetbrains.kotlin.multiplatform.gradle.plugin", version.ref = "kotlin" }
 
 [plugins]
-
-[bundles]
-
-multiplatform-plugin = [
-	'ksp',
-	'kotlin-multiplatform'
-]
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }

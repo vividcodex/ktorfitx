@@ -27,15 +27,7 @@ kotlin {
 	}
 }
 
-fun checkVersion() {
-	val size = ktorfitxVersion.split("-").size
-	check((ktorfitxAutomaticRelease && size == 2) || (!ktorfitxAutomaticRelease && size == 3)) {
-		"ktorfitx 的 version 是 $ktorfitxVersion，但是 automaticRelease 是 $ktorfitxAutomaticRelease 的"
-	}
-}
-
 mavenPublishing {
-	checkVersion()
 	publishToMavenCentral(automaticRelease = ktorfitxAutomaticRelease)
 	signAllPublications()
 	
