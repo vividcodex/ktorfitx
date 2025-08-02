@@ -4,17 +4,17 @@ plugins {
 	alias(libs.plugins.maven.publish)
 }
 
-val ktorfitxVersion = "3.2.3-3.1.0-dev01"
-val ktorfitxAutomaticRelease = false
+val ktorfitxVersion = property("ktorfitx.version").toString()
+val ktorfitxAutomaticRelease = property("ktorfitx.automaticRelease").toString().toBoolean()
 
 group = "cn.ktorfitx.server.gradle.plugin"
 version = ktorfitxVersion
 
 gradlePlugin {
 	plugins {
-		create("ktorfitxServerGradlePlugin") {
+		create("KtorfitxServerGradlePlugin") {
 			id = "cn.ktorfitx.server"
-			displayName = "Kotrfitx Server Gradle Plugin"
+			displayName = "Ktorfitx Server Gradle Plugin"
 			implementationClass = "cn.ktorfitx.server.gradle.plugin.KtorfitxServerPlugin"
 		}
 	}

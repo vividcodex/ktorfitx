@@ -4,17 +4,17 @@ plugins {
 	alias(libs.plugins.maven.publish)
 }
 
-val ktorfitxVersion = "3.2.3-3.1.0-dev01"
-val ktorfitxAutomaticRelease = false
+val ktorfitxVersion = property("ktorfitx.version").toString()
+val ktorfitxAutomaticRelease = property("ktorfitx.automaticRelease").toString().toBoolean()
 
 group = "cn.ktorfitx.multiplatform.gradle.plugin"
 version = ktorfitxVersion
 
 gradlePlugin {
 	plugins {
-		create("ktorfitxMultiplatformGradlePlugin") {
+		create("KtorfitxMultiplatformGradlePlugin") {
 			id = "cn.ktorfitx.multiplatform"
-			displayName = "Kotrfitx Multiplatform Gradle Plugin"
+			displayName = "Ktorfitx Multiplatform Gradle Plugin"
 			implementationClass = "cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMultiplatformPlugin"
 		}
 	}
