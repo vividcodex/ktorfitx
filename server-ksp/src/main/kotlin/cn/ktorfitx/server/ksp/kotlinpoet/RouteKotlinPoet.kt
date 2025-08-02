@@ -197,7 +197,7 @@ internal class RouteKotlinPoet {
 		if (regexModel.classNames.size == 1) {
 			val className = regexModel.classNames.first()
 			val option = className.simpleNames.joinToString(".")
-			return ".toRegex(RegexOption.$option)"
+			return ".toRegex($option)"
 		}
 		val options = regexModel.classNames.joinToString {
 			it.simpleNames.joinToString(".")
