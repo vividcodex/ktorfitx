@@ -8,7 +8,7 @@ import cn.ktorfitx.server.annotation.Regex
 fun regexTest1(): String = "OK"
 
 @Regex(RegexOption.UNIX_LINES)
-@GET("*[")
+@GET("regex/test2/[0-9]+")
 fun regexTest2(): String = "OK"
 
 @Regex(RegexOption.UNIX_LINES, RegexOption.LITERAL)
