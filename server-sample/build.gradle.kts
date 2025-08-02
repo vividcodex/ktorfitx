@@ -5,7 +5,7 @@ plugins {
 	alias(libs.plugins.kotlin.jvm)
 	alias(libs.plugins.kotlin.serialization)
 	alias(libs.plugins.ktor)
-	alias(libs.plugins.ksp)
+	id("cn.ktorfitx.server")
 }
 
 group = "cn.ktorfitx.server.sample"
@@ -28,11 +28,16 @@ kotlin {
 }
 
 dependencies {
-	implementation(projects.serverCore)
-	implementation(projects.serverAnnotation)
-	implementation(projects.serverAuth)
-	implementation(projects.serverWebsockets)
+//	implementation(projects.serverCore)
+//	implementation(projects.serverAnnotation)
+//	implementation(projects.serverAuth)
+//	implementation(projects.serverWebsockets)
 	implementation(libs.bundles.server.sample)
 	
-	ksp(projects.serverKsp)
+//	ksp(projects.serverKsp)
+}
+
+ktorfitx {
+	auth.enabled = true
+	websockets.enabled = true
 }

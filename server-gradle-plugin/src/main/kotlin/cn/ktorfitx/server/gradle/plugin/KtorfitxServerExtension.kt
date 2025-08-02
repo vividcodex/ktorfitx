@@ -1,28 +1,24 @@
-package cn.ktorfitx.multiplatform.gradle.plugin
+package cn.ktorfitx.server.gradle.plugin
 
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
-open class KtorfitxMultiplatformExtension @Inject constructor(
+open class KtorfitxServerExtension @Inject constructor(
 	objects: ObjectFactory
 ) {
 	
 	val websockets = objects.newInstance<WebsocketsConfig>()
-	val mock = objects.newInstance<MockConfig>()
-	val ksp = objects.newInstance<KSPConfig>()
+	
+	val auth = objects.newInstance<MockConfig>()
 	
 	fun websockets(action: WebsocketsConfig.() -> Unit) {
 		websockets.action()
 	}
 	
-	fun mock(action: MockConfig.() -> Unit) {
-		mock.action()
-	}
-	
-	fun ksp(action: KSPConfig.() -> Unit) {
-		ksp.action()
+	fun auth(action: MockConfig.() -> Unit) {
+		auth.action()
 	}
 }
 
@@ -32,11 +28,4 @@ open class WebsocketsConfig @Inject constructor(objects: ObjectFactory) {
 
 open class MockConfig @Inject constructor(objects: ObjectFactory) {
 	val enabled = objects.property<Boolean>().convention(false)
-}
-
-open class KSPConfig @Inject constructor(objects: ObjectFactory) {
-	val kspMetadataGenerationTask = objects.property<Boolean>().convention(true)
-	val kspGeneratedSrcDir = objects.property<String>().convention(
-		"build/generated/ksp/metadata/commonMain/kotlin"
-	)
 }

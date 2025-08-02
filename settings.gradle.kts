@@ -9,9 +9,10 @@ pluginManagement {
 		mavenCentral()
 	}
 	file("multiplatform-gradle-plugin").let {
-		if (it.exists()) {
-			includeBuild(it)
-		}
+		if (it.exists()) includeBuild(it)
+	}
+	file("server-gradle-plugin").let {
+		if (it.exists()) includeBuild(it)
 	}
 }
 plugins {
