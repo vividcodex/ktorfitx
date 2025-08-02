@@ -8,12 +8,8 @@ pluginManagement {
 		gradlePluginPortal()
 		mavenCentral()
 	}
-	file("multiplatform-gradle-plugin").let {
-		if (it.exists()) includeBuild(it)
-	}
-	file("server-gradle-plugin").let {
-		if (it.exists()) includeBuild(it)
-	}
+	includeBuild("multiplatform-gradle-plugin")
+	includeBuild("server-gradle-plugin")
 }
 plugins {
 	id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
