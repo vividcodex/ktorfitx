@@ -7,7 +7,7 @@ plugins {
 val ktorfitxVersion = "3.2.3-3.1.0-dev01"
 val ktorfitxAutomaticRelease = false
 
-group = "cn.ktorfitx.multiplatform.plugin"
+group = "cn.ktorfitx.multiplatform.gradle.plugin"
 version = ktorfitxVersion
 
 repositories {
@@ -18,10 +18,10 @@ repositories {
 
 gradlePlugin {
 	plugins {
-		create("KotrfitxMultiplatformPlugin") {
+		create("ktorfitxMultiplatformGradlePlugin") {
 			id = "cn.ktorfitx.multiplatform"
-			displayName = "Kotrfitx Multiplatform Plugin"
-			implementationClass = "cn.ktorfitx.multiplatform.plugin.KtorfitxMultiplatformPlugin"
+			displayName = "Kotrfitx Multiplatform Gradle Plugin"
+			implementationClass = "cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMultiplatformPlugin"
 		}
 	}
 }
@@ -35,10 +35,10 @@ mavenPublishing {
 	publishToMavenCentral(automaticRelease = ktorfitxAutomaticRelease)
 	signAllPublications()
 	
-	coordinates("cn.ktorfitx", "multiplatform-plugin", ktorfitxVersion)
+	coordinates("cn.ktorfitx", "multiplatform-gradle-plugin", ktorfitxVersion)
 	
 	pom {
-		name.set("multiplatform-plugin")
+		name.set("multiplatform-gradle-plugin")
 		description.set("Ktorfitx 基于 KSP2 的代码生成框架，在 Kotlin Multiplatform 中是 RESTful API 框架，在 Ktor Server 中是 路由以及参数解析框架")
 		inceptionYear.set("2025")
 		url.set("https://github.com/vividcodex/ktorfitx")

@@ -1,4 +1,4 @@
-package cn.ktorfitx.multiplatform.plugin
+package cn.ktorfitx.multiplatform.gradle.plugin
 
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.property
@@ -7,8 +7,6 @@ import javax.inject.Inject
 open class KtorfitxMultiplatformExtension @Inject constructor(
 	objects: ObjectFactory
 ) {
-	
-	val version = objects.property<String>().convention("3.2.3-3.0.3")
 	
 	val websockets = objects.newInstance(WebsocketsConfig::class.java)
 	val mock = objects.newInstance(MockConfig::class.java)

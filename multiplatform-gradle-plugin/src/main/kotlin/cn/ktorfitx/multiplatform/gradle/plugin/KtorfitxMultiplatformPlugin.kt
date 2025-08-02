@@ -1,4 +1,4 @@
-package cn.ktorfitx.multiplatform.plugin
+package cn.ktorfitx.multiplatform.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -12,6 +12,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 class KtorfitxMultiplatformPlugin : Plugin<Project> {
 	
 	private companion object {
+		
+		private const val VERSION = "3.2.3-3.0.4"
 		
 		private const val KOTLIN_MULTIPLATFORM = "org.jetbrains.kotlin.multiplatform"
 		private const val KSP = "com.google.devtools.ksp"
@@ -28,33 +30,32 @@ class KtorfitxMultiplatformPlugin : Plugin<Project> {
 		target.pluginManager.apply(KOTLIN_MULTIPLATFORM)
 		target.pluginManager.apply(KSP)
 		target.afterEvaluate {
-			val version = extension.version.get()
 			extensions.getByType<KotlinMultiplatformExtension>().apply {
 				sourceSets.getByName("commonMain") {
 					dependencies {
-						implementation("$MULTIPLATFORM_ANNOTATION:$version")
-						implementation("$MULTIPLATFORM_CORE:$version")
+						implementation("$MULTIPLATFORM_ANNOTATION:$VERSION")
+						implementation("$MULTIPLATFORM_CORE:$VERSION")
 						if (extension.websockets.enabled.get()) {
-							implementation("$MULTIPLATFORM_WEBSOCKETS:$version")
+							implementation("$MULTIPLATFORM_WEBSOCKETS:$VERSION")
 						}
 						if (extension.mock.enabled.get()) {
-							implementation("$MULTIPLATFORM_MOCK:$version")
+							implementation("$MULTIPLATFORM_MOCK:$VERSION")
 						}
 					}
 					kotlin.srcDir(extension.ksp.kspGeneratedSrcDir.get())
 				}
 			}
-			dependencies {
-				add("kspCommonMainMetadata", "$MULTIPLATFORM_KSP:$version")
-			}
 			
 			if (extension.ksp.kspMetadataGenerationTask.get()) {
 				tasks.withType<KotlinCompilationTask<*>>().all {
-					if (name != "kspCommonMainKotlinMetadata") {
-						dependsOn("kspCommonMainKotlinMetadata")
+					"kspCommonMainKotlinMetadata".also {
+						if (name != it) dependsOn(it)
 					}
 				}
 			}
+		}
+		target.dependencies {
+			add("kspCommonMainMetadata", "$MULTIPLATFORM_KSP:$VERSION")
 		}
 	}
 }

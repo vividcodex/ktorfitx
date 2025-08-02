@@ -2,7 +2,6 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
 	alias(libs.plugins.kotlin.multiplatform)
@@ -98,7 +97,6 @@ kotlin {
 				implementation(compose.components.resources)
 				implementation(compose.components.uiToolingPreview)
 			}
-			kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
 		}
 		if ("android" in ktorfitxPlatforms) {
 			androidMain.dependencies {
@@ -112,12 +110,6 @@ kotlin {
 				implementation(compose.desktop.currentOs)
 			}
 		}
-	}
-}
-
-tasks.withType<KotlinCompilationTask<*>>().all {
-	"kspCommonMainKotlinMetadata".also {
-		if (name != it) dependsOn(it)
 	}
 }
 

@@ -1,4 +1,4 @@
-# KtorfitX 3.2.3-3.0.3
+# KtorfitX 3.2.3-3.0.4
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,7 +6,7 @@
 
 ## 更新时间
 
-### 2025-07-30
+### 2025-08-02
 
 ## 项目简介
 
