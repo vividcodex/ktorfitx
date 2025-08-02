@@ -36,12 +36,11 @@ class KtorfitxMultiplatformPlugin : Plugin<Project> {
 							implementation(group = "cn.ktorfitx", name = "multiplatform-mock")
 						}
 					}
-					kotlin.srcDir(extension.ksp.kspGeneratedSrcDir.get())
+					kotlin.srcDir(extension.ksp.kspCommonMainGeneratedDir.get())
 				}
 			}
-			
-			if (extension.ksp.kspMetadataGenerationTask.get()) {
-				tasks.withType<KotlinCompilationTask<*>>().all {
+			if (extension.ksp.kspDependencyEnabled.get()) {
+				target.tasks.withType<KotlinCompilationTask<*>>().all {
 					"kspCommonMainKotlinMetadata".also {
 						if (name != it) dependsOn(it)
 					}

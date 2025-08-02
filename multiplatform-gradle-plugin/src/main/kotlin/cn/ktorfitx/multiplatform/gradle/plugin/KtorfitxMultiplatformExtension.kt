@@ -35,8 +35,8 @@ open class MockConfig @Inject constructor(objects: ObjectFactory) {
 }
 
 open class KSPConfig @Inject constructor(objects: ObjectFactory) {
-	val kspMetadataGenerationTask = objects.property<Boolean>().convention(true)
-	val kspGeneratedSrcDir = objects.property<String>().convention(
+	val kspDependencyEnabled = objects.property<Boolean>().convention(true)
+	val kspCommonMainGeneratedDir		= objects.property<String>().convention(
 		"build/generated/ksp/metadata/commonMain/kotlin"
 	)
 }
