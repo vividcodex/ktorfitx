@@ -28,14 +28,3 @@ tasks.register("publishKtorfitx") {
 	val tasks = projects.map { ":$it:publishAllPublicationsToMavenCentralRepository" }.toTypedArray()
 	dependsOn(*tasks)
 }
-
-tasks.register("publishKtorfitxGradlePlugin") {
-	group = "publishing"
-	
-	val projects = arrayOf(
-		"multiplatform-gradle-plugin",
-		"server-gradle-plugin",
-	)
-	val tasks = projects.map { ":$it:publishAllPublicationsToMavenCentralRepository" }.toTypedArray()
-	dependsOn(*tasks)
-}
