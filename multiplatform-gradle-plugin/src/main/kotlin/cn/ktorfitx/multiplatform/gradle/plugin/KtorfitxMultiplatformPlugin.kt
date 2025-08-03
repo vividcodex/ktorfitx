@@ -15,8 +15,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 class KtorfitxMultiplatformPlugin : Plugin<Project> {
 	
 	private companion object {
-		
-		private const val VERSION = "3.2.3-3.0.4"
+		private const val VERSION = "3.2.3-3.0.5"
 	}
 	
 	override fun apply(target: Project) {
@@ -27,28 +26,27 @@ class KtorfitxMultiplatformPlugin : Plugin<Project> {
 			extensions.getByType<KotlinMultiplatformExtension>().apply {
 				sourceSets.commonMain {
 					dependencies {
-						implementation(group = "cn.ktorfitx", name = "multiplatform-annotation")
-						implementation(group = "cn.ktorfitx", name = "multiplatform-core")
+						implementation("cn.ktorfitx", "multiplatform-annotation")
+						implementation("cn.ktorfitx", "multiplatform-core")
 						if (extension.websockets.enabled.get()) {
-							implementation(group = "cn.ktorfitx", name = "multiplatform-websockets")
+							implementation("cn.ktorfitx", "multiplatform-websockets")
 						}
 						if (extension.mock.enabled.get()) {
-							implementation(group = "cn.ktorfitx", name = "multiplatform-mock")
+							implementation("cn.ktorfitx", "multiplatform-mock")
 						}
 					}
 					kotlin.srcDir(extension.ksp.kspCommonMainGeneratedDir.get())
 				}
 			}
-			if (extension.ksp.kspDependencyEnabled.get()) {
-				target.tasks.withType<KotlinCompilationTask<*>>().all {
-					"kspCommonMainKotlinMetadata".also {
-						if (name != it) dependsOn(it)
-					}
+			val taskName = "kspCommonMainKotlinMetadata"
+			target.tasks.withType<KotlinCompilationTask<*>>().configureEach {
+				if (this.name != taskName) {
+					dependsOn(taskName)
 				}
 			}
 		}
 		target.dependencies {
-			kspCommonMainMetadata(group = "cn.ktorfitx", name = "multiplatform-ksp")
+			kspCommonMainMetadata("cn.ktorfitx", "multiplatform-ksp")
 		}
 	}
 	

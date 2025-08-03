@@ -9,23 +9,33 @@ plugins {
 	alias(libs.plugins.maven.publish) apply false
 }
 
-val projects = arrayOf(
-	"common-ksp-util",
-	"multiplatform-annotation",
-	"multiplatform-core",
-	"multiplatform-mock",
-	"multiplatform-websockets",
-	"multiplatform-ksp",
-	"server-core",
-	"server-annotation",
-	"server-auth",
-	"server-websockets",
-	"server-ksp"
-)
-
-tasks.register("publishKtorfitxToMavenCentralRepository") {
+tasks.register("publishKtorfitx") {
 	group = "publishing"
 	
+	val projects = arrayOf(
+		"common-ksp-util",
+		"multiplatform-annotation",
+		"multiplatform-core",
+		"multiplatform-mock",
+		"multiplatform-websockets",
+		"multiplatform-ksp",
+		"server-core",
+		"server-annotation",
+		"server-auth",
+		"server-websockets",
+		"server-ksp",
+	)
+	val tasks = projects.map { ":$it:publishAllPublicationsToMavenCentralRepository" }.toTypedArray()
+	dependsOn(*tasks)
+}
+
+tasks.register("publishKtorfitxGradlePlugin") {
+	group = "publishing"
+	
+	val projects = arrayOf(
+		"multiplatform-gradle-plugin",
+		"server-gradle-plugin",
+	)
 	val tasks = projects.map { ":$it:publishAllPublicationsToMavenCentralRepository" }.toTypedArray()
 	dependsOn(*tasks)
 }

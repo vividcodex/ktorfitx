@@ -45,6 +45,6 @@ gradle.properties
 /file
 .idea
 /.run
-/.kotlin
+.kotlin
 /local.properties
 /kotlin-js-store

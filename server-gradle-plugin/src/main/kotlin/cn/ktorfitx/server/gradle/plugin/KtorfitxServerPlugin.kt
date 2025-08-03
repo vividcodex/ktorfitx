@@ -9,9 +9,8 @@ import org.gradle.kotlin.dsl.dependencies
 @Suppress("unused")
 class KtorfitxServerPlugin : Plugin<Project> {
 	
-	private companion object Companion {
-		
-		private const val VERSION = "3.2.3-3.0.4"
+	private companion object {
+		private const val VERSION = "3.2.3-3.0.5"
 	}
 	
 	override fun apply(target: Project) {
@@ -19,18 +18,18 @@ class KtorfitxServerPlugin : Plugin<Project> {
 		target.pluginManager.apply("com.google.devtools.ksp")
 		
 		target.dependencies {
-			implementation(group = "cn.ktorfitx", name = "server-core")
-			implementation(group = "cn.ktorfitx", name = "server-annotation")
-			ksp(group = "cn.ktorfitx", name = "server-ksp")
+			implementation("cn.ktorfitx", "server-core")
+			implementation("cn.ktorfitx", "server-annotation")
+			ksp("cn.ktorfitx", "server-ksp")
 		}
 		
 		target.afterEvaluate {
 			dependencies {
 				if (extension.auth.enabled.get()) {
-					implementation(group = "cn.ktorfitx", name = "server-auth")
+					implementation("cn.ktorfitx", "server-auth")
 				}
 				if (extension.websockets.enabled.get()) {
-					implementation(group = "cn.ktorfitx", name = "server-websockets")
+					implementation("cn.ktorfitx", "server-websockets")
 				}
 			}
 		}

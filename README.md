@@ -1,4 +1,4 @@
-# KtorfitX 3.2.3-3.0.4
+# KtorfitX 3.2.3-3.0.5
 
 [![Maven](https://img.shields.io/badge/Maven-Central-download.svg)](https://central.sonatype.com/search?q=cn.ktorfitx:multiplatform-core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://vividcodex.github.io/ktorfitx-document/index_md.html)
@@ -6,7 +6,7 @@
 
 ## 更新时间
 
-### 2025-08-02
+### 2025-08-04
 
 ## 项目简介
 
@@ -157,9 +157,9 @@ KSP `2.2.0-2.0.2`
 
 添加 Ktor Server 端支持，标记注解，符号处理器会自动生成对应的路由解析函数，包含参数解析授权等行为
 
-## build.gradle.kts 配置
+## Gradle 配置
 
-- 从 `3.2.3-3.0.4` 开始，建议使用 Gradle Plugin 来配置
+- 在模块级 build.gradle.kts 中配置
 
 ### Kotlin Multiplatform
 
@@ -182,7 +182,7 @@ ktorfitx {
 	}
 	
 	ksp {
-		kspGeneratedSrcDir = "<custom>"    // 默认："build/generated/ksp/metadata/commonMain/kotlin"
+		kspCommonMainGeneratedDir = "<custom>"  // 自定义生成目录，默认："build/generated/ksp/metadata/commonMain/kotlin"
 	}
 }
 ```
