@@ -34,15 +34,16 @@ class KtorfitxConfig internal constructor() {
 	}
 	
 	fun <AS : Any> build(): Ktorfitx<AS> {
-		this._httpClient = if (httpClientBlock == null) HttpClient() else with(httpClientBlock!!) {
-			HttpClient(engine) {
-				defaultRequest {
-					if (baseUrl != null) {
-						url(baseUrl!!)
-					}
+		val block: HttpClientConfig<*>.() -> Unit = {
+			defaultRequest {
+				if (baseUrl != null) {
+					url(baseUrl)
 				}
-				block()
 			}
+			httpClientBlock?.block?.invoke(this)
+		}
+		this._httpClient = httpClientBlock.let {
+			if (it != null) HttpClient(it.engine, block) else HttpClient(block)
 		}
 		return Ktorfitx(this)
 	}
