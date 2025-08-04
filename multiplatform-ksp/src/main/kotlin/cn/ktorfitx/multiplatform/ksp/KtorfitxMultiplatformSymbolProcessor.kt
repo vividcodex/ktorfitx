@@ -41,7 +41,7 @@ internal class KtorfitxMultiplatformSymbolProcessor(
 			.forEach {
 				val classKind = it.classKind
 				it.compileCheck(classKind == ClassKind.INTERFACE) {
-					"@Api 只允许标注在 interface 上，而你的是 ${classKind.code}"
+					"@Api 只允许标注在 interface 上，而您的是 ${classKind.code}"
 				}
 				it.compileCheck(Modifier.SEALED !in it.modifiers) {
 					"${it.simpleName.asString()} 接口不支持 sealed 修饰符"

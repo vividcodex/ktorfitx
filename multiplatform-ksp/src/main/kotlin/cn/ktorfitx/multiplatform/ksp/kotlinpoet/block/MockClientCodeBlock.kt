@@ -18,8 +18,10 @@ internal class MockClientCodeBlock(
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
 		httpRequestModel: HttpRequestModel,
+		isPrepareType: Boolean,
 		builder: CodeBlock.Builder.() -> Unit,
 	) {
+		check(!isPrepareType)
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK_CONFIG, "mockClient")
 		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "HttpMethod")
 		when (returnModel.returnKind) {

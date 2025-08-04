@@ -1,5 +1,7 @@
 package cn.ktorfitx.multiplatform.gradle.plugin
 
+import cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMode.DEVELOPMENT
+import cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMode.RELEASE
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
@@ -23,20 +25,10 @@ class KtorfitxMultiplatformPlugin : Plugin<Project> {
 		target.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
 		target.pluginManager.apply("com.google.devtools.ksp")
 		target.afterEvaluate {
-			extensions.getByType<KotlinMultiplatformExtension>().apply {
-				sourceSets.commonMain {
-					dependencies {
-						implementation("cn.ktorfitx", "multiplatform-annotation")
-						implementation("cn.ktorfitx", "multiplatform-core")
-						if (extension.websockets.enabled.get()) {
-							implementation("cn.ktorfitx", "multiplatform-websockets")
-						}
-						if (extension.mock.enabled.get()) {
-							implementation("cn.ktorfitx", "multiplatform-mock")
-						}
-					}
-					kotlin.srcDir(extension.ksp.kspCommonMainGeneratedDir.get())
-				}
+			val mode = extension.mode.get()
+			when (mode) {
+				DEVELOPMENT -> onDevelopmentMode(extension)
+				RELEASE -> onReleaseMode(extension)
 			}
 			val taskName = "kspCommonMainKotlinMetadata"
 			target.tasks.withType<KotlinCompilationTask<*>>().configureEach {
@@ -45,7 +37,46 @@ class KtorfitxMultiplatformPlugin : Plugin<Project> {
 				}
 			}
 		}
-		target.dependencies {
+	}
+	
+	private fun Project.onDevelopmentMode(extension: KtorfitxMultiplatformExtension) {
+		extensions.getByType<KotlinMultiplatformExtension>().apply {
+			sourceSets.commonMain {
+				dependencies {
+					implementation(project(":multiplatform-annotation"))
+					implementation(project(":multiplatform-core"))
+					if (extension.websockets.enabled.get()) {
+						implementation(project(":multiplatform-websockets"))
+					}
+					if (extension.mock.enabled.get()) {
+						implementation(project(":multiplatform-mock"))
+					}
+				}
+				kotlin.srcDir(extension.ksp.kspCommonMainGeneratedDir.get())
+			}
+		}
+		dependencies {
+			kspCommonMainMetadata(project(":multiplatform-ksp"))
+		}
+	}
+	
+	private fun Project.onReleaseMode(extension: KtorfitxMultiplatformExtension) {
+		extensions.getByType<KotlinMultiplatformExtension>().apply {
+			sourceSets.commonMain {
+				dependencies {
+					implementation("cn.ktorfitx", "multiplatform-annotation")
+					implementation("cn.ktorfitx", "multiplatform-core")
+					if (extension.websockets.enabled.get()) {
+						implementation("cn.ktorfitx", "multiplatform-websockets")
+					}
+					if (extension.mock.enabled.get()) {
+						implementation("cn.ktorfitx", "multiplatform-mock")
+					}
+				}
+				kotlin.srcDir(extension.ksp.kspCommonMainGeneratedDir.get())
+			}
+		}
+		dependencies {
 			kspCommonMainMetadata("cn.ktorfitx", "multiplatform-ksp")
 		}
 	}
@@ -55,4 +86,7 @@ class KtorfitxMultiplatformPlugin : Plugin<Project> {
 	
 	private fun DependencyHandler.kspCommonMainMetadata(group: String, name: String): Dependency? =
 		add("kspCommonMainMetadata", "$group:$name:$VERSION")
+	
+	private fun DependencyHandler.kspCommonMainMetadata(project: Project): Dependency? =
+		add("kspCommonMainMetadata", project)
 }

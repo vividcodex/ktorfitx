@@ -1,3 +1,4 @@
+import cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMode
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -85,10 +86,6 @@ kotlin {
 	sourceSets {
 		commonMain {
 			dependencies {
-//				implementation(projects.multiplatformAnnotation)
-//				implementation(projects.multiplatformCore)
-//				implementation(projects.multiplatformMock)
-//				implementation(projects.multiplatformWebsockets
 				implementation(libs.bundles.multiplatform.sample)
 				implementation(compose.runtime)
 				implementation(compose.foundation)
@@ -163,6 +160,7 @@ compose.desktop {
 }
 
 ktorfitx {
+	mode = KtorfitxMode.DEVELOPMENT
 	websockets {
 		enabled = true
 	}

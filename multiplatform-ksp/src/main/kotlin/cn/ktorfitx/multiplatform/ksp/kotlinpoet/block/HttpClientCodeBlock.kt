@@ -17,9 +17,16 @@ internal class HttpClientCodeBlock(
 	
 	override fun CodeBlock.Builder.buildClientCodeBlock(
 		httpRequestModel: HttpRequestModel,
+		isPrepareType: Boolean,
 		builder: CodeBlock.Builder.() -> Unit
 	) {
-		val funName = if (httpRequestModel.isCustom) "request" else httpRequestModel.method.lowercase()
+		val isCustom = httpRequestModel.isCustom
+		val funName = when {
+			isCustom && isPrepareType -> "prepareRequest"
+			isCustom && !isPrepareType -> "request"
+			isPrepareType -> "prepare${httpRequestModel.method.lowercase().replaceFirstChar { it.uppercase() }}"
+			else -> httpRequestModel.method.lowercase()
+		}
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, funName)
 		
 		if (returnModel.returnKind == ReturnKind.Unit) {
@@ -40,17 +47,19 @@ internal class HttpClientCodeBlock(
 			TypeNames.ByteReadChannel -> "bodyAsChannel"
 			else -> "body"
 		}
-		if (bodyFunName == "body") {
-			fileSpecBuilder.addImport(PackageNames.KTOR_CALL, "body")
-		} else {
-			fileSpecBuilder.addImport(PackageNames.KTOR_STATEMENT, bodyFunName)
-		}
-		
+		fileSpecBuilder.addImport(if (bodyFunName == "body") PackageNames.KTOR_CALL else PackageNames.KTOR_STATEMENT, bodyFunName)
 		if (returnModel.returnKind == ReturnKind.Any) {
-			beginControlFlow("val response = this.config.httpClient.%N {", funName)
+			if (isPrepareType) {
+				add("return ")
+				beginControlFlow("this.config.httpClient.%N {", funName)
+			} else {
+				beginControlFlow("val response = this.config.httpClient.%N {", funName)
+			}
 			customHttpMethodCodeBlock(httpRequestModel, builder)
 			endControlFlow()
-			addStatement("return response.%N()", bodyFunName)
+			if (!isPrepareType) {
+				addStatement("return response.%N()", bodyFunName)
+			}
 			return
 		}
 		

@@ -89,17 +89,19 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 			.filter { it.isAbstract }
 			.map {
 				it.compileCheck(Modifier.SUSPEND in it.modifiers) {
-					"${simpleName.asString()} 函数缺少 suspend 修饰符"
+					"${it.simpleName.asString()} 函数缺少 suspend 修饰符"
 				}
 				val routeModel = it.getRouteModel(customHttpMethodModels)
 				val isWebSocket = routeModel is WebSocketModel
+				val mockModel = it.getMockModel(isWebSocket)
 				FunModel(
 					funName = it.simpleName.asString(),
 					returnModel = it.getReturnModel(isWebSocket),
 					parameterModels = it.getParameterModels(isWebSocket),
 					routeModel = routeModel,
-					mockModel = it.getMockModel(isWebSocket),
+					mockModel = mockModel,
 					hasBearerAuth = it.hasBearerAuth(),
+					isPrepareType = it.isPrepareType(isWebSocket, mockModel != null),
 					timeoutModel = it.getTimeoutModel(),
 					queryModels = it.getQueryModels(),
 					pathModels = it.getPathModels(routeModel.url),
@@ -123,7 +125,7 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 		this.compileCheck(classNames.size <= 1) {
 			val useAnnotations = classNames.joinToString { "@${it.simpleName}" }
 			val useSize = classNames.size
-			"${simpleName.asString()} 函数只允许使用一种类型注解，而你使用了 $useAnnotations $useSize 个"
+			"${simpleName.asString()} 函数只允许使用一种类型注解，而您使用了 $useAnnotations $useSize 个"
 		}
 		this.compileCheck(classNames.size == 1) {
 			val routes = TypeNames.routes.joinToString { "@${it.simpleName}" }
@@ -159,13 +161,16 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 		}
 	}
 	
-	private fun KSFunctionDeclaration.getReturnModel(isWebSocket: Boolean): ReturnModel {
+	private fun KSFunctionDeclaration.getReturnModel(
+		isWebSocket: Boolean
+	): ReturnModel {
 		val returnType = this.returnType!!
 		val typeName = returnType.toTypeName()
 		val returnKind = when {
+			
 			isWebSocket -> {
 				returnType.compileCheck(!typeName.isNullable && typeName == TypeNames.Unit) {
-					"${simpleName.asString()} 函数必须使用 ${TypeNames.Unit.canonicalName} 作为返回类型，因为你已经标记了 @WebSocket 注解"
+					"${simpleName.asString()} 函数必须使用 ${TypeNames.Unit.canonicalName} 作为返回类型，因为您标注了 @WebSocket 注解"
 				}
 				ReturnKind.Unit
 			}

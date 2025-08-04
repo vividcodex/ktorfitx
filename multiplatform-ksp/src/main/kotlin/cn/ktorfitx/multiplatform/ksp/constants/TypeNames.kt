@@ -39,6 +39,15 @@ internal object TypeNames {
 	
 	val InternalAPI = ClassName("io.ktor.utils.io", "InternalAPI")
 	
+	private val DefaultClientWebSocketSession = ClassName("io.ktor.client.plugins.websocket", "DefaultClientWebSocketSession")
+	
+	val DefaultClientWebSocketSessionLambda = LambdaTypeName.get(
+		receiver = DefaultClientWebSocketSession,
+		returnType = Unit
+	).copy(suspending = true)
+	
+	val HttpStatement = ClassName("io.ktor.client.statement", "HttpStatement")
+	
 	val HttpMethod = ClassName("cn.ktorfitx.multiplatform.annotation", "HttpMethod")
 	
 	val Api = ClassName("cn.ktorfitx.multiplatform.annotation", "Api")
@@ -50,6 +59,8 @@ internal object TypeNames {
 	val WebSocket = ClassName("cn.ktorfitx.multiplatform.annotation", "WebSocket")
 	
 	val BearerAuth = ClassName("cn.ktorfitx.multiplatform.annotation", "BearerAuth")
+	
+	val Prepare = ClassName("cn.ktorfitx.multiplatform.annotation", "Prepare")
 	
 	val Headers = ClassName("cn.ktorfitx.multiplatform.annotation", "Headers")
 	
@@ -94,13 +105,6 @@ internal object TypeNames {
 	val Part = ClassName("cn.ktorfitx.multiplatform.annotation", "Part")
 	
 	val Path = ClassName("cn.ktorfitx.multiplatform.annotation", "Path")
-	
-	private val DefaultClientWebSocketSession = ClassName("io.ktor.client.plugins.websocket", "DefaultClientWebSocketSession")
-	
-	val DefaultClientWebSocketSessionLambda = LambdaTypeName.get(
-		receiver = DefaultClientWebSocketSession,
-		returnType = Unit
-	).copy(suspending = true)
 	
 	val WebSocketSessionHandler = ClassName("cn.ktorfitx.multiplatform.websockets", "WebSocketSessionHandler")
 	

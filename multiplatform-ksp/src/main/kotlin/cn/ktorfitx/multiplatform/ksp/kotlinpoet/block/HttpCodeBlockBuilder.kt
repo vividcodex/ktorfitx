@@ -15,7 +15,7 @@ internal class HttpCodeBlockBuilder(
 	fun CodeBlock.Builder.buildCodeBlock() {
 		buildTryCatchIfNeed {
 			with(getClientCodeBlock()) {
-				buildClientCodeBlock(httpRequestModel) {
+				buildClientCodeBlock(httpRequestModel, funModel.isPrepareType) {
 					val fullUrl = parseToFullUrl(httpRequestModel.url)
 					buildUrlString(fullUrl)
 					funModel.timeoutModel?.let { buildTimeoutCodeBlock(it) }

@@ -22,7 +22,7 @@ fun <R : Any> Resolver.getCustomHttpMethodModels(
 		.map {
 			val classKind = it.classKind
 			it.compileCheck(classKind == ClassKind.ANNOTATION_CLASS) {
-				"@HttpMethod 只允许标注在 annotation class 上，而你的是 ${classKind.code}"
+				"@HttpMethod 只允许标注在 annotation class 上，而您的是 ${classKind.code}"
 			}
 			it.compileCheck(!it.isGeneric()) {
 				"${it.simpleName.asString()} 注解不允许使用泛型"

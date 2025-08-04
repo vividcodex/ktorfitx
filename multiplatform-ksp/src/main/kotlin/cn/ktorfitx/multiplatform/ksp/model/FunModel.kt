@@ -7,6 +7,7 @@ internal class FunModel(
 	val routeModel: RouteModel,
 	val mockModel: MockModel?,
 	val hasBearerAuth: Boolean,
+	val isPrepareType: Boolean,
 	val timeoutModel: TimeoutModel?,
 	val queryModels: List<QueryModel>,
 	val pathModels: List<PathModel>,

@@ -78,6 +78,22 @@ internal fun KSFunctionDeclaration.hasBearerAuth(): Boolean {
 	return hasAnnotation(TypeNames.BearerAuth)
 }
 
+internal fun KSFunctionDeclaration.isPrepareType(
+	isWebSocket: Boolean,
+	isMock: Boolean
+): Boolean {
+	return hasAnnotation(TypeNames.Prepare).also { isPrepareType ->
+		if (isPrepareType) {
+			this.compileCheck(!isMock) {
+				"${simpleName.asString()} 函数不允许同时用 @Prepare 和 @Mock 注解，因为不支持此操作"
+			}
+			this.compileCheck(!isWebSocket) {
+				"${simpleName.asString()} 函数不允许同时用 @Prepare 和 @WebSocket 注解，因为不支持此操作"
+			}
+		}
+	}
+}
+
 internal fun KSFunctionDeclaration.getRequestBodyModel(): RequestBodyModel? {
 	val classNames = arrayOf(TypeNames.Body, TypeNames.Part, TypeNames.Field)
 	val useClassNames = classNames.filter { className ->

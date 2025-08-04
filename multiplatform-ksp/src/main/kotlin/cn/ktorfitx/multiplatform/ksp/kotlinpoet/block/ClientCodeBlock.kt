@@ -10,6 +10,7 @@ internal sealed interface ClientCodeBlock {
 	 */
 	fun CodeBlock.Builder.buildClientCodeBlock(
 		httpRequestModel: HttpRequestModel,
+		isPrepareType: Boolean,
 		builder: CodeBlock.Builder.() -> Unit
 	)
 	
