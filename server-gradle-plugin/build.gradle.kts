@@ -12,11 +12,11 @@ version = ktorfitxVersion
 
 gradlePlugin {
 	plugins {
-		create("KtorfitxServerGradlePlugin") {
+		create("KtorfitxServerGradlePlugin", Action<PluginDeclaration> {
 			id = "cn.ktorfitx.server"
 			displayName = "Ktorfitx Server Gradle Plugin"
 			implementationClass = "cn.ktorfitx.server.gradle.plugin.KtorfitxServerPlugin"
-		}
+		})
 	}
 }
 

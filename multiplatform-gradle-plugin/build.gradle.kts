@@ -12,11 +12,11 @@ version = ktorfitxVersion
 
 gradlePlugin {
 	plugins {
-		create("KtorfitxMultiplatformGradlePlugin") {
+		create("KtorfitxMultiplatformGradlePlugin", Action<PluginDeclaration> {
 			id = "cn.ktorfitx.multiplatform"
 			displayName = "Ktorfitx Multiplatform Gradle Plugin"
 			implementationClass = "cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMultiplatformPlugin"
-		}
+		})
 	}
 }
 
