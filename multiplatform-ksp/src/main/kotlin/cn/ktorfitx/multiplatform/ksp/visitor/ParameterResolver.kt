@@ -82,16 +82,20 @@ internal fun KSFunctionDeclaration.isPrepareType(
 	isWebSocket: Boolean,
 	isMock: Boolean
 ): Boolean {
-	return hasAnnotation(TypeNames.Prepare).also { isPrepareType ->
-		if (isPrepareType) {
-			this.compileCheck(!isMock) {
-				"${simpleName.asString()} 函数不允许同时用 @Prepare 和 @Mock 注解，因为不支持此操作"
-			}
-			this.compileCheck(!isWebSocket) {
-				"${simpleName.asString()} 函数不允许同时用 @Prepare 和 @WebSocket 注解，因为不支持此操作"
-			}
+	val isPrepareType = hasAnnotation(TypeNames.Prepare)
+	if (isPrepareType) {
+		val returnType = this.returnType!!.toTypeName()
+		this.compileCheck(returnType == TypeNames.HttpStatement) {
+			"${simpleName.asString()} 函数必须使用 ${TypeNames.HttpStatement.canonicalName} 返回类型"
+		}
+		this.compileCheck(!isMock) {
+			"${simpleName.asString()} 函数不允许同时用 @Prepare 和 @Mock 注解，因为不支持此操作"
+		}
+		this.compileCheck(!isWebSocket) {
+			"${simpleName.asString()} 函数不允许同时用 @Prepare 和 @WebSocket 注解，因为不支持此操作"
 		}
 	}
+	return isPrepareType
 }
 
 internal fun KSFunctionDeclaration.getRequestBodyModel(): RequestBodyModel? {
@@ -265,7 +269,7 @@ internal fun KSFunctionDeclaration.getParameterModels(isWebSocket: Boolean): Lis
 			}
 			this.compileCheck(count == 1) {
 				val useAnnotations = this.annotations.joinToString()
-				"${simpleName.asString()} 函数上的 $varName 参数不允许同时使用 $useAnnotations 多个注解"
+				"${simpleName.asString()} 函数上的 $varName 参数不允许同时使用 $useAnnotations 多个功能注解"
 			}
 			this.compileCheck(varName.isLowerCamelCase()) {
 				val varNameSuggestion = varName.toLowerCamelCase()
@@ -277,30 +281,55 @@ internal fun KSFunctionDeclaration.getParameterModels(isWebSocket: Boolean): Lis
 	}
 }
 
-internal fun KSFunctionDeclaration.getPathModels(url: String): List<PathModel> {
-	val pathParameters = extractUrlPathParameters(url)
-	val residuePathParameters = pathParameters.toMutableSet()
-	val pathModels = this.parameters.mapNotNull { parameter ->
-		val annotation = parameter.getKSAnnotationByType(TypeNames.Path) ?: return@mapNotNull null
-		val varName = parameter.name!!.asString()
-		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
-		parameter.compileCheck(name in pathParameters) {
-			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数未在 url 中找到"
+internal fun KSFunctionDeclaration.getPathModels(
+	url: Url,
+	isWebSocket: Boolean
+): List<PathModel> {
+	return when (url) {
+		is DynamicUrl -> {
+			this.parameters.mapNotNull { parameter ->
+				val annotation = parameter.getKSAnnotationByType(TypeNames.Path) ?: return@mapNotNull null
+				val varName = parameter.name!!.asString()
+				val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
+				val typeName = parameter.type.toTypeName()
+				parameter.compileCheck(!typeName.isNullable) {
+					"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数不允许可空"
+				}
+				PathModel(name, varName)
+			}
 		}
-		parameter.compileCheck(name in residuePathParameters) {
-			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数重复解析 path 参数"
+		
+		is StaticUrl -> {
+			val pathParameters = extractUrlPathParameters(url.url)
+			if (isWebSocket) {
+				this.compileCheck(pathParameters.isEmpty()) {
+					"${simpleName.asString()} 函数不支持使用 path 参数"
+				}
+			}
+			val residuePathParameters = pathParameters.toMutableSet()
+			val pathModels = this.parameters.mapNotNull { parameter ->
+				val annotation = parameter.getKSAnnotationByType(TypeNames.Path) ?: return@mapNotNull null
+				val varName = parameter.name!!.asString()
+				val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
+				parameter.compileCheck(name in pathParameters) {
+					"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数未在 url 中找到"
+				}
+				parameter.compileCheck(name in residuePathParameters) {
+					"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数重复解析 path 参数"
+				}
+				residuePathParameters -= name
+				val typeName = parameter.type.toTypeName()
+				parameter.compileCheck(!typeName.isNullable) {
+					"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数不允许可空"
+				}
+				PathModel(name, varName)
+			}
+			this.compileCheck(residuePathParameters.isEmpty()) {
+				"${simpleName.asString()} 函数未解析以下 ${residuePathParameters.size} 个 path 参数：${residuePathParameters.joinToString { it }}"
+			}
+			pathModels
 		}
-		residuePathParameters -= name
-		val typeName = parameter.type.toTypeName()
-		parameter.compileCheck(!typeName.isNullable) {
-			"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数不允许可空"
-		}
-		PathModel(name, varName)
 	}
-	this.compileCheck(residuePathParameters.isEmpty()) {
-		"${simpleName.asString()} 函数未解析以下 ${residuePathParameters.size} 个 path 参数：${residuePathParameters.joinToString { it }}"
-	}
-	return pathModels
 }
 
 private val pathRegex = "\\{([^}]+)}".toRegex()
@@ -322,4 +351,19 @@ internal fun KSFunctionDeclaration.getTimeoutModel(): TimeoutModel? {
 	val socketTimeoutMillis = annotation.getValueOrNull<Long>("socketTimeoutMillis")?.takeIf { it >= 0L }
 	if (requestTimeoutMillis == null && connectTimeoutMillis == null && socketTimeoutMillis == null) return null
 	return TimeoutModel(requestTimeoutMillis, connectTimeoutMillis, socketTimeoutMillis)
+}
+
+internal fun KSFunctionDeclaration.getDynamicUrl(): DynamicUrl? {
+	val annotations = this.parameters.filter { it.hasAnnotation(TypeNames.DynamicUrl) }
+	if (annotations.isEmpty()) return null
+	this.compileCheck(annotations.size == 1) {
+		"${simpleName.asString()} 函数只允许使用一个 @DynamicUrl 参数来动态设置 url 参数"
+	}
+	val annotation = annotations.first()
+	val typeName = annotation.type.toTypeName()
+	val varName = annotation.name!!.asString()
+	annotation.compileCheck(typeName == TypeNames.String) {
+		"${simpleName.asString()} 函数的 $varName 参数只允许使用 String 类型"
+	}
+	return DynamicUrl(varName)
 }

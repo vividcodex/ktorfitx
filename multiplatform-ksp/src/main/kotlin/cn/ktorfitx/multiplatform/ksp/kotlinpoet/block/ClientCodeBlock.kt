@@ -15,10 +15,19 @@ internal sealed interface ClientCodeBlock {
 	)
 	
 	/**
-	 * urlString
+	 * StaticUrl
 	 */
-	fun CodeBlock.Builder.buildUrlString(
+	fun CodeBlock.Builder.buildStaticUrlString(
 		urlString: String
+	)
+	
+	/**
+	 * DynamicUrl
+	 */
+	fun CodeBlock.Builder.buildDynamicUrlString(
+		dynamicUrl: DynamicUrl,
+		apiUrl: String?,
+		pathModels: List<PathModel>
 	)
 	
 	fun CodeBlock.Builder.buildTimeoutCodeBlock(

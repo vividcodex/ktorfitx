@@ -24,14 +24,17 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 	
 	private val apiUrlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 	
+	private lateinit var customHttpMethodModels: List<CustomHttpMethodModel>
+	
 	override fun visitClassDeclaration(
 		classDeclaration: KSClassDeclaration,
 		data: List<CustomHttpMethodModel>
-	): ClassModel = classDeclaration.getClassModel(data)
-	
-	private fun KSClassDeclaration.getClassModel(
-		customHttpMethodModels: List<CustomHttpMethodModel>
 	): ClassModel {
+		this.customHttpMethodModels = data
+		return classDeclaration.getClassModel()
+	}
+	
+	private fun KSClassDeclaration.getClassModel(): ClassModel {
 		this.compileCheck(!(this.isGeneric())) {
 			"${simpleName.asString()} 接口不允许包含泛型"
 		}
@@ -43,7 +46,7 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 			kModifier = this.getVisibilityKModifier(),
 			apiUrl = this.getApiUrl(),
 			apiScopeModels = this.getApiScopeModels(),
-			funModels = getFunModel(customHttpMethodModels)
+			funModels = getFunModel()
 		)
 	}
 	
@@ -82,16 +85,14 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 		return KModifier.entries.first { it.name == visibility.name }
 	}
 	
-	private fun KSClassDeclaration.getFunModel(
-		customHttpMethodModels: List<CustomHttpMethodModel>
-	): List<FunModel> {
+	private fun KSClassDeclaration.getFunModel(): List<FunModel> {
 		return this.getDeclaredFunctions().toList()
 			.filter { it.isAbstract }
 			.map {
 				it.compileCheck(Modifier.SUSPEND in it.modifiers) {
 					"${it.simpleName.asString()} 函数缺少 suspend 修饰符"
 				}
-				val routeModel = it.getRouteModel(customHttpMethodModels)
+				val routeModel = it.getRouteModel()
 				val isWebSocket = routeModel is WebSocketModel
 				val mockModel = it.getMockModel(isWebSocket)
 				FunModel(
@@ -104,7 +105,7 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 					isPrepareType = it.isPrepareType(isWebSocket, mockModel != null),
 					timeoutModel = it.getTimeoutModel(),
 					queryModels = it.getQueryModels(),
-					pathModels = it.getPathModels(routeModel.url),
+					pathModels = it.getPathModels(routeModel.url, isWebSocket),
 					cookieModels = it.getCookieModels(),
 					attributeModels = it.getAttributeModels(),
 					headerModels = it.getHeaderModels(),
@@ -116,9 +117,7 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 	
 	private val urlRegex = "^\\S*[a-zA-Z0-9]+\\S*$".toRegex()
 	
-	private fun KSFunctionDeclaration.getRouteModel(
-		customHttpMethodModels: List<CustomHttpMethodModel>
-	): RouteModel {
+	private fun KSFunctionDeclaration.getRouteModel(): RouteModel {
 		val customClassNames = customHttpMethodModels.map { it.className }
 		val availableRoutes = TypeNames.routes + customClassNames
 		val classNames = availableRoutes.filter { hasAnnotation(it) }
@@ -138,21 +137,39 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 		}
 		val className = classNames.first()
 		val isWebSocket = className == TypeNames.WebSocket
-		val url = getKSAnnotationByType(className)!!.getValue<String>("url").removePrefix("/").removeSuffix("/")
+		val dynamicUrl = this.getDynamicUrl()
+		
 		if (isWebSocket) {
-			this.compileCheck(!url.isHttpOrHttps()) {
-				"${simpleName.asString()} 函数上的 @${className.simpleName} 注解不允许使用 http:// 或 https:// 协议"
-			}
-		} else {
-			this.compileCheck(!url.isWSOrWSS()) {
-				"${simpleName.asString()} 函数上的 @${className.simpleName} 注解不允许使用 ws:// 或 wss:// 协议"
+			this.compileCheck(dynamicUrl == null) {
+				"${simpleName.asString()} 函数不支持使用 @Path 参数"
 			}
 		}
-		this.compileCheck(urlRegex.matches(url)) {
-			"${simpleName.asString()} 函数上的 @${className.simpleName} 注解的 url 参数格式错误"
+		val rawUrl = getKSAnnotationByType(className)!!.getValueOrNull<String>("url")?.removePrefix("/")?.removeSuffix("/")
+		val url = if (dynamicUrl != null) {
+			this.compileCheck(rawUrl.isNullOrBlank()) {
+				"${simpleName.asString()} 函数参数中使用了 @DynamicUrl 注解，因此函数上的 @${className.simpleName} 注解不允许设置 url 参数"
+			}
+			dynamicUrl
+		} else {
+			this.compileCheck(rawUrl != null && rawUrl.isNotBlank()) {
+				"${simpleName.asString()} 函数上的 @${className.simpleName} 注解上的 url 参数未设置"
+			}
+			if (isWebSocket) {
+				this.compileCheck(!rawUrl.isHttpOrHttps()) {
+					"${simpleName.asString()} 函数上的 @${className.simpleName} 注解不允许使用 http:// 或 https:// 协议"
+				}
+			} else {
+				this.compileCheck(!rawUrl.isWSOrWSS()) {
+					"${simpleName.asString()} 函数上的 @${className.simpleName} 注解不允许使用 ws:// 或 wss:// 协议"
+				}
+			}
+			this.compileCheck(urlRegex.matches(rawUrl)) {
+				"${simpleName.asString()} 函数上的 @${className.simpleName} 注解上的 url 参数格式错误"
+			}
+			StaticUrl(rawUrl)
 		}
 		return when (className) {
-			TypeNames.WebSocket -> WebSocketModel(url)
+			TypeNames.WebSocket -> WebSocketModel(url as StaticUrl)
 			in TypeNames.httpMethods -> HttpRequestModel(url, className.simpleName, false)
 			else -> {
 				val method = customHttpMethodModels.first { it.className == className }.method
@@ -167,7 +184,6 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 		val returnType = this.returnType!!
 		val typeName = returnType.toTypeName()
 		val returnKind = when {
-			
 			isWebSocket -> {
 				returnType.compileCheck(!typeName.isNullable && typeName == TypeNames.Unit) {
 					"${simpleName.asString()} 函数必须使用 ${TypeNames.Unit.canonicalName} 作为返回类型，因为您标注了 @WebSocket 注解"

@@ -22,7 +22,7 @@ internal class WebSocketCodeBuilder(
 		fileSpecBuilder.addImport(PackageNames.KTOR_WEBSOCKET, "webSocket")
 		addStatement("this.config.httpClient.webSocket(")
 		indent()
-		addStatement("urlString = %S,", parseToFullUrl())
+		addStatement("urlString = %S,", parseToFullUrl(webSocketModel.url.url))
 		buildRequestCodeBlock(
 			buildBearerAuth = { buildBearerAuth(it) },
 			buildTimeout = { buildTimeout(it) }
@@ -32,11 +32,9 @@ internal class WebSocketCodeBuilder(
 		addStatement(")")
 	}
 	
-	private fun parseToFullUrl(): String {
-		val url = webSocketModel.url
+	private fun parseToFullUrl(url: String): String {
 		if (url.isWSOrWSS()) return url
-		val apiUrl = classModel.apiUrl
-		if (apiUrl == null) return url
+		val apiUrl = classModel.apiUrl ?: return url
 		return "$apiUrl/$url"
 	}
 	

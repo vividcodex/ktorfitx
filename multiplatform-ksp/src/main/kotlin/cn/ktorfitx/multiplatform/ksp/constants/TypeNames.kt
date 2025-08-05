@@ -14,7 +14,7 @@ internal object TypeNames {
 	}
 	
 	val parameters by lazy {
-		listOf(Body, Part, Field, Header, Path, Query, Cookie, Attribute)
+		listOf(Body, Part, Field, Header, Path, Query, Cookie, Attribute, DynamicUrl)
 	}
 	
 	val Unit = ClassName("kotlin", "Unit")
@@ -82,6 +82,8 @@ internal object TypeNames {
 	
 	val Timeout = ClassName("cn.ktorfitx.multiplatform.annotation", "Timeout")
 	
+	val DynamicUrl = ClassName("cn.ktorfitx.multiplatform.annotation", "DynamicUrl")
+	
 	val Body = ClassName("cn.ktorfitx.multiplatform.annotation", "Body")
 	
 	val SerializationFormatJson = ClassName("cn.ktorfitx.multiplatform.annotation", "SerializationFormat", "JSON")
@@ -113,4 +115,6 @@ internal object TypeNames {
 	val Ktorfitx = ClassName("cn.ktorfitx.multiplatform.core", "Ktorfitx")
 	
 	val KtorfitxConfig = ClassName("cn.ktorfitx.multiplatform.core.config", "KtorfitxConfig")
+	
+	val UrlUtil = ClassName("cn.ktorfitx.multiplatform.core.util", "UrlUtil")
 }

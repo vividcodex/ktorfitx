@@ -20,5 +20,5 @@ interface TestHttpMethodApi {
 @Target(AnnotationTarget.FUNCTION)
 @HttpMethod("CUSTOM")
 annotation class CUSTOM(
-	val url: String
+	val url: String = ""
 )

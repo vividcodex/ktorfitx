@@ -83,11 +83,25 @@ internal class HttpClientCodeBlock(
 		}
 	}
 	
-	override fun CodeBlock.Builder.buildUrlString(
+	override fun CodeBlock.Builder.buildStaticUrlString(
 		urlString: String
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "url")
 		addStatement("this.url(\"$urlString\")")
+	}
+	
+	override fun CodeBlock.Builder.buildDynamicUrlString(
+		dynamicUrl: DynamicUrl,
+		apiUrl: String?,
+		pathModels: List<PathModel>
+	) {
+		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "url")
+		if (pathModels.isEmpty()) {
+			addStatement("this.url(%N)", dynamicUrl.varName)
+		} else {
+			val mapCode = pathModels.joinToString { "\"${it.name}\" to ${it.varName}" }
+			addStatement("this.url(%T.parseUrl(%N, %S, mapOf(%L)))", TypeNames.UrlUtil, dynamicUrl.varName, apiUrl, mapCode)
+		}
 	}
 	
 	override fun CodeBlock.Builder.buildTimeoutCodeBlock(

@@ -16,8 +16,13 @@ internal class HttpCodeBlockBuilder(
 		buildTryCatchIfNeed {
 			with(getClientCodeBlock()) {
 				buildClientCodeBlock(httpRequestModel, funModel.isPrepareType) {
-					val fullUrl = parseToFullUrl(httpRequestModel.url)
-					buildUrlString(fullUrl)
+					when (val url = httpRequestModel.url) {
+						is DynamicUrl -> buildDynamicUrlString(url, classModel.apiUrl, funModel.pathModels)
+						is StaticUrl -> {
+							val urlString = parseToFullUrl(url.url)
+							buildStaticUrlString(urlString)
+						}
+					}
 					funModel.timeoutModel?.let { buildTimeoutCodeBlock(it) }
 					tokenVarName?.let { buildBearerAuth(it) }
 					val headersModel = funModel.headersModel
@@ -82,14 +87,12 @@ internal class HttpCodeBlockBuilder(
 	
 	private fun parseToFullUrl(url: String): String {
 		val pathModels = funModel.pathModels
-		val initialUrl = if (url.isHttpOrHttps()) url else {
-			val apiUrl = classModel.apiUrl
-			if (apiUrl == null || url.isHttpOrHttps()) return url
-			"$apiUrl/$url"
+		val initialUrl = when {
+			classModel.apiUrl == null || url.isHttpOrHttps() -> url
+			else -> "${classModel.apiUrl}/$url"
 		}
-		val fullUrl = pathModels.fold(initialUrl) { acc, it ->
+		return pathModels.fold(initialUrl) { acc, it ->
 			acc.replace("{${it.name}}", $$"${$${it.varName}}")
 		}
-		return fullUrl
 	}
 }

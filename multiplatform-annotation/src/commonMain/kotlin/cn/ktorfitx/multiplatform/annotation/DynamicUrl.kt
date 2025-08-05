@@ -1,7 +1,5 @@
 package cn.ktorfitx.multiplatform.annotation
 
-@Target(AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
-annotation class OPTIONS(
-	val url: String = ""
-)
+annotation class DynamicUrl

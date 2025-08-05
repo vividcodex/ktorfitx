@@ -4,6 +4,7 @@ import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.common.ksp.util.builders.toCodeBlock
 import cn.ktorfitx.common.ksp.util.expends.replaceFirstToUppercase
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
+import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.*
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.buildCodeBlock
@@ -51,8 +52,21 @@ internal class MockClientCodeBlock(
 		}
 	}
 	
-	override fun CodeBlock.Builder.buildUrlString(urlString: String) {
+	override fun CodeBlock.Builder.buildStaticUrlString(urlString: String) {
 		addStatement("this.url(\"$urlString\")")
+	}
+	
+	override fun CodeBlock.Builder.buildDynamicUrlString(
+		dynamicUrl: DynamicUrl,
+		apiUrl: String?,
+		pathModels: List<PathModel>
+	) {
+		if (pathModels.isEmpty()) {
+			addStatement("this.url(%N)", dynamicUrl.varName)
+		} else {
+			val mapCode = pathModels.joinToString { "\"${it.name}\" to ${it.varName}" }
+			addStatement("this.url(%T.parseUrl(%N, %S, mapOf(%L)))", TypeNames.UrlUtil, dynamicUrl.varName, apiUrl, mapCode)
+		}
 	}
 	
 	override fun CodeBlock.Builder.buildTimeoutCodeBlock(timeoutModel: TimeoutModel) {
