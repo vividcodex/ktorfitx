@@ -1,4 +1,4 @@
-import cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMode
+import cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMultiplatformMode
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -160,7 +160,7 @@ compose.desktop {
 }
 
 ktorfitx {
-	mode = KtorfitxMode.DEVELOPMENT
+	mode = KtorfitxMultiplatformMode.DEVELOPMENT
 	websockets {
 		enabled = true
 	}

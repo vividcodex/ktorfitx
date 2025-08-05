@@ -1,7 +1,7 @@
 package cn.ktorfitx.multiplatform.gradle.plugin
 
-import cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMode.DEVELOPMENT
-import cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMode.RELEASE
+import cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMultiplatformMode.DEVELOPMENT
+import cn.ktorfitx.multiplatform.gradle.plugin.KtorfitxMultiplatformMode.RELEASE
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency

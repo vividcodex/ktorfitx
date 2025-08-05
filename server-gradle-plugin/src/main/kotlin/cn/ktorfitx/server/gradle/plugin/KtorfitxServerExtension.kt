@@ -9,6 +9,8 @@ open class KtorfitxServerExtension @Inject constructor(
 	objects: ObjectFactory
 ) {
 	
+	val mode = objects.property<KtorfitxServerMode>().convention(KtorfitxServerMode.RELEASE)
+	
 	val websockets = objects.newInstance<WebsocketsConfig>()
 	
 	val auth = objects.newInstance<MockConfig>()
@@ -20,6 +22,11 @@ open class KtorfitxServerExtension @Inject constructor(
 	fun auth(action: MockConfig.() -> Unit) {
 		auth.action()
 	}
+}
+
+enum class KtorfitxServerMode {
+	DEVELOPMENT,
+	RELEASE
 }
 
 open class WebsocketsConfig @Inject constructor(objects: ObjectFactory) {

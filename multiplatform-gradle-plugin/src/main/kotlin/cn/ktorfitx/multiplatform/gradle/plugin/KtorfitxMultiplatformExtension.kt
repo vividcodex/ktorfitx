@@ -9,7 +9,7 @@ open class KtorfitxMultiplatformExtension @Inject constructor(
 	objects: ObjectFactory
 ) {
 	
-	val mode = objects.property<KtorfitxMode>().convention(KtorfitxMode.RELEASE)
+	val mode = objects.property<KtorfitxMultiplatformMode>().convention(KtorfitxMultiplatformMode.RELEASE)
 	val websockets = objects.newInstance<WebsocketsConfig>()
 	val mock = objects.newInstance<MockConfig>()
 	val ksp = objects.newInstance<KSPConfig>()
@@ -27,7 +27,7 @@ open class KtorfitxMultiplatformExtension @Inject constructor(
 	}
 }
 
-enum class KtorfitxMode {
+enum class KtorfitxMultiplatformMode {
 	DEVELOPMENT,
 	RELEASE
 }

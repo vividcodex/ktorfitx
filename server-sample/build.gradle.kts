@@ -1,3 +1,4 @@
+import cn.ktorfitx.server.gradle.plugin.KtorfitxServerMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
@@ -28,16 +29,11 @@ kotlin {
 }
 
 dependencies {
-//	implementation(projects.serverCore)
-//	implementation(projects.serverAnnotation)
-//	implementation(projects.serverAuth)
-//	implementation(projects.serverWebsockets)
 	implementation(libs.bundles.server.sample)
-	
-//	ksp(projects.serverKsp)
 }
 
 ktorfitx {
+	mode = KtorfitxServerMode.DEVELOPMENT
 	auth.enabled = true
 	websockets.enabled = true
 }
