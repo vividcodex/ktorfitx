@@ -17,16 +17,17 @@ internal sealed interface ClientCodeBlock {
 	/**
 	 * StaticUrl
 	 */
-	fun CodeBlock.Builder.buildStaticUrlString(
-		urlString: String
+	fun CodeBlock.Builder.buildStaticUrl(
+		url: String,
+		jointApiUrl: Boolean,
 	)
 	
 	/**
 	 * DynamicUrl
 	 */
-	fun CodeBlock.Builder.buildDynamicUrlString(
+	fun CodeBlock.Builder.buildDynamicUrl(
 		dynamicUrl: DynamicUrl,
-		apiUrl: String?,
+		jointApiUrl: Boolean,
 		pathModels: List<PathModel>
 	)
 	

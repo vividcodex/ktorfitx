@@ -17,10 +17,10 @@ internal class HttpCodeBlockBuilder(
 			with(getClientCodeBlock()) {
 				buildClientCodeBlock(httpRequestModel, funModel.isPrepareType) {
 					when (val url = httpRequestModel.url) {
-						is DynamicUrl -> buildDynamicUrlString(url, classModel.apiUrl, funModel.pathModels)
+						is DynamicUrl -> buildDynamicUrl(url, classModel.apiUrl != null, funModel.pathModels)
 						is StaticUrl -> {
-							val urlString = parseToFullUrl(url.url)
-							buildStaticUrlString(urlString)
+							val (parseUrl, jointApiUrl) = parseStaticUrl(url.url)
+							buildStaticUrl(parseUrl, jointApiUrl)
 						}
 					}
 					funModel.timeoutModel?.let { buildTimeoutCodeBlock(it) }
@@ -85,14 +85,11 @@ internal class HttpCodeBlockBuilder(
 		}
 	}
 	
-	private fun parseToFullUrl(url: String): String {
-		val pathModels = funModel.pathModels
-		val initialUrl = when {
-			classModel.apiUrl == null || url.isHttpOrHttps() -> url
-			else -> "${classModel.apiUrl}/$url"
-		}
-		return pathModels.fold(initialUrl) { acc, it ->
+	private fun parseStaticUrl(url: String): Pair<String, Boolean> {
+		val parseUrl = funModel.pathModels.fold(url) { acc, it ->
 			acc.replace("{${it.name}}", $$"${$${it.varName}}")
 		}
+		val jointApiUrl = classModel.apiUrl != null && !url.isHttpOrHttps()
+		return parseUrl to jointApiUrl
 	}
 }

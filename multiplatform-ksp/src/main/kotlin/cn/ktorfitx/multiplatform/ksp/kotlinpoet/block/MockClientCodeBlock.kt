@@ -52,20 +52,28 @@ internal class MockClientCodeBlock(
 		}
 	}
 	
-	override fun CodeBlock.Builder.buildStaticUrlString(urlString: String) {
-		addStatement("this.url(\"$urlString\")")
+	override fun CodeBlock.Builder.buildStaticUrl(
+		url: String,
+		jointApiUrl: Boolean,
+	) {
+		if (jointApiUrl) {
+			addStatement($$"this.url(\"$API_URL/$$url\")")
+		} else {
+			addStatement("this.url(\"$url\")")
+		}
 	}
 	
-	override fun CodeBlock.Builder.buildDynamicUrlString(
+	override fun CodeBlock.Builder.buildDynamicUrl(
 		dynamicUrl: DynamicUrl,
-		apiUrl: String?,
+		jointApiUrl: Boolean,
 		pathModels: List<PathModel>
 	) {
+		val apiUrl = if (jointApiUrl) "API_URL" else "null"
 		if (pathModels.isEmpty()) {
-			addStatement("this.url(%T.parseDynamicUrl(%N, %S, null))", TypeNames.UrlUtil, dynamicUrl.varName, apiUrl)
+			addStatement("this.url(%T.parseDynamicUrl(%N, %N, null))", TypeNames.UrlUtil, dynamicUrl.varName, apiUrl)
 		} else {
 			val mapCode = pathModels.joinToString { "\"${it.name}\" to ${it.varName}" }
-			addStatement("this.url(%T.parseDynamicUrl(%N, %S, mapOf(%L)))", TypeNames.UrlUtil, dynamicUrl.varName, apiUrl, mapCode)
+			addStatement("this.url(%T.parseDynamicUrl(%N, %N, mapOf(%L)))", TypeNames.UrlUtil, dynamicUrl.varName, apiUrl, mapCode)
 		}
 	}
 	

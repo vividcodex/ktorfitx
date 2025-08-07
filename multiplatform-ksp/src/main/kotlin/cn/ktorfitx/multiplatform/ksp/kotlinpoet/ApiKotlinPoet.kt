@@ -73,6 +73,12 @@ internal object ApiKotlinPoet {
 				addMember("%T::class", TypeNames.InternalAPI)
 			}
 			addAnnotation(optInSpec)
+			if (classModel.apiUrl != null) {
+				val apiUrlPropertySpec = buildPropertySpec("API_URL", TypeNames.String, KModifier.CONST, KModifier.PRIVATE) {
+					initializer("%S", classModel.apiUrl)
+				}
+				addProperty(apiUrlPropertySpec)
+			}
 			classModel.apiScopeModels.forEach { model ->
 				val simpleName = model.className.simpleNames.joinToString("") { it.replaceFirstToUppercase() }
 				val varName = simpleName.replaceFirstToLowercase()
