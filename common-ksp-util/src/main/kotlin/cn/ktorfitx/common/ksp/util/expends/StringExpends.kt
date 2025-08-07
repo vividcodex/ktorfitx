@@ -15,15 +15,17 @@ fun String.isLowerCamelCase(): Boolean {
  * 改为小驼峰命名
  */
 fun String.toLowerCamelCase(): String {
-	return when {
-		'_' in this -> {
-			this.split('_').joinToString("") {
-				it.replaceFirstToUppercase()
-			}.replaceFirstToLowercase()
-		}
-		
-		this[0].isUpperCase() -> this.replaceFirstToLowercase()
-		else -> this
+	if (this.isBlank()) return this
+	
+	return if ('_' in this) {
+		this.split('_')
+			.filter { it.isNotBlank() }
+			.joinToString("") { part ->
+				part.lowercase().replaceFirstToUppercase()
+			}
+			.replaceFirstToLowercase()
+	} else {
+		this.lowercase()
 	}
 }
 

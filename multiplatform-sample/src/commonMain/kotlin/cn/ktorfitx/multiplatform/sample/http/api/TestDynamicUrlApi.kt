@@ -20,12 +20,18 @@ interface TestDynamicUrlApi {
 	
 	@CUSTOM
 	suspend fun test3(
-		@DynamicUrl url: String,
+		@DynamicUrl api: String,
 	): String
 	
 	@Mock(provider = StringMockProvider::class, delay = 200L)
 	@GET
 	suspend fun test4(
+		@DynamicUrl url: String
+	): String
+	
+	@Mock(provider = StringMockProvider::class, delay = 100L)
+	@GET
+	suspend fun test5(
 		@DynamicUrl url: String,
 		@Path name: String,
 		@Path("customId") id: String

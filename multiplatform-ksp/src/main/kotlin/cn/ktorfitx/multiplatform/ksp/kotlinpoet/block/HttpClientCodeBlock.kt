@@ -97,10 +97,10 @@ internal class HttpClientCodeBlock(
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "url")
 		if (pathModels.isEmpty()) {
-			addStatement("this.url(%N)", dynamicUrl.varName)
+			addStatement("this.url(%T.parseDynamicUrl(%N, %S, null))", TypeNames.UrlUtil, dynamicUrl.varName, apiUrl)
 		} else {
 			val mapCode = pathModels.joinToString { "\"${it.name}\" to ${it.varName}" }
-			addStatement("this.url(%T.parseUrl(%N, %S, mapOf(%L)))", TypeNames.UrlUtil, dynamicUrl.varName, apiUrl, mapCode)
+			addStatement("this.url(%T.parseDynamicUrl(%N, %S, mapOf(%L)))", TypeNames.UrlUtil, dynamicUrl.varName, apiUrl, mapCode)
 		}
 	}
 	
