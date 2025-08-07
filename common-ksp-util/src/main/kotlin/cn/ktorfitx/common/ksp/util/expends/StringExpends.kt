@@ -54,6 +54,8 @@ private const val HTTPS = "https://"
 private const val WS = "ws://"
 private const val WSS = "wss://"
 
+private const val SCHEME_SEPARATOR = "://"
+
 /**
  * http or https
  */
@@ -66,6 +68,13 @@ fun String.isHttpOrHttps(): Boolean {
  */
 fun String.isWSOrWSS(): Boolean {
 	return this.startsWith(WS) || this.startsWith(WSS)
+}
+
+/**
+ * 包含 ://
+ */
+fun String.containsSchemeSeparator(): Boolean {
+	return this.contains(SCHEME_SEPARATOR)
 }
 
 private val headerCaseRegex = "([a-z])([A-Z])".toRegex()

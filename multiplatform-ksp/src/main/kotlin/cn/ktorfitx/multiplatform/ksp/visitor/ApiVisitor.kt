@@ -155,12 +155,12 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 				"${simpleName.asString()} 函数上的 @${className.simpleName} 注解上的 url 参数未设置"
 			}
 			if (isWebSocket) {
-				this.compileCheck(!rawUrl.isHttpOrHttps()) {
-					"${simpleName.asString()} 函数上的 @${className.simpleName} 注解不允许使用 http:// 或 https:// 协议"
+				this.compileCheck(!rawUrl.containsSchemeSeparator() || rawUrl.isWSOrWSS()) {
+					"${simpleName.asString()} 函数上的 @${className.simpleName} 注解中的 url 参数仅支持 ws:// 和 wss:// 协议"
 				}
 			} else {
-				this.compileCheck(!rawUrl.isWSOrWSS()) {
-					"${simpleName.asString()} 函数上的 @${className.simpleName} 注解不允许使用 ws:// 或 wss:// 协议"
+				this.compileCheck(!rawUrl.containsSchemeSeparator() || rawUrl.isHttpOrHttps()) {
+					"${simpleName.asString()} 函数上的 @${className.simpleName} 注解中的 url 参数仅支持 http:// 和 https:// 协议"
 				}
 			}
 			this.compileCheck(urlRegex.matches(rawUrl)) {
