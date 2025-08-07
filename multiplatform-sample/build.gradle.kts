@@ -92,7 +92,6 @@ kotlin {
 				implementation(compose.material3)
 				implementation(compose.ui)
 				implementation(compose.components.resources)
-				implementation(compose.components.uiToolingPreview)
 			}
 		}
 		if ("android" in ktorfitxPlatforms) {
@@ -142,9 +141,11 @@ android {
 	buildFeatures {
 		compose = true
 	}
-	dependencies {
-		debugImplementation(compose.uiTooling)
-	}
+}
+
+compose.resources {
+	packageOfResClass = "cn.ktorfitx.multiplatform.sample.generated.resources"
+	publicResClass = false
 }
 
 compose.desktop {
