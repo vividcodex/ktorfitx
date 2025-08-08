@@ -152,11 +152,17 @@ internal class HttpClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildQueries(
-		queryModels: List<QueryModel>
+		queryModels: List<QueryModel>,
+		queriesModels: List<QueriesModel>
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "parameter")
 		queryModels.forEach {
 			addStatement("this.parameter(%S, %N)", it.name, it.varName)
+		}
+		queriesModels.forEach {
+			beginControlFlow("%N.forEach { (key, value) ->", it.varName)
+			addStatement("this.parameter(key, value)")
+			endControlFlow()
 		}
 	}
 	

@@ -113,10 +113,18 @@ internal class MockClientCodeBlock(
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildQueries(queryModels: List<QueryModel>) {
+	override fun CodeBlock.Builder.buildQueries(
+		queryModels: List<QueryModel>,
+		queriesModels: List<QueriesModel>
+	) {
 		beginControlFlow("this.queries")
 		queryModels.forEach {
 			addStatement("this.append(%S, %N)", it.name, it.varName)
+		}
+		queriesModels.forEach {
+			beginControlFlow("%N.forEach { (key, value) ->", it.varName)
+			addStatement("this.append(key, value)")
+			endControlFlow()
 		}
 		endControlFlow()
 	}

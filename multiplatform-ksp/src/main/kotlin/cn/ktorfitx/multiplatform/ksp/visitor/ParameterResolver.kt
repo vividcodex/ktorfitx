@@ -6,6 +6,7 @@ import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.*
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -21,6 +22,24 @@ internal fun KSFunctionDeclaration.getQueryModels(): List<QueryModel> {
 		}
 		QueryModel(name, varName)
 	}
+}
+
+internal fun KSFunctionDeclaration.getQueriesModels(): List<QueriesModel> {
+	return this.parameters.mapNotNull { parameter ->
+		if (!parameter.hasAnnotation(TypeNames.Queries)) return@mapNotNull null
+		val name = parameter.name!!.asString()
+		parameter.compileCheck(parameter.type.isMapOfStringToAny()) {
+			"${simpleName.asString()} 函数的 $name 参数必须使用 Map<String, V> 类型，V 为任意类型（包含可空）"
+		}
+		QueriesModel(name)
+	}
+}
+
+private fun KSTypeReference.isMapOfStringToAny(): Boolean {
+	val map = this.toTypeName() as? ParameterizedTypeName ?: return false
+	if (map.rawType != TypeNames.Map) return false
+	if (map.typeArguments.first() != TypeNames.String) return false
+	return true
 }
 
 internal fun KSFunctionDeclaration.getCookieModels(): List<CookieModel> {
@@ -125,7 +144,7 @@ private fun KSFunctionDeclaration.getBodyModel(): BodyModel? {
 	}
 	val parameter = filters.first()
 	val varName = parameter.name!!.asString()
-	val typeName = parameter.type.resolve().toTypeName()
+	val typeName = parameter.type.toTypeName()
 	this.compileCheck(typeName is ClassName || typeName is ParameterizedTypeName) {
 		"${simpleName.asString()} 函数的参数列表中标记了 @Body 注解，但是未找到参数类型"
 	}

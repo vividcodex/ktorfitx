@@ -31,8 +31,9 @@ internal class HttpCodeBlockBuilder(
 						buildHeadersCodeBlock(headersModel, headerModels)
 					}
 					val queryModels = funModel.queryModels
-					if (queryModels.isNotEmpty()) {
-						buildQueries(queryModels)
+					val queriesModel = funModel.queriesModels
+					if (queryModels.isNotEmpty() || queriesModel.isNotEmpty()) {
+						buildQueries(queryModels, queriesModel)
 					}
 					val cookieModels = funModel.cookieModels
 					if (cookieModels.isNotEmpty()) {

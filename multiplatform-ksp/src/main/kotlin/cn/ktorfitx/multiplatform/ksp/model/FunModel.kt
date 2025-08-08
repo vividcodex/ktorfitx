@@ -10,6 +10,7 @@ internal class FunModel(
 	val isPrepareType: Boolean,
 	val timeoutModel: TimeoutModel?,
 	val queryModels: List<QueryModel>,
+	val queriesModels: List<QueriesModel>,
 	val pathModels: List<PathModel>,
 	val cookieModels: List<CookieModel>,
 	val attributeModels: List<AttributeModel>,

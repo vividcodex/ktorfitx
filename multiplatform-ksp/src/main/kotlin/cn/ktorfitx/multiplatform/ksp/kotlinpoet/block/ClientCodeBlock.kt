@@ -54,7 +54,8 @@ internal sealed interface ClientCodeBlock {
 	 * queries
 	 */
 	fun CodeBlock.Builder.buildQueries(
-		queryModels: List<QueryModel>
+		queryModels: List<QueryModel>,
+		queriesModels: List<QueriesModel>
 	)
 	
 	/**

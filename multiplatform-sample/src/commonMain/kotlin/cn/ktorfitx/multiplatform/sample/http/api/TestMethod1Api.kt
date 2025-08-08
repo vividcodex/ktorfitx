@@ -57,6 +57,9 @@ interface TestMethod1Api {
 	
 	@POST(url = "/test10")
 	suspend fun test10(): Result<String?>
+
+	@POST(url = "/test11")
+	suspend fun test11(@Queries map: Map<String, *>): String
 	
 	@BearerAuth
 	@Mock(ApiResultMockProvider::class, delay = 200L)
