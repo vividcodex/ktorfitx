@@ -151,8 +151,8 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 			}
 			dynamicUrl
 		} else {
-			this.compileCheck(rawUrl != null && rawUrl.isNotBlank()) {
-				"${simpleName.asString()} 函数上的 @${className.simpleName} 注解上的 url 参数未设置"
+			this.compileCheck(!rawUrl.isNullOrBlank()) {
+				"${simpleName.asString()} 函数的参数上需要设置 @DynamicUrl 注解 或为 @${className.simpleName} 注解设置 url"
 			}
 			if (isWebSocket) {
 				this.compileCheck(!rawUrl.containsSchemeSeparator() || rawUrl.isWSOrWSS()) {

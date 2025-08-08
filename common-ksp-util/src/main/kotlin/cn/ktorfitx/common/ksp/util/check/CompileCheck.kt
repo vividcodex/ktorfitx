@@ -17,6 +17,6 @@ inline fun <T : KSNode> T.compileCheck(
 		returns() implies value
 	}
 	if (!value) {
-		this@compileCheck.ktorfitxError(errorMessage)
+		ktorfitxError(errorMessage)
 	}
 }

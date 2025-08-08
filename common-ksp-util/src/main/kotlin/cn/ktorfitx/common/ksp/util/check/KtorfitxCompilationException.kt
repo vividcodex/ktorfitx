@@ -8,7 +8,12 @@ import com.google.devtools.ksp.symbol.KSNode
  */
 private class KtorfitxCompilationException(
 	message: String,
-) : IllegalStateException(message)
+	location: FileLocation?
+) : IllegalStateException("$message\n错误位于：${parseKtorfitxExceptionMessage(location)}")
+
+private fun parseKtorfitxExceptionMessage(location: FileLocation?): String {
+	return if (location != null) "${location.filePath}:${location.lineNumber}" else "未知"
+}
 
 /**
  * 编译错误
@@ -17,8 +22,6 @@ fun <T : KSNode> T.ktorfitxError(
 	message: () -> String
 ): Nothing {
 	val message = message()
-	val errorLocation = (this.location as? FileLocation).let {
-		"\n错误位于：${if (it != null) "${it.filePath}:${it.lineNumber}" else "未知"}"
-	}
-	throw KtorfitxCompilationException("$message$errorLocation")
+	val location = this.location as? FileLocation
+	throw KtorfitxCompilationException(message, location)
 }
