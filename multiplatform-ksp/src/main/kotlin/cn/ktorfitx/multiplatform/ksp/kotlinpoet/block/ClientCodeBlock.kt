@@ -69,7 +69,8 @@ internal sealed interface ClientCodeBlock {
 	 * fields
 	 */
 	fun CodeBlock.Builder.buildFields(
-		fieldModels: List<FieldModel>
+		fieldModels: List<FieldModel>,
+		fieldsModels: List<FieldsModel>
 	)
 	
 	/**

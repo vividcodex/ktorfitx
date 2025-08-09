@@ -6,7 +6,6 @@ import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.*
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -28,18 +27,12 @@ internal fun KSFunctionDeclaration.getQueriesModels(): List<QueriesModel> {
 	return this.parameters.mapNotNull { parameter ->
 		if (!parameter.hasAnnotation(TypeNames.Queries)) return@mapNotNull null
 		val name = parameter.name!!.asString()
-		parameter.compileCheck(parameter.type.isMapOfStringToAny()) {
-			"${simpleName.asString()} 函数的 $name 参数必须使用 Map<String, V> 类型，V 为任意类型（包含可空）"
+		val type = parameter.type.resolve()
+		parameter.compileCheck(type.isMapOfStringToAny()) {
+			"${simpleName.asString()} 函数的 $name 参数必须使用 Map<String, *> 类型或是此类型的具体化子类型或派生类型"
 		}
 		QueriesModel(name)
 	}
-}
-
-private fun KSTypeReference.isMapOfStringToAny(): Boolean {
-	val map = this.toTypeName() as? ParameterizedTypeName ?: return false
-	if (map.rawType != TypeNames.Map) return false
-	if (map.typeArguments.first() != TypeNames.String) return false
-	return true
 }
 
 internal fun KSFunctionDeclaration.getCookieModels(): List<CookieModel> {
@@ -117,20 +110,34 @@ internal fun KSFunctionDeclaration.isPrepareType(
 	return isPrepareType
 }
 
+private enum class RequestBodyType {
+	BODY,
+	PART,
+	FIELD
+}
+
+private val requestBodyMap = mapOf(
+	TypeNames.Body to RequestBodyType.BODY,
+	TypeNames.Part to RequestBodyType.PART,
+	TypeNames.Field to RequestBodyType.FIELD,
+	TypeNames.Fields to RequestBodyType.FIELD
+)
+
 internal fun KSFunctionDeclaration.getRequestBodyModel(): RequestBodyModel? {
-	val classNames = arrayOf(TypeNames.Body, TypeNames.Part, TypeNames.Field)
-	val useClassNames = classNames.filter { className ->
-		this.parameters.any { it.hasAnnotation(className) }
+	val classNames = this.parameters.mapNotNull { parameter ->
+		requestBodyMap.keys.find { parameter.hasAnnotation(it) }
+	}.toSet()
+	if (classNames.isEmpty()) return null
+	val useRequestBodyMap = classNames.groupBy { requestBodyMap[it]!! }
+	this.compileCheck(useRequestBodyMap.size == 1) {
+		val useTypeNames = useRequestBodyMap.values.flatten().joinToString { "@${it.simpleName}" }
+		"${simpleName.asString()} 函数使用了不兼容的注解 $useTypeNames"
 	}
-	this.compileCheck(useClassNames.size <= 1) {
-		"${simpleName.asString()} 函数不能同时使用 @Body, @Part, @Field 注解"
-	}
-	val className = useClassNames.firstOrNull() ?: return null
-	return when (className) {
-		TypeNames.Body -> this.getBodyModel()
-		TypeNames.Part -> this.getPartModels()
-		TypeNames.Field -> this.getFieldModels()
-		else -> error("不支持的类型")
+	val type = useRequestBodyMap.entries.first().key
+	return when (type) {
+		RequestBodyType.BODY -> this.getBodyModel()
+		RequestBodyType.PART -> this.getPartModels()
+		RequestBodyType.FIELD -> this.getFieldModels()
 	}
 }
 
@@ -161,15 +168,22 @@ private fun KSFunctionDeclaration.getFieldModels(): FieldModels {
 		if (name.isNullOrBlank()) {
 			name = varName
 		}
-		var typeName = parameter.type.toTypeName()
-		val isNullable = typeName.isNullable
-		if (isNullable) {
-			typeName = typeName.copy(nullable = false)
-		}
-		val isString = typeName == TypeNames.String
-		FieldModel(name, varName, isString, isNullable)
+		val type = parameter.type.resolve()
+		val typeName = type.toTypeName()
+		val isString = typeName.equals(TypeNames.String, ignoreNullable = true)
+		FieldModel(name, varName, isString, type.isMarkedNullable)
 	}
-	return FieldModels(fieldModels)
+	val fieldsModels = this.parameters.mapNotNull { parameter ->
+		parameter.getKSAnnotationByType(TypeNames.Fields) ?: return@mapNotNull null
+		val name = parameter.name!!.asString()
+		val type = parameter.type.resolve()
+		parameter.compileCheck(type.isMapOfStringToAny()) {
+			"${simpleName.asString()} 函数的 $name 参数必须使用 Map<String, *> 类型或是此类型的具体化子类型或派生类型"    // TODO
+		}
+		val valueTypeName = (type.toTypeName() as ParameterizedTypeName).typeArguments[1]
+		FieldsModel(name, valueTypeName.equals(TypeNames.String, ignoreNullable = true), valueTypeName.isNullable)
+	}
+	return FieldModels(fieldModels, fieldsModels)
 }
 
 private fun KSFunctionDeclaration.getPartModels(): PartModels {
@@ -225,7 +239,7 @@ internal fun KSFunctionDeclaration.getMockModel(isWebSocket: Boolean): MockModel
 	classDeclaration.compileCheck(classKind == ClassKind.OBJECT) {
 		"${className.simpleName} 类不允许使用 ${classKind.code} 类型，请使用 object 类型"
 	}
-	classDeclaration.compileCheck(!classDeclaration.modifiers.contains(Modifier.PRIVATE)) {
+	classDeclaration.compileCheck(Modifier.PRIVATE !in classDeclaration.modifiers) {
 		"${className.simpleName} 类不允许使用 private 访问权限"
 	}
 	

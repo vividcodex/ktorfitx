@@ -14,7 +14,7 @@ internal object TypeNames {
 	}
 	
 	val parameters by lazy {
-		listOf(Body, Part, Field, Header, Path, Query, Queries, Cookie, Attribute, DynamicUrl)
+		listOf(Body, Part, Field, Fields, Header, Path, Query, Queries, Cookie, Attribute, DynamicUrl)
 	}
 	
 	val Unit = ClassName("kotlin", "Unit")
@@ -28,8 +28,6 @@ internal object TypeNames {
 	val String = ClassName("kotlin", "String")
 	
 	val OptIn = ClassName("kotlin", "OptIn")
-	
-	val Map = ClassName("kotlin.collections", "Map")
 	
 	val ByteReadChannel = ClassName("kotlinx.io", "ByteReadChannel")
 	
@@ -103,6 +101,8 @@ internal object TypeNames {
 	val Attribute = ClassName("cn.ktorfitx.multiplatform.annotation", "Attribute")
 	
 	val Field = ClassName("cn.ktorfitx.multiplatform.annotation", "Field")
+	
+	val Fields = ClassName("cn.ktorfitx.multiplatform.annotation", "Fields")
 	
 	val Query = ClassName("cn.ktorfitx.multiplatform.annotation", "Query")
 	

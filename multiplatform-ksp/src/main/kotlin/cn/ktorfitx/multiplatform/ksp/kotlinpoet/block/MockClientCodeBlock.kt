@@ -137,10 +137,18 @@ internal class MockClientCodeBlock(
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildFields(fieldModels: List<FieldModel>) {
+	override fun CodeBlock.Builder.buildFields(
+		fieldModels: List<FieldModel>,
+		fieldsModels: List<FieldsModel>
+	) {
 		beginControlFlow("this.fields")
 		fieldModels.forEach {
 			addStatement("this.append(%S, %N)", it.name, it.varName)
+		}
+		fieldsModels.forEach {
+			beginControlFlow("%N.forEach { (key, value) ->", it.varName)
+			addStatement("this.append(key, value)")
+			endControlFlow()
 		}
 		endControlFlow()
 	}

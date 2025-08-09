@@ -74,7 +74,7 @@ fun String.isWSOrWSS(): Boolean {
  * 包含 ://
  */
 fun String.containsSchemeSeparator(): Boolean {
-	return this.contains(SCHEME_SEPARATOR)
+	return SCHEME_SEPARATOR in this
 }
 
 private val headerCaseRegex = "([a-z])([A-Z])".toRegex()

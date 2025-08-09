@@ -10,7 +10,7 @@ object UrlUtil {
 		paths: Map<String, Any>?
 	): String {
 		val initialUrl = when {
-			apiUrl == null || url.contains(SCHEME_SEPARATOR) -> url
+			apiUrl == null || SCHEME_SEPARATOR in url -> url
 			else -> "$apiUrl/$url"
 		}
 		if (paths == null) return initialUrl

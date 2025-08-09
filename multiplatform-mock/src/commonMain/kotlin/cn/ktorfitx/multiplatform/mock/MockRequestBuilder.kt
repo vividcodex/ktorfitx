@@ -20,8 +20,8 @@ class MockRequestBuilder internal constructor(
 	private val _headers = mutableMapOf<String, Any>()
 	internal val headers: Map<String, Any> = _headers
 	
-	private val _queries = mutableMapOf<String, Any>()
-	internal val queries: Map<String, Any> = _queries
+	private val _queries = mutableMapOf<String, Any?>()
+	internal val queries: Map<String, Any?> = _queries
 	
 	private val _parts = mutableMapOf<String, Any>()
 	internal val parts: Map<String, Any> = _parts
@@ -56,8 +56,8 @@ class MockRequestBuilder internal constructor(
 		this._headers += mutableMapOf<String, Any>().apply(block)
 	}
 	
-	fun queries(block: MutableMap<String, Any>.() -> Unit) {
-		this._queries += mutableMapOf<String, Any>().apply(block)
+	fun queries(block: MutableMap<String, Any?>.() -> Unit) {
+		this._queries += mutableMapOf<String, Any?>().apply(block)
 	}
 	
 	fun parts(block: MutableMap<String, Any>.() -> Unit) {

@@ -13,4 +13,6 @@ internal object TypeNames {
 	val AnnotationTargetFunction = ClassName("kotlin.annotation", "AnnotationTarget", "FUNCTION")
 	
 	val String = ClassName("kotlin", "String")
+	
+	val Map = ClassName("kotlin.collections", "Map")
 }

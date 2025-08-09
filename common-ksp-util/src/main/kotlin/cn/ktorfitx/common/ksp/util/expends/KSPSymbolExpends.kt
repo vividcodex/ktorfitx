@@ -1,8 +1,13 @@
 package cn.ktorfitx.common.ksp.util.expends
 
+import cn.ktorfitx.common.ksp.util.constants.TypeNames
+import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
 /**
  * 是否包含注解
@@ -122,4 +127,39 @@ fun KSFunctionDeclaration.isExtension(className: ClassName): Boolean {
 
 fun KSDeclaration.isGeneric(): Boolean {
 	return this.typeParameters.isNotEmpty()
+}
+
+fun KSType.isMapOfStringToAny(
+	expectedSuperType: TypeName? = null
+): Boolean {
+	val classDeclaration = declaration as? KSClassDeclaration ?: return false
+	fun isMapOfStringToAny(type: KSType): Boolean {
+		val typeName = type.toTypeName() as? ParameterizedTypeName ?: return false
+		if (typeName.rawType != TypeNames.Map) return false
+		val keyTypeName = typeName.typeArguments.first()
+		if (keyTypeName != TypeNames.String) return false
+		if (expectedSuperType == null) return true
+		val valueTypeName = typeName.typeArguments[1]
+		if (!expectedSuperType.isNullable && valueTypeName.isNullable) return false
+		return expectedSuperType.equals(valueTypeName, ignoreNullable = true)
+	}
+	
+	val superIsMapOfStringToAny = classDeclaration.getAllSuperTypes().any(::isMapOfStringToAny)
+	if (superIsMapOfStringToAny) return true
+	return isMapOfStringToAny(this)
+}
+
+fun TypeName.asNotNullable(): TypeName {
+	return if (this.isNullable) this.copy(nullable = false) else this
+}
+
+fun TypeName.asNullable(): TypeName {
+	return if (this.isNullable) this else this.copy(nullable = true)
+}
+
+fun TypeName.equals(other: TypeName, ignoreNullable: Boolean): Boolean {
+	if (ignoreNullable) {
+		return this.asNotNullable() == other.asNotNullable()
+	}
+	return this == other
 }

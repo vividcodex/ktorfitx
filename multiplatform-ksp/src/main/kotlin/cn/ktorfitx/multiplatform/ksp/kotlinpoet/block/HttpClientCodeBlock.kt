@@ -2,7 +2,7 @@ package cn.ktorfitx.multiplatform.ksp.kotlinpoet.block
 
 import cn.ktorfitx.common.ksp.util.builders.fileSpecBuilder
 import cn.ktorfitx.common.ksp.util.builders.toCodeBlock
-import cn.ktorfitx.common.ksp.util.expends.rawType
+import cn.ktorfitx.common.ksp.util.expends.asNotNullable
 import cn.ktorfitx.multiplatform.ksp.constants.PackageNames
 import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.*
@@ -40,7 +40,7 @@ internal class HttpClientCodeBlock(
 		if (returnModel.returnKind == ReturnKind.Result) {
 			typeName = (typeName as ParameterizedTypeName).typeArguments.first()
 		}
-		val rawType = if (typeName.isNullable) typeName.rawType.copy(nullable = false) else typeName
+		val rawType = typeName.asNotNullable()
 		val bodyFunName = when (rawType) {
 			TypeNames.String -> "bodyAsText"
 			TypeNames.ByteArray -> "bodyAsBytes"
@@ -183,20 +183,32 @@ internal class HttpClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildFields(
-		fieldModels: List<FieldModel>
+		fieldModels: List<FieldModel>,
+		fieldsModels: List<FieldsModel>
 	) {
 		fileSpecBuilder.addImport(PackageNames.KTOR_HTTP, "contentType", "ContentType", "formUrlEncode")
 		fileSpecBuilder.addImport(PackageNames.KTOR_REQUEST, "setBody")
 		addStatement("this.contentType(ContentType.Application.FormUrlEncoded)")
-		val parameters = fieldModels.joinToString { "%S to %L" }
-		val args = fieldModels.flatMap {
-			when {
-				it.isStringType -> listOf(it.name, it.varName)
-				it.isNullable -> listOf(it.name, "${it.varName}?.toString()")
-				else -> listOf(it.name, "${it.varName}.toString()")
+		
+		val single = fieldModels.size + fieldsModels.size == 1
+		val fieldCode = fieldModels.joinToString {
+			if (it.isStringType) {
+				"\"${it.name}\" to ${it.varName}"
+			} else {
+				"\"${it.name}\" to ${it.varName}${if (it.isNullable) "?" else ""}.toString()"
+			}
+		}.let { if (it.isEmpty()) it else "listOf($it)" }
+		val fieldsCode = fieldsModels.joinToString(separator = " + ") {
+			if (it.valueIsString) {
+				"${it.varName}.toList()"
+			} else {
+				"${it.varName}.map { it.key to it.value${if (it.valueIsNullable) "?" else ""}.toString() }"
 			}
 		}
-		addStatement("this.setBody(listOf($parameters).formUrlEncode())", *args.toTypedArray())
+		val left = if (single) "" else "("
+		val right = if (single) "" else ")"
+		val separator = if (fieldModels.isEmpty() || fieldsModels.isEmpty()) "" else " + "
+		addStatement("this.setBody(%L$fieldCode%L$fieldsCode%L.formUrlEncode())", left, separator, right)
 	}
 	
 	override fun CodeBlock.Builder.buildCookies(

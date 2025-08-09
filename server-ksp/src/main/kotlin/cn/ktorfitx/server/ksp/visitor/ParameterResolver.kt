@@ -29,13 +29,10 @@ internal fun KSFunctionDeclaration.getPrincipalModels(): List<PrincipalModel> {
 	return this.parameters.mapNotNull { parameter ->
 		val annotation = parameter.getKSAnnotationByType(TypeNames.Principal) ?: return@mapNotNull null
 		val varName = parameter.name!!.asString()
-		var typeName = parameter.type.toTypeName()
-		val isNullable = typeName.isNullable
-		if (isNullable) {
-			typeName = typeName.copy(nullable = false)
-		}
+		val type = parameter.type.resolve()
+		val typeName = type.toTypeName().asNotNullable()
 		val provider = annotation.getValueOrNull<String>("provider")?.takeIf { it.isNotBlank() }
-		PrincipalModel(varName, typeName, isNullable, provider)
+		PrincipalModel(varName, typeName, type.isMarkedNullable, provider)
 	}
 }
 
@@ -44,15 +41,14 @@ internal fun KSFunctionDeclaration.getQueryModels(): List<QueryModel> {
 		val annotation = parameter.getKSAnnotationByType(TypeNames.Query) ?: return@mapNotNull null
 		val varName = parameter.name!!.asString()
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
-		var typeName = parameter.type.toTypeName()
-		val isNullable = typeName.isNullable
-		if (isNullable) {
-			typeName = typeName.copy(nullable = false)
+		val type = parameter.type.resolve()
+		val typeName = type.toTypeName().asNotNullable()
+		if (type.isMarkedNullable) {
 			parameter.compileCheck(typeName == TypeNames.String) {
 				"${simpleName.asString()} 函数的 ${parameter.name!!.asString()} 参数可空类型只允许 String?"
 			}
 		}
-		QueryModel(name, varName, typeName, isNullable)
+		QueryModel(name, varName, typeName, type.isMarkedNullable)
 	}
 }
 
@@ -137,12 +133,9 @@ private fun KSFunctionDeclaration.getBodyModel(): BodyModel {
 	}
 	val body = filters.single()
 	val varName = body.name!!.asString()
-	var typeName = body.type.toTypeName()
-	val isNullable = typeName.isNullable
-	if (isNullable) {
-		typeName = typeName.copy(nullable = false)
-	}
-	return BodyModel(varName, typeName, isNullable)
+	val type = body.type.resolve()
+	val typeName = type.toTypeName().asNotNullable()
+	return BodyModel(varName, typeName, type.isMarkedNullable)
 }
 
 private fun KSFunctionDeclaration.getFieldModels(): FieldModels {
@@ -151,15 +144,14 @@ private fun KSFunctionDeclaration.getFieldModels(): FieldModels {
 		val varName = parameter.name!!.asString()
 		val annotation = parameter.getKSAnnotationByType(TypeNames.Field)!!
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
-		var typeName = parameter.type.toTypeName()
-		val isNullable = typeName.isNullable
-		if (isNullable) {
-			typeName = typeName.copy(nullable = false)
+		val type = parameter.type.resolve()
+		val typeName = type.toTypeName().asNotNullable()
+		if (type.isMarkedNullable) {
 			parameter.compileCheck(typeName == TypeNames.String) {
 				"${simpleName.asString()} 函数的 $varName 参数可空类型只允许 String?"
 			}
 		}
-		FieldModel(name, varName, typeName, isNullable)
+		FieldModel(name, varName, typeName, type.isMarkedNullable)
 	}
 	return FieldModels(fieldModels)
 }
@@ -208,17 +200,14 @@ private fun KSFunctionDeclaration.getPartModels(
 	val partForms = this.parameters.filter { it.hasAnnotation(config.annotation) }
 	return partForms.map { parameter ->
 		val varName = parameter.name!!.asString()
-		var typeName = parameter.type.toTypeName()
-		val isNullable = typeName.isNullable
-		if (isNullable) {
-			typeName = typeName.copy(nullable = false)
-		}
+		val type = parameter.type.resolve()
+		val typeName = type.toTypeName().asNotNullable()
 		val annotation = parameter.getKSAnnotationByType(config.annotation)!!
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
 		config.classNames.forEach { className ->
 			if (typeName == className) {
 				val isPartData = className in TypeNames.partDatas
-				return@map PartModel(name, varName, config.annotation, isNullable, isPartData)
+				return@map PartModel(name, varName, config.annotation, type.isMarkedNullable, isPartData)
 			}
 		}
 		parameter.ktorfitxError {
@@ -232,28 +221,22 @@ internal fun KSFunctionDeclaration.getHeaderModels(): List<HeaderModel> {
 		val annotation = parameter.getKSAnnotationByType(TypeNames.Header) ?: return@mapNotNull null
 		val varName = parameter.name!!.asString()
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName.camelToHeaderCase()
-		var typeName = parameter.type.toTypeName()
-		val isNullable = typeName.isNullable
-		if (isNullable) {
-			typeName = typeName.copy(nullable = false)
-		}
-		parameter.compileCheck(typeName == TypeNames.String) {
+		val type = parameter.type.resolve()
+		val typeName = type.toTypeName()
+		parameter.compileCheck(typeName.equals(TypeNames.String, ignoreNullable = true)) {
 			"${simpleName.asString()} 函数的 $varName 参数只允许使用 String 类型"
 		}
-		HeaderModel(name, varName, isNullable)
+		HeaderModel(name, varName, type.isMarkedNullable)
 	}
 }
 
 internal fun KSFunctionDeclaration.getCookieModels(): List<CookieModel> {
 	return this.parameters.mapNotNull { parameter ->
 		val annotation = parameter.getKSAnnotationByType(TypeNames.Cookie) ?: return@mapNotNull null
-		var typeName = parameter.type.toTypeName()
-		val isNullable = typeName.isNullable
-		if (isNullable) {
-			typeName = typeName.copy(nullable = false)
-		}
+		val type = parameter.type.resolve()
+		val typeName = type.toTypeName()
 		val varName = parameter.name!!.asString()
-		parameter.compileCheck(typeName == TypeNames.String) {
+		parameter.compileCheck(typeName.equals(TypeNames.String, ignoreNullable = true)) {
 			"${simpleName.asString()} 函数的 $varName 参数只允许使用 String 类型"
 		}
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
@@ -266,21 +249,18 @@ internal fun KSFunctionDeclaration.getCookieModels(): List<CookieModel> {
 				else -> error("不支持的类型")
 			}
 		} ?: TypeNames.CookieEncodingURIEncoding
-		CookieModel(name, varName, isNullable, encoding)
+		CookieModel(name, varName, type.isMarkedNullable, encoding)
 	}
 }
 
 internal fun KSFunctionDeclaration.getAttributeModels(): List<AttributeModel> {
 	return this.parameters.mapNotNull { parameter ->
 		val annotation = parameter.getKSAnnotationByType(TypeNames.Attribute) ?: return@mapNotNull null
-		var typeName = parameter.type.toTypeName()
-		val isNullable = typeName.isNullable
-		if (isNullable) {
-			typeName = typeName.copy(nullable = false)
-		}
+		val type = parameter.type.resolve()
+		val typeName = type.toTypeName().asNotNullable()
 		val varName = parameter.name!!.asString()
 		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
-		AttributeModel(name, varName, typeName, isNullable)
+		AttributeModel(name, varName, typeName, type.isMarkedNullable)
 	}
 }
 

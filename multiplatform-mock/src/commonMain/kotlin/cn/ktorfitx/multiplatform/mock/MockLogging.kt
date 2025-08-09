@@ -129,7 +129,7 @@ class MockLogging internal constructor(
 	private fun formatUrl(
 		urlString: String,
 		paths: Map<String, Any>,
-		queries: Map<String, Any>
+		queries: Map<String, Any?>
 	): String = buildString {
 		val url = paths.entries.fold(urlString) { acc, path ->
 			acc.replace("{${path.key}}", path.value.toString())
