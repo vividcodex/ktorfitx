@@ -45,12 +45,46 @@ interface TestDynamicValueApi {
 	): Result<List<String>>
 	
 	@Mock(provider = StringMockProvider::class)
-	@POST(url = "/testMock01")
-	suspend fun testMock01(
-		@Queries map: Map<String, *>
+	@POST(url = "queriesMock01")
+	suspend fun queriesMock01(
+		@Queries queries: Map<String, *>
 	): String
-
-//	@Mock(provider = StringMockProvider::class)
-//	@POST(url = "/testMock02")
-//	suspend fun testMock02(@Fields map: Map<String, String>): String
+	
+	@Mock(provider = StringMockProvider::class)
+	@POST(url = "queriesMock02")
+	suspend fun queriesMock02(
+		@Queries queries: Map<String, *>,
+		@Query id: Int
+	): String
+	
+	@Mock(provider = StringMockProvider::class)
+	@POST(url = "queriesMock03")
+	suspend fun queriesMock03(
+		@Queries queries1: Map<String, *>,
+		@Queries queries2: Map<String, *>,
+		@Query id: Int,
+		@Query name: String
+	): String
+	
+	@Mock(provider = StringMockProvider::class)
+	@POST(url = "fieldsMock01")
+	suspend fun fieldsMock01(
+		@Fields fields: Map<String, String>
+	): String
+	
+	@Mock(provider = StringMockProvider::class)
+	@POST(url = "fieldsMock02")
+	suspend fun fieldsMock02(
+		@Fields fields: Map<String, Int?>,
+		@Field field: String
+	): String
+	
+	@Mock(provider = StringMockProvider::class)
+	@POST(url = "fieldsMock03")
+	suspend fun fieldsMock03(
+		@Fields fields1: Map<String, Int>,
+		@Fields fields2: Map<String, String?>,
+		@Field field1: String,
+		@Field field2: Int?
+	): String
 }

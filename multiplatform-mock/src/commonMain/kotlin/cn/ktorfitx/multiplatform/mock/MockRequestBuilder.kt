@@ -26,8 +26,8 @@ class MockRequestBuilder internal constructor(
 	private val _parts = mutableMapOf<String, Any>()
 	internal val parts: Map<String, Any> = _parts
 	
-	private val _fields = mutableMapOf<String, Any>()
-	internal val fields: Map<String, Any> = _fields
+	private val _fields = mutableMapOf<String, Any?>()
+	internal val fields: Map<String, Any?> = _fields
 	
 	private val _paths = mutableMapOf<String, Any>()
 	internal val paths: Map<String, Any> = _paths
@@ -64,8 +64,8 @@ class MockRequestBuilder internal constructor(
 		this._parts += mutableMapOf<String, Any>().apply(block)
 	}
 	
-	fun fields(block: MutableMap<String, Any>.() -> Unit) {
-		this._fields += mutableMapOf<String, Any>().apply(block)
+	fun fields(block: MutableMap<String, Any?>.() -> Unit) {
+		this._fields += mutableMapOf<String, Any?>().apply(block)
 	}
 	
 	fun paths(block: MutableMap<String, Any>.() -> Unit) {
