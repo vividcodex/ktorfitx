@@ -1,7 +1,6 @@
 package cn.ktorfitx.common.ksp.util.expends
 
 import cn.ktorfitx.common.ksp.util.constants.TypeNames
-import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -130,23 +129,14 @@ fun KSDeclaration.isGeneric(): Boolean {
 }
 
 fun KSType.isMapOfStringToAny(
-	expectedSuperType: TypeName? = null
+	valueNullable: Boolean = true
 ): Boolean {
-	val classDeclaration = declaration as? KSClassDeclaration ?: return false
-	fun isMapOfStringToAny(type: KSType): Boolean {
-		val typeName = type.toTypeName() as? ParameterizedTypeName ?: return false
-		if (typeName.rawType != TypeNames.Map) return false
-		val keyTypeName = typeName.typeArguments.first()
-		if (keyTypeName != TypeNames.String) return false
-		if (expectedSuperType == null) return true
-		val valueTypeName = typeName.typeArguments[1]
-		if (!expectedSuperType.isNullable && valueTypeName.isNullable) return false
-		return expectedSuperType.equals(valueTypeName, ignoreNullable = true)
-	}
-	
-	val superIsMapOfStringToAny = classDeclaration.getAllSuperTypes().any(::isMapOfStringToAny)
-	if (superIsMapOfStringToAny) return true
-	return isMapOfStringToAny(this)
+	val typeName = this.toTypeName() as? ParameterizedTypeName ?: return false
+	if (typeName.rawType != TypeNames.Map) return false
+	val keyTypeName = typeName.typeArguments.first()
+	if (keyTypeName != TypeNames.String) return false
+	val valueTypeName = typeName.typeArguments[1]
+	return valueNullable || !valueTypeName.isNullable
 }
 
 fun TypeName.asNotNullable(): TypeName {

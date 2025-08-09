@@ -14,8 +14,14 @@ internal object TypeNames {
 	}
 	
 	val parameters by lazy {
-		listOf(Body, Part, Field, Fields, Header, Path, Query, Queries, Cookie, Attribute, DynamicUrl)
+		listOf(
+			Body, Part, Field, Fields, Query, Queries,
+			Header, Path, Cookie, Attribute, Attributes,
+			DynamicUrl
+		)
 	}
+	
+	val Any = ClassName("kotlin", "Any")
 	
 	val Unit = ClassName("kotlin", "Unit")
 	
@@ -99,6 +105,8 @@ internal object TypeNames {
 	val Cookie = ClassName("cn.ktorfitx.multiplatform.annotation", "Cookie")
 	
 	val Attribute = ClassName("cn.ktorfitx.multiplatform.annotation", "Attribute")
+	
+	val Attributes = ClassName("cn.ktorfitx.multiplatform.annotation", "Attributes")
 	
 	val Field = ClassName("cn.ktorfitx.multiplatform.annotation", "Field")
 	

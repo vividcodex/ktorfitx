@@ -29,7 +29,7 @@ internal fun KSFunctionDeclaration.getQueriesModels(): List<QueriesModel> {
 		val name = parameter.name!!.asString()
 		val type = parameter.type.resolve()
 		parameter.compileCheck(type.isMapOfStringToAny()) {
-			"${simpleName.asString()} 函数的 $name 参数必须使用 Map<String, *> 类型或是此类型的具体化子类型或派生类型"
+			"${simpleName.asString()} 函数的 $name 参数只允许使用 Map<String, *> 类型或是此类型的具体化子类型或派生类型"
 		}
 		QueriesModel(name)
 	}
@@ -74,15 +74,23 @@ internal fun KSFunctionDeclaration.getAttributeModels(): List<AttributeModel> {
 	return this.parameters.mapNotNull { parameter ->
 		val annotation = parameter.getKSAnnotationByType(TypeNames.Attribute) ?: return@mapNotNull null
 		val varName = parameter.name!!.asString()
-		var name = annotation.getValueOrNull<String>("name")
-		if (name.isNullOrBlank()) {
-			name = varName
-		}
-		val typeName = parameter.type.toTypeName()
-		parameter.compileCheck(!typeName.isNullable) {
+		val name = annotation.getValueOrNull<String>("name")?.takeIf { it.isNotBlank() } ?: varName
+		val type = parameter.type.resolve()
+		parameter.compileCheck(!type.isMarkedNullable) {
 			"${simpleName.asString()} 函数的 $varName 参数不允许使用可空类型"
 		}
-		AttributeModel(name, varName, typeName)
+		AttributeModel(name, varName)
+	}
+}
+
+internal fun KSFunctionDeclaration.getAttributesModels(): List<AttributesModel> {
+	return this.parameters.mapNotNull { parameter ->
+		if (!parameter.hasAnnotation(TypeNames.Attributes)) return@mapNotNull null
+		val varName = parameter.name!!.asString()
+		parameter.compileCheck(parameter.type.resolve().isMapOfStringToAny(valueNullable = false)) {
+			"${simpleName.asString()} 函数的 $varName 参数只允许使用 Map<String, Any> 类型或是此类型的具体化子类型或派生类型"
+		}
+		AttributesModel(varName)
 	}
 }
 
@@ -178,7 +186,7 @@ private fun KSFunctionDeclaration.getFieldModels(): FieldModels {
 		val name = parameter.name!!.asString()
 		val type = parameter.type.resolve()
 		parameter.compileCheck(type.isMapOfStringToAny()) {
-			"${simpleName.asString()} 函数的 $name 参数必须使用 Map<String, *> 类型或是此类型的具体化子类型或派生类型"    // TODO
+			"${simpleName.asString()} 函数的 $name 参数只允许使用 Map<String, *> 类型或是此类型的具体化子类型或派生类型"
 		}
 		val valueTypeName = (type.toTypeName() as ParameterizedTypeName).typeArguments[1]
 		FieldsModel(name, valueTypeName.equals(TypeNames.String, ignoreNullable = true), valueTypeName.isNullable)
@@ -254,11 +262,9 @@ internal fun KSFunctionDeclaration.getMockModel(isWebSocket: Boolean): MockModel
 		"${className.simpleName} 类必须实现 MockProvider<T> 接口"
 	}
 	val returnType = this.returnType!!.toTypeName().let {
-		if (it.rawType == TypeNames.Result) {
-			it as ParameterizedTypeName
-			it.typeArguments.first()
-		} else {
-			it
+		when (it.rawType) {
+			TypeNames.Result -> (it as ParameterizedTypeName).typeArguments.first()
+			else -> it
 		}
 	}
 	this.compileCheck(returnType == mockReturnType) {

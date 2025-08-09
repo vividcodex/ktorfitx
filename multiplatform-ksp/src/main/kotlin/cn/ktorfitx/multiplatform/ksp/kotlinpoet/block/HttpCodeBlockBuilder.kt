@@ -40,8 +40,9 @@ internal class HttpCodeBlockBuilder(
 						buildCookies(cookieModels)
 					}
 					val attributeModels = funModel.attributeModels
-					if (attributeModels.isNotEmpty()) {
-						buildAttributes(attributeModels)
+					val attributesModels = funModel.attributesModels
+					if (attributeModels.isNotEmpty() || attributesModels.isNotEmpty()) {
+						buildAttributes(attributeModels, attributesModels)
 					}
 					if (this@with is MockClientCodeBlock) {
 						val pathModels = funModel.pathModels

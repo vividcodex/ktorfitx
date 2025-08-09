@@ -1,6 +1,5 @@
 package cn.ktorfitx.multiplatform.ksp.model
 
-internal class AttributeModel(
-	val name: String,
+internal class AttributesModel(
 	val varName: String
 )

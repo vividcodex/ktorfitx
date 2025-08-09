@@ -105,13 +105,14 @@ internal object ApiVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, ClassMo
 					isPrepareType = it.isPrepareType(isWebSocket, mockModel != null),
 					timeoutModel = it.getTimeoutModel(),
 					queryModels = it.getQueryModels(),
-					queriesModels = it.getQueriesModels(),
 					pathModels = it.getPathModels(routeModel.url, isWebSocket),
 					cookieModels = it.getCookieModels(),
 					attributeModels = it.getAttributeModels(),
 					headerModels = it.getHeaderModels(),
 					headersModel = it.getHeadersModel(),
-					requestBodyModel = it.getRequestBodyModel()
+					requestBodyModel = it.getRequestBodyModel(),
+					queriesModels = it.getQueriesModels(),
+					attributesModels = it.getAttributesModels(),
 				)
 			}
 	}

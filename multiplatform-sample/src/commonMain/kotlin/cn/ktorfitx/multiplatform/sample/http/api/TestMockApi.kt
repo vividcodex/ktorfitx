@@ -1,6 +1,7 @@
 package cn.ktorfitx.multiplatform.sample.http.api
 
 import cn.ktorfitx.multiplatform.annotation.*
+import cn.ktorfitx.multiplatform.mock.MockProvider
 import cn.ktorfitx.multiplatform.sample.http.Test2ApiScope
 import cn.ktorfitx.multiplatform.sample.http.TestApiScope
 import cn.ktorfitx.multiplatform.sample.http.TestRequest2
@@ -34,4 +35,15 @@ interface TestMockApi {
 		@Field field1: String,
 		@Field("custom") field2: Int
 	): Result<String>
+	
+	@Mock(provider = StringMockProvider::class)
+	@POST("/mockTest5")
+	suspend fun mockTest5(): Result<Map<String, List<Int>>>
+}
+
+private object MapMockProvider : MockProvider<Map<String, List<Int>>> {
+	
+	override fun provide(): Map<String, List<Int>> {
+		return emptyMap()
+	}
 }

@@ -25,25 +25,6 @@ interface TestDynamicValueApi {
 		@Query name: String
 	): String
 	
-	@POST(url = "fields01")
-	suspend fun fields01(
-		@Fields fields: Map<String, String>
-	): Result<List<String>>
-	
-	@POST(url = "fields02")
-	suspend fun fields02(
-		@Fields fields: Map<String, Int?>,
-		@Field field: String
-	): Result<List<String>>
-	
-	@POST(url = "fields03")
-	suspend fun fields03(
-		@Fields fields1: Map<String, Int>,
-		@Fields fields2: Map<String, String?>,
-		@Field field1: String,
-		@Field field2: Int?
-	): Result<List<String>>
-	
 	@Mock(provider = StringMockProvider::class)
 	@POST(url = "queriesMock01")
 	suspend fun queriesMock01(
@@ -66,6 +47,25 @@ interface TestDynamicValueApi {
 		@Query name: String
 	): String
 	
+	@POST(url = "fields01")
+	suspend fun fields01(
+		@Fields fields: Map<String, String>
+	): Result<List<String>>
+	
+	@POST(url = "fields02")
+	suspend fun fields02(
+		@Fields fields: Map<String, Int?>,
+		@Field field: String
+	): Result<List<String>>
+	
+	@POST(url = "fields03")
+	suspend fun fields03(
+		@Fields fields1: Map<String, Int>,
+		@Fields fields2: Map<String, String?>,
+		@Field field1: String,
+		@Field field2: Int?
+	): Result<List<String>>
+	
 	@Mock(provider = StringMockProvider::class)
 	@POST(url = "fieldsMock01")
 	suspend fun fieldsMock01(
@@ -86,5 +86,29 @@ interface TestDynamicValueApi {
 		@Fields fields2: Map<String, String?>,
 		@Field field1: String,
 		@Field field2: Int?
+	): String
+	
+	@POST(url = "attributes01")
+	suspend fun attributes01(
+		@Attributes attributes: Map<String, Int>
+	): String
+	
+	@POST(url = "attributes01")
+	suspend fun attributes02(
+		@Attributes attributes: Map<String, Int>,
+		@Attribute attribute1: String,
+	): String
+	
+	@Mock(provider = StringMockProvider::class)
+	@POST(url = "attributesMock01")
+	suspend fun attributesMock01(
+		@Attributes attributes: Map<String, Int>
+	): String
+	
+	@Mock(provider = StringMockProvider::class)
+	@POST(url = "attributesMock01")
+	suspend fun attributesMock02(
+		@Attributes attributes: Map<String, Int>,
+		@Attribute attribute1: String,
 	): String
 }

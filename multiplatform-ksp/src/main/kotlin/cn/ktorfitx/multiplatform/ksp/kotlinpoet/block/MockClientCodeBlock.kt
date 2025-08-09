@@ -157,7 +157,9 @@ internal class MockClientCodeBlock(
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildCookies(cookieModels: List<CookieModel>) {
+	override fun CodeBlock.Builder.buildCookies(
+		cookieModels: List<CookieModel>
+	) {
 		beginControlFlow("this.cookies")
 		fileSpecBuilder.addImport(PackageNames.KTORFITX_MOCK, "MockClient")
 		cookieModels.forEach { model ->
@@ -184,10 +186,18 @@ internal class MockClientCodeBlock(
 		endControlFlow()
 	}
 	
-	override fun CodeBlock.Builder.buildAttributes(cookieModels: List<AttributeModel>) {
+	override fun CodeBlock.Builder.buildAttributes(
+		attributeModels: List<AttributeModel>,
+		attributesModels: List<AttributesModel>
+	) {
 		beginControlFlow("this.attributes")
-		cookieModels.forEach {
+		attributeModels.forEach {
 			addStatement("this.append(%S, %N)", it.name, it.varName)
+		}
+		attributesModels.forEach {
+			beginControlFlow("%N.forEach { (key, value) ->", it.varName)
+			addStatement("this.append(key, value)")
+			endControlFlow()
 		}
 		endControlFlow()
 	}

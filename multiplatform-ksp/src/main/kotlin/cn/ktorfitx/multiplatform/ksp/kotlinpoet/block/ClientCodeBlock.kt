@@ -84,7 +84,8 @@ internal sealed interface ClientCodeBlock {
 	 * cookies
 	 */
 	fun CodeBlock.Builder.buildAttributes(
-		cookieModels: List<AttributeModel>
+		attributeModels: List<AttributeModel>,
+		attributesModels: List<AttributesModel>
 	)
 	
 	/**

@@ -8,7 +8,6 @@ import cn.ktorfitx.multiplatform.ksp.constants.TypeNames
 import cn.ktorfitx.multiplatform.ksp.model.*
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.buildCodeBlock
 
 internal class HttpClientCodeBlock(
@@ -239,11 +238,17 @@ internal class HttpClientCodeBlock(
 	}
 	
 	override fun CodeBlock.Builder.buildAttributes(
-		cookieModels: List<AttributeModel>
+		attributeModels: List<AttributeModel>,
+		attributesModels: List<AttributesModel>
 	) {
 		beginControlFlow("this.setAttributes")
-		cookieModels.forEach {
-			addStatement("this[%T(%S)] = %L", TypeNames.AttributeKey.parameterizedBy(it.typeName), it.name, it.varName)
+		attributeModels.forEach {
+			addStatement("this[%T(%S)] = %L", TypeNames.AttributeKey, it.name, it.varName)
+		}
+		attributesModels.forEach {
+			beginControlFlow("%N.forEach { (key, value) ->", it.varName)
+			addStatement("this[%T(key)] = value", TypeNames.AttributeKey)
+			endControlFlow()
 		}
 		endControlFlow()
 	}
