@@ -36,12 +36,12 @@ interface TestMockApi {
 		@Field("custom") field2: Int
 	): Result<String>
 	
-	@Mock(provider = StringMockProvider::class)
+	@Mock(provider = MapMockProvider::class)
 	@POST("/mockTest5")
 	suspend fun mockTest5(): Result<Map<String, List<Int>>>
 }
 
-private object MapMockProvider : MockProvider<Map<String, List<Int>>> {
+internal object MapMockProvider : MockProvider<Map<String, List<Int>>> {
 	
 	override fun provide(): Map<String, List<Int>> {
 		return emptyMap()

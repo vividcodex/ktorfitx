@@ -60,7 +60,7 @@ fun App() {
 				verticalArrangement = Arrangement.SpaceBetween
 			) {
 				Column(
-					verticalArrangement = Arrangement.spacedBy(12.dp),
+					verticalArrangement = Arrangement.spacedBy(16.dp),
 					horizontalAlignment = Alignment.Start
 				) {
 					Image(
@@ -77,15 +77,15 @@ fun App() {
 							fontSize = 30.sp,
 							fontWeight = FontWeight.Black,
 							color = Color(0xFFE3E8F0),
-							letterSpacing = 1.5.sp
+							letterSpacing = 1.4.sp
 						)
 						Spacer(Modifier.width(12.dp))
 						Text(
-							text = "v3.2.3-3.0.5",
-							fontSize = 16.sp,
+							text = "v3.1.0-Beta1",
+							fontSize = 14.sp,
 							fontWeight = FontWeight.Normal,
 							color = Color(0xFFB0BFD9),
-							letterSpacing = 1.1.sp
+							letterSpacing = 1.sp
 						)
 					}
 					
@@ -254,7 +254,7 @@ fun ParticleInteractiveBackground() {
 				
 				drawCircle(
 					color = Color(0xFF3DA9FC).copy(alpha = 0.1f + influence * 0.9f),
-					radius = 2f + influence * 3f,
+					radius = 2f + influence * 4f,
 					center = particle.position
 				)
 			}
