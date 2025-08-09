@@ -94,9 +94,7 @@ private fun KSFunctionDeclaration.extractPathParameters(routeModel: RouteModel):
 	return params
 }
 
-internal fun KSFunctionDeclaration.getRequestBody(
-	routeModel: RouteModel
-): RequestBodyModel? {
+internal fun KSFunctionDeclaration.getRequestBody(): RequestBodyModel? {
 	val classNames = mapOf(
 		BodyModel::class to TypeNames.Body,
 		FieldModels::class to TypeNames.Field,
@@ -104,8 +102,7 @@ internal fun KSFunctionDeclaration.getRequestBody(
 	)
 	val modelKClasses = classNames.mapNotNull { entity ->
 		val exists = this.parameters.any { parameter ->
-			val value = entity.value
-			when (value) {
+			when (val value = entity.value) {
 				is ClassName -> parameter.hasAnnotation(value)
 				is Array<*> -> value.any { parameter.hasAnnotation(it as ClassName) }
 				else -> error("不支持的类型")
@@ -117,8 +114,7 @@ internal fun KSFunctionDeclaration.getRequestBody(
 	this.compileCheck(modelKClasses.size == 1) {
 		"${simpleName.asString()} 函数参数不允许同时使用 @Body, @Field 或 @PartForm, @PartFile, @PartBinary, @PartBinaryChannel 注解"
 	}
-	val modelKClass = modelKClasses.single()
-	return when (modelKClass) {
+	return when (val modelKClass = modelKClasses.single()) {
 		BodyModel::class -> this.getBodyModel()
 		FieldModels::class -> this.getFieldModels()
 		PartModels::class -> this.getPartModels()

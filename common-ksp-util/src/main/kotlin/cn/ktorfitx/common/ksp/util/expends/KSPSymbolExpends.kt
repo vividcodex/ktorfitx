@@ -32,7 +32,7 @@ fun KSAnnotated.getKSAnnotationByType(annotationClassName: ClassName): KSAnnotat
 /**
  * 通过 KSAnnotation 获取参数的 KSClassDeclaration
  */
-fun KSAnnotation.getArgumentKSClassDeclaration(propertyName: String): KSClassDeclaration? {
+fun KSAnnotation.getArgumentKSClassDeclaration(propertyName: String): KSClassDeclaration {
 	val value = this.arguments.find { it.name?.asString() == propertyName }?.value
 	check(value is KSType) { "$value is not KSType!" }
 	return value.declaration as KSClassDeclaration

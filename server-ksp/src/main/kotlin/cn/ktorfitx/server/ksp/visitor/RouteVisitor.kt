@@ -39,13 +39,12 @@ internal class RouteVisitor : KSEmptyVisitor<List<CustomHttpMethodModel>, FunMod
 			headerModels = function.getHeaderModels(),
 			cookieModels = function.getCookieModels(),
 			attributeModels = function.getAttributeModels(),
-			requestBodyModel = function.getRequestBody(routeModel),
+			requestBodyModel = function.getRequestBody(),
 		)
 	}
 	
 	private fun KSFunctionDeclaration.getCanonicalName(): String {
-		val parent = this.parentDeclaration
-		return when (parent) {
+		return when (val parent = this.parentDeclaration) {
 			is KSClassDeclaration -> parent.toClassName().canonicalName
 			else -> this.packageName.asString()
 		}

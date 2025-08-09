@@ -3,7 +3,6 @@ package cn.ktorfitx.multiplatform.sample.http.api
 import cn.ktorfitx.multiplatform.annotation.Api
 import cn.ktorfitx.multiplatform.annotation.Field
 import cn.ktorfitx.multiplatform.annotation.POST
-import kotlinx.serialization.Serializable
 
 @Api(url = "system")
 interface SystemApi {
@@ -15,8 +14,3 @@ interface SystemApi {
 		@Field(name = "code") code: Int
 	): Boolean
 }
-
-@Serializable
-data class FriendInfo(
-	val friendId: Int,
-)

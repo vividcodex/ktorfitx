@@ -1,0 +1,11 @@
+version: "1.0"
+
+# 指定代码分析使用的检查配置文件（inspection profile）
+profile:
+  name: qodana.starter
+
+# 项目使用的 JDK 版本（CI/CD 中生效）
+projectJDK: "21"
+
+# 代码分析使用的 linter 镜像
+linter: jetbrains/qodana-jvm:2025.2

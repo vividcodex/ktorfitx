@@ -3,8 +3,10 @@ package cn.ktorfitx.server.gradle.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.kotlin.dsl.DependencyHandlerScope
 import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.project
 
 @Suppress("unused")
 class KtorfitxServerPlugin : Plugin<Project> {
@@ -45,17 +47,20 @@ class KtorfitxServerPlugin : Plugin<Project> {
 				}
 			}
 		}
+		target.dependencies {
+			add("ksp", project(":server-ksp"))
+		}
 	}
 	
 	private fun DependencyHandlerScope.implementation(group: String, name: String): Dependency? =
 		add("implementation", "$group:$name:$VERSION")
 	
-	private fun DependencyHandlerScope.implementation(project: Project): Dependency? =
+	private fun DependencyHandlerScope.implementation(project: ProjectDependency): Dependency? =
 		add("implementation", project)
 	
 	private fun DependencyHandlerScope.ksp(group: String, name: String): Dependency? =
 		add("ksp", "$group:$name:$VERSION")
 	
-	private fun DependencyHandlerScope.ksp(project: Project): Dependency? =
+	private fun DependencyHandlerScope.ksp(project: ProjectDependency): Dependency? =
 		add("ksp", project)
 }
