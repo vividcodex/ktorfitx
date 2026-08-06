@@ -1,3 +1,4 @@
+import cn.ktorfitx.build.gradle.getInt
 import cn.ktorfitx.build.gradle.supportPlatforms
 import cn.ktorfitx.common.gradle.plugin.KtorfitxLanguage
 import com.google.devtools.ksp.gradle.KspAATask
@@ -24,17 +25,18 @@ kotlin {
 
     supportPlatforms(
         android = {
-            androidLibrary {
+            android {
                 namespace = "cn.ktorfitx.multiplatform.sample"
                 compileSdk {
-                    version = release(libs.versions.android.compileSdk.get().toInt()) {
-                        minorApiLevel = libs.versions.android.compileSdkMinor.get().toInt()
+                    version = release(libs.versions.android.compileSdk.getInt()) {
+                        minorApiLevel = libs.versions.android.compileSdkMinor.getInt()
                     }
                 }
 
                 androidResources {
                     enable = true
                 }
+                minSdk = libs.versions.android.minSdk.get().toInt()
             }
         },
         desktop = {
@@ -46,7 +48,6 @@ kotlin {
         },
         ios = {
             listOf(
-                iosX64(),
                 iosArm64(),
                 iosSimulatorArm64()
             ).forEach { target ->
@@ -57,7 +58,7 @@ kotlin {
             }
         },
         js = {
-            js(IR) {
+            js {
                 outputModuleName = "sampleApp"
                 browser {
                     commonWebpackConfig {
@@ -90,8 +91,8 @@ kotlin {
     )
 
     compilerOptions {
-        languageVersion = KotlinVersion.KOTLIN_2_3
-        apiVersion = KotlinVersion.KOTLIN_2_3
+        languageVersion = KotlinVersion.KOTLIN_2_4
+        apiVersion = KotlinVersion.KOTLIN_2_4
     }
 
     sourceSets {
@@ -106,7 +107,7 @@ kotlin {
                 }
             },
             desktop = {
-                val desktopMain by getting
+                val desktopMain = getByName("desktopMain")
                 desktopMain.dependencies {
                     implementation(compose.desktop.currentOs)
                 }

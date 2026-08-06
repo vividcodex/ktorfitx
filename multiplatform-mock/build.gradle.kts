@@ -18,20 +18,20 @@ kotlin {
 
     supportPlatforms(
         android = {
-            androidLibrary {
+            android {
                 namespace = "cn.ktorfitx.multiplatform.mock"
                 compileSdk {
                     version = release(libs.versions.android.compileSdk.get().toInt()) {
                         minorApiLevel = libs.versions.android.compileSdkMinor.get().toInt()
                     }
                 }
+                minSdk = libs.versions.android.minSdk.get().toInt()
             }
         },
         desktop = {
             jvm("desktop")
         },
         ios = {
-            iosX64()
             iosArm64()
             iosSimulatorArm64()
         },
@@ -56,7 +56,7 @@ kotlin {
             mingwX64()
         },
         js = {
-            js(IR) {
+            js {
                 browser()
             }
         },
@@ -69,8 +69,8 @@ kotlin {
     )
 
     compilerOptions {
-        languageVersion = KotlinVersion.KOTLIN_2_3
-        apiVersion = KotlinVersion.KOTLIN_2_3
+        languageVersion = KotlinVersion.KOTLIN_2_4
+        apiVersion = KotlinVersion.KOTLIN_2_4
     }
 
     sourceSets {

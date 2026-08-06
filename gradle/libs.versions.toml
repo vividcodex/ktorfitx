@@ -1,20 +1,20 @@
 [versions]
-android-compileSdk = "36"
-android-compileSdkMinor = "1"
+android-compileSdk = "37"
+android-compileSdkMinor = "0"
 android-minSdk = "24"
-android-targetSdk = "36"
-kotlin = "2.3.20"
-agp = "8.13.2"
-ktor = "3.4.2"
-ksp = "2.3.6"
+android-targetSdk = "37"
+kotlin = "2.4.10"
+agp = "9.1.1"
+ktor = "3.5.2"
+ksp = "2.3.11"
 kotlinpoet-ksp = "2.3.0"
-maven-publish = "0.35.0"
-compose = "1.10.3"
-compose-material3 = "1.9.0"
-logback-classic = "1.5.32"
+maven-publish = "0.37.0"
+compose = "1.12.0-beta03"
+compose-material3 = "1.12.0-alpha03"
+logback-classic = "1.6.1"
 androidx-activity-compose = "1.13.0"
-androidx-compose = "1.10.6"
-androidx-material3 = "1.4.0"
+androidx-compose = "1.12.0-rc01"
+androidx-material3 = "1.5.0-alpha25"
 
 [libraries]
 # Common
@@ -68,7 +68,6 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 
 [bundles]
 common-ksp-util = [

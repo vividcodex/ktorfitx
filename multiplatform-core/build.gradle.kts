@@ -1,4 +1,6 @@
+import cn.ktorfitx.build.gradle.getInt
 import cn.ktorfitx.build.gradle.supportPlatforms
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -18,20 +20,20 @@ kotlin {
 
     supportPlatforms(
         android = {
-            androidLibrary {
+            android {
                 namespace = "cn.ktorfitx.multiplatform.core"
                 compileSdk {
-                    version = release(36) {
-                        minorApiLevel = 1
+                    version = release(libs.versions.android.compileSdk.getInt()) {
+                        minorApiLevel = libs.versions.android.compileSdkMinor.getInt()
                     }
                 }
+                minSdk = libs.versions.android.minSdk.get().toInt()
             }
         },
         desktop = {
             jvm("desktop")
         },
         ios = {
-            iosX64()
             iosArm64()
             iosSimulatorArm64()
         },
@@ -56,12 +58,12 @@ kotlin {
             mingwX64()
         },
         js = {
-            js(IR) {
+            js {
                 browser()
             }
         },
         wasmJs = {
-            @Suppress("OPT_IN_USAGE")
+            @OptIn(ExperimentalWasmDsl::class)
             wasmJs {
                 browser()
             }
@@ -69,8 +71,8 @@ kotlin {
     )
 
     compilerOptions {
-        languageVersion = KotlinVersion.KOTLIN_2_3
-        apiVersion = KotlinVersion.KOTLIN_2_3
+        languageVersion = KotlinVersion.KOTLIN_2_4
+        apiVersion = KotlinVersion.KOTLIN_2_4
     }
 
     sourceSets {

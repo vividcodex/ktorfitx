@@ -8,7 +8,6 @@ import org.gradle.api.plugins.PluginManager
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.DependencyHandlerScope
-import org.gradle.kotlin.dsl.project
 
 operator fun KspExtension.set(key: String, value: String) {
     this.arg(key, value)
@@ -34,6 +33,7 @@ fun DependencyHandlerScope.ksp(path: String, isDevelopmentMode: Property<Boolean
 
 fun DependencyHandler.add(configurationName: String, path: String, isDevelopmentMode: Property<Boolean>): Dependency? {
     return if (isDevelopmentMode.get()) {
+        @Suppress("UnstableApiUsage")
         this.add(configurationName, project(":$path"))
     } else {
         this.add(configurationName, "${KtorfitxConstrants.GROUP_NAME}:$path:${KtorfitxVersions.KTORFITX}")

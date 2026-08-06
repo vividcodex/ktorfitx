@@ -1,9 +1,9 @@
+import cn.ktorfitx.build.gradle.getInt
 import cn.ktorfitx.common.gradle.plugin.KtorfitxLanguage
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
@@ -15,15 +15,17 @@ val ktorfitxSampleVersion = property("ktorfitx.sample.version").toString()
 android {
     namespace = "cn.ktorfitx.android.sample"
     compileSdk {
-        version = release(libs.versions.android.compileSdk.get().toInt()) {
-            minorApiLevel = libs.versions.android.compileSdkMinor.get().toInt()
+        version = release(libs.versions.android.compileSdk.getInt()) {
+            minorApiLevel = libs.versions.android.compileSdkMinor.getInt()
         }
     }
 
     defaultConfig {
         applicationId = "cn.ktorfitx.android.sample"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.getInt()
+        targetSdk {
+            version = release(libs.versions.android.targetSdk.getInt())
+        }
         versionCode = 2
         versionName = ktorfitxSampleVersion
 
@@ -45,8 +47,8 @@ android {
 
 kotlin {
     compilerOptions {
-        apiVersion = KotlinVersion.KOTLIN_2_3
-        languageVersion = KotlinVersion.KOTLIN_2_3
+        apiVersion = KotlinVersion.KOTLIN_2_4
+        languageVersion = KotlinVersion.KOTLIN_2_4
     }
 }
 
